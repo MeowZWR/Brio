@@ -69,7 +69,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
             return;
         }
 
-        WindowName = $"{Brio.Name} - Appearance - {capability.Entity.FriendlyName}###brio_character_editor_window";
+        WindowName = $"{Brio.Name} - 外观 - {capability.Entity.FriendlyName}###brio_character_editor_window";
 
         var currentAppearance = _capability.CurrentAppearance;
         var originalAppearance = _capability.OriginalAppearance;
@@ -89,7 +89,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
                 }
             }
         }
-        catch(Exception ex) { Brio.Log.Error(ex, "Error drawing customize pane"); }
+        catch(Exception ex) { Brio.Log.Error(ex, "绘制外貌窗格时出错"); }
 
         ImGui.SameLine();
 
@@ -146,16 +146,16 @@ internal class ActorAppearanceWindow : Window, IDisposable
 
         using(ImRaii.Disabled(!_capability.IsAppearanceOverridden))
         {
-            if(ImGui.Button("Revert", buttonSize))
+            if(ImGui.Button("还原", buttonSize))
                 _ = _capability.ResetAppearance();
         }
 
         ImGui.SameLine();
 
-        if(ImGui.Button("Redraw", buttonSize))
+        if(ImGui.Button("重绘", buttonSize))
             _ = _capability.Redraw();
 
-        if(ImGui.Button("Load NPC", buttonSize))
+        if(ImGui.Button("加载NPC", buttonSize))
         {
             AppearanceEditorCommon.ResetNPCSelector();
             ImGui.OpenPopup("window_load_npc");
@@ -163,7 +163,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        if(ImGui.Button("Import", buttonSize))
+        if(ImGui.Button("导入", buttonSize))
             FileUIHelpers.ShowImportCharacterModal(_capability, _importOptions);
 
 
@@ -176,7 +176,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
             }
         }
 
-        if(ImGui.Button("Export", buttonSize))
+        if(ImGui.Button("导出", buttonSize))
             FileUIHelpers.ShowExportCharacterModal(_capability);
 
         ImGui.SameLine();
@@ -192,7 +192,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
 
     private void DrawImportOptions()
     {
-        if(ImBrio.FontIconButtonRight("import_options", FontAwesomeIcon.Cog, 1, "Import Options"))
+        if(ImBrio.FontIconButtonRight("import_options", FontAwesomeIcon.Cog, 1, "导入选项"))
             ImGui.OpenPopup("import_options_popup_appearance");
 
         using(var popup = ImRaii.Popup("import_options_popup_appearance"))
@@ -200,7 +200,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
             if(popup.Success)
             {
                 bool customize = _importOptions.HasFlag(AppearanceImportOptions.Customize);
-                if(ImGui.Checkbox("Customize", ref customize))
+                if(ImGui.Checkbox("外貌", ref customize))
                 {
                     if(customize)
                         _importOptions |= AppearanceImportOptions.Customize;
@@ -209,7 +209,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
                 }
 
                 bool gear = _importOptions.HasFlag(AppearanceImportOptions.Equipment);
-                if(ImGui.Checkbox("Gear", ref gear))
+                if(ImGui.Checkbox("装备", ref gear))
                 {
                     if(gear)
                         _importOptions |= AppearanceImportOptions.Equipment;
@@ -218,7 +218,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
                 }
 
                 bool weapons = _importOptions.HasFlag(AppearanceImportOptions.Weapon);
-                if(ImGui.Checkbox("Weapons", ref weapons))
+                if(ImGui.Checkbox("武器", ref weapons))
                 {
                     if(gear)
                         _importOptions |= AppearanceImportOptions.Weapon;
@@ -227,7 +227,7 @@ internal class ActorAppearanceWindow : Window, IDisposable
                 }
 
                 bool extended = _importOptions.HasFlag(AppearanceImportOptions.ExtendedAppearance);
-                if(ImGui.Checkbox("Extended", ref extended))
+                if(ImGui.Checkbox("扩展数据", ref extended))
                 {
                     if(extended)
                         _importOptions |= AppearanceImportOptions.ExtendedAppearance;

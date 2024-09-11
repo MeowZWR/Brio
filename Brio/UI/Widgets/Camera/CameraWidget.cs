@@ -6,7 +6,7 @@ namespace Brio.UI.Widgets.Camera;
 
 internal class CameraWidget : Widget<CameraCapability>
 {
-    public override string HeaderName => "Camera";
+    public override string HeaderName => "相机";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.DefaultOpen | WidgetFlags.HasAdvanced;
 

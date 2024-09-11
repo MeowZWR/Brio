@@ -8,7 +8,7 @@ namespace Brio.UI.Widgets.Actor;
 
 internal class ActorDebugWidget(ActorDebugCapability capability) : Widget<ActorDebugCapability>(capability)
 {
-    public override string HeaderName => "Debug";
+    public override string HeaderName => "调试";
 
     public override WidgetFlags Flags => Capability.IsDebug ? WidgetFlags.DrawBody : WidgetFlags.None;
 

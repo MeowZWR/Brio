@@ -17,10 +17,10 @@ internal class LibraryConfiguration
     {
         if(Files.Count <= 0)
         {
-            Files.Add(new FileSourceConfig() { Name = "Brio Poses", Path = "/Brio/Poses/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
-            Files.Add(new FileSourceConfig() { Name = "Brio Characters", Path = "/Brio/Characters/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
-            Files.Add(new FileSourceConfig() { Name = "Anamnesis Poses", Path = "/Anamnesis/Poses/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
-            Files.Add(new FileSourceConfig() { Name = "Anamnesis Characters", Path = "/Anamnesis/Characters/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
+            Files.Add(new FileSourceConfig() { Name = "Brio姿势", Path = "/Brio/Poses/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
+            Files.Add(new FileSourceConfig() { Name = "Brio角色", Path = "/Brio/Characters/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
+            Files.Add(new FileSourceConfig() { Name = "Anamnesis姿势", Path = "/Anamnesis/Poses/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
+            Files.Add(new FileSourceConfig() { Name = "Anamnesis角色", Path = "/Anamnesis/Characters/", Root = Environment.SpecialFolder.MyDocuments, CanEdit = false });
         }
     }
 

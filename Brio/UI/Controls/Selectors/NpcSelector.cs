@@ -85,25 +85,25 @@ internal class NpcSelector(string id) : Selector<NpcSelectorEntry>(id)
 
     protected override void DrawOptions()
     {
-        if(ImGui.Checkbox("Battle NPCs", ref showBNpcs))
+        if(ImGui.Checkbox("战斗NPC", ref showBNpcs))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Event NPCs", ref showENpcs))
+        if(ImGui.Checkbox("事件NPC", ref showENpcs))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Mounts", ref showMounts))
+        if(ImGui.Checkbox("坐骑", ref showMounts))
             UpdateList();
 
-        if(ImGui.Checkbox("Companions", ref showCompanions))
+        if(ImGui.Checkbox("宠物", ref showCompanions))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Ornaments", ref showOrnaments))
+        if(ImGui.Checkbox("时尚配饰", ref showOrnaments))
             UpdateList();
     }
 

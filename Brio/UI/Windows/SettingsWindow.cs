@@ -29,7 +29,7 @@ internal class SettingsWindow : Window
         GlamourerService glamourerService,
         WebService webService,
         BrioIPCService brioIPCService,
-        MareService mareService) : base($"{Brio.Name} Settings###brio_settings_window", ImGuiWindowFlags.NoResize)
+        MareService mareService) : base($"{Brio.Name} 设置###brio_settings_window", ImGuiWindowFlags.NoResize)
     {
         Namespace = "brio_settings_namespace";
 
@@ -73,7 +73,7 @@ internal class SettingsWindow : Window
             {
                 DrawLibrarySection();
 
-                if(ImBrio.Button("Close", FontAwesomeIcon.Times, new Vector2(100, 0)))
+                if(ImBrio.Button("关闭", FontAwesomeIcon.Times, new Vector2(100, 0)))
                 {
                     IsOpen = false;
                 }
@@ -99,27 +99,27 @@ internal class SettingsWindow : Window
 
     private void DrawGeneralTab()
     {
-        using(var tab = ImRaii.TabItem("General"))
+        using(var tab = ImRaii.TabItem("常规设置"))
         {
             if(tab.Success)
             {
-                if(ImGui.CollapsingHeader("Window", ImGuiTreeNodeFlags.DefaultOpen))
+                if(ImGui.CollapsingHeader("窗口", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     DrawOpenBrioSetting();
                     DrawHideSettings();
                 }
 
-                if(ImGui.CollapsingHeader("Library", ImGuiTreeNodeFlags.DefaultOpen))
+                if(ImGui.CollapsingHeader("资产库", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     bool useLibraryWhenImporting = _configurationService.Configuration.UseLibraryWhenImporting;
-                    if(ImGui.Checkbox("Use the Library when importing a file", ref useLibraryWhenImporting))
+                    if(ImGui.Checkbox("导入文件时使用这个库", ref useLibraryWhenImporting))
                     {
                         _configurationService.Configuration.UseLibraryWhenImporting = useLibraryWhenImporting;
                         _configurationService.ApplyChange();
                     }
 
                     bool returnToLastLocation = _configurationService.Configuration.Library.ReturnLibraryToLastLocation;
-                    if(ImGui.Checkbox("Open Library to the last Location I was previously", ref returnToLastLocation))
+                    if(ImGui.Checkbox("在我最后浏览的位置打开资产库", ref returnToLastLocation))
                     {
                         _configurationService.Configuration.Library.ReturnLibraryToLastLocation = returnToLastLocation;
                         _configurationService.ApplyChange();
@@ -128,7 +128,7 @@ internal class SettingsWindow : Window
 
                 DrawNPCAppearanceHack();
 
-                if(ImGui.CollapsingHeader("Display", ImGuiTreeNodeFlags.DefaultOpen))
+                if(ImGui.CollapsingHeader("显示", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     DrawDisplaySettings();
                 }
@@ -139,7 +139,7 @@ internal class SettingsWindow : Window
     private void DrawOpenBrioSetting()
     {
         var selectedBrioOpenBehavior = _configurationService.Configuration.Interface.OpenBrioBehavior;
-        const string label = "Open Brio";
+        const string label = "Brio开启时机 ";
         ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label).X);
         using(var combo = ImRaii.Combo(label, selectedBrioOpenBehavior.ToString()))
         {
@@ -160,21 +160,21 @@ internal class SettingsWindow : Window
     private void DrawHideSettings()
     {
         bool showInGPose = _configurationService.Configuration.Interface.ShowInGPose;
-        if(ImGui.Checkbox("Show in GPose", ref showInGPose))
+        if(ImGui.Checkbox("可在集体动作中显示", ref showInGPose))
         {
             _configurationService.Configuration.Interface.ShowInGPose = showInGPose;
             _configurationService.ApplyChange();
         }
 
         bool showInCutscene = _configurationService.Configuration.Interface.ShowInCutscene;
-        if(ImGui.Checkbox("Show in Cutscenes", ref showInCutscene))
+        if(ImGui.Checkbox("可在过场动画中显示", ref showInCutscene))
         {
             _configurationService.Configuration.Interface.ShowInCutscene = showInCutscene;
             _configurationService.ApplyChange();
         }
 
         bool showWhenUIHidden = _configurationService.Configuration.Interface.ShowWhenUIHidden;
-        if(ImGui.Checkbox("Show when UI Hidden", ref showWhenUIHidden))
+        if(ImGui.Checkbox("可在界面隐藏时显示", ref showWhenUIHidden))
         {
             _configurationService.Configuration.Interface.ShowWhenUIHidden = showWhenUIHidden;
             _configurationService.ApplyChange();
@@ -184,7 +184,7 @@ internal class SettingsWindow : Window
     private void DrawDisplaySettings()
     {
         bool censorActorNames = _configurationService.Configuration.Interface.CensorActorNames;
-        if(ImGui.Checkbox("Censor Actor Names", ref censorActorNames))
+        if(ImGui.Checkbox("隐匿角色姓名", ref censorActorNames))
         {
             _configurationService.Configuration.Interface.CensorActorNames = censorActorNames;
             _configurationService.ApplyChange();
@@ -193,7 +193,7 @@ internal class SettingsWindow : Window
 
     private void DrawIPCTab()
     {
-        using(var tab = ImRaii.TabItem("IPC"))
+        using(var tab = ImRaii.TabItem("IPC设置"))
         {
             if(tab.Success)
             {
@@ -205,10 +205,10 @@ internal class SettingsWindow : Window
 
     private void DrawThirdPartyIPC()
     {
-        if(ImGui.CollapsingHeader("Third-Party", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("第三方", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool enablePenumbra = _configurationService.Configuration.IPC.AllowPenumbraIntegration;
-            if(ImGui.Checkbox("Allow Penumbra Integration", ref enablePenumbra))
+            if(ImGui.Checkbox("允许 Penumbra 集成", ref enablePenumbra))
             {
                 _configurationService.Configuration.IPC.AllowPenumbraIntegration = enablePenumbra;
                 _configurationService.ApplyChange();
@@ -216,16 +216,16 @@ internal class SettingsWindow : Window
 
             using(ImRaii.Disabled(!enablePenumbra))
             {
-                ImGui.Text($"Penumbra Status: {(_penumbraService.IsPenumbraAvailable ? "Active" : "Inactive")}");
+                ImGui.Text($"Penumbra 状态：{(_penumbraService.IsPenumbraAvailable ? "已激活" : "未激活")}");
                 ImGui.SameLine();
-                if(ImBrio.FontIconButton("refresh_penumbra", FontAwesomeIcon.Sync, "Refresh Penumbra Status"))
+                if(ImBrio.FontIconButton("refresh_penumbra", FontAwesomeIcon.Sync, "刷新 Penumbra 状态"))
                 {
                     _penumbraService.RefreshPenumbraStatus();
                 }
             }
 
             bool enableGlamourer = _configurationService.Configuration.IPC.AllowGlamourerIntegration;
-            if(ImGui.Checkbox("Allow Glamourer Integration", ref enableGlamourer))
+            if(ImGui.Checkbox("允许 Glamourer 集成", ref enableGlamourer))
             {
                 _configurationService.Configuration.IPC.AllowGlamourerIntegration = enableGlamourer;
                 _configurationService.ApplyChange();
@@ -233,16 +233,16 @@ internal class SettingsWindow : Window
 
             using(ImRaii.Disabled(!enableGlamourer))
             {
-                ImGui.Text($"Glamourer Status: {(_glamourerService.IsGlamourerAvailable ? "Active" : "Inactive")}");
+                ImGui.Text($"Glamourer 状态：{(_glamourerService.IsGlamourerAvailable ? "已激活" : "未激活")}");
                 ImGui.SameLine();
-                if(ImBrio.FontIconButton("refresh_glamourer", FontAwesomeIcon.Sync, "Refresh Glamourer Status"))
+                if(ImBrio.FontIconButton("refresh_glamourer", FontAwesomeIcon.Sync, "刷新 Glamourer 状态"))
                 {
                     _glamourerService.RefreshGlamourerStatus();
                 }
             }
 
             bool enableMare = _configurationService.Configuration.IPC.AllowMareIntegration;
-            if(ImGui.Checkbox("Allow Mare Synchronos Integration", ref enableMare))
+            if(ImGui.Checkbox("允许 Mare Synchronos 集成", ref enableMare))
             {
                 _configurationService.Configuration.IPC.AllowMareIntegration = enableMare;
                 _configurationService.ApplyChange();
@@ -250,9 +250,9 @@ internal class SettingsWindow : Window
 
             using(ImRaii.Disabled(!enableMare))
             {
-                ImGui.Text($"Mare Synchronos Status: {(_mareService.IsMareAvailable ? "Active" : "Inactive")}");
+                ImGui.Text($"Mare Synchronos 状态：{(_mareService.IsMareAvailable ? "已激活" : "未激活")}");
                 ImGui.SameLine();
-                if(ImBrio.FontIconButton("refresh_mare", FontAwesomeIcon.Sync, "Refresh Mare Synchronos Status"))
+                if(ImBrio.FontIconButton("refresh_mare", FontAwesomeIcon.Sync, "刷新 Mare Synchronos 状态"))
                 {
                     _mareService.RefreshMareStatus();
                 }
@@ -266,31 +266,31 @@ internal class SettingsWindow : Window
         if(ImGui.CollapsingHeader("Brio", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool enableBrioIpc = _configurationService.Configuration.IPC.EnableBrioIPC;
-            if(ImGui.Checkbox("Enable Brio IPC", ref enableBrioIpc))
+            if(ImGui.Checkbox("启用 Brio IPC", ref enableBrioIpc))
             {
                 _configurationService.Configuration.IPC.EnableBrioIPC = enableBrioIpc;
                 _configurationService.ApplyChange();
             }
-            ImGui.Text($"Brio IPC Status: {(_brioIPCService.IsIPCEnabled ? "Active" : "Inactive")}");
+            ImGui.Text($"Brio IPC 状态：{(_brioIPCService.IsIPCEnabled ? "已激活" : "未激活")}");
 
             bool enableWebApi = _configurationService.Configuration.IPC.AllowWebAPI;
-            if(ImGui.Checkbox("Enable Web API", ref enableWebApi))
+            if(ImGui.Checkbox("启用 Web API", ref enableWebApi))
             {
                 _configurationService.Configuration.IPC.AllowWebAPI = enableWebApi;
                 _configurationService.ApplyChange();
             }
 
-            ImGui.Text($"Web API Status: {(_webService.IsRunning ? "Active" : "Inactive")}");
+            ImGui.Text($"Web API 状态：{(_webService.IsRunning ? "已激活" : "未激活")}");
         }
 
     }
 
     private void DrawNPCAppearanceHack()
     {
-        if(ImGui.CollapsingHeader("Appearance", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("外观设置", ImGuiTreeNodeFlags.DefaultOpen))
         {
             var allowNPCHackBehavior = _configurationService.Configuration.Appearance.ApplyNPCHack;
-            const string label = "Allow NPC Appearance on Players";
+            const string label = "允许NPC外观出现在玩家身上";
             ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label).X);
             using(var combo = ImRaii.Combo(label, allowNPCHackBehavior.ToString()))
             {
@@ -308,7 +308,7 @@ internal class SettingsWindow : Window
             }
 
             bool enableTinting = _configurationService.Configuration.Appearance.EnableTinting;
-            if(ImGui.Checkbox("Enable Tinting", ref enableTinting))
+            if(ImGui.Checkbox("启用着色", ref enableTinting))
             {
                 _configurationService.Configuration.Appearance.EnableTinting = enableTinting;
                 _configurationService.ApplyChange();
@@ -318,7 +318,7 @@ internal class SettingsWindow : Window
 
     private void DrawPosingTab()
     {
-        using(var tab = ImRaii.TabItem("Posing"))
+        using(var tab = ImRaii.TabItem("姿势设置"))
         {
             if(tab.Success)
             {
@@ -331,24 +331,24 @@ internal class SettingsWindow : Window
 
     private void DrawGPoseSection()
     {
-        if(ImGui.CollapsingHeader("GPose", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("集体动作", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool enableMouseHook = _configurationService.Configuration.Posing.DisableGPoseMouseSelect;
-            if(ImGui.Checkbox("Disable GPose Mouse Select", ref enableMouseHook))
+            if(ImGui.Checkbox("禁止集体动作鼠标选择", ref enableMouseHook))
             {
                 _configurationService.Configuration.Posing.DisableGPoseMouseSelect = enableMouseHook;
                 _configurationService.ApplyChange();
             }
 
             bool enableBrioTargetChange = _configurationService.Configuration.Posing.BrioTargetChangesWithGPose;
-            if(ImGui.Checkbox("Brio Target Changes with GPose Target", ref enableBrioTargetChange))
+            if(ImGui.Checkbox("Brio目标随集体动作目标切换", ref enableBrioTargetChange))
             {
                 _configurationService.Configuration.Posing.BrioTargetChangesWithGPose = enableBrioTargetChange;
                 _configurationService.ApplyChange();
             }
 
             bool enableGPoseTargetChange = _configurationService.Configuration.Posing.GPoseTargetChangesWithBrio;
-            if(ImGui.Checkbox("GPose Target Changes with Brio Target", ref enableGPoseTargetChange))
+            if(ImGui.Checkbox("集体动作目标随Brio目标切换", ref enableGPoseTargetChange))
             {
                 _configurationService.Configuration.Posing.GPoseTargetChangesWithBrio = enableGPoseTargetChange;
                 _configurationService.ApplyChange();
@@ -358,17 +358,17 @@ internal class SettingsWindow : Window
 
     private void DrawOverlaySection()
     {
-        if(ImGui.CollapsingHeader("Overlay", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("叠加层", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool defaultsOn = _configurationService.Configuration.Posing.OverlayDefaultsOn;
-            if(ImGui.Checkbox("Overlay Defaults On", ref defaultsOn))
+            if(ImGui.Checkbox("叠加层默认开启", ref defaultsOn))
             {
                 _configurationService.Configuration.Posing.OverlayDefaultsOn = defaultsOn;
                 _configurationService.ApplyChange();
             }
 
             bool standout = _configurationService.Configuration.Posing.ModelTransformStandout;
-            if(ImGui.Checkbox("Make the [Model Transform] Bone Standout", ref standout))
+            if(ImGui.Checkbox("使[模型变换]骨骼突出显示", ref standout))
             {
                 _configurationService.Configuration.Posing.ModelTransformStandout = standout;
                 _configurationService.ApplyChange();
@@ -378,7 +378,7 @@ internal class SettingsWindow : Window
                 ImGui.BeginDisabled();
 
             Vector4 modelTransformCircleStandOut = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.ModelTransformCircleStandOutColor);
-            if(ImGui.ColorEdit4("[Model Transform] Bone Standout Color", ref modelTransformCircleStandOut, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("[模型变换]骨骼突出显示颜色", ref modelTransformCircleStandOut, ImGuiColorEditFlags.NoInputs))
             {
                 _configurationService.Configuration.Posing.ModelTransformCircleStandOutColor = ImGui.ColorConvertFloat4ToU32(modelTransformCircleStandOut);
                 _configurationService.ApplyChange();
@@ -388,56 +388,56 @@ internal class SettingsWindow : Window
                 ImGui.EndDisabled();
 
             bool allowGizmoAxisFlip = _configurationService.Configuration.Posing.AllowGizmoAxisFlip;
-            if(ImGui.Checkbox("Allow Gizmo Axis Flip", ref allowGizmoAxisFlip))
+            if(ImGui.Checkbox("允许变换器坐标轴翻转", ref allowGizmoAxisFlip))
             {
                 _configurationService.Configuration.Posing.AllowGizmoAxisFlip = allowGizmoAxisFlip;
                 _configurationService.ApplyChange();
             }
 
             bool hideGizmoWhenAdvancedPosingOpen = _configurationService.Configuration.Posing.HideGizmoWhenAdvancedPosingOpen;
-            if(ImGui.Checkbox("Hide Gizmo while Advanced Posing", ref hideGizmoWhenAdvancedPosingOpen))
+            if(ImGui.Checkbox("使用高级姿势编辑时隐藏变换器", ref hideGizmoWhenAdvancedPosingOpen))
             {
                 _configurationService.Configuration.Posing.HideGizmoWhenAdvancedPosingOpen = hideGizmoWhenAdvancedPosingOpen;
                 _configurationService.ApplyChange();
             }
 
             bool hideToolbarWhenAdvancedPosingOpen = _configurationService.Configuration.Posing.HideToolbarWhenAdvandedPosingOpen;
-            if(ImGui.Checkbox("Hide Toolbar while Advanced Posing", ref hideToolbarWhenAdvancedPosingOpen))
+            if(ImGui.Checkbox("使用高级姿势编辑时隐藏工具栏", ref hideToolbarWhenAdvancedPosingOpen))
             {
                 _configurationService.Configuration.Posing.HideToolbarWhenAdvandedPosingOpen = hideToolbarWhenAdvancedPosingOpen;
                 _configurationService.ApplyChange();
             }
 
             bool showSkeletonLines = _configurationService.Configuration.Posing.ShowSkeletonLines;
-            if(ImGui.Checkbox("Show Skeleton Lines", ref showSkeletonLines))
+            if(ImGui.Checkbox("显示骨骼线条", ref showSkeletonLines))
             {
                 _configurationService.Configuration.Posing.ShowSkeletonLines = showSkeletonLines;
                 _configurationService.ApplyChange();
             }
 
             bool hideSkeletonWhenGizmoActive = _configurationService.Configuration.Posing.HideSkeletonWhenGizmoActive;
-            if(ImGui.Checkbox("Hide Skeleton when Gizmo Active", ref hideSkeletonWhenGizmoActive))
+            if(ImGui.Checkbox("变换器激活时隐藏骨骼", ref hideSkeletonWhenGizmoActive))
             {
                 _configurationService.Configuration.Posing.HideSkeletonWhenGizmoActive = hideSkeletonWhenGizmoActive;
                 _configurationService.ApplyChange();
             }
 
             float lineThickness = _configurationService.Configuration.Posing.SkeletonLineThickness;
-            if(ImGui.DragFloat("Line Thickness", ref lineThickness, 0.01f, 0.01f, 20f))
+            if(ImGui.DragFloat("骨骼线条厚度", ref lineThickness, 0.01f, 0.01f, 20f))
             {
                 _configurationService.Configuration.Posing.SkeletonLineThickness = lineThickness;
                 _configurationService.ApplyChange();
             }
 
             float circleSize = _configurationService.Configuration.Posing.BoneCircleSize;
-            if(ImGui.DragFloat("Circle Size", ref circleSize, 0.01f, 0.01f, 20f))
+            if(ImGui.DragFloat("骨骼节点圆环尺寸", ref circleSize, 0.01f, 0.01f, 20f))
             {
                 _configurationService.Configuration.Posing.BoneCircleSize = circleSize;
                 _configurationService.ApplyChange();
             }
 
             Vector4 boneCircleNormalColor = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.BoneCircleNormalColor);
-            if(ImGui.ColorEdit4("Bone Circle Normal Color", ref boneCircleNormalColor, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("骨骼节点标准颜色。", ref boneCircleNormalColor, ImGuiColorEditFlags.NoInputs))
             {
 
                 _configurationService.Configuration.Posing.BoneCircleNormalColor = ImGui.ColorConvertFloat4ToU32(boneCircleNormalColor);
@@ -445,7 +445,7 @@ internal class SettingsWindow : Window
             }
 
             Vector4 boneCircleInactiveColor = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.BoneCircleInactiveColor);
-            if(ImGui.ColorEdit4("Bone Circle Inactive Color", ref boneCircleInactiveColor, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("骨骼节点未激活显示的颜色", ref boneCircleInactiveColor, ImGuiColorEditFlags.NoInputs))
             {
 
                 _configurationService.Configuration.Posing.BoneCircleInactiveColor = ImGui.ColorConvertFloat4ToU32(boneCircleInactiveColor);
@@ -453,7 +453,7 @@ internal class SettingsWindow : Window
             }
 
             Vector4 boneCircleHoveredColor = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.BoneCircleHoveredColor);
-            if(ImGui.ColorEdit4("Bone Circle Hovered Color", ref boneCircleHoveredColor, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("骨骼节点鼠标悬停时的颜色", ref boneCircleHoveredColor, ImGuiColorEditFlags.NoInputs))
             {
 
                 _configurationService.Configuration.Posing.BoneCircleHoveredColor = ImGui.ColorConvertFloat4ToU32(boneCircleHoveredColor);
@@ -461,7 +461,7 @@ internal class SettingsWindow : Window
             }
 
             Vector4 boneCircleSelectedColor = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.BoneCircleSelectedColor);
-            if(ImGui.ColorEdit4("Bone Circle Selected Color", ref boneCircleSelectedColor, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("骨骼节点被选中时的颜色", ref boneCircleSelectedColor, ImGuiColorEditFlags.NoInputs))
             {
 
                 _configurationService.Configuration.Posing.BoneCircleSelectedColor = ImGui.ColorConvertFloat4ToU32(boneCircleSelectedColor);
@@ -469,7 +469,7 @@ internal class SettingsWindow : Window
             }
 
             Vector4 skeletonLineActive = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.SkeletonLineActiveColor);
-            if(ImGui.ColorEdit4("Skeleton Active Color", ref skeletonLineActive, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("已激活骨骼的颜色", ref skeletonLineActive, ImGuiColorEditFlags.NoInputs))
             {
 
                 _configurationService.Configuration.Posing.SkeletonLineActiveColor = ImGui.ColorConvertFloat4ToU32(skeletonLineActive);
@@ -477,7 +477,7 @@ internal class SettingsWindow : Window
             }
 
             Vector4 skeletonLineInactive = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.SkeletonLineInactiveColor);
-            if(ImGui.ColorEdit4("Skeleton Inactive Color", ref skeletonLineInactive, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("未激活骨骼的颜色", ref skeletonLineInactive, ImGuiColorEditFlags.NoInputs))
             {
 
                 _configurationService.Configuration.Posing.SkeletonLineInactiveColor = ImGui.ColorConvertFloat4ToU32(skeletonLineInactive);
@@ -488,10 +488,10 @@ internal class SettingsWindow : Window
 
     private void DrawPosingGeneralSection()
     {
-        if(ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("常规", ImGuiTreeNodeFlags.DefaultOpen))
         {
             var undoStackSize = _configurationService.Configuration.Posing.UndoStackSize;
-            if(ImGui.DragInt("Undo History", ref undoStackSize, 1, 0, 100))
+            if(ImGui.DragInt("可撤消历史记录", ref undoStackSize, 1, 0, 100))
             {
                 _configurationService.Configuration.Posing.UndoStackSize = undoStackSize;
                 _configurationService.ApplyChange();
@@ -502,7 +502,7 @@ internal class SettingsWindow : Window
     bool resetSettings = false;
     private void DrawAdvancedTab()
     {
-        using(var tab = ImRaii.TabItem("Advanced"))
+        using(var tab = ImRaii.TabItem("高级"))
         {
             if(tab.Success)
             {
@@ -510,11 +510,11 @@ internal class SettingsWindow : Window
 
                 if(ImGui.CollapsingHeader("Brio", ImGuiTreeNodeFlags.DefaultOpen))
                 {
-                    ImGui.Checkbox("Enable [ Reset Settings to Default ] Button", ref resetSettings);
+                    ImGui.Checkbox("启用[重置为默认设置]按钮", ref resetSettings);
 
                     using(ImRaii.Disabled(resetSettings))
                     {
-                        if(ImGui.Button("Reset Settings to Default", new(170, 0)))
+                        if(ImGui.Button("重置为默认设置", new(170, 0)))
                         {
                             _configurationService.Reset();
                             resetSettings = false;
@@ -529,24 +529,24 @@ internal class SettingsWindow : Window
 
     private void DrawEnvironmentSection()
     {
-        if(ImGui.CollapsingHeader("Environment", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("环境", ImGuiTreeNodeFlags.DefaultOpen))
         {
             var resetTimeOnGPoseExit = _configurationService.Configuration.Environment.ResetTimeOnGPoseExit;
-            if(ImGui.Checkbox("Reset Time on GPose Exit", ref resetTimeOnGPoseExit))
+            if(ImGui.Checkbox("退出集体动作时重置时间", ref resetTimeOnGPoseExit))
             {
                 _configurationService.Configuration.Environment.ResetTimeOnGPoseExit = resetTimeOnGPoseExit;
                 _configurationService.ApplyChange();
             }
 
             var resetWeatherOnGPoseExit = _configurationService.Configuration.Environment.ResetWeatherOnGPoseExit;
-            if(ImGui.Checkbox("Reset Weather on GPose Exit", ref resetWeatherOnGPoseExit))
+            if(ImGui.Checkbox("退出集体动作时重置天气", ref resetWeatherOnGPoseExit))
             {
                 _configurationService.Configuration.Environment.ResetWeatherOnGPoseExit = resetWeatherOnGPoseExit;
                 _configurationService.ApplyChange();
             }
 
             var resetWaterOnGPoseExit = _configurationService.Configuration.Environment.ResetWaterOnGPoseExit;
-            if(ImGui.Checkbox("Reset Water on GPose Exit", ref resetWaterOnGPoseExit))
+            if(ImGui.Checkbox("退出集体动作时重置水体", ref resetWaterOnGPoseExit))
             {
                 _configurationService.Configuration.Environment.ResetWaterOnGPoseExit = resetWaterOnGPoseExit;
                 _configurationService.ApplyChange();
@@ -556,7 +556,7 @@ internal class SettingsWindow : Window
 
     private void DrawLibraryTab()
     {
-        using(var tab = ImRaii.TabItem("Library"))
+        using(var tab = ImRaii.TabItem("资产库"))
         {
             if(tab.Success)
             {
@@ -572,13 +572,13 @@ internal class SettingsWindow : Window
 
     private void DrawKeysTab()
     {
-        using(var tab = ImRaii.TabItem("Key Binds"))
+        using(var tab = ImRaii.TabItem("按键绑定"))
         {
             if(!tab.Success)
                 return;
 
             bool enableKeybinds = _configurationService.Configuration.Input.EnableKeybinds;
-            if(ImGui.Checkbox("Enable keyboard shortcuts", ref enableKeybinds))
+            if(ImGui.Checkbox("启用键盘快捷键", ref enableKeybinds))
             {
                 _configurationService.Configuration.Input.EnableKeybinds = enableKeybinds;
                 _configurationService.ApplyChange();
@@ -590,20 +590,20 @@ internal class SettingsWindow : Window
             }
 
             bool showPrompts = _configurationService.Configuration.Input.ShowPromptsInGPose;
-            if(ImGui.Checkbox("Show prompts in GPose", ref showPrompts))
+            if(ImGui.Checkbox("在集体动作中显示提示", ref showPrompts))
             {
                 _configurationService.Configuration.Input.ShowPromptsInGPose = showPrompts;
                 _configurationService.ApplyChange();
             }
 
-            if(ImGui.CollapsingHeader("Interface", ImGuiTreeNodeFlags.DefaultOpen))
+            if(ImGui.CollapsingHeader("界面", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 DrawKeyBind(KeyBindEvents.Interface_ToggleBrioWindow);
                 DrawKeyBind(KeyBindEvents.Interface_IncrementSmallModifier);
                 DrawKeyBind(KeyBindEvents.Interface_IncrementLargeModifier);
             }
 
-            if(ImGui.CollapsingHeader("Posing", ImGuiTreeNodeFlags.DefaultOpen))
+            if(ImGui.CollapsingHeader("姿势", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 DrawKeyBind(KeyBindEvents.Posing_DisableGizmo);
                 DrawKeyBind(KeyBindEvents.Posing_DisableSkeleton);

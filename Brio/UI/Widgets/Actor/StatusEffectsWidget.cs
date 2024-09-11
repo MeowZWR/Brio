@@ -14,7 +14,7 @@ namespace Brio.UI.Widgets.Actor;
 
 internal class StatusEffectsWidget(StatusEffectCapability capability) : Widget<StatusEffectCapability>(capability)
 {
-    public override string HeaderName => "Status Effects";
+    public override string HeaderName => "状态效果";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
@@ -70,18 +70,18 @@ internal class StatusEffectsWidget(StatusEffectCapability capability) : Widget<S
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("status_effects_add", FontAwesomeIcon.Plus, "Add Effect", canAdd))
+        if(ImBrio.FontIconButton("status_effects_add", FontAwesomeIcon.Plus, "添加效果", canAdd))
             ApplyStatusEffect();
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("status_effects_remove", FontAwesomeIcon.Minus, "Remove Effect", isSelectedPlaying))
+        if(ImBrio.FontIconButton("status_effects_remove", FontAwesomeIcon.Minus, "删除效果", isSelectedPlaying))
             Capability.RemoveStatus((ushort)_selectedStatus);
 
         ImGui.SameLine();
 
 
-        if(ImBrio.FontIconButton("status_effects_search", FontAwesomeIcon.Search, "Search"))
+        if(ImBrio.FontIconButton("status_effects_search", FontAwesomeIcon.Search, "搜索"))
         {
             _globalStatusEffectSelector.Select(null, false);
             ImGui.OpenPopup("status_effect_search");

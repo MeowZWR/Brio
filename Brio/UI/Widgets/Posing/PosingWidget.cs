@@ -13,7 +13,7 @@ namespace Brio.UI.Widgets.Posing;
 
 internal class PosingWidget(PosingCapability capability) : Widget<PosingCapability>(capability)
 {
-    public override string HeaderName => "Posing";
+    public override string HeaderName => "姿势";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.HasAdvanced | WidgetFlags.DefaultOpen;
 
@@ -34,14 +34,14 @@ internal class PosingWidget(PosingCapability capability) : Widget<PosingCapabili
     private void DrawButtons()
     {
         var overlayOpen = Capability.OverlayOpen;
-        if(ImBrio.FontIconButton("overlay", overlayOpen ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, overlayOpen ? "Close Overlay" : "Open Overlay"))
+        if(ImBrio.FontIconButton("overlay", overlayOpen ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, overlayOpen ? "关闭叠加层" : "开启叠加层"))
         {
             Capability.OverlayOpen = !overlayOpen;
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("import", FontAwesomeIcon.FileImport, "Import Pose"))
+        if(ImBrio.FontIconButton("import", FontAwesomeIcon.FileImport, "导入姿势"))
         {
             ImGui.OpenPopup("DrawImportPoseMenuPopup");
         }
@@ -50,41 +50,41 @@ internal class PosingWidget(PosingCapability capability) : Widget<PosingCapabili
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("export", FontAwesomeIcon.FileExport, "Export Pose"))
+        if(ImBrio.FontIconButton("export", FontAwesomeIcon.FileExport, "导出姿势"))
             FileUIHelpers.ShowExportPoseModal(Capability);
 
         ImGui.SameLine();
 
         using(ImRaii.Disabled(Capability.Selected.Value is None))
         {
-            if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "Clear Selection"))
+            if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "清除选择"))
                 Capability.ClearSelection();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("bone_search", FontAwesomeIcon.Search, "Bone Search"))
+        if(ImBrio.FontIconButton("bone_search", FontAwesomeIcon.Search, "骨骼搜索"))
         {
             ImGui.OpenPopup("widget_bone_search_popup");
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("undo", FontAwesomeIcon.Backward, "Undo", Capability.HasUndoStack))
+        if(ImBrio.FontIconButton("undo", FontAwesomeIcon.Backward, "撤销", Capability.HasUndoStack))
         {
             Capability.Undo();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("redo", FontAwesomeIcon.Forward, "Redo", Capability.HasRedoStack))
+        if(ImBrio.FontIconButton("redo", FontAwesomeIcon.Forward, "重做", Capability.HasRedoStack))
         {
             Capability.Redo();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "Reset Pose", Capability.HasOverride))
+        if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置姿势", Capability.HasOverride))
         {
             Capability.Reset(false, false);
         }

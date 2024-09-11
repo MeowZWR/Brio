@@ -12,7 +12,7 @@ namespace Brio.UI.Widgets.World;
 
 internal class WeatherWidget(WeatherCapability weatherCapability) : Widget<WeatherCapability>(weatherCapability)
 {
-    public override string HeaderName => "Weather";
+    public override string HeaderName => "天气";
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
 
     private static readonly WeatherSelector _weatherSelector = new("global_weather_selector");
@@ -73,12 +73,12 @@ internal class WeatherWidget(WeatherCapability weatherCapability) : Widget<Weath
         ImGui.SetCursorPos(unlockPos);
         if(isLocked)
         {
-            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Unlock, 1, "Unlock Weather", bordered: false))
+            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Unlock, 1, "解锁天气", bordered: false))
                 isLocked = false;
         }
         else
         {
-            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Lock, 1, "Lock Weather", bordered: false))
+            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Lock, 1, "锁定天气", bordered: false))
                 isLocked = true;
         }
         ImGui.SetCursorPos(preservePos);

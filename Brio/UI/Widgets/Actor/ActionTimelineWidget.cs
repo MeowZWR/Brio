@@ -9,7 +9,7 @@ namespace Brio.UI.Widgets.Actor;
 
 internal class ActionTimelineWidget(ActionTimelineCapability capability, EntityManager entityManager, PhysicsService physicsService, ConfigurationService configService) : Widget<ActionTimelineCapability>(capability)
 {
-    public override string HeaderName => "Animation Control";
+    public override string HeaderName => "动画控制（高级选项整合XAT）";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.HasAdvanced;
 

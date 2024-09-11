@@ -32,7 +32,7 @@ internal class BoneSearchControl
                     if(rootSelected)
                         flags |= ImGuiTreeNodeFlags.Selected;
 
-                    using(var node = ImRaii.TreeNode("Model", flags))
+                    using(var node = ImRaii.TreeNode("模型", flags))
                     {
                         if(node.Success)
                         {
@@ -41,7 +41,7 @@ internal class BoneSearchControl
 
                             if(posing.SkeletonPosing.CharacterSkeleton != null)
                             {
-                                using(var skeleton = ImRaii.TreeNode("Character", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
+                                using(var skeleton = ImRaii.TreeNode("角色", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
                                 {
                                     if(skeleton.Success)
                                     {
@@ -52,7 +52,7 @@ internal class BoneSearchControl
 
                             if(posing.SkeletonPosing.MainHandSkeleton != null)
                             {
-                                using(var skeleton = ImRaii.TreeNode("Main Hand", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
+                                using(var skeleton = ImRaii.TreeNode("主手", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
                                 {
                                     if(skeleton.Success)
                                     {
@@ -63,7 +63,7 @@ internal class BoneSearchControl
 
                             if(posing.SkeletonPosing.OffHandSkeleton != null)
                             {
-                                using(var skeleton = ImRaii.TreeNode("Off Hand", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
+                                using(var skeleton = ImRaii.TreeNode("副手", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
                                 {
                                     if(skeleton.Success)
                                     {

@@ -12,7 +12,7 @@ internal class BoneIKEditor
 
         var ik = poseInfo.DefaultIK;
 
-        if(ImGui.Checkbox("Enabled", ref ik.Enabled))
+        if(ImGui.Checkbox("启用", ref ik.Enabled))
         {
             didChange |= true;
         }
@@ -20,14 +20,14 @@ internal class BoneIKEditor
         using(ImRaii.Disabled(!ik.Enabled))
         {
 
-            if(ImGui.Checkbox("Enforce Constraints", ref ik.EnforceConstraints))
+            if(ImGui.Checkbox("强制约束", ref ik.EnforceConstraints))
             {
                 didChange |= true;
             }
 
 
             string solverType = ik.SolverOptions.Match(_ => "CCD", _ => "Two Joint");
-            using(var combo = ImRaii.Combo("Solver", solverType))
+            using(var combo = ImRaii.Combo("解算器", solverType))
             {
                 if(combo.Success)
                 {
@@ -51,13 +51,13 @@ internal class BoneIKEditor
             ik.SolverOptions.Switch(
                 ccd =>
                 {
-                    if(ImGui.SliderInt("Depth", ref ccd.Depth, 1, 20))
+                    if(ImGui.SliderInt("深度", ref ccd.Depth, 1, 20))
                     {
                         ik.SolverOptions = ccd;
                         didChange |= true;
                     }
 
-                    if(ImGui.SliderInt("Iterations", ref ccd.Iterations, 1, 20))
+                    if(ImGui.SliderInt("迭代", ref ccd.Iterations, 1, 20))
                     {
                         ik.SolverOptions = ccd;
                         didChange |= true;

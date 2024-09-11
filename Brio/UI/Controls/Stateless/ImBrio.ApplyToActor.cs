@@ -12,12 +12,12 @@ internal partial class ImBrio
         if(entityManager.SelectedEntity is null || entityManager.SelectedEntity is not ActorEntity selectedActor)
         {
             ImGui.BeginDisabled();
-            ImGui.Button($"Select an Actor");
+            ImGui.Button($"选择一个参与者");
             ImGui.EndDisabled();
         }
         else
         {
-            if(ImGui.Button($"Apply To {selectedActor.FriendlyName}"))
+            if(ImGui.Button($"应用到{selectedActor.FriendlyName}"))
             {
                 callback?.Invoke(selectedActor);
             }

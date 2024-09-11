@@ -35,17 +35,17 @@ internal class FileUIHelpers
                         ImGui.OpenPopup("import_optionsImportPoseMenuPopup");
 
                     if(ImGui.IsItemHovered())
-                        ImGui.SetTooltip("Import Options");
+                        ImGui.SetTooltip("导入选项");
            
                     ImGui.SameLine();
                 }
 
-                if(ImGui.Button("Import as Pose", Vector2.Zero))
+                if(ImGui.Button("导入为姿势", Vector2.Zero))
                 {
                     ShowImportPoseModal(capability);
                 }
 
-                if(ImGui.Button("Import as Expression", Vector2.Zero))
+                if(ImGui.Button("导入为表情", Vector2.Zero))
                 {
                     ShowImportPoseModal(capability, asExpression: true);
                 }
@@ -63,7 +63,7 @@ internal class FileUIHelpers
 
     public static void ShowImportPoseModal(PosingCapability capability, PoseImporterOptions? options = null, bool asExpression = false)
     {
-        TypeFilter filter = new TypeFilter("Poses", typeof(CMToolPoseFile), typeof(PoseFile));
+        TypeFilter filter = new TypeFilter("姿势", typeof(CMToolPoseFile), typeof(PoseFile));
 
         if(ConfigurationService.Instance.Configuration.UseLibraryWhenImporting)
         {
@@ -97,7 +97,7 @@ internal class FileUIHelpers
 
     public static void ShowExportPoseModal(PosingCapability capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Pose###export_pose", "Pose File (*.pose){.pose}", "brio", ".pose",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出姿势###export_pose", "Pose File (*.pose){.pose}", "brio", ".pose",
                 (success, path) =>
                 {
                     if(success)
@@ -124,7 +124,7 @@ internal class FileUIHelpers
         if(capability.CanMcdf)
             types.Add(typeof(MareCharacterDataFile));
 
-        TypeFilter filter = new TypeFilter("Characters", [.. types]);
+        TypeFilter filter = new TypeFilter("角色", [.. types]);
 
         if(ConfigurationService.Instance.Configuration.UseLibraryWhenImporting)
         {
@@ -167,7 +167,7 @@ internal class FileUIHelpers
 
     public static void ShowExportCharacterModal(ActorAppearanceCapability capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Character File###export_character_window", "Character File (*.chara){.chara}", "brio", "{.chara}",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出角色文件###export_character_window", "Character File (*.chara){.chara}", "brio", "{.chara}",
                 (success, path) =>
                 {
                     if(success)
@@ -190,7 +190,7 @@ internal class FileUIHelpers
 
     public static void ShowImportMCDFModal(ActorAppearanceCapability capability)
     {
-        UIManager.Instance.FileDialogManager.OpenFileDialog("Import MCDF File###import_character_window", "Mare Character Data File (*.mcdf){.mcdf}",
+        UIManager.Instance.FileDialogManager.OpenFileDialog("导入MCDF文件###import_character_window", "月海角色数据文件(*.mcdf){.mcdf}",
                  (success, paths) =>
                  {
                      if(success && paths.Count == 1)

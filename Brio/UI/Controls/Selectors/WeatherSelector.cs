@@ -41,7 +41,7 @@ internal class WeatherSelector(string id) : Selector<WeatherUnion>(id)
 
     protected override void DrawOptions()
     {
-        if(ImGui.Checkbox("Show Invalid Weathers", ref _showInvalidWeathers))
+        if(ImGui.Checkbox("显示无效天气", ref _showInvalidWeathers))
             UpdateList();
     }
 

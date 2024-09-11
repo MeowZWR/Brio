@@ -7,7 +7,7 @@ namespace Brio.UI.Widgets.Debug;
 
 internal class DebugWidget(DebugCapability capability) : Widget<DebugCapability>(capability)
 {
-    public override string HeaderName => "Debug";
+    public override string HeaderName => "调试";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody;
 

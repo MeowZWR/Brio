@@ -8,7 +8,7 @@ internal class LibraryFavoritesFilter : FilterBase
     private ConfigurationService _configurationService;
 
     public LibraryFavoritesFilter(ConfigurationService configurationService)
-        : base("Favorites")
+        : base("收藏")
     {
         _configurationService = configurationService;
     }

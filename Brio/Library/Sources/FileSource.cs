@@ -147,7 +147,7 @@ internal class DirectoryEntry : GroupEntryBase
             }
 
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Open folder");
+                ImGui.SetTooltip("打开文件夹");
 
             ImGui.SameLine();
         }
@@ -304,7 +304,7 @@ internal class FileEntry : ItemEntryBase
                 }
 
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Open containing folder");
+                    ImGui.SetTooltip("在系统文件浏览器打开此文件夹");
 
                 ImGui.SameLine();
             }

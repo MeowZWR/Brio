@@ -99,17 +99,17 @@ internal class ActionTimelineSelector(string id) : Selector<ActionTimelineSelect
 
     protected override void DrawOptions()
     {
-        if(ImGui.Checkbox("Emotes", ref _showEmotes))
+        if(ImGui.Checkbox("情感动作", ref _showEmotes))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Actions", ref _showActions))
+        if(ImGui.Checkbox("技能", ref _showActions))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Timelines", ref _showRaw))
+        if(ImGui.Checkbox("时间线", ref _showRaw))
             UpdateList();
     }
 

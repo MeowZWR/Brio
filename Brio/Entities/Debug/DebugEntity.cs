@@ -10,7 +10,7 @@ internal class DebugEntity(IServiceProvider provider) : Entity(FixedId, provider
 {
     public const string FixedId = "debug_entity";
 
-    public override string FriendlyName => "Debug";
+    public override string FriendlyName => "调试";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Bug;
 
     public override void OnAttached()

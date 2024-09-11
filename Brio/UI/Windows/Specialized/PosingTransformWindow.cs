@@ -54,7 +54,7 @@ internal class PosingTransformWindow : Window
             return;
         }
 
-        WindowName = $"Transform - {posing.Entity.FriendlyName}###brio_transform_window";
+        WindowName = $"变换 - {posing.Entity.FriendlyName}###brio_transform_window";
 
         PosingEditorCommon.DrawSelectionName(posing);
 
@@ -94,18 +94,18 @@ internal class PosingTransformWindow : Window
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Select Parent");
+            ImGui.SetTooltip("选择父级");
 
         // Clear Selection
         ImGui.SameLine();
         using(ImRaii.Disabled(posing.Selected.Value is None))
         {
-            if(ImGui.Button($"Clear###clear_selected", new Vector2(buttonWidth, 0)))
+            if(ImGui.Button($"清除###clear_selected", new Vector2(buttonWidth, 0)))
                 posing.ClearSelection();
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Clear Selection");
+            ImGui.SetTooltip("清除选择");
     }
 
     private unsafe void DrawGizmo()
@@ -164,7 +164,7 @@ internal class PosingTransformWindow : Window
             _posingService.CoordinateMode = _posingService.CoordinateMode == PosingCoordinateMode.Local ? PosingCoordinateMode.World : PosingCoordinateMode.Local;
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip(_posingService.CoordinateMode == PosingCoordinateMode.World ? "Switch to Local" : "Switch to World");
+            ImGui.SetTooltip(_posingService.CoordinateMode == PosingCoordinateMode.World ? "切换为本地坐标" : "切换为世界坐标");
 
 
         Vector2 gizmoSize = new(ImGui.GetContentRegionAvail().X, ImGui.GetContentRegionAvail().X);

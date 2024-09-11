@@ -43,17 +43,17 @@ internal class CompanionSelector(string id) : Selector<CompanionRowUnion>(id)
 
     protected override void DrawOptions()
     {
-        if(ImGui.Checkbox("Minions", ref _showCompanions))
+        if(ImGui.Checkbox("宠物", ref _showCompanions))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Mounts", ref _showMounts))
+        if(ImGui.Checkbox("坐骑", ref _showMounts))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Ornaments", ref _showOrnaments))
+        if(ImGui.Checkbox("时尚配饰", ref _showOrnaments))
             UpdateList();
     }
 

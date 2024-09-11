@@ -22,12 +22,12 @@ internal class CommandHandlerService : IDisposable
 
         _commandManager.AddHandler(BrioCommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Toggles the Brio window.",
+            HelpMessage = "开关Brio窗口。",
             ShowInHelp = true,
         });
         _commandManager.AddHandler(XATCommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Toggles the Brio window.",
+            HelpMessage = "开关Brio窗口。",
             ShowInHelp = false,
         });
     }
