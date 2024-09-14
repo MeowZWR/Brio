@@ -304,7 +304,7 @@ internal class LibraryWindow : Window
         if(!this.IsOpen || !this._isModal || _modalFilter == null)
             return;
 
-        ImGui.OpenPopup($"导入{_modalFilter.Name}##brio_library_popup");
+        ImGui.OpenPopup($"导入 {_modalFilter.Name}##brio_library_popup");//注意格式和下面的统一，之前少了个空格就出问题了。
 
         ImGui.SetNextWindowSizeConstraints(MinimumSize, ImGui.GetIO().DisplaySize);
 

@@ -112,7 +112,7 @@ internal class SettingsWindow : Window
                 if(ImGui.CollapsingHeader("资产库", ImGuiTreeNodeFlags.DefaultOpen))
                 {
                     bool useLibraryWhenImporting = _configurationService.Configuration.UseLibraryWhenImporting;
-                    if(ImGui.Checkbox("导入文件时使用这个库", ref useLibraryWhenImporting))
+                    if(ImGui.Checkbox("导入文件时使用资产库", ref useLibraryWhenImporting))
                     {
                         _configurationService.Configuration.UseLibraryWhenImporting = useLibraryWhenImporting;
                         _configurationService.ApplyChange();
