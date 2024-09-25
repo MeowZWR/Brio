@@ -2,58 +2,27 @@
 
 internal static class IntExtensions
 {
-    private static readonly string[] _units = ["Zero",
-        "One",
-        "Two",
-        "Three",
-        "Four",
-        "Five",
-        "Six",
-        "Seven",
-        "Eight",
-        "Nine",
-        "Ten",
-        "Eleven",
-        "Twelve",
-        "Thirteen",
-        "Fourteen",
-        "Fifteen",
-        "Sixteen",
-        "Seventeen",
-        "Eighteen",
-        "Nineteen"];
-    private static readonly string[] _tens = ["",
-        "",
-        "Twenty",
-        "Thirty",
-        "Forty",
-        "Fifty",
-        "Sixty",
-        "Seventy",
-        "Eighty",
-        "Ninety"];
-
-    public static string ToWords(this int i, string separator = " ")
-    {
-        string output = i.ToString();
-        if(i < 20)
-        {
-            output = _units[i];
-        }
-        else if(i < 100)
-        {
-            output = _tens[i / 10] + ((i % 10 > 0) ? separator + ToWords(i % 10, separator) : "");
-        }
-
-        return output;
-    }
-
     public static string ToBrioName(this int i)
     {
-        string words = ToWords(i);
-        if(words.Contains(' '))
-            return words;
+        if(i < 0 || i >= 100) return string.Empty;
 
-        return "Brio " + words;
+        char prefix = (char)('A' + (i / 10));
+        string numberPart = (i % 10) switch
+        {
+            0 => "zero",
+            1 => "one",
+            2 => "two",
+            3 => "three",
+            4 => "four",
+            5 => "five",
+            6 => "six",
+            7 => "seven",
+            8 => "eight",
+            9 => "nine",
+            _ => ""
+        };
+
+        string name = $"{prefix}{numberPart}";
+        return name.Length > 6 ? name[..6] : name;
     }
 }
