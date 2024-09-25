@@ -49,7 +49,7 @@ jobs:
         tag: cn${{ github.event.inputs.version }}
         draft: false
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit: ${{ vars.GITHUB_SHA }}     
+        commit: ${{ github.sha }}
 
     - name: Update repo.json
       run: |
