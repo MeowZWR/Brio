@@ -45,11 +45,11 @@ jobs:
       with:
         allowUpdates: true
         artifacts: "./Brio.zip"
-        name: Brio v${{ github.event.inputs.version }}
-        tag: v${{ github.event.inputs.version }}
+        name: Brio global${{ github.event.inputs.version }}
+        tag: global${{ github.event.inputs.version }}
         draft: false
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit: ${{ vars.GITHUB_SHA }}     
+        commit: ${{ github.sha }}
 
     - name: Update repo.json
       run: |
@@ -63,5 +63,5 @@ jobs:
         $content = $content -replace '{version}',$ver
         set-content -Path $new_path -Value $content
         git add repo.json
-        git commit -m "[CI] Updating versions for v${{ github.event.inputs.version }}" || true
+        git commit -m "[CI] Updating versions for global${{ github.event.inputs.version }}" || true
         git push origin main || true
