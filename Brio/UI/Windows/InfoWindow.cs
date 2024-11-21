@@ -38,7 +38,8 @@ internal class InfoWindow : Window
                     目前仍处于alpha版本，因此可能存在bug。如果您遇到了问题，请向我们报告它们。
 
                     特别感谢以下各位通过Kofi对我们的支持！
-                    (Sufferhymn), (Night Song), (Alvar Valo), (YikesXD), (Yasumi) & (Selitha)
+                    (Sufferhymn), (Night Song), (Alvar Valo), (YikesXD), (Yasumi), (Yume) (A.HK), 
+                    (LotusEcho), & (Selitha)
                                         
                     感谢以下人员对Brio代码的贡献！
                     (@Yuki-Codes), (@danma3x), (@WorstAquaPlayer), (@snaeling), (@Caraxi) & (@gris-fuego)

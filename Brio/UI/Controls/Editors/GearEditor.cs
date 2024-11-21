@@ -118,13 +118,13 @@ internal class GearEditor()
         DyeUnion dye1Union = new DyeId(equip.Stain1);
 
         var (dye0Id, dye0Name, dye0Color) = dye0Union.Match(
-            dye => ((byte)dye.RowId, dye.Name.RawString, ImBrio.ARGBToABGR(dye.Color)),
+            dye => ((byte)dye.RowId, dye.Name.ToString(), ImBrio.ARGBToABGR(dye.Color)),
             none => ((byte)0, "无", (uint)0x0)
         );
 
         var (dye1Id, dye1Name, dye1Color) = dye1Union.Match(
-            dye => ((byte)dye.RowId, dye.Name.RawString, ImBrio.ARGBToABGR(dye.Color)),
-            none => ((byte)0, "None", (uint)0x0)
+            dye => ((byte)dye.RowId, dye.Name.ToString(), ImBrio.ARGBToABGR(dye.Color)),
+            none => ((byte)0, "无", (uint)0x0)
         );
 
         using(ImRaii.PushId(slot.ToString()))
@@ -262,13 +262,13 @@ internal class GearEditor()
 
 
         var (dye0Id, dye0Name, dye0Color) = dye0Union.Match(
-            dye => ((byte)dye.RowId, dye.Name.RawString, ImBrio.ARGBToABGR(dye.Color)),
+            dye => ((byte)dye.RowId, dye.Name.ToString(), ImBrio.ARGBToABGR(dye.Color)),
             none => ((byte)0, "无", (uint)0x0)
         );
 
         var (dye1Id, dye1Name, dye1Color) = dye1Union.Match(
-            dye => ((byte)dye.RowId, dye.Name.RawString, ImBrio.ARGBToABGR(dye.Color)),
-            none => ((byte)0, "None", (uint)0x0)
+            dye => ((byte)dye.RowId, dye.Name.ToString(), ImBrio.ARGBToABGR(dye.Color)),
+            none => ((byte)0, "无", (uint)0x0)
         );
 
         var model = GameDataProvider.Instance.ModelDatabase.GetModelById(equip, _weaponSlots);
