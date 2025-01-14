@@ -7,7 +7,7 @@ using Dalamud.Game;
 using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Environment;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

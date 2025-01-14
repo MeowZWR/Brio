@@ -2,10 +2,10 @@
 using Brio.Resources.Extra;
 using Brio.Resources.Sheets;
 using Dalamud.Plugin.Services;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using System.Collections.Generic;
 using System.Linq;
-using Glasses = Lumina.Excel.Sheets.Glasses;
+using Glasses = Lumina.Excel.GeneratedSheets2.Glasses;
 
 namespace Brio.Resources;
 

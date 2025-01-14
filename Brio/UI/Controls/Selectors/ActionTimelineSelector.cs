@@ -46,31 +46,31 @@ internal class ActionTimelineSelector(string id) : Selector<ActionTimelineSelect
             BrioActionTimeline timeline;
 
             // Loop
-            if(emote.ActionTimeline[0].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[0].RowId, out timeline))
+            if(emote.ActionTimeline[0].Row != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[0].Row, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(emote.Name.ToString(), (ushort)timeline.RowId, emote.RowId, timeline.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Emote, ActionTimelineSelectorEntry.AnimationPurpose.Standard, (ActionTimelineSlots)timeline.Slot, emote.Icon));
             }
 
             // Intro
-            if(emote.ActionTimeline[1].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[1].RowId, out timeline))
+            if(emote.ActionTimeline[1].Row != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[1].Row, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(emote.Name.ToString(), (ushort)timeline.RowId, emote.RowId, timeline.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Emote, ActionTimelineSelectorEntry.AnimationPurpose.Intro, (ActionTimelineSlots)timeline.Slot, emote.Icon));
             }
 
             // Ground
-            if(emote.ActionTimeline[2].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[2].RowId, out timeline))
+            if(emote.ActionTimeline[2].Row != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[2].Row, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(emote.Name.ToString(), (ushort)timeline.RowId, emote.RowId, timeline.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Emote, ActionTimelineSelectorEntry.AnimationPurpose.Ground, (ActionTimelineSlots)timeline.Slot, emote.Icon));
             }
 
             // Chair
-            if(emote.ActionTimeline[3].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[3].RowId, out timeline))
+            if(emote.ActionTimeline[3].Row != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[3].Row, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(emote.Name.ToString(), (ushort)timeline.RowId, emote.RowId, timeline.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Emote, ActionTimelineSelectorEntry.AnimationPurpose.Chair, (ActionTimelineSlots)timeline.Slot, emote.Icon));
             }
 
             // Upper Body
-            if(emote.ActionTimeline[4].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[4].RowId, out timeline))
+            if(emote.ActionTimeline[4].Row != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[4].Row, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(emote.Name.ToString(), (ushort)timeline.RowId, emote.RowId, timeline.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Emote, ActionTimelineSelectorEntry.AnimationPurpose.Blend, (ActionTimelineSlots)timeline.Slot, emote.Icon));
             }
@@ -78,8 +78,8 @@ internal class ActionTimelineSelector(string id) : Selector<ActionTimelineSelect
 
         foreach(var action in GameDataProvider.Instance.Actions.Values)
         {
-            if(action.AnimationEnd.RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(action.AnimationEnd.RowId, out BrioActionTimeline timeline))
-                AddItem(new ActionTimelineSelectorEntry(action.Name.ToString(), (ushort)action.AnimationEnd.RowId, action.RowId, action.AnimationEnd.Value.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Action, ActionTimelineSelectorEntry.AnimationPurpose.Action, (ActionTimelineSlots)timeline.Slot, action.Icon));
+            if(action.AnimationEnd.Row != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(action.AnimationEnd.Row, out BrioActionTimeline timeline))
+                AddItem(new ActionTimelineSelectorEntry(action.Name.ToString(), (ushort)action.AnimationEnd.Row, action.RowId, action.AnimationEnd.Value.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Action, ActionTimelineSelectorEntry.AnimationPurpose.Action, (ActionTimelineSlots)timeline.Slot, action.Icon));
 
         }
     }

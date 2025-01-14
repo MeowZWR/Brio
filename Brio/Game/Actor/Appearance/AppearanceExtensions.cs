@@ -1,4 +1,4 @@
-﻿using Lumina.Excel.Sheets;
+﻿using Lumina.Excel.GeneratedSheets;
 
 namespace Brio.Game.Actor.Appearance;
 

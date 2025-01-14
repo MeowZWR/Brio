@@ -1,5 +1,6 @@
 ﻿using Brio.Capabilities.Actor;
 using Brio.Game.Actor.Appearance;
+using Brio.Game.Actor.Extensions;
 using Brio.Resources;
 using Brio.Resources.Sheets;
 using Brio.UI.Controls.Stateless;
@@ -37,8 +38,12 @@ internal class CustomizeEditor()
             didChange |= DrawRaceSelector(ref currentAppearance.Customize);
             ImGui.Separator();
 
-            var menus = BrioCharaMakeType.BuildMenus(currentAppearance);
-            didChange |= DrawMenus(ref currentAppearance, menus);
+            var charaMake = _capability.Character.GetCharaMakeType();
+            if(charaMake != null)
+            {
+                var menus = charaMake.BuildMenus();
+                didChange |= DrawMenus(ref currentAppearance, menus);
+            }
         }
         else
         {
@@ -55,7 +60,7 @@ internal class CustomizeEditor()
 
         var resetTo = ImGui.GetCursorPos();
         bool customizeChanged = !currentAppearance.Customize.Equals(originalAppearance.Customize) || currentAppearance.ModelCharaId != originalAppearance.ModelCharaId;
-        if(ImBrio.FontIconButtonRight("reset_customize", FontAwesomeIcon.Undo, 1, "重置外貌", customizeChanged))
+        if(ImBrio.FontIconButtonRight("reset_customize", FontAwesomeIcon.Undo, 1, "Reset Customize", customizeChanged))
         {
             currentAppearance.ModelCharaId = originalAppearance.ModelCharaId;
             currentAppearance.Customize = originalAppearance.Customize;
@@ -152,7 +157,7 @@ internal class CustomizeEditor()
     {
         bool madeChange = false;
 
-        const string modelIdLabel = "模型";
+        const string modelIdLabel = "Model";
         ImGui.SetNextItemWidth(MaxItemWidth);
         if(ImGui.InputInt("###model_id", ref modelId, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
             madeChange |= true;
@@ -166,10 +171,10 @@ internal class CustomizeEditor()
     {
         bool madeChange = false;
 
-        const string raceLabel = "种族";
+        const string raceLabel = "Race";
         float width = MaxItemWidth / 2f - ImGui.GetStyle().FramePadding.X;
 
-        var racePreview = Enum.GetName(customize.Race) ?? "未知";
+        var racePreview = Enum.GetName(customize.Race) ?? "Unknown";
         ImGui.SetNextItemWidth(width);
         using(var raceDrop = ImRaii.Combo("###race_combo", racePreview))
         {
@@ -191,7 +196,7 @@ internal class CustomizeEditor()
         ImGui.SameLine();
 
         var existingTribe = customize.Tribe;
-        var tribePreview = Enum.GetName(existingTribe) ?? "未知";
+        var tribePreview = Enum.GetName(existingTribe) ?? "Unknown";
         ImGui.SetNextItemWidth(width);
         using(var tribeDrop = ImRaii.Combo("###tribe_combo", tribePreview))
         {
@@ -210,7 +215,7 @@ internal class CustomizeEditor()
         }
 
         var existingGender = customize.Gender;
-        var genderPreview = Enum.GetName(existingGender) ?? "未知";
+        var genderPreview = Enum.GetName(existingGender) ?? "Unknown";
         ImGui.SetNextItemWidth(width);
         using(var genderDrop = ImRaii.Combo("###gender_combo", genderPreview))
         {
@@ -231,7 +236,7 @@ internal class CustomizeEditor()
         ImGui.SameLine();
 
         var existingType = customize.BodyType;
-        var typePreview = Enum.GetName(existingType) ?? "未知";
+        var typePreview = Enum.GetName(existingType) ?? "Unknown";
         ImGui.SetNextItemWidth(width);
         using(var typeDrop = ImRaii.Combo("###type_combo", typePreview))
         {
@@ -260,23 +265,13 @@ internal class CustomizeEditor()
     {
         bool madeChange = false;
 
-        var hairStyles = BrioHairMakeType.GetHairStyles(customize);
+        var hairStyles = GameDataProvider.Instance.HairMakeTypes[menu.CharaMakeRow].HairStyles.Where(x => x.Row != 0).Select(x => x.Value!)!;
 
         var hairColors = GameDataProvider.Instance.HumanData.GetHairColors(customize.Tribe, customize.Gender);
         var hairHighlightColors = GameDataProvider.Instance.HumanData.GetHairHighlightColors();
 
         int currentHairIdx = customize.HairStyle;
-
-        uint currentIcon = 0;
-        try
-        {
-            var hairStyle = hairStyles.First(f => f.FeatureID == currentHairIdx);
-            currentIcon = hairStyle.Icon;
-        }
-        catch(Exception)
-        {
-
-        }
+        var currentIcon = hairStyles.FirstOrDefault(f => f?.FeatureID == currentHairIdx, null)?.Icon ?? 0;
 
         int currentHairColorIdx = customize.HairColor;
         var currentHairColor = hairColors.Length > currentHairColorIdx ? hairColors[currentHairColorIdx] : 0;
@@ -305,13 +300,13 @@ internal class CustomizeEditor()
                     customize.HairStyle = (byte)currentHairIdx;
                 }
 
-                madeChange |= DrawColorSelector(ref customize, CustomizeIndex.HairColor, "发色");
+                madeChange |= DrawColorSelector(ref customize, CustomizeIndex.HairColor, "Hair Color");
 
                 ImGui.SameLine();
 
                 using(ImRaii.Disabled(!highlightEnabled))
                 {
-                    madeChange |= DrawColorSelector(ref customize, CustomizeIndex.HairColor2, "挑染颜色");
+                    madeChange |= DrawColorSelector(ref customize, CustomizeIndex.HairColor2, "Highlight Color");
                 }
 
                 ImGui.SameLine();
@@ -322,7 +317,7 @@ internal class CustomizeEditor()
                     madeChange |= true;
                 }
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("启用头发挑染");
+                    ImGui.SetTooltip("Enable Hair Highlights");
 
             }
         }
@@ -333,7 +328,7 @@ internal class CustomizeEditor()
         ImGui.Text(title);
         ImGui.SetCursorPos(whenDone);
 
-        if(ImBrio.DrawIconSelectorPopup("hair_style_popup", hairStyles.Where(x => x.FeatureID > 0).Select(x => new ImBrio.IconSelectorEntry(x.FeatureID, x.Icon)).ToArray(), ref currentHairIdx, columns: 6, iconSize: IconSize))
+        if(ImBrio.DrawIconSelectorPopup("hair_style_popup", hairStyles.Select(x => new ImBrio.IconSelectorEntry(x.FeatureID, x.Icon)).ToArray(), ref currentHairIdx, columns: 6, iconSize: IconSize))
         {
             customize.HairStyle = (byte)currentHairIdx;
             madeChange |= true;
@@ -354,15 +349,15 @@ internal class CustomizeEditor()
             madeChange |= true;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("眼睛形状");
+            ImGui.SetTooltip("Eye Shape");
 
         ImGui.SameLine();
 
-        madeChange |= DrawColorSelector(ref customize, CustomizeIndex.EyeColor2, "左眼瞳色");
+        madeChange |= DrawColorSelector(ref customize, CustomizeIndex.EyeColor2, "Left Eye Color");
 
         ImGui.SameLine();
 
-        madeChange |= DrawColorSelector(ref customize, CustomizeIndex.EyeColor, "右眼瞳色");
+        madeChange |= DrawColorSelector(ref customize, CustomizeIndex.EyeColor, "Right Eye Color");
 
         ImGui.SameLine();
 
@@ -373,11 +368,11 @@ internal class CustomizeEditor()
             madeChange |= true;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("较小眼瞳");
+            ImGui.SetTooltip("Small Iris");
 
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("眼睛");
+        ImGui.Text("Eyes");
 
 
         return madeChange;
@@ -416,13 +411,13 @@ internal class CustomizeEditor()
             }
 
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("启用唇色");
+                ImGui.SetTooltip("Enable Lip Color");
 
             ImGui.SameLine();
 
             using(ImRaii.Disabled(!lipColorEnabled))
             {
-                madeChange |= DrawColorSelector(ref customize, CustomizeIndex.LipColor, "唇色");
+                madeChange |= DrawColorSelector(ref customize, CustomizeIndex.LipColor, "Lip Color");
             }
         }
 
@@ -438,24 +433,14 @@ internal class CustomizeEditor()
     {
         bool madeChange = false;
 
-        var facePaints = BrioHairMakeType.GetFacePaints(customize);
+        var facePaints = GameDataProvider.Instance.HairMakeTypes[menu.CharaMakeRow].FacePaints.Where(x => x.Row != 0).Select(x => x.Value!)!;
 
         var facePaintColors = GameDataProvider.Instance.HumanData.GetFacepaintColors();
 
         var facepaintFlipped = customize.FacepaintFlipped;
 
         int currentFacepaintIdx = customize.RealFacepaint;
-
-        uint currentIcon = 0;
-        try
-        {
-            var facePaint = facePaints.First(f => f.FeatureID == currentFacepaintIdx);
-            currentIcon = facePaint.Icon;
-        }
-        catch(Exception)
-        {
-
-        }
+        var currentIcon = facePaints.FirstOrDefault(f => f?.FeatureID == currentFacepaintIdx, null)?.Icon ?? 0;
 
         int currentColorIdx = customize.FacePaintColor;
         var currentHairColor = facePaintColors.Length > currentColorIdx ? facePaintColors[currentColorIdx] : 0;
@@ -499,7 +484,7 @@ internal class CustomizeEditor()
         ImGui.Text(title);
         ImGui.SetCursorPos(whenDone);
 
-        if(ImBrio.DrawIconSelectorPopup("face_paint_popup", facePaints.Where(x => x.FeatureID > 0).Select(x => new ImBrio.IconSelectorEntry(x.FeatureID, x.Icon)).ToArray(), ref currentFacepaintIdx, columns: 6, iconSize: IconSize, fallbackImage: "Images.Head.png"))
+        if(ImBrio.DrawIconSelectorPopup("face_paint_popup", facePaints.Select(x => new ImBrio.IconSelectorEntry(x.FeatureID, x.Icon)).ToArray(), ref currentFacepaintIdx, columns: 6, iconSize: IconSize, fallbackImage: "Images.Head.png"))
         {
             customize.RealFacepaint = (byte)currentFacepaintIdx;
             madeChange |= true;
@@ -552,7 +537,7 @@ internal class CustomizeEditor()
 
             ImGui.SameLine();
             ImGui.SetCursorPos(new Vector2(LabelStart, ImGui.GetCursorPosY() + ImGui.GetTextLineHeight()));
-            ImGui.Text("特征");
+            ImGui.Text("Features");
             ImGui.SetCursorPos(whenDone);
 
             if(ImBrio.DrawIconSelectorPopup("face_feature_popup", [.. entries], ref currentFeatures, columns: 4, iconSize: IconSize, fallbackImage: "Images.Head.png", bitField: true))
