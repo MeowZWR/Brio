@@ -9,7 +9,6 @@ using Dalamud.Plugin.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using CharacterCopyFlags = FFXIVClientStructs.FFXIV.Client.Game.Character.CharacterSetupContainer.CopyFlags;
 using ClientObjectManager = FFXIVClientStructs.FFXIV.Client.Game.Object.ClientObjectManager;
 using NativeCharacter = FFXIVClientStructs.FFXIV.Client.Game.Character.Character;
@@ -27,7 +26,7 @@ internal class ActorSpawnService : IDisposable
     private readonly GlamourerService _glamourerService;
     private readonly TargetService _targetService;
 
-    private readonly List<ushort> _createdIndexes = [];
+    private readonly Dictionary<ushort, SpawnFlags> _createdIndexes = [];
 
     public unsafe ActorSpawnService(ObjectMonitorService monitorService, GlamourerService glamourerService, IObjectTable objectTable, IClientState clientState, IFramework framework, GPoseService gPoseService, ActorRedrawService actorRedrawService, TargetService targetService)
     {
@@ -150,7 +149,10 @@ internal class ActorSpawnService : IDisposable
 
     public unsafe bool DestroyObject(IGameObject go)
     {
-        Brio.Log.Debug($"Destroying gameobjectobject {go.ObjectIndex}...");
+        if(go is null)
+            return false;
+
+        Brio.Log.Debug($"Destroying gameobject: {go.ObjectIndex}...");
 
         var com = ClientObjectManager.Instance();
         var native = go.Native();
@@ -168,7 +170,7 @@ internal class ActorSpawnService : IDisposable
     {
         Brio.Log.Debug("Destroying all created gameobjects.");
 
-        var indexes = _createdIndexes.ToList();
+        var indexes = _createdIndexes.Keys;
         var com = ClientObjectManager.Instance();
         foreach(var idx in indexes)
         {
@@ -237,7 +239,7 @@ internal class ActorSpawnService : IDisposable
             }
             ushort newId = (ushort)idCheck;
 
-            _createdIndexes.Add(newId);
+            _createdIndexes.Add(newId, flags);
 
             var newObject = com->GetObjectByIndex(newId);
             if(newObject == null) return false;
@@ -249,7 +251,7 @@ internal class ActorSpawnService : IDisposable
             _gPoseService.AddCharacterToGPose(newPlayer);
 
             var character = _objectTable.CreateObjectReference((nint)newObject);
-            if(character == null || character is not ICharacter)
+            if(character is null or not ICharacter)
                 return false;
 
             outCharacter = (ICharacter)character;
@@ -259,6 +261,17 @@ internal class ActorSpawnService : IDisposable
             _targetService.GPoseTarget = outCharacter;
 
         return true;
+    }
+
+    public unsafe SpawnFlags GetSpawnFlagsByIndex(ushort objectIndex)
+    {
+        if(_createdIndexes.TryGetValue(objectIndex, out var spawnFlags))
+        {
+            Brio.Log.Warning($"GetSpawnFlagsByIndex {objectIndex} {spawnFlags}");
+            return spawnFlags;
+        }
+
+        return SpawnFlags.None;
     }
 
     private void OnGPoseStateChanged(bool newState)
@@ -300,6 +313,9 @@ enum SpawnFlags
     None = 0,
     ReserveCompanionSlot = 1 << 0,
     CopyPosition = 1 << 1,
+    AsProp = 1 << 2,
+    SetDefaultAppearance = 1 << 3,
 
+    Prop = AsProp | SetDefaultAppearance,
     Default = CopyPosition,
 }

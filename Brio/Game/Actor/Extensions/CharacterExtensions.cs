@@ -5,11 +5,8 @@ using global::Brio.Game.Actor.Appearance;
 using global::Brio.Game.Actor.Interop;
 using global::Brio.Game.Posing;
 using global::Brio.Game.Types;
-using global::Brio.Resources;
-using global::Brio.Resources.Sheets;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using StrictsDrawObjectData = FFXIVClientStructs.FFXIV.Client.Game.Character.DrawObjectData;
 using StructsBattleCharacter = FFXIVClientStructs.FFXIV.Client.Game.Character.BattleChara;
 using StructsCharacter = FFXIVClientStructs.FFXIV.Client.Game.Character.Character;
@@ -163,11 +160,5 @@ internal static class CharacterExtensions
             return human->Shaders->Params;
         }
         return null;
-    }
-
-    public static unsafe BrioCharaMakeType? GetCharaMakeType(this ICharacter go)
-    {
-        var drawData = go.Native()->DrawData;
-        return GameDataProvider.Instance.CharaMakeTypes.Select(x => x.Value).FirstOrDefault(x => x.Race.Row == (uint)drawData.CustomizeData.Race && x.Tribe.Row == (uint)drawData.CustomizeData.Tribe && x.Gender == (Genders)drawData.CustomizeData.Sex);
     }
 }

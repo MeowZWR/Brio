@@ -45,6 +45,8 @@ internal class ActorAppearanceCapability : ActorCharacterCapability
 
     public bool CanMcdf => _mareService.IsMareAvailable;
 
+    public bool IsHidden => CurrentAppearance.ExtendedAppearance.Transparency == 0;
+
     public ActorAppearanceCapability(ActorEntity parent, ActorAppearanceService actorAppearanceService, PenumbraService penumbraService, GlamourerService glamourerService, MareService mareService, GPoseService gPoseService) : base(parent)
     {
         _actorAppearanceService = actorAppearanceService;
@@ -147,6 +149,36 @@ internal class ActorAppearanceCapability : ActorCharacterCapability
         return SetAppearance(appearance, AppearanceImportOptions.Gear);
     }
 
+    public Task ToggleHide()
+    {
+        var appearance = _actorAppearanceService.GetActorAppearance(Character);
+
+        if(IsHidden)
+        {
+            appearance.ExtendedAppearance.Transparency = 1f;
+        }
+        else
+        {
+            appearance.ExtendedAppearance.Transparency = 0f;
+        }
+
+        return SetAppearance(appearance, AppearanceImportOptions.ExtendedAppearance);
+    }
+
+    public Task Hide()
+    {
+        var appearance = _actorAppearanceService.GetActorAppearance(Character);
+        appearance.ExtendedAppearance.Transparency = 1f;
+        return SetAppearance(appearance, AppearanceImportOptions.ExtendedAppearance);
+    }
+
+    public Task Show()
+    {
+        var appearance = _actorAppearanceService.GetActorAppearance(Character);
+        appearance.ExtendedAppearance.Transparency = 0f;
+        return SetAppearance(appearance, AppearanceImportOptions.ExtendedAppearance);
+    }
+
     public Task ApplyEmperors()
     {
         var appearance = _actorAppearanceService.GetActorAppearance(Character);
@@ -155,6 +187,7 @@ internal class ActorAppearanceCapability : ActorCharacterCapability
         appearance.Weapons.OffHand = SpecialAppearances.EmperorsOffHand;
         return SetAppearance(appearance, AppearanceImportOptions.Gear);
     }
+
 
     public async Task Redraw()
     {

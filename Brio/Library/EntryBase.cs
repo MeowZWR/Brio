@@ -80,5 +80,10 @@ internal abstract class EntryBase : ITagged
     {
     }
 
+    public virtual bool InvokeDefaultAction(object? args)
+    {
+        return false;
+    }
+
     protected abstract string GetInternalId();
 }

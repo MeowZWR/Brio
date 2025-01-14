@@ -1,5 +1,5 @@
-﻿using Brio.Capabilities.Posing;
-using Brio.Game.Posing;
+﻿using Brio.Capabilities.Actor;
+using Brio.Capabilities.Posing;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
@@ -15,7 +15,7 @@ internal class PosingWidget(PosingCapability capability) : Widget<PosingCapabili
 {
     public override string HeaderName => "姿势";
 
-    public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.HasAdvanced | WidgetFlags.DefaultOpen;
+    public override WidgetFlags Flags => capability.Actor.IsProp ? (WidgetFlags.DefaultOpen | WidgetFlags.DrawBody) : (WidgetFlags.DrawBody | WidgetFlags.HasAdvanced | WidgetFlags.DefaultOpen);
 
     private readonly PosingTransformEditor _posingTransformEditor = new();
 
@@ -33,6 +33,7 @@ internal class PosingWidget(PosingCapability capability) : Widget<PosingCapabili
 
     private void DrawButtons()
     {
+
         var overlayOpen = Capability.OverlayOpen;
         if(ImBrio.FontIconButton("overlay", overlayOpen ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, overlayOpen ? "关闭叠加层" : "开启叠加层"))
         {
@@ -41,7 +42,20 @@ internal class PosingWidget(PosingCapability capability) : Widget<PosingCapabili
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("import", FontAwesomeIcon.FileImport, "导入姿势"))
+        if(Capability.Actor.TryGetCapability<ActionTimelineCapability>(out var capability))
+        {
+            if(ImBrio.ToggelFontIconButton("freezeActor", FontAwesomeIcon.Snowflake, new Vector2(110, 0), capability.SpeedMultiplier == 0, hoverText: capability.SpeedMultiplierOverride == 0 ? "解冻角色" : "冻结角色"))
+            {
+                if(capability.SpeedMultiplierOverride == 0)
+                    capability.ResetOverallSpeedOverride();
+                else
+                    capability.SetOverallSpeedOverride(0f);
+            }
+        }
+
+        ImGui.SameLine();
+
+        if(ImBrio.FontIconButton("import", FontAwesomeIcon.Download, "导入姿势"))
         {
             ImGui.OpenPopup("DrawImportPoseMenuPopup");
         }
@@ -53,19 +67,22 @@ internal class PosingWidget(PosingCapability capability) : Widget<PosingCapabili
         if(ImBrio.FontIconButton("export", FontAwesomeIcon.FileExport, "导出姿势"))
             FileUIHelpers.ShowExportPoseModal(Capability);
 
-        ImGui.SameLine();
-
-        using(ImRaii.Disabled(Capability.Selected.Value is None))
+        if(capability.Actor.IsProp == false)
         {
-            if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "清除选择"))
-                Capability.ClearSelection();
-        }
+            ImGui.SameLine();
 
-        ImGui.SameLine();
+            using(ImRaii.Disabled(Capability.Selected.Value is None))
+            {
+                if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "清除选择"))
+                    Capability.ClearSelection();
+            }
 
-        if(ImBrio.FontIconButton("bone_search", FontAwesomeIcon.Search, "骨骼搜索"))
-        {
-            ImGui.OpenPopup("widget_bone_search_popup");
+            ImGui.SameLine();
+
+            if(ImBrio.FontIconButton("bone_search", FontAwesomeIcon.Search, "骨骼搜索"))
+            {
+                ImGui.OpenPopup("widget_bone_search_popup");
+            }
         }
 
         ImGui.SameLine();
@@ -86,7 +103,7 @@ internal class PosingWidget(PosingCapability capability) : Widget<PosingCapabili
 
         if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置姿势", Capability.HasOverride))
         {
-            Capability.Reset(false, false);
+            Capability.Reset(false, false, true);
         }
 
         using(var popup = ImRaii.Popup("widget_bone_search_popup", ImGuiWindowFlags.AlwaysAutoResize))

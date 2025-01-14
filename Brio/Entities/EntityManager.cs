@@ -8,10 +8,9 @@ using Brio.Entities.World;
 using Dalamud.Game.ClientState.Objects.Types;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using Brio.Capabilities.Actor;
+using System.Linq;
 
 
 namespace Brio.Entities;
@@ -124,6 +123,17 @@ internal unsafe partial class EntityManager : IDisposable
         return entity;
     }
 
+    public T? GetEntity<T>(EntityId id) where T : Entity
+    {
+        _entityMap.TryGetValue(id, out var entity);
+
+        if(entity is T t)
+        {
+            return t;
+        }
+        return null;
+    }
+
     public bool EntityExists(EntityId id)
     {
         return _entityMap.ContainsKey(id);
@@ -150,17 +160,24 @@ internal unsafe partial class EntityManager : IDisposable
 
     public IEnumerable<ActorEntity> TryGetAllActors()
     {
-        List<ActorEntity> actorEntities = [];
-
         foreach(var entity in _entityMap.Values)
         {
             if(entity is ActorEntity actor)
             {
-                actorEntities.Add(actor);
+                yield return actor;
             }
         }
+    }
 
-        return actorEntities;
+    public IEnumerable<IGameObject> TryGetAllActorsAsGameObject()
+    {
+        foreach(var entity in _entityMap.Values)
+        {
+            if(entity is ActorEntity actor)
+            {
+                yield return actor.GameObject;
+            }
+        }
     }
 
     public bool TryGetCapabilityFromSelectedEntity<T>([MaybeNullWhen(false)] out T capability, bool considerChildren = false, bool considerParents = true) where T : Capability

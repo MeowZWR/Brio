@@ -19,6 +19,7 @@ internal class StatusEffectsWidget(StatusEffectCapability capability) : Widget<S
     public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
     private int _selectedStatus;
+    private bool _VFXLockEnabled = false;
 
     private static readonly StatusEffectSelector _globalStatusEffectSelector = new("global_status_selector");
 
@@ -33,6 +34,8 @@ internal class StatusEffectsWidget(StatusEffectCapability capability) : Widget<S
             {
                 foreach(var status in statuses)
                 {
+                    if(_VFXLockEnabled && status.VFX.RowId == 0) continue;
+
                     bool selected = status.RowId == _selectedStatus;
 
                     IDalamudTextureWrap? tex = null;
@@ -50,7 +53,7 @@ internal class StatusEffectsWidget(StatusEffectCapability capability) : Widget<S
                     ImGui.SetCursorPos(position);
                     ImGui.Image(tex.ImGuiHandle, iconSize);
                     ImGui.SameLine();
-                    ImGui.Text($"{status.Name}\n{status.RowId}");
+                    ImGui.Text($"{status.Name.ExtractText()}\n{status.RowId}");
 
                     if(wasSelected)
                         _selectedStatus = (int)status.RowId;
@@ -80,6 +83,12 @@ internal class StatusEffectsWidget(StatusEffectCapability capability) : Widget<S
 
         ImGui.SameLine();
 
+        ImGui.Checkbox("###status_vfx_filter", ref _VFXLockEnabled);
+        if(ImGui.IsItemHovered())
+            ImGui.SetTooltip("Hide Status Effects that have no VFX.");
+
+        ImGui.SameLine();
+
 
         if(ImBrio.FontIconButton("status_effects_search", FontAwesomeIcon.Search, "搜索"))
         {
@@ -97,12 +106,12 @@ internal class StatusEffectsWidget(StatusEffectCapability capability) : Widget<S
 
                 if(_globalStatusEffectSelector.SoftSelectionChanged && _globalStatusEffectSelector.SoftSelected != null)
                 {
-                    _selectedStatus = (int)_globalStatusEffectSelector.SoftSelected.RowId;
+                    _selectedStatus = (int)_globalStatusEffectSelector.SoftSelected.Status.RowId;
                 }
 
                 if(_globalStatusEffectSelector.SelectionChanged && _globalStatusEffectSelector.Selected != null)
                 {
-                    _selectedStatus = (int)_globalStatusEffectSelector.Selected.RowId;
+                    _selectedStatus = (int)_globalStatusEffectSelector.Selected.Status.RowId;
                     ApplyStatusEffect();
                     ImGui.CloseCurrentPopup();
                 }

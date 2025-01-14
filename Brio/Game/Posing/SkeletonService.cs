@@ -60,7 +60,7 @@ internal unsafe class SkeletonService : IDisposable
         _updateBonePhysicsHook = hooking.HookFromAddress<UpdateBonePhysicsDelegate>(scanner.ScanText(updateBonePhysicsAddress), UpdateBonePhysicsDetour);
         _updateBonePhysicsHook.Enable();
 
-        var finalizeSkeletonsHook = "40 53 55 57 48 83 EC ?? 65 48 8B 04 25"; // JMP in Framework.TaskRenderGraphicsRender
+        var finalizeSkeletonsHook = "40 53 57 41 55 48 83 EC ?? 65 48 8B 04 25 58"; // JMP in Framework.TaskRenderGraphicsRender
         _finalizeSkeletonsHook = hooking.HookFromAddress<FinalizeSkeletonsDelegate>(scanner.ScanText(finalizeSkeletonsHook), FinalizeSkeletonsHook);
         _finalizeSkeletonsHook.Enable();
 
@@ -269,12 +269,10 @@ internal unsafe class SkeletonService : IDisposable
 
         var boneId = bone.Index;
 
-        var trans = info.Transform;
-        trans.Filter(info.PropagateComponents);
+        var prop = info.PropagateComponents.HasFlag(TransformComponents.Position);
+        var modelSpace = pose->AccessBoneModelSpace(boneId, prop ? PropagateOrNot.Propagate : PropagateOrNot.DontPropagate);
 
         // Position
-        bool prop = info.PropagateComponents.HasFlag(TransformComponents.Position);
-        var modelSpace = pose->AccessBoneModelSpace(boneId, prop ? PropagateOrNot.Propagate : PropagateOrNot.DontPropagate);
         temp = modelSpace;
         temp.Position += info.Transform.Position;
         if(info.IKInfo.Enabled)
