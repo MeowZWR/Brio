@@ -8,7 +8,7 @@ namespace Brio.Entities.Actor;
 
 internal class ActorContainerEntity(IServiceProvider provider) : Entity("actorContainer", provider)
 {
-    public override string FriendlyName => "参与者";
+    public override string FriendlyName => "角色";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Users;
 
     public override void OnAttached()

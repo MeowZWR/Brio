@@ -98,7 +98,7 @@ internal class MainWindow : Window, IDisposable
 
         float line1Width = (line1FinalWidth / 2) - 3;
 
-        if(ImBrio.Button(" Project", FontAwesomeIcon.FolderOpen, new Vector2(line1Width, 0)))
+        if(ImBrio.Button(" 项目", FontAwesomeIcon.FolderOpen, new Vector2(line1Width, 0)))
         {
             ImGui.OpenPopup("DrawProjectPopup");
         }
@@ -106,7 +106,7 @@ internal class MainWindow : Window, IDisposable
         FileUIHelpers.DrawProjectPopup(_sceneService, _entityManager);
 
         ImGui.SameLine();
-        if(ImBrio.Button("资产库", FontAwesomeIcon.Book, new Vector2(line1Width, 0)))
+        if(ImBrio.Button(" 资产库", FontAwesomeIcon.Book, new Vector2(line1Width, 0)))
             _libraryWindow.Toggle();
 
         if(ImGui.IsItemHovered())

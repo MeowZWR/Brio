@@ -194,7 +194,7 @@ internal class SettingsWindow : Window
 
     private void DrawSceneTab()
     {
-        using(var tab = ImRaii.TabItem("Scene"))
+        using(var tab = ImRaii.TabItem("场景"))
         {
             if(tab.Success)
             {
@@ -275,21 +275,21 @@ internal class SettingsWindow : Window
     private void DrawImportScene()
     {
 
-        if(ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("常规", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool destroyActorsBeforeImport = _configurationService.Configuration.SceneDestoryActorsBeforeImport;
-            if(ImGui.Checkbox("Destroy Actors before Scene import", ref destroyActorsBeforeImport))
+            if(ImGui.Checkbox("导入场景前销毁角色", ref destroyActorsBeforeImport))
             {
                 _configurationService.Configuration.SceneDestoryActorsBeforeImport = destroyActorsBeforeImport;
                 _configurationService.ApplyChange();
             }
         }
 
-        if(ImGui.CollapsingHeader("Import", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("导入", ImGuiTreeNodeFlags.DefaultOpen))
         {
 
             bool applyModelTransform = _configurationService.Configuration.Import.ApplyModelTransform;
-            if(ImGui.Checkbox("Apply Model Transform on Import", ref applyModelTransform))
+            if(ImGui.Checkbox("在导入中应用模型变换", ref applyModelTransform))
             {
                 _configurationService.Configuration.Import.ApplyModelTransform = applyModelTransform;
                 _configurationService.ApplyChange();
@@ -297,7 +297,7 @@ internal class SettingsWindow : Window
 
             var positionTransformType = _configurationService.Configuration.Import.PositionTransformType;
             ImGui.SetNextItemWidth(200);
-            using(var combo = ImRaii.Combo("Position", positionTransformType.ToString()))
+            using(var combo = ImRaii.Combo("位置", positionTransformType.ToString()))
             {
                 if(combo.Success)
                 {
@@ -314,7 +314,7 @@ internal class SettingsWindow : Window
 
             var rotationTransformType = _configurationService.Configuration.Import.RotationTransformType;
             ImGui.SetNextItemWidth(200);
-            using(var combo = ImRaii.Combo("Rotation", rotationTransformType.ToString()))
+            using(var combo = ImRaii.Combo("旋转", rotationTransformType.ToString()))
             {
                 if(combo.Success)
                 {
@@ -331,7 +331,7 @@ internal class SettingsWindow : Window
 
             var scaleTransformType = _configurationService.Configuration.Import.ScaleTransformType;
             ImGui.SetNextItemWidth(200);
-            using(var combo = ImRaii.Combo("Scale", scaleTransformType.ToString()))
+            using(var combo = ImRaii.Combo("缩放", scaleTransformType.ToString()))
             {
                 if(combo.Success)
                 {

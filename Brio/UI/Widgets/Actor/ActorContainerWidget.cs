@@ -11,7 +11,7 @@ namespace Brio.UI.Widgets.Actor;
 
 internal class ActorContainerWidget(ActorContainerCapability capability) : Widget<ActorContainerCapability>(capability)
 {
-    public override string HeaderName => "参与者";
+    public override string HeaderName => "角色";
     public override WidgetFlags Flags
     {
         get
