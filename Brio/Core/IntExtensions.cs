@@ -4,7 +4,7 @@ internal static class IntExtensions
 {
     public static string ToBrioName(this int i)
     {
-        if(i < 0 || i >= 100) return string.Empty;
+        if(i < 0 || i >= 260) return string.Empty;
 
         char prefix = (char)('A' + (i / 10));
         string numberPart = (i % 10) switch
