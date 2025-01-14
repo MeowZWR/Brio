@@ -11,7 +11,7 @@ internal static partial class ImBrio
            companion => ($"{companion.Singular}\n{companion.RowId}\n模型: {companion.Model.RowId}", companion.Icon),
            mount => ($"{mount.Singular}\n{mount.RowId}\n模型: {mount.ModelChara.RowId}", mount.Icon),
            ornament => ($"{ornament.Singular}\n{ornament.RowId}\n模型: {ornament.Model}", ornament.Icon),
-           none => ("无", (uint)0)
+           none => ("None", (uint)0)
        );
 
         bool wasClicked = false;

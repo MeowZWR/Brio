@@ -2,7 +2,6 @@
 using Brio.Config;
 using Brio.Core;
 using Brio.Entities.Actor;
-using Brio.Entities.Core;
 using Brio.Files;
 using Brio.Game.Posing;
 using Brio.Input;
@@ -12,6 +11,7 @@ using Brio.UI.Windows.Specialized;
 using Dalamud.Plugin.Services;
 using OneOf;
 using OneOf.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -67,6 +67,7 @@ internal class PosingCapability : ActorCharacterCapability
     private readonly PosingTransformWindow _overlayTransformWindow;
     private readonly IFramework _framework;
     private readonly InputService _input;
+    private readonly PhysicsService _physicsService;
 
     public PosingCapability(
         ActorEntity parent,
@@ -74,6 +75,7 @@ internal class PosingCapability : ActorCharacterCapability
         PosingService posingService,
         ConfigurationService configurationService,
         PosingTransformWindow overlayTransformWindow,
+        PhysicsService physicsService,
         IFramework framework,
         InputService input)
         : base(parent)
@@ -85,6 +87,7 @@ internal class PosingCapability : ActorCharacterCapability
         _overlayTransformWindow = overlayTransformWindow;
         _framework = framework;
         _input = input;
+        _physicsService = physicsService;
     }
 
     public override void OnEntitySelected()
@@ -113,11 +116,11 @@ internal class PosingCapability : ActorCharacterCapability
         {
             if(path.EndsWith(".cmp"))
             {
-                ImportPose(ResourceProvider.Instance.GetFileDocument<CMToolPoseFile>(path), options, reset: false, reconcile: false);
+                ImportPose(ResourceProvider.Instance.GetFileDocument<CMToolPoseFile>(path), options);
                 return;
             }
 
-            ImportPose(ResourceProvider.Instance.GetFileDocument<PoseFile>(path), options, reset: false, reconcile: false);
+            ImportPose(ResourceProvider.Instance.GetFileDocument<PoseFile>(path), options);
         }
         catch
         {
@@ -125,14 +128,28 @@ internal class PosingCapability : ActorCharacterCapability
         }
     }
 
-    public void ImportPose(OneOf<PoseFile, CMToolPoseFile> rawPoseFile, PoseImporterOptions? options = null, bool asExpression = false)
+    public void ImportPose(OneOf<PoseFile, CMToolPoseFile> rawPoseFile, PoseImporterOptions? options = null, bool asExpression = false, bool asScene = false, bool asIPCpose = false, bool asBody = false, bool freezeOnLoad = false)
     {
-        ImportPose(rawPoseFile, options, reset: false, reconcile: false, asExpression: asExpression);
+        if(Actor.TryGetCapability<ActionTimelineCapability>(out var actionTimeline))
+        {
+            Brio.Log.Verbose($"Importing Pose... {asExpression} {asScene} {asIPCpose} {asBody} {freezeOnLoad}");
+
+            actionTimeline.StopSpeedAndResetTimeline(() =>
+            {
+                ImportPose_internal(rawPoseFile, options, reset: false, reconcile: false, asExpression: asExpression, asScene: asScene, asIPCpose: asIPCpose, asBody: asBody);
+
+            }, !(ConfigurationService.Instance.Configuration.Posing.FreezeActorOnPoseImport || freezeOnLoad));
+        }
+        else
+        {
+            Brio.Log.Warning($"Actor did not have ActionTimelineCapability while Importing a Pose... {asExpression} {asScene} {asIPCpose} {asBody} {freezeOnLoad}");
+        }
     }
 
+    // TODO change this boolean hell into flags after Scenes are added
     PoseFile? tempPose;
-    private void ImportPose(OneOf<PoseFile, CMToolPoseFile> rawPoseFile, PoseImporterOptions? options = null, bool generateSnapshot = true, bool reset = true, bool reconcile = true,
-        bool asExpression = false, bool expressionPhase2 = false)
+    internal void ImportPose_internal(OneOf<PoseFile, CMToolPoseFile> rawPoseFile, PoseImporterOptions? options = null, bool generateSnapshot = true, bool reset = true, bool reconcile = true,
+        bool asExpression = false, bool expressionPhase2 = false, bool asScene = false, bool asIPCpose = false, bool asBody = false)
     {
         var poseFile = rawPoseFile.Match(
                 poseFile => poseFile,
@@ -142,6 +159,7 @@ internal class PosingCapability : ActorCharacterCapability
         if(poseFile.Bones.Count == 0 && poseFile.MainHand.Count == 0 && poseFile.OffHand.Count == 0)
         {
             Brio.NotifyError("Invalid pose file.");
+            Brio.Log.Verbose($"Invalid pose file. {reconcile} {reset} {generateSnapshot} {asExpression} {expressionPhase2} {asScene} {asIPCpose} {asBody}");
             return;
         }
 
@@ -154,6 +172,20 @@ internal class PosingCapability : ActorCharacterCapability
             options = _posingService.ExpressionOptions;
             tempPose = GeneratePoseFile();
         }
+        else if(asBody)
+        {
+            options = _posingService.BodyOptions;
+        }
+        else if(asScene)
+        {
+            options = _posingService.SceneImporterOptions;
+
+            options.ApplyModelTransform = ConfigurationService.Instance.Configuration.Import.ApplyModelTransform;
+        }
+        else if(asIPCpose)
+        {
+            options = _posingService.DefaultIPCImporterOptions;
+        }
         else
         {
             options ??= _posingService.DefaultImporterOptions;
@@ -165,15 +197,19 @@ internal class PosingCapability : ActorCharacterCapability
         SkeletonPosing.ImportSkeletonPose(poseFile, options, expressionPhase2);
 
         if(asExpression == false)
-            ModelPosing.ImportModelPose(poseFile, options);
+            ModelPosing.ImportModelPose(poseFile, options, asScene);
 
         if(generateSnapshot)
             _framework.RunOnTick(() => Snapshot(reset, reconcile, asExpression: asExpression), delayTicks: 4);
     }
 
-    public void ExportPose(string path)
+    public PoseFile ExportPose()
     {
-        var poseFile = GeneratePoseFile();
+        return GeneratePoseFile();
+    }
+    public void ExportSavePose(string path)
+    {
+        var poseFile = ExportPose();
         ResourceProvider.Instance.SaveFileDocument(path, poseFile);
     }
 
@@ -186,12 +222,12 @@ internal class PosingCapability : ActorCharacterCapability
             _redoStack.Clear();
             return;
         }
-      
+
         _redoStack.Clear();
 
         if(asExpression == true)
         {
-            ImportPose(tempPose!, new PoseImporterOptions(new BoneFilter(_posingService), TransformComponents.All, false),
+            ImportPose_internal(tempPose!, new PoseImporterOptions(new BoneFilter(_posingService), TransformComponents.All, false),
             generateSnapshot: true, expressionPhase2: true);
 
             return;
@@ -229,12 +265,14 @@ internal class PosingCapability : ActorCharacterCapability
         }
     }
 
-    public void Reset(bool generateSnapshot = true, bool reset = true)
+    public void Reset(bool generateSnapshot = true, bool reset = true, bool clearHistStack = true)
     {
-        SkeletonPosing.ResetPose();
+        if(Actor.IsProp == false)
+            SkeletonPosing.ResetPose();
         ModelPosing.ResetTransform();
 
-        _redoStack.Clear();
+        if(clearHistStack)
+            _redoStack.Clear();
 
         if(generateSnapshot)
             Snapshot(reset);
@@ -255,11 +293,10 @@ internal class PosingCapability : ActorCharacterCapability
             {
                 Reset(generateSnapshot, false);
             }
-            ImportPose(poseFile, options: all, generateSnapshot: false);
+            ImportPose_internal(poseFile, options: all, generateSnapshot: false);
         }, delayTicks: 2);
     }
-
-    private PoseFile GeneratePoseFile()
+    public PoseFile GeneratePoseFile()
     {
         var poseFile = new PoseFile();
         SkeletonPosing.ExportSkeletonPose(poseFile);

@@ -1,15 +1,12 @@
 ﻿using Brio.Capabilities.Actor;
 using Brio.Config;
 using Brio.Entities;
-using Brio.Entities.Core;
+using Brio.Files;
 using Brio.Game.Actor.Extensions;
-using Brio.Game.Camera;
 using Brio.Game.Cutscene;
-using Brio.Game.Cutscene.Files;
 using Brio.Game.GPose;
 using Brio.Game.Posing;
 using Brio.Resources;
-using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Interface;
@@ -37,9 +34,10 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
     private static readonly float _hederButtonSize = ImGui.CalcTextSize("#########").X + 28;
     private static readonly ActionTimelineSelector _globalTimelineSelector = new("global_timeline_selector");
 
+    private static bool _startAnimationOnSelect = true;
+
     private string _cameraPath = string.Empty;
     private ActionTimelineCapability _capability = null!;
-    private bool _startAnimationOnSelect = true;
     private bool _delimitSpeed = false;
 
     public void Draw(bool drawAdvanced, ActionTimelineCapability capability)
@@ -86,13 +84,13 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
 
         ImBrio.RightAlign(_hederButtonSize, 1);
 
-        if(ImGui.Button("参与者     "))
+        if(ImGui.Button("角色     "))
         {
             ImGui.OpenPopup("animation_control");
         }
-       
+
         ImGui.SameLine();
-    
+
         using(ImRaii.PushColor(ImGuiCol.Button, 0))
         {
             var curPos = ImGui.GetCursorPos();
@@ -114,7 +112,7 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
         using var popup = ImRaii.Popup("animation_control");
         if(popup.Success)
         {
-            if(ImGui.Button("冻结所有参与者", Vector2.Zero))
+            if(ImGui.Button("冻结所有角色", Vector2.Zero))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -131,7 +129,7 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
                 }
             }
 
-            if(ImGui.Button("取消冻结所有参与者", Vector2.Zero))
+            if(ImGui.Button("取消冻结所有角色", Vector2.Zero))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -161,7 +159,7 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
                     }
                 }
             }
-   
+
             if(ImGui.Button("停止所有动画", Vector2.Zero))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
@@ -226,8 +224,8 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
             {
                 ImGui.Checkbox("选择后开始动画", ref _startAnimationOnSelect);
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("选择后（双击）开始动画");
-                
+                    ImGui.SetTooltip("选择时启动动画");
+
                 _globalTimelineSelector.Draw();
 
                 if(_globalTimelineSelector.SoftSelectionChanged && _globalTimelineSelector.SoftSelected != null)
@@ -270,10 +268,12 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
             ApplyBlend(_capability);
 
         ImGui.SameLine();
+
         if(ImBrio.FontIconButtonRight("blend_search", FontAwesomeIcon.Search, 1, "搜索"))
         {
             _globalTimelineSelector.Select(null, false);
             _globalTimelineSelector.AllowBlending = true;
+
             ImGui.OpenPopup("blend_search_popup");
 
         }
@@ -398,6 +398,7 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
     {
 
         var slots = Enum.GetValues<ActionTimelineSlots>();
+
         foreach(var slot in slots)
         {
             using(ImRaii.PushId((int)slot))
@@ -446,12 +447,12 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
     {
         float existingSpeed = _capability.SpeedMultiplier;
         float newSpeed = existingSpeed;
-      
+
         const string speedLabel = "速度";
         ImGui.SetNextItemWidth(drawAdvanced ? MaxItemWidth - ImGui.CalcTextSize("XXXX").X : MaxItemWidth);
         if(ImGui.SliderFloat($"###speed_slider", ref newSpeed, _delimitSpeed ? -5f : 0f, _delimitSpeed ? 10f : 5f))
             _capability.SetOverallSpeedOverride(newSpeed);
-    
+
         if(drawAdvanced)
         {
             ImGui.SameLine();
@@ -506,7 +507,7 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
                             _configService.Configuration.LastXATPath = folderPath;
                             _configService.Save();
 
-                            _cutsceneManager.CameraPath = new XATCameraPathFile(new BinaryReader(File.OpenRead(_cameraPath)));
+                            _cutsceneManager.CameraPath = new XATCameraFile(new BinaryReader(File.OpenRead(_cameraPath)));
                         }
                     }
                     else
@@ -522,7 +523,7 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
         using(ImRaii.Disabled(string.IsNullOrEmpty(_cameraPath)))
         {
             ImGui.Checkbox("启用相机视场（FOV）", ref _cutsceneManager.CameraSettings.EnableFOV);
-          
+
             ImGui.Separator();
 
             ImGui.Text("禁用FOV会使相机的精度降低。");
@@ -539,14 +540,14 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
             ImGui.Checkbox("循环", ref _cutsceneManager.CameraSettings.Loop);
 
             ImGui.Checkbox("播放时隐藏Brio（按下组合键[Shift+B]来停止播放场景）", ref _cutsceneManager.CloseWindowsOnPlay);
-        
+
             ImGui.Checkbox("###delay_Start", ref _cutsceneManager.DelayStart);
             if(ImGui.IsItemHovered())
                 ImGui.SetTooltip("启动延迟（毫秒）");
-         
+
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxItemWidth);
-    
+
             using(ImRaii.Disabled(_cutsceneManager.DelayStart == false))
             {
                 ImGui.InputInt($"###delay_Start_Chek", ref _cutsceneManager.DelayTime, 0, 0);
@@ -557,9 +558,8 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
             ImGui.Text("启动延迟（毫秒）");
 
             ImGui.Separator();
-          
-            ImGui.Checkbox("在播放时启动所有参与者的动画。", ref _cutsceneManager.StartAllActorAnimationsOnPlay);
-        
+            ImGui.Checkbox("在播放时启动所有角色的动画。", ref _cutsceneManager.StartAllActorAnimationsOnPlay);
+
             using(ImRaii.Disabled(_cutsceneManager.StartAllActorAnimationsOnPlay == false))
             {
                 ImGui.Checkbox("###animation_delay_Start", ref _cutsceneManager.DelayAnimationStart);
@@ -586,25 +586,24 @@ internal class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseServic
 
             ImGui.Separator();
 
-            var enb = _cutsceneManager.IsRunning;
-
-            if(enb) ImGui.BeginDisabled();
-            if(ImGui.Button("播放"))
+            var isrunning = _cutsceneManager.IsRunning;
+            using(ImRaii.Disabled(isrunning))
             {
-                _cutsceneManager.StartPlayback();
+                if(ImGui.Button("播放"))
+                {
+                    _cutsceneManager.StartPlayback();
+                }
             }
-            if(enb) ImGui.EndDisabled();
 
             ImGui.SameLine();
 
-            enb = _cutsceneManager.IsRunning;
-
-            if(!enb) ImGui.BeginDisabled();
-            if(ImGui.Button("停止"))
+            using(ImRaii.Disabled(!isrunning))
             {
-                _cutsceneManager.StopPlayback();
+                if(ImGui.Button("停止"))
+                {
+                    _cutsceneManager.StopPlayback();
+                }
             }
-            if(!enb) ImGui.EndDisabled();
         }
     }
 

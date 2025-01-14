@@ -1,5 +1,4 @@
-﻿using Brio.Game.Posing;
-using Brio.Resources;
+﻿using Brio.Resources;
 using Brio.UI.Controls.Core;
 using Dalamud.Interface;
 using Dalamud.Interface.Textures.TextureWraps;
@@ -26,7 +25,7 @@ internal static partial class ImBrio
     public static bool FontIconButton(FontAwesomeIcon icon, Vector2 size)
     {
         bool clicked = false;
-        
+
         using(ImRaii.PushFont(UiBuilder.IconFont))
         {
             clicked = ImGui.Button(icon.ToIconString(), size);
@@ -150,6 +149,8 @@ internal static partial class ImBrio
                 ImGui.Text(icon.ToIconString());
             }
 
+            size.Y = 1;
+
             ImGui.SetCursorPos(startPos);
             ImGui.InvisibleButton("##dummy", size);
             ImGui.SetCursorPos(endPos);
@@ -169,6 +170,31 @@ internal static partial class ImBrio
             ImGui.PushStyleColor(ImGuiCol.Button, toggledColor);
 
         bool clicked = ImGui.Button(lable, size);
+
+        if(isToggled)
+            ImGui.PopStyleColor();
+
+        if(string.IsNullOrEmpty(hoverText) == false)
+        {
+            if(ImGui.IsItemHovered())
+                ImGui.SetTooltip(hoverText);
+        }
+
+        return clicked;
+    }
+
+    public static bool ToggelFontIconButton(string id, FontAwesomeIcon icon, Vector2 size, bool isToggled, uint toggledColor = UIConstants.GizmoRed, string hoverText = "")
+    {
+        var clicked = false;
+
+        if(isToggled)
+            ImGui.PushStyleColor(ImGuiCol.Button, toggledColor);
+
+        using(ImRaii.PushFont(UiBuilder.IconFont))
+        {
+            if(ImGui.Button($"{icon.ToIconString()}###{id}"))
+                clicked = true;
+        }
 
         if(isToggled)
             ImGui.PopStyleColor();
@@ -230,7 +256,6 @@ internal static partial class ImBrio
 
             if(flags.HasFlag(ImGuiButtonFlags.MouseButtonLeft) || flags.HasFlag(ImGuiButtonFlags.MouseButtonRight) || flags.HasFlag(ImGuiButtonFlags.MouseButtonMiddle))
             {
-
                 ImGui.SetCursorPos(startPos + scaleOffsetTopLeft);
                 if(ImGui.InvisibleButton($"button", containedSize, flags))
                 {
@@ -241,7 +266,6 @@ internal static partial class ImBrio
                     Vector2 topPos = ImGui.GetItemRectMin();
                     ImGui.GetWindowDrawList().AddRectFilled(topPos, topPos + containedSize, ImGui.GetColorU32(new Vector4(1, 1, 1, 0.2f)));
                 }
-
             }
 
             ImGui.SetCursorPos(startPos);

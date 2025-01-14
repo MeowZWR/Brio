@@ -1,5 +1,6 @@
 ﻿using Brio.Capabilities.Actor;
 using Brio.Entities;
+using Brio.Entities.Actor;
 using Brio.Game.Actor.Appearance;
 using Brio.Game.Types;
 using Brio.Resources;
@@ -92,16 +93,30 @@ internal class GameDataAppearanceEntry : ItemEntryBase
 
     protected override string GetInternalId() => _id;
 
+    public override bool InvokeDefaultAction(object? args)
+    {
+        if(args is not null and ActorEntity actor)
+        {
+            SetAppearance(actor);
+            return true;
+        }
+
+        return false;
+    }
+
     public override void DrawActions(bool isModal)
     {
         base.DrawActions(isModal);
 
-        ImBrio.DrawApplyToActor(_entityManager, (actor) =>
-        {
-            if(actor.TryGetCapability<ActorAppearanceCapability>(out var capability) && capability != null)
-            {
-                _ = capability.SetAppearance(Appearance, AppearanceImportOptions.All);
-            }
-        });
+        ImBrio.DrawApplyToActor(_entityManager, SetAppearance);
     }
+
+    void SetAppearance(ActorEntity actorEntity)
+    {
+        if(actorEntity.TryGetCapability<ActorAppearanceCapability>(out var capability) && capability != null)
+        {
+            _ = capability.SetAppearance(Appearance, AppearanceImportOptions.All);
+        }
+    }
+
 }

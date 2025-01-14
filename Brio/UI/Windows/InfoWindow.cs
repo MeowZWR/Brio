@@ -38,11 +38,12 @@ internal class InfoWindow : Window
                     目前仍处于alpha版本，因此可能存在bug。如果您遇到了问题，请向我们报告它们。
 
                     特别感谢以下各位通过Kofi对我们的支持！
-                    (Sufferhymn), (Night Song), (Alvar Valo), (YikesXD), (Yasumi), (Yume) (A.HK), 
-                    (LotusEcho), & (Selitha)
+                    (Sufferhymn), (Night Song), (Alvar Valo), (Yasumi), (YikesXD), (Selitha), 
+                    (AquilaHK), (LotusEcho), & (Yume)
                                         
                     感谢以下人员对Brio代码的贡献！
-                    (@Yuki-Codes), (@danma3x), (@WorstAquaPlayer), (@snaeling), (@Caraxi) & (@gris-fuego)
+                    (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), (@snaeling),  
+                    (@WorstAquaPlayer), (@Caraxi), & (@gris-fuego)
 
                     维护与开发：Minmoose.
                     原始开发者: Asgard.
@@ -87,7 +88,7 @@ internal class InfoWindow : Window
             }
             ImGui.PopStyleColor();
             ImGui.SameLine();
-          
+
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 70, 0, 255) / 255);
             if(ImGui.Button("许可&归属", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://github.com/Etheirys/Brio/blob/main/Acknowledgements.md", UseShellExecute = true });
