@@ -10,6 +10,7 @@
         "RepoUrl": "https://github.com/Etheirys/Brio",
         "ApplicableVersion": "any",
         "DalamudApiLevel": 11,
+        "TestingDalamudApiLevel": 11,
         "DownloadLinkInstall": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/global0.4.4.6/Brio.zip",
         "DownloadLinkTesting": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/global0.4.4.6/Brio.zip",
         "DownloadLinkUpdate": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/global0.4.4.6/Brio.zip",
