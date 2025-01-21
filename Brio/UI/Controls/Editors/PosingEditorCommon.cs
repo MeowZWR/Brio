@@ -29,7 +29,7 @@ internal static class PosingEditorCommon
         ImGui.Separator();
 
         var selected = options.TransformComponents.HasFlag(TransformComponents.Position);
-        if(ImGui.Checkbox("Position", ref selected))
+        if(ImGui.Checkbox("位置", ref selected))
         {
             if(selected)
                 options.TransformComponents |= TransformComponents.Position;
@@ -38,7 +38,7 @@ internal static class PosingEditorCommon
         }
 
         selected = options.TransformComponents.HasFlag(TransformComponents.Rotation);
-        if(ImGui.Checkbox("Rotation", ref selected))
+        if(ImGui.Checkbox("旋转", ref selected))
         {
             if(selected)
                 options.TransformComponents |= TransformComponents.Rotation;
@@ -47,7 +47,7 @@ internal static class PosingEditorCommon
         }
 
         selected = options.TransformComponents.HasFlag(TransformComponents.Scale);
-        if(ImGui.Checkbox("Scale", ref selected))
+        if(ImGui.Checkbox("缩放", ref selected))
         {
             if(selected)
                 options.TransformComponents |= TransformComponents.Scale;
@@ -58,7 +58,7 @@ internal static class PosingEditorCommon
         ImGui.Separator();
 
         selected = options.ApplyModelTransform;
-        if(ImGui.Checkbox("Model Transform", ref selected))
+        if(ImGui.Checkbox("模型变换", ref selected))
         {
             options.ApplyModelTransform = selected;
         }
@@ -66,14 +66,14 @@ internal static class PosingEditorCommon
 
     public static void DrawBoneFilterEditor(BoneFilter filter)
     {
-        if(ImBrio.FontIconButton("select_all", Dalamud.Interface.FontAwesomeIcon.Check, "Select All"))
+        if(ImBrio.FontIconButton("select_all", Dalamud.Interface.FontAwesomeIcon.Check, "全选"))
         {
             filter.EnableAll();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("select_none", Dalamud.Interface.FontAwesomeIcon.Minus, "Select None"))
+        if(ImBrio.FontIconButton("select_none", Dalamud.Interface.FontAwesomeIcon.Minus, "不选择"))
         {
             filter.DisableAll();
         }
@@ -142,13 +142,13 @@ internal static class PosingEditorCommon
                 switch(posing.SkeletonPosing.GetBonePose(poseInfo).MirrorMode)
                 {
                     case PoseMirrorMode.None:
-                        ImGui.SetTooltip("Link: None");
+                        ImGui.SetTooltip("链接：无");
                         break;
                     case PoseMirrorMode.Copy:
-                        ImGui.SetTooltip("Link: Copy");
+                        ImGui.SetTooltip("链接：复制");
                         break;
                     case PoseMirrorMode.Mirror:
-                        ImGui.SetTooltip("Link: Mirror");
+                        ImGui.SetTooltip("链接：镜像");
                         break;
                 }
             }
@@ -180,7 +180,7 @@ internal static class PosingEditorCommon
                         ImGui.OpenPopup("transform_ik_popup");
 
                     if(ImGui.IsItemHovered())
-                        ImGui.SetTooltip("Inverse Kinematics");
+                        ImGui.SetTooltip("反向运动（IK）");
                 }
 
                 using var popup = ImRaii.Popup("transform_ik_popup");

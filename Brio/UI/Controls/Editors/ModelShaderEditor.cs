@@ -33,7 +33,7 @@ internal class ModelShaderEditor()
     {
         var resetTo = ImGui.GetCursorPos();
         bool shaderChange = apply.HasOverride;
-        if(ImBrio.FontIconButtonRight("reset_shaders", FontAwesomeIcon.Undo, 1, "Reset Shaders", shaderChange))
+        if(ImBrio.FontIconButtonRight("reset_shaders", FontAwesomeIcon.Undo, 1, "重置着色器", shaderChange))
         {
             apply.Reset();
             _ = _capability.Redraw();
@@ -55,7 +55,7 @@ internal class ModelShaderEditor()
         }
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("Muscle");
+        ImGui.Text("肌肉");
 
         return didChange;
     }
@@ -64,20 +64,20 @@ internal class ModelShaderEditor()
     {
         bool didChange = false;
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.SkinColor, "skinColor", "Skin Color"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.SkinColor, "skinColor", "皮肤颜色"))
         {
             apply.SkinColor = original.SkinColor;
             didChange |= true;
         }
         ImGui.SameLine();
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.SkinGloss, "skinGloss", "Skin Gloss"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.SkinGloss, "skinGloss", "皮肤光泽"))
         {
             apply.SkinGloss = original.SkinGloss;
             didChange |= true;
         }
         ImGui.SameLine();
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.MouthColor, "mouthColor", "Mouth Color"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.MouthColor, "mouthColor", "嘴唇颜色"))
         {
             apply.MouthColor = original.MouthColor;
             didChange |= true;
@@ -86,7 +86,7 @@ internal class ModelShaderEditor()
 
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("Body");
+        ImGui.Text("身体");
 
         return didChange;
     }
@@ -95,14 +95,14 @@ internal class ModelShaderEditor()
     {
         bool didChange = false;
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.LeftEyeColor, "leftEyeColor", "Left Eye Color"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.LeftEyeColor, "leftEyeColor", "左眼颜色"))
         {
             apply.LeftEyeColor = original.LeftEyeColor;
             didChange |= true;
         }
         ImGui.SameLine();
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.RightEyeColor, "rightEyeColor", "Right Eye Color"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.RightEyeColor, "rightEyeColor", "右眼颜色"))
         {
             apply.RightEyeColor = original.RightEyeColor;
             didChange |= true;
@@ -110,7 +110,7 @@ internal class ModelShaderEditor()
 
         ImGui.SameLine();
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.FeatureColor, "featureColor", "Feature Color"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.FeatureColor, "featureColor", "特征颜色"))
         {
             apply.FeatureColor = original.FeatureColor;
             didChange |= true;
@@ -118,7 +118,7 @@ internal class ModelShaderEditor()
 
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("Other");
+        ImGui.Text("其他");
 
         return didChange;
     }
@@ -128,21 +128,21 @@ internal class ModelShaderEditor()
 
         bool didChange = false;
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.HairColor, "hairColor", "Hair Color"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.HairColor, "hairColor", "头发颜色"))
         {
             apply.HairColor = original.HairColor;
             didChange |= true;
         }
         ImGui.SameLine();
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.HairHighlight, "hairHighlight", "Hair Highlight"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.HairHighlight, "hairHighlight", "头发挑染"))
         {
             apply.HairHighlight = original.HairHighlight;
             didChange |= true;
         }
         ImGui.SameLine();
 
-        if(AppearanceEditorCommon.DrawExtendedColor(ref original.HairGloss, "hairGloss", "Hair Gloss"))
+        if(AppearanceEditorCommon.DrawExtendedColor(ref original.HairGloss, "hairGloss", "头发光泽"))
         {
             apply.HairGloss = original.HairGloss;
             didChange |= true;
@@ -151,7 +151,7 @@ internal class ModelShaderEditor()
 
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("Hair");
+        ImGui.Text("头发");
 
         return didChange;
     }

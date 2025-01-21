@@ -19,7 +19,7 @@ internal class ActionTimelineWindow : Window, IDisposable
     private readonly GPoseService _gPoseService;
     private readonly CutsceneManager _cutsceneManager;
 
-    public ActionTimelineWindow(EntityManager entityManager, CutsceneManager cutsceneManager, GPoseService gPoseService, PhysicsService physicsService, ConfigurationService configurationService) : base($"{Brio.Name} - Animation Control###brio_action_timelines_window")
+    public ActionTimelineWindow(EntityManager entityManager, CutsceneManager cutsceneManager, GPoseService gPoseService, PhysicsService physicsService, ConfigurationService configurationService) : base($"{Brio.Name} - 动画控制（XAT）###brio_action_timelines_window")
     {
         Namespace = "brio_action_timelines_namespace";
 
@@ -56,7 +56,7 @@ internal class ActionTimelineWindow : Window, IDisposable
             return;
         }
 
-        WindowName = $"{Brio.Name} - Animation Control - {capability.Entity.FriendlyName}###brio_action_timelines_window";
+        WindowName = $"{Brio.Name} - 动画控制 - {capability.Entity.FriendlyName}###brio_action_timelines_window";
 
         _editor.Draw(true, capability);
     }

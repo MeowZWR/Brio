@@ -1,91 +1,91 @@
 
-To open this window again click `Information` on the Scene Manager then -> `View the Changelog`
+要再次打开此窗口，请在场景管理器上单击“信息”->“查看更新日志”。
 
 --------------------------------------------------------------------------------
-	 ---> Brio, Version 0.4.4 <--- 
+	 ---> Brio，版本 0.4.4 <--- 
 --------------------------------------------------------------------------------
 
 ---------- 0.4.4.5 ----------
 
-- Added new "EX" bone filter
+- 添加了新的 "EX" 骨骼筛选器
 
-- Fixed an issue with Brio's IPC not loading Expressions when loading a pose
+- 修复了 Brio 的 IPC 在加载姿势时未能加载表情的问题
 
-- Fixed an issue with hair when Importing Pose
+- 修复了导入姿势时头发出现的问题
 
-- Fixed an issue with Brio's IPC causing a crash
+- 修复了 Brio 的 IPC 导致崩溃的问题
 
-- Fixed an issue with Ears when importing as Body or Expression
+- 修复了将耳朵导入为身体或表情时出现的问题
 
 ---------- 0.4.4.0 ----------
 
-- Added a Hide Actor button to the `Entity Hierarchy`
+- 在实体层级中添加了一个隐藏角色按钮
 
-- Added `Import as Body`, to Import Pose button 
-- Added a new setting in the Import Pose popup, 
-  - You can now Freeze an Actor after import
+- 在导入姿势按钮中添加了“导入为身体”功能
+- 在导入姿势弹窗中新增设置
+  - 现在可以在导入后冻结角色
 
-- Updated Brio's IPC API (Thanks to Darkarchon for the collaborative efforts!)
-  - For more info on Brio's updated IPC look at `BrioAPI_V2.cs` in the root of Brio's GitHub repo
+- 更新了Brio的IPC API（感谢Darkarchon的协作！）
+  - 有关Brio更新的IPC，请查看Brio GitHub仓库根目录中的“BrioAPI_V2.cs”
 
-- Loading a pose will now be more consistent & predictable
+- 加载姿势现在会更加一致和可预测
 
-- You can now double-click items in Library to apply them
-- You can now make the Library Window smaller
-- You can now make the Library item icon size smaller 
+- 现在可以双击资产库中的项目进行应用
+- 现在可以调整资产库窗口的大小
+- 现在可以调整资产库中项目图标的大小
 
-- Status Effects in the effects selector that have no VFX are now filtered out (Thank you MKhayle!)
-- Added better localization for Status Effects selector (Thank you MKhayle!)
+- 在效果选择器中，没有VFX的状态效果现在已被过滤掉（感谢MKhayle！）
+- 为状态效果选择器提供了更好的本地化支持（感谢MKhayle！）
 
-- Fixed an issue with Anamnesis and editing Brio actors 
-- Fixed the Library's Search Suggest Box closing when it shouldn't
-- Fixed multiple possible crashes!
+- 修复了Anamnesis和编辑Brio角色的问题
+- 修复了库的搜索建议框不应该关闭的问题
+- 修复了多个可能的崩溃问题！
 
 --------------------------------------------------------------------------------
-	 --- Brio, Version 0.4.3 --- 
+	 --- Brio，版本 0.4.3 --- 
 --------------------------------------------------------------------------------
 
 ---------- 0.4.3.1 ----------
 
-- Fix an issue where not all of the actions would appear in the animation select list
-- Fixed an isues with Penumbra and 100+ actors 
+- 修复了动画选择列表中未显示所有动作的问题
+- 修复了Penumbra和100多个角色的问题
 
 ---------- 0.4.3.0 ----------
 
-- Support for FFXIV 7.1!
+- 支持FFXIV 7.1版本！
 
-- Brio can now spawn up to 239 Actors
+- Brio现在可以生成最多239个角色
 
 --------------------------------------------------------------------------------
-	 --- Brio, Version 0.4.1 --- 
+	 --- Brio，版本 0.4.1 --- 
 --------------------------------------------------------------------------------
 
 ---------- 0.4.2.0 ----------
 
-- Provide better compatibility for .chara files
+- 提供了更好的兼容性支持.chara文件
 
 ---------- 0.4.1.0 ----------
 
-- Added a `Universal Gizmo` mode to the `Brio Overlay` Gizmo!
-- Added `Upper & Lower Teeth` bones to `Advanced Pose` window
-- Added `IVCS Buttock` bones to `Advanced Pose` window
+新增功能：
+  - 在“叠加工具栏”中添加了“位置+缩放+旋转”变换器全显示模式！
+  - 在“高级姿势”窗口中添加了“上齿&下齿”骨骼
+  - 在“高级姿势”窗口中添加了“IVCS 臀部”骨骼
+  - 在“场景控制”中添加了“启用相机视场”设置
+  - 在“高级动画”窗口中添加了“速度限界”设置，启用后可以使动画减速或加速范围更大！
 
-- Added a `Enable FOV` setting to the `Cutscene Control`
-- Added a `Delimit Speed` setting to the `Advanced Animation` Window
-   - With this enabled you can make the animation speed go in reverse or very very fast! 
+修复问题：
+  - 修复了在“Entity Hierarchy”中右键点击项目时显示错误项目的问题
+  - 修复了“Glamourer”同步问题
+  - 修复了播放 XAT Cutscene (.xcp) 文件时FOV过高的问题
 
-- Fixed an issue that caused incorrect items to show up when you right-clicked an item in the `Entity Hierarchy`
-- Fixed `Glamourer` desync issues
-- Fixed FOV being high when playing a XAT Cutscene(`.xcp`) file
+优化与改进：
+  - 进行了更多微优化和稳定性改进
 
-- Made more micro-optimizations & more stability improvements
-
- --  Known Issues -- 
-
-- When importing a pose as Expression the head does not rotate properly,
-   - You can fix this by rotating the "Head" bone manually
-- Not all of the new bones are named yet
-- The Library does not have an option to `Import as Expression`
+已知问题：
+  - 导入姿势作为表情时，头部旋转不正确，
+  - 可以通过手动旋转“头部”骨骼来修复
+  - 并非所有的新骨骼都已经命名
+  - 资产库中没有”导入为表情“的选项
 
 
 --------------------------------------------------------------------------------
@@ -94,98 +94,95 @@ To open this window again click `Information` on the Scene Manager then -> `View
 
 ---------- 0.4.0.3 ----------
 
-- Fixed being unable to change an Actor's Appearance if you don't have Glamourer installed
-- Fixed the Camera Window from moving endlessly to the right
-- Fix a crash when leaving GPose with Freeze Physics Enabled
+- 修复了在未安装 Glamourer 的情况下无法更改角色外观的问题
+- 修复了相机窗口无限向右移动的问题
+- 修复了离开 GPose 时启用了冻结物理的崩溃问题
 
 ---------- 0.4.0.0 ----------
 
-- Updated the `Advanced Pose` Window
- - Added a `Freeze Physics` & `Freeze Character` button
- - Changed the Bone Page selector visual style
- - Better layout of Bones on Body page
+- 更新“高级姿势”窗口：
+  - 添加了“冻结物理”和“冻结角色”按钮
+  - 更改了骨骼页面选择器的视觉风格
+  - 改进了身体页面上的骨骼布局
 
-- Refreshed the UI for the `Entity Hierarchy`
+- 刷新“Entity Hierarchy”界面
 
-- Updated the `Animation Control` Editor
- - Ported XAT's `Cutscene Control` to the `Advanced Animation Control` Window
-   - Added a new Cutscene setting, `Start All Actors Animations On Play`
-      - `With this enabled all actors will play the animation set in the `Base` slot`
-   - Added `Start Delay` & `Animation Delay`
-     - Note: `The time-scale for the delay functions are in milliseconds!`
-     - `1000 Milliseconds = 1 Second` 
+- 更新“动画控制”编辑器：
+  - 将 XAT 的“场景控制”移植到了“高级动画控制”窗口
+    - 添加了新的场景设置“在播放时启动所有角色的动画”
+      - 启用后，所有演员将播放在“基础”栏位中设置的动画
+    - 添加了“启动延迟”和“动画延迟”
+      - 注意：延迟函数的时间尺度为毫秒！
+      - 1000 毫秒 = 1 秒
 
- - Refreshed user experience of the `Animation Control` Editor
-   - Added a `Freeze Physics` button 
-   - Added new `Actors` dropdown list 
-      - `With this menu you can Freeze/Un-Freeze all Actors or Stop/Play All Actors Animations`
-   - Pausing Actors should now be more reliable
-   - Added a new setting when searching for a animation, `Start Animation On Select`
+- 改进“动画控制”编辑器的用户体验：
+  - 添加了“冻结物理”按钮
+  - 添加了新的“角色”下拉列表
+    - 通过此菜单可以冻结/解冻所有角色或停止/播放所有角色的动画
+  - 暂停演员现在应该更可靠
+  - 添加了一个新的设置，在搜索动画时“选择后开始动画”
 
-- Added 3 new Key-binds
-  - Stop Playing Cutscene       (Shift + B)
-  - Start All Actors Animations (Shift + N)
-  - Stop All Actors Animations  (Shift + M)
+- 新增 3 个快捷键：
+  - 停止播放场景             (Shift + B)
+  - 启动所有角色的动画     (Shift + N)
+  - 停止所有角色的动画     (Shift + M)
 
-- Added simple savable camera presets to the `Camera Editor`
-  - These presets **do not** persist and will be 'forgotten' after ending a Gpose session 
-- The open `Advanced Window` buttons will now toggle their respective Advanced Windows 
-- Updated the `Brio Welcome` Window
-- Brio will now respond to `/xat` in FFXIV chat
-- Made micro optimizations across the codebase
+- 在“相机”编辑器中添加了可保存的简单相机预设
+  - 这些预设 **不会** 持久化，并将在结束 Gpose 会话后被“遗忘”
+- 现在打开的“高级窗口”按钮将切换其各自的高级窗口
+- 更新了“Brio欢迎”窗口
+- Brio现在会响应FFXIV聊天命令“/xat”
+- 进行了代码库中的微优化
 
-- Fixed a crash with IMGUI
-- Fixed an issue with MCDFs
-- Fixed the margins on the `Rename Actor` Popup 
-
---------------------------------------------------------------------------------
-	 --- Brio, Version 0.3.3 --- 
---------------------------------------------------------------------------------
-
-Support for FFXIV 7.05!
-
--Updated the Advanced Pose Window.
-  - Added a new separate page for Face Bones
-  - You can now undock the Transform Control Pane
-  - You can now Hide the Transform Control Pane
-
-Added more Bone Categories: Face, Eyes, Lips & Jaw
-
-Added a new setting "Use the Library when importing a file"
-`With this disabled you use the Dalamud File Picker when importing files`
-
-Fixed an issue with the Undo Button upon resetting a pose
-
-And finally,
-- Added 'Import as Expression"
-
- --  Known Issues -- 
-
-When importing a pose as Expression the head does not rotate properly,
-You can fix this by rotating the "Head" bone manually
+- 修复了 IMGUI 的崩溃问题
+- 修复了 MCDF 的问题
+- 修复了“重命名角色”弹出窗口的边距问题
 
 --------------------------------------------------------------------------------
-	 --- Brio, Version 0.3.2 --- 
+	 --- Brio，版本 0.3.3 --- 
 --------------------------------------------------------------------------------
 
-- Update Brio for Dawntrail 7.01 
-- Add support for Facewear
+支持 FFXIV 7.05！
 
-- More facial bones added to advanced posing
-- More facial bones named
+- 更新“高级姿势”窗口：
+  - 添加了新的面部骨骼单独页面
+  - 现在可以分离变换控制面板
+  - 现在可以隐藏变换控制面板
 
-- Update Brio for Dawntrail (Thanks Asgard!)
-- Added support for the second dye channel 
-- Added the Import Options button to the Library when importing a pose
-- Renamed some of the bones for better consistency
-- Made the default size of the Skeleton's LineThickness & Bone's CircleSize smaller
+- 添加了更多骨骼类别：面部、眼睛、嘴唇和下颌
+
+- 新增设置：“导入文件时使用资产库”
+  - 禁用时，导入文件时使用卫月文件选择器
+
+- 修复了重置姿势时撤销按钮的问题
+
+- 新增“导入为表情”
+
+--  已知问题 --
+
+导入姿势作为表情时，头部旋转不正确，
+可以通过手动旋转“Head”骨骼来修复
+
+--------------------------------------------------------------------------------
+	 --- Brio，版本 0.3.2 --- 
+--------------------------------------------------------------------------------
+
+- 更新 Brio 以支持 Dawntrail 7.01
+- 添加了对 Facewear 的支持
+- 在高级姿势中添加了更多面部骨骼
+- 更多面部骨骼已命名
+- 更新 Brio 以支持 Dawntrail (感谢 Asgard!)
+- 添加了对第二染色通道的支持
+- 在库中添加了导入姿势时的导入选项按钮
+- 为更好的一致性重命名了一些骨骼
+- 将骨架的线条厚度和骨骼的节点圆环尺寸默认大小缩小
 
 --------------------------------------------------------------------------------
 
-A Big Thank you to (Sufferhymn), (Night Song), (Alvar Valo), (Yasumi), (YikesXD), 
-(Selitha), (AquilaHK), (LotusEcho), & (Yume) for their support on Kofi!
+特别感谢 (Sufferhymn), (Night Song), (Alvar Valo), (Yasumi), (YikesXD), 
+(Selitha), (AquilaHK), (LotusEcho), 和 (Yume) 在 Kofi 上的支持！
 
-Also, Thank you, to: (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), (@snaeling),  
-(@WorstAquaPlayer), (@Caraxi), & (@gris-fuego), for their contributions to Brio!
+同时感谢 (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), (@snaeling),  
+(@WorstAquaPlayer), (@Caraxi), & (@gris-fuego) 对 Brio 的贡献！
 
 --------------------------------------------------------------------------------

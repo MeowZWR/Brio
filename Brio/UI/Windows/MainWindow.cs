@@ -30,7 +30,7 @@ internal class MainWindow : Window, IDisposable
         LibraryWindow libraryWindow,
         EntityManager entityManager,
         InputService input)
-        : base($"{Brio.Name} Scene Manager [{configService.Version}]###brio_main_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.AlwaysAutoResize)
+        : base($"{Brio.Name} 场景管理器 [{configService.Version}]###brio_main_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.AlwaysAutoResize)
     {
         Namespace = "brio_main_namespace";
 
@@ -90,25 +90,25 @@ internal class MainWindow : Window, IDisposable
         float buttonWidths = 25;
         float finalWidth = ImBrio.GetRemainingWidth() - ((buttonWidths * 2) + (ImGui.GetStyle().ItemSpacing.X * 2) + ImGui.GetStyle().WindowBorderSize);
 
-        if(ImBrio.Button("Library", FontAwesomeIcon.Book, new Vector2(finalWidth, 0)))
+        if(ImBrio.Button("资产库", FontAwesomeIcon.Book, new Vector2(finalWidth, 0)))
             _libraryWindow.Toggle();
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Open the Library");
+            ImGui.SetTooltip("打开资产库");
 
         ImGui.SameLine();
         if(ImBrio.FontIconButton(FontAwesomeIcon.InfoCircle, new(buttonWidths, 0)))
             _infoWindow.Toggle();
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Information");
+            ImGui.SetTooltip("信息 & 更新日志");
 
         ImGui.SameLine();
         if(ImBrio.FontIconButton(FontAwesomeIcon.Cog, new(buttonWidths, 0)))
             _settingsWindow.Toggle();
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Settings");
+            ImGui.SetTooltip("设置");
     }
 
     public void Dispose()

@@ -82,7 +82,7 @@ internal abstract class Selector<T> where T : class
                 if(_shouldFocusSearch)
                     ImGui.SetKeyboardFocusHere();
 
-                if(ImGui.InputTextWithHint($"###search", "Search", ref _search, 256))
+                if(ImGui.InputTextWithHint($"###search", "搜索", ref _search, 256))
                 {
                     UpdateList();
                 }

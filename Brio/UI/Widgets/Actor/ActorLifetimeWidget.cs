@@ -15,42 +15,42 @@ internal class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<
 
     public override void DrawQuickIcons()
     {
-        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "Spawn New Actor"))
+        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "生成新角色"))
         {
             Capability.SpawnNewActor(false, false, true);
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_spawnnewwithcompanionslot", FontAwesomeIcon.PlusSquare, "Spawn New Actor with Companion slot"))
+        if(ImBrio.FontIconButton("lifetimewidget_spawnnewwithcompanionslot", FontAwesomeIcon.PlusSquare, "生成新角色且带有宠物栏"))
         {
             Capability.SpawnNewActor(false, true, false);
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "Clone", Capability.CanClone))
+        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "克隆", Capability.CanClone))
         {
             Capability.Clone(false);
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "Destroy", Capability.CanDestroy))
+        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "删除", Capability.CanDestroy))
         {
             Capability.Destroy();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_target", FontAwesomeIcon.Bullseye, "Target"))
+        if(ImBrio.FontIconButton("lifetimewidget_target", FontAwesomeIcon.Bullseye, "目标"))
         {
             Capability.Target();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "Rename"))
+        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "重命名"))
         {
             RenameActorModal.Open(Capability.Actor);
         }
@@ -60,7 +60,7 @@ internal class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<
     {
         if(Capability.CanClone)
         {
-            if(ImGui.MenuItem("Clone###actorlifetime_clone"))
+            if(ImGui.MenuItem("克隆###actorlifetime_clone"))
             {
                 Capability.Clone(true);
             }
@@ -68,18 +68,18 @@ internal class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<
 
         if(Capability.CanDestroy)
         {
-            if(ImGui.MenuItem("Destroy###actorlifetime_destroy"))
+            if(ImGui.MenuItem("删除###actorlifetime_destroy"))
             {
                 Capability.Destroy();
             }
         }
 
-        if(ImGui.MenuItem("Target###actorlifetime_target"))
+        if(ImGui.MenuItem("选中###actorlifetime_target"))
         {
             Capability.Target();
         }
 
-        if(ImGui.MenuItem($"Rename {Capability.Actor.FriendlyName}###actorlifetime_rename"))
+        if(ImGui.MenuItem($"重命名{Capability.Actor.FriendlyName}###actorlifetime_rename"))
         {
             ImGui.CloseCurrentPopup();
 

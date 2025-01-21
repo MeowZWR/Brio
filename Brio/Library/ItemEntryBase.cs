@@ -84,15 +84,15 @@ internal abstract class ItemEntryBase : EntryBase
         ImGui.Spacing();
 
         if(!string.IsNullOrEmpty(this.Author))
-            ImGui.Text($"Author: {this.Author}");
+            ImGui.Text($"作者：{this.Author}");
 
         if(!string.IsNullOrEmpty(this.Version))
-            ImGui.Text($"Version: {this.Version}");
+            ImGui.Text($"版本：{this.Version}");
 
         ImGui.Spacing();
         ImGui.Spacing();
 
-        ImGui.Text("Tags:");
+        ImGui.Text("标签：");
         ImGui.SameLine();
         Tag? selected = ImBrio.DrawTags(this.Tags);
         if(selected != null)
@@ -131,7 +131,7 @@ internal abstract class ItemEntryBase : EntryBase
         ImGui.PopStyleColor();
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip(isFavorite ? "Remove from favorites" : "Add to favorites");
+            ImGui.SetTooltip(isFavorite ? "从收藏移除" : "添加到收藏");
 
         ImGui.SameLine();
     }

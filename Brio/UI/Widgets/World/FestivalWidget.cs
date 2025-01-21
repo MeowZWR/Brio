@@ -12,7 +12,7 @@ namespace Brio.UI.Widgets.World;
 
 internal class FestivalWidget : Widget<FestivalCapability>
 {
-    public override string HeaderName => "Festivals";
+    public override string HeaderName => "节日";
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
 
     private int _selectedFestival;
@@ -51,7 +51,7 @@ internal class FestivalWidget : Widget<FestivalCapability>
 
                         Capability.AllFestivals.TryGetValue(festivalId, out var festival);
 
-                        string name = festival?.ToString() ?? $"Unknown ({festivalId})";
+                        string name = festival?.ToString() ?? $"未知 ({festivalId})";
 
                         if(ImGui.Selectable(name, isSelected))
                         {
@@ -70,14 +70,14 @@ internal class FestivalWidget : Widget<FestivalCapability>
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("festival_add_button", FontAwesomeIcon.Plus, "Add Festival", Capability.CanAdd && _selectedFestival != 0))
+            if(ImBrio.FontIconButton("festival_add_button", FontAwesomeIcon.Plus, "添加节日", Capability.CanAdd && _selectedFestival != 0))
             {
                 AddFestival();
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("festival_remove_button", FontAwesomeIcon.Minus, "Remove Festival", _selectedFestival != 0 && festivals.Contains((uint)_selectedFestival)))
+            if(ImBrio.FontIconButton("festival_remove_button", FontAwesomeIcon.Minus, "删除节日", _selectedFestival != 0 && festivals.Contains((uint)_selectedFestival)))
             {
                 Capability.Remove((uint)_selectedFestival);
             }
@@ -85,14 +85,14 @@ internal class FestivalWidget : Widget<FestivalCapability>
             ImGui.SameLine();
 
 
-            if(ImBrio.FontIconButton("festival_reset_button", FontAwesomeIcon.Redo, "Reset", Capability.HasOverride))
+            if(ImBrio.FontIconButton("festival_reset_button", FontAwesomeIcon.Redo, "重置", Capability.HasOverride))
             {
                 Capability.Reset();
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("festival_search_button", FontAwesomeIcon.Search, "Search", Capability.CanAdd))
+            if(ImBrio.FontIconButton("festival_search_button", FontAwesomeIcon.Search, "搜索", Capability.CanAdd))
             {
                 _globalFestivalSelector.Select(null, false);
                 ImGui.OpenPopup("festival_search_popup");

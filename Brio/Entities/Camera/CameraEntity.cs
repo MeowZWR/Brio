@@ -8,7 +8,7 @@ namespace Brio.Entities.Camera;
 
 internal class CameraEntity : Entity
 {
-    public override string FriendlyName => "Camera";
+    public override string FriendlyName => " 相机";
 
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Camera;
 

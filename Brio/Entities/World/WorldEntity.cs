@@ -6,7 +6,7 @@ namespace Brio.Entities.World;
 
 internal class WorldEntity : Entity
 {
-    public override string FriendlyName => "World";
+    public override string FriendlyName => "世界";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Globe;
     public override bool IsAttached => true;
 

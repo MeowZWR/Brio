@@ -37,7 +37,7 @@ internal class WidgetHelpers
             if(widget.Flags.HasFlag(WidgetFlags.HasAdvanced))
             {
                 var startPos = ImGui.GetCursorPos();
-                string tool = $"Advanced {widget.HeaderName}";
+                string tool = $"高级{widget.HeaderName}";
 
                 if(ImBrio.FontIconButtonRight("advanced", FontAwesomeIcon.SquareArrowUpRight, 1, tool, bordered: false))
                     widget.ToggleAdvancedWindow();

@@ -15,7 +15,7 @@ internal class UpdateWindow : Window
     private readonly List<string> _changelogTest = [];
     private const float _closeButtonWidth = 210f;
 
-    public UpdateWindow() : base($" {Brio.Name} Changelog###brio_update_window")
+    public UpdateWindow() : base($" {Brio.Name} 更新日志###brio_update_window")
     {
         Namespace = "brio_update_namespace";
 
@@ -65,7 +65,7 @@ internal class UpdateWindow : Window
 
         ImGui.SetCursorPosX(((ImBrio.GetRemainingWidth() - _closeButtonWidth) / 2));
 
-        if(ImBrio.Button("Close", Dalamud.Interface.FontAwesomeIcon.SquareXmark, new Vector2(_closeButtonWidth, 0)))
+        if(ImBrio.Button("关闭", Dalamud.Interface.FontAwesomeIcon.SquareXmark, new Vector2(_closeButtonWidth, 0)))
         {
             this.IsOpen = false;
         }

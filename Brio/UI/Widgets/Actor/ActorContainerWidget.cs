@@ -11,7 +11,7 @@ namespace Brio.UI.Widgets.Actor;
 
 internal class ActorContainerWidget(ActorContainerCapability capability) : Widget<ActorContainerCapability>(capability)
 {
-    public override string HeaderName => "Actors";
+    public override string HeaderName => "角色";
     public override WidgetFlags Flags
     {
         get
@@ -50,49 +50,49 @@ internal class ActorContainerWidget(ActorContainerCapability capability) : Widge
         {
             bool hasSelection = _selectedActor != null;
 
-            if(ImBrio.FontIconButton("containerwidget_spawnbasic", FontAwesomeIcon.Plus, "Spawn"))
+            if(ImBrio.FontIconButton("containerwidget_spawnbasic", FontAwesomeIcon.Plus, "生成"))
             {
                 Capability.CreateCharacter(false, true, forceSpawnActorWithoutCompanion: true);
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_spawnattachments", FontAwesomeIcon.PlusSquare, "Spawn with Companion slot"))
+            if(ImBrio.FontIconButton("containerwidget_spawnattachments", FontAwesomeIcon.PlusSquare, "生成且带有宠物栏"))
             {
                 Capability.CreateCharacter(true, true);
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_clone", FontAwesomeIcon.Clone, "Clone", hasSelection))
+            if(ImBrio.FontIconButton("containerwidget_clone", FontAwesomeIcon.Clone, "克隆", hasSelection))
             {
                 Capability.CloneActor(_selectedActor!, false);
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_destroy", FontAwesomeIcon.Trash, "Destroy", hasSelection))
+            if(ImBrio.FontIconButton("containerwidget_destroy", FontAwesomeIcon.Trash, "删除", hasSelection))
             {
                 Capability.DestroyCharacter(_selectedActor!);
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_target", FontAwesomeIcon.Bullseye, "Target", hasSelection))
+            if(ImBrio.FontIconButton("containerwidget_target", FontAwesomeIcon.Bullseye, "目标", hasSelection))
             {
                 Capability.Target(_selectedActor!);
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_selectinhierarchy", FontAwesomeIcon.FolderTree, "Select in Hierarchy", hasSelection))
+            if(ImBrio.FontIconButton("containerwidget_selectinhierarchy", FontAwesomeIcon.FolderTree, "在层次结构中选择", hasSelection))
             {
                 Capability.SelectInHierarchy(_selectedActor!);
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_destroyall", FontAwesomeIcon.Bomb, "Destroy All"))
+            if(ImBrio.FontIconButton("containerwidget_destroyall", FontAwesomeIcon.Bomb, "全部删除"))
             {
                 Capability.DestroyAll();
             }

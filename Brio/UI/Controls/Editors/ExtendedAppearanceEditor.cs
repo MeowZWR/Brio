@@ -30,7 +30,7 @@ internal class ExtendedAppearanceEditor
 
         var resetTo = ImGui.GetCursorPos();
         bool extendedChanged = !currentAppearance.ExtendedAppearance.Equals(originalAppearance.ExtendedAppearance);
-        if(ImBrio.FontIconButtonRight("reset_extended", FontAwesomeIcon.Undo, 1, "Reset Extended", extendedChanged))
+        if(ImBrio.FontIconButtonRight("reset_extended", FontAwesomeIcon.Undo, 1, "重置扩展数据", extendedChanged))
         {
             currentAppearance.ExtendedAppearance = originalAppearance.ExtendedAppearance;
             didChange |= true;
@@ -73,7 +73,7 @@ internal class ExtendedAppearanceEditor
         }
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("Wet");
+        ImGui.Text("湿身程度");
 
         wetness = appearance.ExtendedAppearance.WetnessDepth;
         ImGui.SetNextItemWidth(MaxItemWidth);
@@ -84,7 +84,7 @@ internal class ExtendedAppearanceEditor
         }
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("Wet Depth");
+        ImGui.Text("湿身深度");
 
         return didChange;
     }
@@ -98,14 +98,14 @@ internal class ExtendedAppearanceEditor
 
         using(ImRaii.Disabled(!canTint))
         {
-            didChange |= DrawTint(ref appearance.ExtendedAppearance.CharacterTint, "character", "Character");
+            didChange |= DrawTint(ref appearance.ExtendedAppearance.CharacterTint, "character", "角色");
             ImGui.SameLine();
-            didChange |= DrawTint(ref appearance.ExtendedAppearance.MainHandTint, "mainhand", "Main Hand");
+            didChange |= DrawTint(ref appearance.ExtendedAppearance.MainHandTint, "mainhand", "主手");
             ImGui.SameLine();
-            didChange |= DrawTint(ref appearance.ExtendedAppearance.OffHandTint, "offhand", "Off Hand");
+            didChange |= DrawTint(ref appearance.ExtendedAppearance.OffHandTint, "offhand", "副手");
             ImGui.SameLine();
             ImGui.SetCursorPosX(LabelStart);
-            ImGui.Text("Tints");
+            ImGui.Text("色调");
         }
 
         return didChange;

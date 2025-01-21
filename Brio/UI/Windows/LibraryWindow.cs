@@ -104,7 +104,7 @@ internal class LibraryWindow : Window
         IFramework frameworkService,
         SettingsWindow settingsWindow,
         IServiceProvider serviceProvider)
-        : base($"{Brio.Name} Library###brio_library_window")
+        : base($"{Brio.Name} 资产库###brio_library_window")
     {
         this.Namespace = "brio_library_namespace";
 
@@ -136,8 +136,8 @@ internal class LibraryWindow : Window
         _gPoseService.OnGPoseStateChange += OnGPoseStateChange;
 
         _favoritesFilter = new LibraryFavoritesFilter(configurationService);
-        _charactersFilter = new TypeFilter("Characters", typeof(AnamnesisCharaFile), typeof(ActorAppearanceUnion), typeof(MareCharacterDataFile));
-        _posesFilter = new TypeFilter("Poses", typeof(PoseFile), typeof(CMToolPoseFile));
+        _charactersFilter = new TypeFilter("角色", typeof(AnamnesisCharaFile), typeof(ActorAppearanceUnion), typeof(MareCharacterDataFile));
+        _posesFilter = new TypeFilter("姿势", typeof(PoseFile), typeof(CMToolPoseFile));
         _selectedFilter = _favoritesFilter;
     }
 
@@ -169,11 +169,11 @@ internal class LibraryWindow : Window
 
         if(_configurationService.Configuration.Library.ReturnLibraryToLastLocation)
         {
-            if(_modalFilter?.Name == "Poses" && _lastPathModalPose is not null)
+            if(_modalFilter?.Name == "姿势" && _lastPathModalPose is not null)
             {
                 _path = _lastPathModalPose;
             }
-            else if(_modalFilter?.Name == "Characters" && _lastPathModalChar is not null)
+            else if(_modalFilter?.Name == "角色" && _lastPathModalChar is not null)
             {
                 _path = _lastPathModalChar;
             }
@@ -309,11 +309,11 @@ internal class LibraryWindow : Window
         if(!this.IsOpen || !this._isModal || _modalFilter == null)
             return;
 
-        ImGui.OpenPopup($"Import {_modalFilter.Name}##brio_library_popup");
+        ImGui.OpenPopup($"导入 {_modalFilter.Name}##brio_library_popup");//注意格式和下面的统一，之前少了个空格就出问题了。
 
         ImGui.SetNextWindowSizeConstraints(MinimumSize, ImGui.GetIO().DisplaySize);
 
-        using(var popup = ImRaii.PopupModal($"Import {_modalFilter.Name}##brio_library_popup"))
+        using(var popup = ImRaii.PopupModal($"导入 {_modalFilter.Name}##brio_library_popup"))
         {
             if(popup.Success)
             {
@@ -346,7 +346,7 @@ internal class LibraryWindow : Window
             {
                 ImGui.SameLine();
 
-                if(ImBrio.Button("Browse for File", FontAwesomeIcon.FolderOpen, new Vector2(155, 0)))
+                if(ImBrio.Button("浏览文件", FontAwesomeIcon.FolderOpen, new Vector2(155, 0)))
                     DoBrowse();
 
                 if(ImGui.IsItemHovered())
@@ -454,13 +454,13 @@ internal class LibraryWindow : Window
                             }
 
                             if(ImGui.IsItemHovered())
-                                ImGui.SetTooltip(isFavorite ? "Remove from favorites" : "Add to favorites");
+                                ImGui.SetTooltip(isFavorite ? "从收藏移除" : "添加到收藏");
 
                             ImGui.SameLine();
                         }
                     }
 
-                    bool isPoseModal = _modalFilter?.Name == "Poses";
+                    bool isPoseModal = _modalFilter?.Name == "姿势";
 
                     int offset = 200;
                     if(isPoseModal)
@@ -470,7 +470,7 @@ internal class LibraryWindow : Window
 
                     if(isPoseModal)
                     {
-                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), hoverText: "Import Options"))
+                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), hoverText: "导入选项"))
                         {
                             ImGui.OpenPopup("import_options_popup_lib");
                         }
@@ -490,7 +490,7 @@ internal class LibraryWindow : Window
                     if(doDisable)
                         ImGui.BeginDisabled();
 
-                    if(ImBrio.Button("Import", FontAwesomeIcon.Check, new Vector2(100, 0)))
+                    if(ImBrio.Button("导入", FontAwesomeIcon.Check, new Vector2(100, 0)))
                     {
                         if(_selected != null)
                         {
@@ -503,7 +503,7 @@ internal class LibraryWindow : Window
 
                     ImGui.SameLine();
 
-                    if(ImBrio.Button("Cancel", FontAwesomeIcon.Times, new Vector2(100, 0)))
+                    if(ImBrio.Button("取消", FontAwesomeIcon.Times, new Vector2(100, 0)))
                     {
                         Close();
                     }
@@ -694,7 +694,7 @@ internal class LibraryWindow : Window
 
                         if(ImGui.IsItemHovered())
                         {
-                            ImGui.SetTooltip("Scan all library sources and refresh the view");
+                            ImGui.SetTooltip("扫描所有资产库资源并刷新视图");
                         }
                     }
                 }
@@ -917,7 +917,7 @@ internal class LibraryWindow : Window
 
                         if(trimmedTags > 0)
                         {
-                            ImBrio.Text($"plus {trimmedTags} more tags...", 0x88FFFFFF);
+                            ImBrio.Text($"加 {trimmedTags} 更多标签...", 0x88FFFFFF);
                         }
 
                         hasContent = true;
@@ -926,7 +926,7 @@ internal class LibraryWindow : Window
                     // quick tag
                     if(availableTags.Count >= 1)
                     {
-                        ImBrio.Text($"Press TAB to filter by tag \"{availableTags[0].DisplayName}\"", 0x88FFFFFF);
+                        ImBrio.Text($"按TAB键依据标签进行筛选 \"{availableTags[0].DisplayName}\"", 0x88FFFFFF);
                         hasContent = true;
 
                         if(ImGui.IsKeyPressed(ImGuiKey.Tab))
@@ -939,7 +939,7 @@ internal class LibraryWindow : Window
 
                     if(!hasContent)
                     {
-                        ImBrio.Text($"Start typing to search...", 0x88FFFFFF);
+                        ImBrio.Text($"开始输入进行搜索...", 0x88FFFFFF);
                     }
                 }
 
@@ -1061,7 +1061,7 @@ internal class LibraryWindow : Window
 
     private void DrawFooter()
     {
-        if(ImBrio.Button("Add new source", FontAwesomeIcon.None, new Vector2(100, 0)))
+        if(ImBrio.Button("添加资产", FontAwesomeIcon.None, new Vector2(100, 0)))
         {
             if(_isModal)
             {
@@ -1081,17 +1081,17 @@ internal class LibraryWindow : Window
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip($"Icon Size: {size}px");
+            ImGui.SetTooltip($"图片尺寸：{size}px");
 
         ImGui.SameLine();
 
         if(_isRescanning || _libraryManager.IsScanning)
         {
-            ImGui.TextDisabled("Scanning...");
+            ImGui.TextDisabled("扫描...");
         }
         else
         {
-            ImGui.TextDisabled($"found {_currentEntries?.Count().ToString("N0")} items in {_lastRefreshTimeMs}ms");
+            ImGui.TextDisabled($"发现{_currentEntries?.Count().ToString("N0")}个对象，花费{_lastRefreshTimeMs}毫秒");
         }
     }
 

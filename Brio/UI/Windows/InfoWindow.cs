@@ -32,23 +32,26 @@ internal class InfoWindow : Window
             if(textGroup.Success)
             {
                 var text = $"""
-                    Welcome to Brio, Version {_configurationService.Version}!
+                    欢迎使用Brio，当前版本为 {_configurationService.Version}!
 
-                    Brio is a suite of tools to enhance your GPosing experience,
-                    Brio is currently in alpha, as such, there may be bugs,
-                    if you find any, please report them!
+                    Brio是一套为您增强GPosing体验的工具。
+                    目前仍处于alpha版本，因此可能存在bug。
+                    如果您遇到了问题，请向我们报告它们。
 
-                    A Big Thank you to (Sufferhymn), (Night Song), (Alvar Valo), (Yasumi), (YikesXD), 
-                    (Selitha), (AquilaHK), (LotusEcho), & (Yume) for their support on Kofi!
+                    特别感谢以下各位通过Kofi对我们的支持！
+                    (Sufferhymn), (Night Song), (Alvar Valo), (Yasumi), (YikesXD), (Selitha), 
+                    (AquilaHK), (LotusEcho), & (Yume)
 
-                    Also, Thank you, to: (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), (@snaeling),  
-                    (@WorstAquaPlayer), (@Caraxi), & (@gris-fuego), for their contributions to Brio!
+                    感谢以下人员对Brio代码的贡献！
+                    (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), (@snaeling),  
+                    (@WorstAquaPlayer), (@Caraxi), & (@gris-fuego)
 
-                    Maintained & Developed by: Minmoose.
-                    Originally Developed by: Asgard.
+                    维护与开发：Minmoose.
+                    原始开发者: Asgard.
                     
-                    Happy Posing!
+                    汉化：MeowZWR.
 
+                    祝您玩地愉快！
 
                     """;
 
@@ -62,24 +65,24 @@ internal class InfoWindow : Window
         if(buttonGroup.Success)
         {
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 100, 255, 255) / 255);
-            if(ImGui.Button("Support Development", buttonSize))
+            if(ImGui.Button("支持开发", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://ko-fi.com/minmoosexiv", UseShellExecute = true });
             ImGui.PopStyleColor();
             ImGui.SameLine();
 
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(86, 98, 246, 255) / 255);
-            if(ImGui.Button("Join the Discord", buttonSize))
+            if(ImGui.Button("加入Discord", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://discord.gg/KvGJCCnG8t", UseShellExecute = true });
             ImGui.PopStyleColor();
             ImGui.SameLine();
 
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(255, 0, 0, 255) / 255);
-            if(ImGui.Button("Report an Issue", buttonSize))
+            if(ImGui.Button("报告问题", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://github.com/Etheirys/Brio/issues", UseShellExecute = true });
             ImGui.PopStyleColor();
 
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(110, 84, 148, 255) / 255);
-            if(ImGui.Button("View the Changelog", buttonSize))
+            if(ImGui.Button("查看更新日志", buttonSize))
             {
                 ImGui.SetNextWindowPos(new Vector2((ImGui.GetIO().DisplaySize.X - 630) / 2, (ImGui.GetIO().DisplaySize.Y - 535) / 2));
                 _updateWindow.IsOpen = true;
@@ -88,13 +91,13 @@ internal class InfoWindow : Window
             ImGui.SameLine();
           
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 70, 0, 255) / 255);
-            if(ImGui.Button("License & Attributions", buttonSize))
+            if(ImGui.Button("许可&归属", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://github.com/Etheirys/Brio/blob/main/Acknowledgements.md", UseShellExecute = true });
             ImGui.PopStyleColor();
             ImGui.SameLine();
 
             ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(29, 161, 242, 255) / 255);
-            if(ImGui.Button("More Links", buttonSize))
+            if(ImGui.Button("更多链接", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://etheirystools.carrd.co", UseShellExecute = true });
             ImGui.PopStyleColor();
             ImGui.SameLine();

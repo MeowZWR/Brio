@@ -10,7 +10,7 @@ internal class LibraryRoot : GroupEntryBase
     {
     }
 
-    public override string Name => "Library";
+    public override string Name => "资产库";
     public override IDalamudTextureWrap? Icon => null;
 
     public override void DrawInfo(LibraryWindow window)

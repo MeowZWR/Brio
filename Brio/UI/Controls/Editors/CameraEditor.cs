@@ -34,7 +34,7 @@ internal static class CameraEditor
                 {
                     var width = -ImGui.CalcTextSize("XXXXXXXXXx").X;
 
-                    const string offsetText = "Offset";
+                    const string offsetText = "偏移";
                     Vector3 pos = capability.PositionOffset;
                     ImGui.SetNextItemWidth(width);
                     if(ImGui.DragFloat3(offsetText, ref pos, 0.001f))
@@ -42,10 +42,10 @@ internal static class CameraEditor
 
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("reset", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "Reset", capability.IsOveridden))
+                    if(ImBrio.FontIconButtonRight("reset", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", capability.IsOveridden))
                         capability.Reset();
 
-                    const string rotationText = "Rotation";
+                    const string rotationText = "旋转";
                     float rotation = camera->Rotation;
                     ImGui.SetNextItemWidth(width);
                     if(ImBrio.SliderAngle(rotationText, ref rotation, -180, 180, "%.2f"))
@@ -53,10 +53,10 @@ internal static class CameraEditor
 
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetRotation", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "Reset", rotation != 0))
+                    if(ImBrio.FontIconButtonRight("resetRotation", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", rotation != 0))
                         camera->Rotation = 0;
 
-                    const string zoomText = "Zoom";
+                    const string zoomText = "变焦";
                     float zoom = camera->Camera.Distance;
                     ImGui.SetNextItemWidth(width);
                     if(ImBrio.SliderFloat(zoomText, ref zoom, camera->Camera.MaxDistance, camera->Camera.MinDistance, "%.2f", ImGuiSliderFlags.AlwaysClamp))
@@ -64,10 +64,10 @@ internal static class CameraEditor
 
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetZoom", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "Reset", zoom != 2.5))
+                    if(ImBrio.FontIconButtonRight("resetZoom", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", zoom != 2.5))
                         camera->Camera.Distance = 2.5f;
 
-                    const string fovText = "FoV";
+                    const string fovText = "视场";
                     float fov = camera->FoV;
                     ImGui.SetNextItemWidth(width);
                     if(ImBrio.SliderAngle(fovText, ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp))
@@ -75,10 +75,10 @@ internal static class CameraEditor
 
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetFoV", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "Reset", fov != 0))
+                    if(ImBrio.FontIconButtonRight("resetFoV", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", fov != 0))
                         camera->FoV = 0f;
 
-                    const string panText = "Pan";
+                    const string panText = "摇摄";
                     Vector2 pan = camera->Pan;
                     ImGui.SetNextItemWidth(width);
                     if(ImGui.DragFloat2(panText, ref pan, 0.001f))
@@ -86,28 +86,28 @@ internal static class CameraEditor
             
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetPan", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "Reset", pan != Vector2.Zero))
+                    if(ImBrio.FontIconButtonRight("resetPan", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", pan != Vector2.Zero))
                         camera->Pan = new Vector2(0, 0);
 
-                    const string angleText = "Angle";
+                    const string angleText = "角度";
                     Vector2 angle = camera->Angle;
                     ImGui.SetNextItemWidth(width);
                     if(ImGui.DragFloat2(angleText, ref angle, 0.001f))
                         camera->Angle = angle;
         
                     var disable = capability.DisableCollision;
-                    if(ImGui.Checkbox("Disable Collision", ref disable))
+                    if(ImGui.Checkbox("禁用碰撞", ref disable))
                         capability.DisableCollision = disable;
 
                     ImGui.SameLine();
 
                     var delimit = capability.DelimitCamera;
-                    if(ImGui.Checkbox("Delimit Camera", ref delimit))
+                    if(ImGui.Checkbox("解限相机", ref delimit))
                         capability.DelimitCamera = delimit;
 
                     ImGui.Separator();
 
-                    if(ImGui.CollapsingHeader("Camera Presets"))
+                    if(ImGui.CollapsingHeader("相机预设"))
                     {
                         for(int i = 0; i < 3; i++)
                         {
@@ -115,7 +115,7 @@ internal static class CameraEditor
 
                             ImGui.SameLine();
 
-                            if(ImGui.Button($"Save##{i}"))
+                            if(ImGui.Button($"保存##{i}"))
                                 presets[i] = new CameraPresetProperties(capability.PositionOffset, camera->Rotation,
                                     camera->Camera.Distance, camera->FoV, camera->Pan, camera->Angle,
                                     capability.DisableCollision, capability.DelimitCamera);
@@ -123,7 +123,7 @@ internal static class CameraEditor
                             if(presets[i].isSet)
                             {
                                 ImGui.SameLine();
-                                if(ImGui.Button($"Load##{i}"))
+                                if(ImGui.Button($"加载##{i}"))
                                 {
                                     capability.PositionOffset = presets[i].offset;
                                     camera->Rotation = presets[i].rotation;

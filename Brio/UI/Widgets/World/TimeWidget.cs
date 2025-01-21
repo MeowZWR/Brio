@@ -10,7 +10,7 @@ namespace Brio.UI.Widgets.World;
 
 internal class TimeWidget(TimeCapability timeCapability) : Widget<TimeCapability>(timeCapability)
 {
-    public override string HeaderName => "Time";
+    public override string HeaderName => "时间";
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
 
     public override void DrawBody()
@@ -27,11 +27,11 @@ internal class TimeWidget(TimeCapability timeCapability) : Widget<TimeCapability
 
 
         ImGui.PushItemWidth(-((ImGui.GetStyle().FramePadding.X * 2) + ImGui.CalcTextSize("XXXXXXXXXXXXX").X));
-        ImGui.SliderInt("Time of Day", ref minuteOfDay, 0, 1439, $"{displayTime.Hours:D2}:{displayTime.Minutes:D2}");
+        ImGui.SliderInt("当日时间", ref minuteOfDay, 0, 1439, $"{displayTime.Hours:D2}:{displayTime.Minutes:D2}");
         ImGui.SameLine();
         unlockPos = ImGui.GetCursorPos();
         ImGui.NewLine();
-        ImGui.SliderInt("Day of Month", ref dayOfMonth, 1, 31);
+        ImGui.SliderInt("日期", ref dayOfMonth, 1, 31);
         ImGui.PopItemWidth();
 
 
@@ -39,12 +39,12 @@ internal class TimeWidget(TimeCapability timeCapability) : Widget<TimeCapability
         ImGui.SetCursorPos(unlockPos);
         if(isLocked)
         {
-            if(ImBrio.FontIconButtonRight("timelock", FontAwesomeIcon.Unlock, 1, "Unlock Time", bordered: false))
+            if(ImBrio.FontIconButtonRight("timelock", FontAwesomeIcon.Unlock, 1, "解锁时间", bordered: false))
                 isLocked = false;
         }
         else
         {
-            if(ImBrio.FontIconButtonRight("timelock", FontAwesomeIcon.Lock, 1, "Lock Time", bordered: false))
+            if(ImBrio.FontIconButtonRight("timelock", FontAwesomeIcon.Lock, 1, "锁定时间", bordered: false))
                 isLocked = true;
         }
         ImGui.SetCursorPos(preservePos);

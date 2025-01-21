@@ -61,16 +61,16 @@ internal class PosingTransformEditor
         bool didChange = false;
         bool anyActive = false;
 
-        (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_0", ref realTransform.Position, 0.1f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position");
-        (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, 1f, FontAwesomeIcon.ArrowsSpin, "Rotation");
-        (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transformScale_0", ref realTransform.Scale, 0.1f, FontAwesomeIcon.ExpandAlt, "Scale");
+        (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_0", ref realTransform.Position, 0.1f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置");
+        (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, 1f, FontAwesomeIcon.ArrowsSpin, "旋转");
+        (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transformScale_0", ref realTransform.Scale, 0.1f, FontAwesomeIcon.ExpandAlt, "缩放");
 
         didChange |= pdidChange |= rdidChange |= sdidChange;
         anyActive |= panyActive |= ranyActive |= sanyActive;
 
         ImGui.Spacing();
 
-        if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "Propagate", bone?.EligibleForIK == true))
+        if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "传递", bone?.EligibleForIK == true))
             ImGui.OpenPopup("transform_propagate_popup");
 
         if(compactMode)
@@ -123,9 +123,9 @@ internal class PosingTransformEditor
         bool didChange = false;
         bool anyActive = false;
 
-        (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_0", ref realTransform.Position, 0.1f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position");
-        (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, 5.0f, FontAwesomeIcon.ArrowsSpin, "Rotation");
-        (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transformScale_0", ref realTransform.Scale, 0.1f, FontAwesomeIcon.ExpandAlt, "Scale");
+        (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_0", ref realTransform.Position, 0.1f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置");
+        (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, 5.0f, FontAwesomeIcon.ArrowsSpin, "旋转");
+        (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transformScale_0", ref realTransform.Scale, 0.1f, FontAwesomeIcon.ExpandAlt, "缩放");
 
         didChange |= pdidChange |= rdidChange |= sdidChange;
         anyActive |= panyActive |= ranyActive |= sanyActive;
@@ -165,7 +165,7 @@ internal class PosingTransformEditor
             propagate = propBool ? propagate | TransformComponents.Position : propagate & ~TransformComponents.Position;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Propagate Positions");
+            ImGui.SetTooltip("传递位置");
 
         ImGui.SameLine();
         propBool = propagate.HasFlag(TransformComponents.Rotation);
@@ -175,7 +175,7 @@ internal class PosingTransformEditor
             propagate = propBool ? propagate | TransformComponents.Rotation : propagate & ~TransformComponents.Rotation;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Propagate Rotations");
+            ImGui.SetTooltip("传递旋转");
 
         ImGui.SameLine();
 
@@ -186,7 +186,7 @@ internal class PosingTransformEditor
             propagate = propBool ? propagate | TransformComponents.Scale : propagate & ~TransformComponents.Scale;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Propagate Scales");
+            ImGui.SetTooltip("传递缩放");
 
         return didChange;
     }

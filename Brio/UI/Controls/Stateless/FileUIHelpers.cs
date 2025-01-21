@@ -31,19 +31,19 @@ internal class FileUIHelpers
             using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
             {
 
-                var size = ImGui.CalcTextSize("XXXX Freeze Actor on Import");
+                var size = ImGui.CalcTextSize("XXXX 导入时冻结角色");
                 size.Y = 44;
 
-                ImGui.Checkbox("Freeze Actor on Import", ref freezeOnLoad);
+                ImGui.Checkbox("导入时冻结角色", ref freezeOnLoad);
             
                 ImGui.Separator();
 
-                if(ImGui.Button("Import as Body", size))
+                if(ImGui.Button("导入为身体", size))
                 {
                     ShowImportPoseModal(capability, asBody: true, freezeOnLoad: freezeOnLoad);
                 }
 
-                if(ImGui.Button("Import as Expression", size))
+                if(ImGui.Button("导入为表情", size))
                 {
                     ShowImportPoseModal(capability, asExpression: true, freezeOnLoad: freezeOnLoad);
                 }
@@ -54,11 +54,11 @@ internal class FileUIHelpers
                     ImGui.OpenPopup("import_optionsImportPoseMenuPopup");
 
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Import Options");
+                    ImGui.SetTooltip("导入选项");
 
                 ImGui.SameLine();
 
-                if(ImGui.Button("Import with Options", new(size.X - 32, 25)))
+                if(ImGui.Button("按选项导入", new(size.X - 32, 25)))
                 {
                     ShowImportPoseModal(capability, freezeOnLoad: freezeOnLoad);
                 }
@@ -76,7 +76,7 @@ internal class FileUIHelpers
 
     public static void ShowImportPoseModal(PosingCapability capability, PoseImporterOptions? options = null, bool asExpression = false, bool asBody = false, bool freezeOnLoad = false)
     {
-        TypeFilter filter = new("Poses", typeof(CMToolPoseFile), typeof(PoseFile));
+        TypeFilter filter = new("姿势", typeof(CMToolPoseFile), typeof(PoseFile));
 
 
         if(ConfigurationService.Instance.Configuration.UseLibraryWhenImporting)
@@ -111,7 +111,7 @@ internal class FileUIHelpers
 
     public static void ShowExportPoseModal(PosingCapability capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Pose###export_pose", "Pose File (*.pose){.pose}", "brio", ".pose",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出姿势###export_pose", "Pose File (*.pose){.pose}", "brio", ".pose",
                 (success, path) =>
                 {
                     if(success)
@@ -138,7 +138,7 @@ internal class FileUIHelpers
         if(capability.CanMcdf)
             types.Add(typeof(MareCharacterDataFile));
 
-        TypeFilter filter = new TypeFilter("Characters", [.. types]);
+        TypeFilter filter = new TypeFilter("角色", [.. types]);
 
         if(ConfigurationService.Instance.Configuration.UseLibraryWhenImporting)
         {
@@ -181,7 +181,7 @@ internal class FileUIHelpers
 
     public static void ShowExportCharacterModal(ActorAppearanceCapability capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Character File###export_character_window", "Character File (*.chara){.chara}", "brio", "{.chara}",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出角色文件###export_character_window", "Character File (*.chara){.chara}", "brio", "{.chara}",
                 (success, path) =>
                 {
                     if(success)
@@ -204,7 +204,7 @@ internal class FileUIHelpers
 
     public static void ShowImportMCDFModal(ActorAppearanceCapability capability)
     {
-        UIManager.Instance.FileDialogManager.OpenFileDialog("Import MCDF File###import_character_window", "Mare Character Data File (*.mcdf){.mcdf}",
+        UIManager.Instance.FileDialogManager.OpenFileDialog("导入 MCDF 文件###import_character_window", "月海角色数据文件(*.mcdf){.mcdf}",
                  (success, paths) =>
                  {
                      if(success && paths.Count == 1)

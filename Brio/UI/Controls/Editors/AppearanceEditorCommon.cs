@@ -12,8 +12,8 @@ namespace Brio.UI.Controls.Editors;
 
 internal static class AppearanceEditorCommon
 {
-    private const string _collectionLabel = "Collection";
-    private static float _lableWidth { get; } = ImGui.CalcTextSize($"{_collectionLabel} XXXXXXXXX").X;
+    private const string _collectionLabel = "合集";
+    private static float _lableWidth { get; } = ImGui.CalcTextSize($"{_collectionLabel} XXXXXXXXXXXXXXXX").X;
 
     private static readonly NpcSelector _globalNpcSelector = new("global_npc_selector");
 
@@ -43,7 +43,7 @@ internal static class AppearanceEditorCommon
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight("actorappearancewidget_reset", FontAwesomeIcon.Undo, 1, "Reset", capability.IsCollectionOverridden))
+        if(ImBrio.FontIconButtonRight("actorappearancewidget_reset", FontAwesomeIcon.Undo, 1, "重置", capability.IsCollectionOverridden))
             capability.ResetCollection();
     }
 

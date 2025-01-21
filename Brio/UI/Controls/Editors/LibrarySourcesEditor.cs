@@ -81,7 +81,7 @@ internal static class LibrarySourcesEditor
                 }
 
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Remove the selected source");
+                    ImGui.SetTooltip("移除选中的资产");
             }
 
             ImGui.SameLine();
@@ -102,7 +102,7 @@ internal static class LibrarySourcesEditor
                 }
 
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Toggle the selected source on or off");
+                    ImGui.SetTooltip("启用或禁用选中的资产");
             }
 
             ImGui.SameLine();
@@ -119,7 +119,7 @@ internal static class LibrarySourcesEditor
                 }
 
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Edit the selected source");
+                    ImGui.SetTooltip("编辑选中的资产");
 
             }
         }
@@ -138,14 +138,14 @@ internal static class LibrarySourcesEditor
 
                 selectedItem = new FileSourceConfig
                 {
-                    Name = "New Source"
+                    Name = "新增资产"
                 };
 
                 ImGui.OpenPopup("###settings_edit_source");
             }
 
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Add a new source");
+                ImGui.SetTooltip("新增资产路径");
         }
 
         if(isEditing && selectedItem is not null)
@@ -170,7 +170,7 @@ internal static class LibrarySourcesEditor
                     return;
 
                 string name = selectedItem.Name ?? string.Empty;
-                if(ImGui.InputText("Name###settings_edit_source_name", ref name, 80))
+                if(ImGui.InputText("名称###settings_edit_source_name", ref name, 80))
                 {
                     selectedItem.Name = name;
                 }
@@ -181,18 +181,18 @@ internal static class LibrarySourcesEditor
 
                     string path = fileSource.Path ?? string.Empty;
 
-                    if(ImGui.InputText("Path", ref path, 120))
+                    if(ImGui.InputText("路径", ref path, 120))
                     {
                         fileSource.Path = path;
                     }
 
-                    if(ImGui.Button("Browse for Folder", new(120, 0)))
+                    if(ImGui.Button("浏览文件夹", new(120, 0)))
                     {
                         isItemEditorOpen = false;
                         isFolderDialogOpen = true;
 
                         UIManager.Instance.FileDialogManager.OpenFolderDialog(
-                            "Browse for Folder",
+                            "浏览文件夹",
                             (success, path) =>
                             {
                                 if(success && !string.IsNullOrEmpty(path))
@@ -218,7 +218,7 @@ internal static class LibrarySourcesEditor
                         if(string.IsNullOrEmpty(fileSource.Path))
                             ImGui.BeginDisabled();
 
-                        if(ImGui.Button("Save", new(100, 0)))
+                        if(ImGui.Button("保存", new(100, 0)))
                         {
                             config.AddSource(selectedItem);
 
@@ -234,7 +234,7 @@ internal static class LibrarySourcesEditor
 
                         ImGui.SameLine();
 
-                        if(ImGui.Button("Cancel", new(100, 0)))
+                        if(ImGui.Button("取消", new(100, 0)))
                         {
                             ClosePopUp();
                         }
@@ -243,7 +243,7 @@ internal static class LibrarySourcesEditor
                     {
                         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImBrio.GetRemainingWidth() - 110);
 
-                        if(ImGui.Button("OK", new(100, 0)))
+                        if(ImGui.Button("确定", new(100, 0)))
                         {
                             HasSourcesChanged = true;
 
@@ -285,7 +285,7 @@ internal static class LibrarySourcesEditor
 
         ImBrio.FontIcon(sourceConfig.Enabled ? FontAwesomeIcon.Check : FontAwesomeIcon.Times);
         ImGui.SameLine();
-        ImGui.Text(sourceConfig.Name ?? "Unnamed Source");
+        ImGui.Text(sourceConfig.Name ?? "未命名的资产");
 
         if(sourceConfig is FileSourceConfig fileSource)
         {
@@ -308,7 +308,7 @@ internal static class LibrarySourcesEditor
 
                 if(ImGui.IsItemHovered())
                 {
-                    ImGui.SetTooltip("This directory does not exist");
+                    ImGui.SetTooltip("此目录不存在");
                 }
             }
 

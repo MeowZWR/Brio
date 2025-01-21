@@ -8,7 +8,7 @@ namespace Brio.Entities.World;
 
 internal class EnvironmentEntity(IServiceProvider provider) : Entity("environment", provider)
 {
-    public override string FriendlyName => "Environment";
+    public override string FriendlyName => "环境";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.MountainSun;
 
     public override void OnAttached()

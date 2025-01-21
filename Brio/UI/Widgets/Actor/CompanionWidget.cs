@@ -12,8 +12,8 @@ internal unsafe class CompanionWidget(CompanionCapability capability) : Widget<C
 {
     public override string HeaderName => Capability.Mode switch
     {
-        CompanionCapability.ModeType.Owner => "Companion",
-        CompanionCapability.ModeType.Companion => "Type",
+        CompanionCapability.ModeType.Owner => "宠物",
+        CompanionCapability.ModeType.Companion => "类型",
         _ => "Companion"
     };
 
@@ -35,7 +35,7 @@ internal unsafe class CompanionWidget(CompanionCapability capability) : Widget<C
     public override void DrawPopup()
     {
         if(Capability.Character.HasSpawnedCompanion())
-            if(ImGui.MenuItem("Destroy Companion###companionowner_popup_destroy"))
+            if(ImGui.MenuItem("删除宠物###companionowner_popup_destroy"))
                 Capability.DestroyCompanion();
     }
 

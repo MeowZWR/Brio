@@ -32,12 +32,12 @@ internal class FestivalSelector(string id, IEnumerable<FestivalEntry> entries) :
 
     protected override void DrawOptions()
     {
-        if(ImGui.Checkbox("Show Unknown", ref _showUnknown))
+        if(ImGui.Checkbox("显示未知的", ref _showUnknown))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImGui.Checkbox("Show Unsafe", ref _showUnsafe))
+        if(ImGui.Checkbox("显示不安全的", ref _showUnsafe))
             UpdateList();
     }
 

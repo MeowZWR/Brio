@@ -5,7 +5,7 @@ internal class SearchQueryFilter : FilterBase
     public string[]? Query;
 
     public SearchQueryFilter()
-        : base("Search")
+        : base("搜索")
     {
     }
 

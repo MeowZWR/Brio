@@ -42,7 +42,7 @@ internal class RenameActorModal
         if(IsOpen == false)
             return;
 
-        ImGui.OpenPopup($"Rename##brio_renamemodal_popup");
+        ImGui.OpenPopup($"重命名##brio_renamemodal_popup");
 
         ImGui.SetNextWindowSizeConstraints(MinimumSize, MinimumSize);
         ImGui.SetNextWindowPos(new Vector2((ImGui.GetIO().DisplaySize.X / 2) - (MinimumSize.X / 2), (ImGui.GetIO().DisplaySize.Y / 2) - (MinimumSize.Y / 2)));
@@ -53,15 +53,15 @@ internal class RenameActorModal
             {
                 if(currentActorEntity is not null && currentActorEntity.IsAttached == true)
                 {
-                    ImGui.Text($"Renaming:  [ {currentActorEntity.FriendlyName} ]");
+                    ImGui.Text($"重命名：[ {currentActorEntity.FriendlyName} ]");
 
-                    ImGui.InputText("Actor Name###brio_renamemodal_popup_name", ref currentActorName, 20);
+                    ImGui.InputText("角色名称###brio_renamemodal_popup_name", ref currentActorName, 20);
 
                     float buttonW = (MinimumSize.X / 3) - 7;
             
                     using(ImRaii.Disabled(string.IsNullOrEmpty(currentActorName)))
                     {
-                        if(ImGui.Button("Save", new(buttonW, 0)))
+                        if(ImGui.Button("保存", new(buttonW, 0)))
                         {
                             if(currentActorEntity.IsAttached)
                             {
@@ -75,7 +75,7 @@ internal class RenameActorModal
 
                     ImGui.SameLine();
 
-                    if(ImGui.Button("Reset Name", new(buttonW, 0)))
+                    if(ImGui.Button("重置名称", new(buttonW, 0)))
                     {
                         if(currentActorEntity.IsAttached)
                         {
@@ -86,7 +86,7 @@ internal class RenameActorModal
 
                     ImGui.SameLine();
 
-                    if(ImGui.Button("Cancel", new(buttonW, 0)))
+                    if(ImGui.Button("取消", new(buttonW, 0)))
                     {
                         Close();
                     }
