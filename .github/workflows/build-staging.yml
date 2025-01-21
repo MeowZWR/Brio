@@ -3,11 +3,11 @@ name: Build Brio - Dalamud Staging
 on:
   push:
     branches: 
-    - main
+    - global-0.4.4.x
     tags-ignore: '*'
   pull_request:
     branches:
-    - main
+    - global-0.4.4.x
 
 jobs:
   build:
