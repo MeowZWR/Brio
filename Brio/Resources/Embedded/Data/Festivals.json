@@ -22,7 +22,7 @@
   {
     "Id": 26,
     "Name": "New Year Machinations (Music) (2015)",
-    "Unsafe": false
+    "Unsafe": true
   },
   {
     "Id": 30,
@@ -37,7 +37,7 @@
   {
     "Id": 41,
     "Name": "New Year Machinations (Music) (2016)",
-    "Unsafe": false
+    "Unsafe": true
   },
   {
     "Id": 42,
@@ -87,7 +87,7 @@
   {
     "Id": 51,
     "Name": "春节（中国） (2017)",
-    "Unsafe": true
+    "Unsafe": false
   },
   {
     "Id": 52,
@@ -127,7 +127,7 @@
   {
     "Id": 62,
     "Name": "春节（中国） (2018)",
-    "Unsafe": true
+    "Unsafe": false
   },
   {
     "Id": 63,
@@ -192,7 +192,7 @@
   {
     "Id": 80,
     "Name": "春节（中国） (2019)",
-    "Unsafe": true
+    "Unsafe": false
   },
   {
     "Id": 81,
@@ -257,7 +257,7 @@
   {
     "Id": 98,
     "Name": "春节（中国） (2020)",
-    "Unsafe": true
+    "Unsafe": false
   },
   {
     "Id": 99,
@@ -312,7 +312,7 @@
   {
     "Id": 111,
     "Name": "春节（中国） (2021)",
-    "Unsafe": true
+    "Unsafe": false
   },
   {
     "Id": 112,
@@ -439,7 +439,7 @@
   {
     "Id": 130,
     "Name": "春节（中国） (2023)",
-    "Unsafe": true
+    "Unsafe": false
   },
   {
     "Id": 131,

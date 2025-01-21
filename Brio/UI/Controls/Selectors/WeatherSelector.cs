@@ -2,7 +2,7 @@
 using Brio.Resources;
 using Brio.UI.Controls.Stateless;
 using ImGuiNET;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using System.Collections.Generic;
 using System.Numerics;
 

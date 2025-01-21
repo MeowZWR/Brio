@@ -37,9 +37,13 @@ internal class CustomizeEditor()
             ImGui.Separator();
             didChange |= DrawRaceSelector(ref currentAppearance.Customize);
             ImGui.Separator();
-        
-            var menus = BrioCharaMakeType.BuildMenus(currentAppearance);
-            didChange |= DrawMenus(ref currentAppearance, menus);
+
+            var charaMake = _capability.Character.GetCharaMakeType();
+            if(charaMake != null)
+            {
+                var menus = charaMake.BuildMenus();
+                didChange |= DrawMenus(ref currentAppearance, menus);
+            }
         }
         else
         {
@@ -261,23 +265,13 @@ internal class CustomizeEditor()
     {
         bool madeChange = false;
 
-        var hairStyles = BrioHairMakeType.GetHairStyles(customize);
+        var hairStyles = GameDataProvider.Instance.HairMakeTypes[menu.CharaMakeRow].HairStyles.Where(x => x.Row != 0).Select(x => x.Value!)!;
 
         var hairColors = GameDataProvider.Instance.HumanData.GetHairColors(customize.Tribe, customize.Gender);
         var hairHighlightColors = GameDataProvider.Instance.HumanData.GetHairHighlightColors();
 
         int currentHairIdx = customize.HairStyle;
-
-        uint currentIcon = 0;
-        try
-        {
-            var hairStyle = hairStyles.First(f => f.FeatureID == currentHairIdx);
-            currentIcon = hairStyle.Icon;
-        }
-        catch(Exception)
-        {
-
-        }
+        var currentIcon = hairStyles.FirstOrDefault(f => f?.FeatureID == currentHairIdx, null)?.Icon ?? 0;
 
         int currentHairColorIdx = customize.HairColor;
         var currentHairColor = hairColors.Length > currentHairColorIdx ? hairColors[currentHairColorIdx] : 0;
@@ -439,24 +433,14 @@ internal class CustomizeEditor()
     {
         bool madeChange = false;
 
-        var facePaints = BrioHairMakeType.GetFacePaints(customize);
+        var facePaints = GameDataProvider.Instance.HairMakeTypes[menu.CharaMakeRow].FacePaints.Where(x => x.Row != 0).Select(x => x.Value!)!;
 
         var facePaintColors = GameDataProvider.Instance.HumanData.GetFacepaintColors();
 
         var facepaintFlipped = customize.FacepaintFlipped;
 
         int currentFacepaintIdx = customize.RealFacepaint;
-
-        uint currentIcon = 0;
-        try
-        {
-            var facePaint = facePaints.First(f => f.FeatureID == currentFacepaintIdx);
-            currentIcon = facePaint.Icon;
-        }
-        catch(Exception)
-        {
-
-        }
+        var currentIcon = facePaints.FirstOrDefault(f => f?.FeatureID == currentFacepaintIdx, null)?.Icon ?? 0;
 
         int currentColorIdx = customize.FacePaintColor;
         var currentHairColor = facePaintColors.Length > currentColorIdx ? facePaintColors[currentColorIdx] : 0;

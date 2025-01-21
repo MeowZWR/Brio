@@ -1,6 +1,6 @@
 ﻿using Brio.Resources;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 
 namespace Brio.Game.Actor.Appearance;
 
