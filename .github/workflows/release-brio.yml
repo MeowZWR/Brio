@@ -24,7 +24,7 @@ jobs:
 
     - name: Download Dalamud
       run: |
-        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile latest.zip
+        Invoke-WebRequest -Uri https://raw.githubusercontent.com/ottercorp/dalamud-distrib/main/stg/latest.zip -OutFile latest.zip
         Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
 
     - name: Restore Dependencies
@@ -45,8 +45,8 @@ jobs:
       with:
         allowUpdates: true
         artifacts: "./Brio.zip"
-        name: Brio global${{ github.event.inputs.version }}
-        tag: global${{ github.event.inputs.version }}
+        name: Brio cn${{ github.event.inputs.version }}
+        tag: cn${{ github.event.inputs.version }}
         draft: false
         token: ${{ secrets.GITHUB_TOKEN }}
         commit: ${{ github.sha }}
@@ -55,7 +55,7 @@ jobs:
       run: |
         git config --global user.name "Actions User"
         git config --global user.email "actions@github.com"
-        git fetch origin global-0.4.4.x && git checkout global-0.4.4.x
+        git fetch origin cn-0.4.4.x && git checkout cn-0.4.4.x
         $ver = '${{ github.event.inputs.version }}'
         $path = './Resources/Templates/repo.tmpl'
         $new_path = './repo.json'
@@ -63,5 +63,5 @@ jobs:
         $content = $content -replace '{version}',$ver
         set-content -Path $new_path -Value $content
         git add repo.json
-        git commit -m "[CI] Updating versions for global${{ github.event.inputs.version }}" || true
-        git push origin global-0.4.4.x || true
+        git commit -m "[CI] Updating versions for cn${{ github.event.inputs.version }}" || true
+        git push origin cn-0.4.4.x || true
