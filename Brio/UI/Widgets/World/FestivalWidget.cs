@@ -10,7 +10,7 @@ using System.Numerics;
 
 namespace Brio.UI.Widgets.World;
 
-internal class FestivalWidget : Widget<FestivalCapability>
+public class FestivalWidget : Widget<FestivalCapability>
 {
     public override string HeaderName => "节日";
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;

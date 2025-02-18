@@ -1,142 +1,269 @@
 ﻿using Brio.Capabilities.Camera;
+using Brio.Entities.Camera;
+using Brio.Game.Camera;
+using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using System.Numerics;
 
 namespace Brio.UI.Controls.Editors;
 
-internal static class CameraEditor
+public static class CameraEditor
 {
-    struct CameraPresetProperties(Vector3 offset, float rotation, float zoom, float fov, Vector2 pan, Vector2 angle, bool disableCollision, bool delimitCamera)
+    public unsafe static void DrawSpawnMenu(VirtualCameraManager virtualCameraManager)
     {
-        public bool isSet = true;
-        public Vector3 offset = offset;
-        public float rotation = rotation;
-        public float zoom = zoom;
-        public float fov = fov;
-        public Vector2 pan = pan;
-        public Vector2 angle = angle;
-        public bool disableCollision = disableCollision;
-        public bool delimitCamera = delimitCamera;
-    }
-    private static readonly CameraPresetProperties[] presets = new CameraPresetProperties[3];
+        using var popup = ImRaii.Popup("DrawSpawnMenuPopup");
+        if(popup.Success)
+        {
+            using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
+            {
+                if(ImGui.Button("新建 Brio 摄像机"))
+                {
+                    virtualCameraManager.CreateCamera(CameraType.Brio);
+                }
 
-    public unsafe static void Draw(string id, CameraCapability capability)
+                if(ImGui.Button("新建自由摄像机"))
+                {
+                    virtualCameraManager.CreateCamera(CameraType.Free);
+                }
+
+                //ImGui.Separator();
+
+                //if(ImGui.Button("新建过场摄像机"))
+                //{
+                //    virtualCameraManager.CreateCamera(CameraType.Cutscene);
+                //}
+            }
+        }
+    }
+
+    public unsafe static void DrawFreeCam(string id, BrioCameraCapability capability)
     {
-        var camera = capability.Camera;
+        var camera = capability.VirtualCamera;
 
         using(ImRaii.PushId(id))
         {
             using(ImRaii.Disabled(!capability.IsAllowed))
             {
-                if(camera != null)
+                var width = -ImGui.CalcTextSize("XXXXXXXx").X;
+
+                if(ImBrio.ToggelButton("启用移动", new Vector2(135, 25), camera.FreeCamValues.IsMovementEnabled, hoverText: camera.FreeCamValues.IsMovementEnabled ?
+                    "禁用自由摄像机移动" : "启用自由摄像机移动"))
+                {
+                    camera.FreeCamValues.IsMovementEnabled = !camera.FreeCamValues.IsMovementEnabled;
+                }
+
+                ImGui.SameLine();
+
+                using(ImRaii.Disabled(camera.FreeCamValues.IsMovementEnabled == false))
+                {
+                    if(ImBrio.ToggelFontIconButton("LateralMovement", FontAwesomeIcon.SolarPanel, new Vector2(25, 0), camera.FreeCamValues.Move2D, hoverText: "横向移动"))
+                    {
+                        camera.FreeCamValues.Move2D = !camera.FreeCamValues.Move2D;
+                    }
+                }
+
+                ImGui.SameLine();
+
+                if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1f, "重置", camera.IsOverridden))
+                    camera.ResetCamera();
+
+                //
+                ImGui.Separator();
+                //
+
+                {
+                    ImBrio.Icon(FontAwesomeIcon.ArrowsToCircle);
+
+                    ImGui.SameLine();
+
+                    ImGui.SetNextItemWidth(width);
+                    var position = camera.Position;
+                    if(ImGui.DragFloat3("位置", ref position, 0.001f))
+                        camera.Position = position;
+                }
+
+                {
+                    ImBrio.Icon(FontAwesomeIcon.ArrowsSpin);
+
+                    ImGui.SameLine();
+
+                    ImGui.SetNextItemWidth(width);
+                    var rotation = camera.Rotation;
+                    if(ImGui.DragFloat3("旋转", ref rotation, 0.001f))
+                        camera.Rotation = rotation;
+                }
+
+                {
+                    ImBrio.Icon(FontAwesomeIcon.Panorama);
+
+                    ImGui.SameLine();
+
+                    var fov = camera.FoV;
+                    if(ImBrio.SliderAngle("##FoV", ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                        camera.FoV = fov;
+                }
+
+                ImGui.Separator();
+
+                {
+                    ImBrio.Icon(FontAwesomeIcon.Walking);
+
+                    ImGui.SameLine();
+
+                    float moveSpeed = camera.FreeCamValues.MovementSpeed;
+                    if(ImBrio.SliderFloat("##MovementSpeed", ref moveSpeed, 0.005f, 0.3f, "%.4f", ImGuiSliderFlags.None, step: 0.001f))
+                        camera.FreeCamValues.MovementSpeed = moveSpeed;
+                  
+                    ImGui.SameLine();
+
+                    if(ImBrio.FontIconButtonRight("resetMovementSpeed", FontAwesomeIcon.Undo, 1f, "重置移动速度", moveSpeed != VirtualCameraManager.DefaultMovementSpeed))
+                        camera.FreeCamValues.MovementSpeed = VirtualCameraManager.DefaultMovementSpeed;
+                }
+
+                {
+                    ImBrio.Icon(FontAwesomeIcon.Mouse);
+
+                    ImGui.SameLine();
+
+                    float mouseSpeed = camera.FreeCamValues.MouseSensitivity;
+                    if(ImBrio.SliderFloat("##MouseSensitivity", ref mouseSpeed, 0.001f, 0.2f, "%.4f", ImGuiSliderFlags.None, step: 0.001f))
+                        camera.FreeCamValues.MouseSensitivity = mouseSpeed;
+                  
+                    ImGui.SameLine();
+
+                    if(ImBrio.FontIconButtonRight("resetMouseSensitivity", FontAwesomeIcon.Undo, 1f, "重置鼠标灵敏度", mouseSpeed != VirtualCameraManager.DefaultMouseSensitivity))
+                        camera.FreeCamValues.MouseSensitivity = VirtualCameraManager.DefaultMouseSensitivity;
+                }
+
+                ImGui.Separator();
+
+                var delimit = camera.FreeCamValues.DelimitAngle;
+                if(ImGui.Checkbox("限制摄像机角度", ref delimit))
+                    camera.FreeCamValues.DelimitAngle = delimit;
+            }
+        }
+    }
+
+    public unsafe static void DrawBrioCam(string id, BrioCameraCapability capability)
+    {
+        var camera = capability.VirtualCamera;
+
+        using(ImRaii.PushId(id))
+        {
+            using(ImRaii.Disabled(!capability.IsAllowed))
+            {
+                if(camera is not null)
                 {
                     var width = -ImGui.CalcTextSize("XXXXXXXXXx").X;
 
-                    const string offsetText = "偏移";
-                    Vector3 pos = capability.PositionOffset;
-                    ImGui.SetNextItemWidth(width);
-                    if(ImGui.DragFloat3(offsetText, ref pos, 0.001f))
-                        capability.PositionOffset = pos;
+                    if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1f, "重置", camera.IsOverridden))
+                        camera.ResetCamera();
 
-                    ImGui.SameLine();
+                    //
+                    ImGui.Separator();
+                    //
 
-                    if(ImBrio.FontIconButtonRight("reset", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", capability.IsOveridden))
-                        capability.Reset();
+                    {
+                        const string offsetText = "位置";
 
-                    const string rotationText = "旋转";
-                    float rotation = camera->Rotation;
-                    ImGui.SetNextItemWidth(width);
-                    if(ImBrio.SliderAngle(rotationText, ref rotation, -180, 180, "%.2f"))
-                        camera->Rotation = rotation;
+                        ImBrio.Icon(FontAwesomeIcon.ArrowsToCircle);
 
-                    ImGui.SameLine();
+                        ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetRotation", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", rotation != 0))
-                        camera->Rotation = 0;
+                        ImGui.SetNextItemWidth(width);
+                        var position = camera.RealPosition;
+                        using(ImRaii.Disabled(true))
+                        {
+                            ImGui.DragFloat3(offsetText, ref position, 0.001f);
+                        }
+                    }
 
-                    const string zoomText = "变焦";
-                    float zoom = camera->Camera.Distance;
-                    ImGui.SetNextItemWidth(width);
-                    if(ImBrio.SliderFloat(zoomText, ref zoom, camera->Camera.MaxDistance, camera->Camera.MinDistance, "%.2f", ImGuiSliderFlags.AlwaysClamp))
-                        camera->Camera.Distance = zoom;
+                    {
+                        const string offsetText = "偏移";
 
-                    ImGui.SameLine();
+                        ImBrio.Icon(FontAwesomeIcon.ArrowsUpDownLeftRight);
 
-                    if(ImBrio.FontIconButtonRight("resetZoom", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", zoom != 2.5))
-                        camera->Camera.Distance = 2.5f;
+                        ImGui.SameLine();
 
-                    const string fovText = "视场";
-                    float fov = camera->FoV;
-                    ImGui.SetNextItemWidth(width);
-                    if(ImBrio.SliderAngle(fovText, ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp))
-                        camera->FoV = fov;
+                        Vector3 pos = camera.PositionOffset;
+                        ImGui.SetNextItemWidth(width);
+                        if(ImGui.DragFloat3(offsetText, ref pos, 0.001f))
+                            camera.PositionOffset = pos;
 
-                    ImGui.SameLine();
+                        ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetFoV", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", fov != 0))
-                        camera->FoV = 0f;
-
-                    const string panText = "摇摄";
-                    Vector2 pan = camera->Pan;
-                    ImGui.SetNextItemWidth(width);
-                    if(ImGui.DragFloat2(panText, ref pan, 0.001f))
-                        camera->Pan = pan;
-
-                    ImGui.SameLine();
-
-                    if(ImBrio.FontIconButtonRight("resetPan", Dalamud.Interface.FontAwesomeIcon.Undo, 1f, "重置", pan != Vector2.Zero))
-                        camera->Pan = new Vector2(0, 0);
-
-                    const string angleText = "角度";
-                    Vector2 angle = camera->Angle;
-                    ImGui.SetNextItemWidth(width);
-                    if(ImGui.DragFloat2(angleText, ref angle, 0.001f))
-                        camera->Angle = angle;
-
-                    var disable = capability.DisableCollision;
-                    if(ImGui.Checkbox("禁用碰撞", ref disable))
-                        capability.DisableCollision = disable;
-
-                    ImGui.SameLine();
-
-                    var delimit = capability.DelimitCamera;
-                    if(ImGui.Checkbox("解限相机", ref delimit))
-                        capability.DelimitCamera = delimit;
+                        if(ImBrio.FontIconButtonRight("resetPosition", FontAwesomeIcon.Undo, 1f, "重置位移", camera.PositionOffset != Vector3.Zero))
+                            camera.PositionOffset = Vector3.Zero;
+                    }
 
                     ImGui.Separator();
 
-                    if(ImGui.CollapsingHeader("相机预设"))
-                    {
-                        for(int i = 0; i < 3; i++)
-                        {
-                            ImGui.Text($"Preset {i + 1} :");
+                    const string rotationText = "旋转";
+                    float rotation = camera.PivotRotation;
+                    ImGui.SetNextItemWidth(width);
+                    if(ImBrio.SliderAngle(rotationText, ref rotation, -180, 180, "%.2f"))
+                        camera.PivotRotation = rotation;
 
-                            ImGui.SameLine();
+                    ImGui.SameLine();
 
-                            if(ImGui.Button($"Save##{i}"))
-                                presets[i] = new CameraPresetProperties(capability.PositionOffset, camera->Rotation,
-                                    camera->Camera.Distance, camera->FoV, camera->Pan, camera->Angle,
-                                    capability.DisableCollision, capability.DelimitCamera);
+                    if(ImBrio.FontIconButtonRight("resetRotation", FontAwesomeIcon.Undo, 1f, "重置", rotation != 0))
+                        camera.PivotRotation = 0;
 
-                            if(presets[i].isSet)
-                            {
-                                ImGui.SameLine();
-                                if(ImGui.Button($"Load##{i}"))
-                                {
-                                    capability.PositionOffset = presets[i].offset;
-                                    camera->Rotation = presets[i].rotation;
-                                    camera->Camera.Distance = presets[i].zoom;
-                                    camera->FoV = presets[i].fov;
-                                    camera->Pan = presets[i].pan;
-                                    camera->Angle = presets[i].angle;
-                                    capability.DisableCollision = presets[i].disableCollision;
-                                    capability.DelimitCamera = presets[i].delimitCamera;
-                                }
-                            }
-                        }
-                    }
+                    const string zoomText = "缩放";
+                    float zoom = camera.Zoom;
+                    ImGui.SetNextItemWidth(width);
+                    if(ImBrio.SliderFloat(zoomText, ref zoom, camera.BrioCamera->Camera.MaxDistance, camera.BrioCamera->Camera.MinDistance, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                        camera.Zoom = zoom;
+
+                    ImGui.SameLine();
+
+                    if(ImBrio.FontIconButtonRight("resetZoom", FontAwesomeIcon.Undo, 1f, "重置", zoom != 2.5))
+                        camera.Zoom = 2.5f;
+
+                    const string fovText = "视场";
+                    float fov = camera.FoV;
+                    ImGui.SetNextItemWidth(width);
+                    if(ImBrio.SliderAngle(fovText, ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                        camera.FoV = fov;
+
+                    ImGui.SameLine();
+
+                    if(ImBrio.FontIconButtonRight("resetFoV", FontAwesomeIcon.Undo, 1f, "重置", fov != 0))
+                        camera.FoV = 0f;
+
+                    ImGui.Separator();
+
+                    const string panText = "摇摄";
+                    Vector2 pan = camera.Pan;
+                    ImGui.SetNextItemWidth(width);
+                    if(ImGui.DragFloat2(panText, ref pan, 0.001f))
+                        camera.Pan = pan;
+
+                    ImGui.SameLine();
+
+                    if(ImBrio.FontIconButtonRight("resetPan", FontAwesomeIcon.Undo, 1f, "重置", pan != Vector2.Zero))
+                        camera.Pan = Vector2.Zero;
+
+                    const string angleText = "角度";
+                    Vector2 angle = camera.Angle;
+                    ImGui.SetNextItemWidth(width);
+                    if(ImGui.DragFloat2(angleText, ref angle, 0.001f))
+                        camera.Angle = angle;
+
+                    ImGui.Separator();
+
+                    var disable = camera.DisableCollision;
+                    if(ImGui.Checkbox("禁用碰撞", ref disable))
+                        camera.DisableCollision = disable;
+
+                    ImGui.SameLine();
+
+                    var delimit = camera.DelimitCamera;
+                    if(ImGui.Checkbox("解限相机", ref delimit))
+                        camera.DelimitCamera = delimit;
                 }
             }
         }

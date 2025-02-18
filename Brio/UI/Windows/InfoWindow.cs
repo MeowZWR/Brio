@@ -7,14 +7,18 @@ using System.Numerics;
 
 namespace Brio.UI.Windows;
 
-internal class InfoWindow : Window
+public class InfoWindow : Window
 {
     private readonly ConfigurationService _configurationService;
     private readonly UpdateWindow _updateWindow;
 
-    public InfoWindow(ConfigurationService configurationService, UpdateWindow updateWindow) : base($"{Brio.Name} Welcome###brio_info_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.AlwaysAutoResize)
+    public InfoWindow(ConfigurationService configurationService, UpdateWindow updateWindow) : base($"{Brio.Name} Welcome###brio_info_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.AlwaysAutoResize)
     {
         Namespace = "brio_info_namespace";
+
+        this.AllowClickthrough = false;
+        this.AllowPinning = false;
+        this.ForceMainWindow = true;
 
         _configurationService = configurationService;
         _updateWindow = updateWindow;
@@ -39,11 +43,11 @@ internal class InfoWindow : Window
 
                     特别感谢以下各位通过Kofi对我们的支持！
                     (Sufferhymn), (Night Song), (Alvar Valo), (Yasumi), (YikesXD), (Selitha), 
-                    (AquilaHK), (LotusEcho), & (Yume)
+                    (AquilaHK), (LotusEcho), & (Yume);
                                         
                     感谢以下人员对Brio代码的贡献！
-                    (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), (@snaeling),  
-                    (@WorstAquaPlayer), (@Caraxi), & (@gris-fuego)
+                    (Ashadow700), (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), 
+                    (@snaeling), (@WorstAquaPlayer), (@Caraxi), (@Enth) & (@gris-fuego);
 
                     维护与开发：Minmoose.
                     原始开发者: Asgard.

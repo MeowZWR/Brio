@@ -1,6 +1,6 @@
 ﻿namespace Brio.Core;
 
-internal static class IntExtensions
+public static class IntExtensions
 {
     public static string ToBrioName(this int i)
     {
@@ -24,5 +24,10 @@ internal static class IntExtensions
 
         string name = $"{prefix}{numberPart}";
         return name.Length > 6 ? name[..6] : name;
+    }
+
+    public static string ToName(this int i)
+    {
+        return ToWords(i, " ");
     }
 }

@@ -2,6 +2,7 @@ using Brio.Config;
 using Brio.Input;
 using Brio.IPC;
 using Brio.Resources;
+using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.Web;
@@ -14,13 +15,14 @@ using System.Numerics;
 
 namespace Brio.UI.Windows;
 
-internal class SettingsWindow : Window
+public class SettingsWindow : Window
 {
     private readonly ConfigurationService _configurationService;
     private readonly PenumbraService _penumbraService;
     private readonly GlamourerService _glamourerService;
     private readonly WebService _webService;
     private readonly BrioIPCService _brioIPCService;
+    private readonly CustomizePlusService _customizePlusService;
     private readonly MareService _mareService;
 
     public SettingsWindow(
@@ -28,6 +30,7 @@ internal class SettingsWindow : Window
         PenumbraService penumbraService,
         GlamourerService glamourerService,
         WebService webService,
+        CustomizePlusService customizePlusService,
         BrioIPCService brioIPCService,
         MareService mareService) : base($"{Brio.Name} 设置###brio_settings_window", ImGuiWindowFlags.NoResize)
     {
@@ -39,6 +42,7 @@ internal class SettingsWindow : Window
         _webService = webService;
         _brioIPCService = brioIPCService;
         _mareService = mareService;
+        _customizePlusService = customizePlusService;
 
         Size = new Vector2(450, 450);
     }
@@ -77,7 +81,6 @@ internal class SettingsWindow : Window
                 {
                     IsOpen = false;
                 }
-
             }
             else
             {
@@ -190,11 +193,25 @@ internal class SettingsWindow : Window
             _configurationService.Configuration.Interface.CensorActorNames = censorActorNames;
             _configurationService.ApplyChange();
         }
+
+        bool enableBrioColor = _configurationService.Configuration.Appearance.EnableBrioColor;
+        if(ImGui.Checkbox("启用 Brio 颜色", ref enableBrioColor))
+        {
+            _configurationService.Configuration.Appearance.EnableBrioColor = enableBrioColor;
+            _configurationService.ApplyChange();
+        }
+
+        bool enableBrioScale = _configurationService.Configuration.Appearance.EnableBrioScale;
+        if(ImGui.Checkbox("启用 Brio 文本缩放", ref enableBrioScale))
+        {
+            _configurationService.Configuration.Appearance.EnableBrioScale = enableBrioScale;
+            _configurationService.ApplyChange();
+        }
     }
 
     private void DrawSceneTab()
     {
-        using(var tab = ImRaii.TabItem("场景"))
+        using(var tab = ImRaii.TabItem("自动保存"))
         {
             if(tab.Success)
             {
@@ -219,139 +236,192 @@ internal class SettingsWindow : Window
     {
         if(ImGui.CollapsingHeader("第三方", ImGuiTreeNodeFlags.DefaultOpen))
         {
-            bool enablePenumbra = _configurationService.Configuration.IPC.AllowPenumbraIntegration;
-            if(ImGui.Checkbox("允许 Penumbra 集成", ref enablePenumbra))
+            bool enableCustomizePlus = _configurationService.Configuration.IPC.AllowCustomizePlusIntegration;
+            if(ImGui.Checkbox("允许 Customize+ 集成", ref enableCustomizePlus))
             {
-                _configurationService.Configuration.IPC.AllowPenumbraIntegration = enablePenumbra;
+                _configurationService.Configuration.IPC.AllowCustomizePlusIntegration = enableCustomizePlus;
                 _configurationService.ApplyChange();
+                _customizePlusService.CheckStatus(true);
             }
 
-            using(ImRaii.Disabled(!enablePenumbra))
+            var customizePlusStatus = _customizePlusService.CheckStatus();
+            using(ImRaii.Disabled(!enableCustomizePlus))
             {
-                ImGui.Text($"Penumbra 状态：{(_penumbraService.IsPenumbraAvailable ? "已激活" : "未激活")}");
+                ImGui.Text($"Customize+ Status: {customizePlusStatus}");
+                ImGui.SameLine();
+                if(ImBrio.FontIconButton("refresh_Customize", FontAwesomeIcon.Sync, "刷新 Customize+ 状态"))
+                {
+                    _customizePlusService.CheckStatus(true);
+                }
+            }
+        }
+
+        if(ImGui.CollapsingHeader("第三方 [基于 Penumbra]", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            var penumbraStatus = _penumbraService.CheckStatus();
+            var penumbraUnavailable = penumbraStatus is IPCStatus.None or IPCStatus.NotInstalled or IPCStatus.VersionMismatch or IPCStatus.Error;
+
+            if(penumbraUnavailable)
+            {
+                using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
+                    ImGui.Text("请安装 Penumbra");
+            }
+
+            using(ImRaii.Disabled(penumbraUnavailable))
+            {
+                bool enablePenumbra = _configurationService.Configuration.IPC.AllowPenumbraIntegration;
+                if(ImGui.Checkbox("允许 Penumbra 集成", ref enablePenumbra))
+                {
+                    _configurationService.Configuration.IPC.AllowPenumbraIntegration = enablePenumbra;
+                    _configurationService.ApplyChange();
+                    _penumbraService.CheckStatus(true);
+                }
+
+                ImGui.Text($"Penumbra 状态：{penumbraStatus}");
                 ImGui.SameLine();
                 if(ImBrio.FontIconButton("refresh_penumbra", FontAwesomeIcon.Sync, "刷新 Penumbra 状态"))
                 {
-                    _penumbraService.RefreshPenumbraStatus();
+                    _penumbraService.CheckStatus(true);
                 }
-            }
 
-            bool enableGlamourer = _configurationService.Configuration.IPC.AllowGlamourerIntegration;
-            if(ImGui.Checkbox("允许 Glamourer 集成", ref enableGlamourer))
-            {
-                _configurationService.Configuration.IPC.AllowGlamourerIntegration = enableGlamourer;
-                _configurationService.ApplyChange();
-            }
-
-            using(ImRaii.Disabled(!enableGlamourer))
-            {
-                ImGui.Text($"Glamourer 状态：{(_glamourerService.IsGlamourerAvailable ? "已激活" : "未激活")}");
-                ImGui.SameLine();
-                if(ImBrio.FontIconButton("refresh_glamourer", FontAwesomeIcon.Sync, "刷新 Glamourer 状态"))
+                using(ImRaii.Disabled(!enablePenumbra))
                 {
-                    _glamourerService.RefreshGlamourerStatus();
-                }
-            }
+                    bool enableGlamourer = _configurationService.Configuration.IPC.AllowGlamourerIntegration;
+                    if(ImGui.Checkbox("允许 Glamourer 集成", ref enableGlamourer))
+                    {
+                        _configurationService.Configuration.IPC.AllowGlamourerIntegration = enableGlamourer;
+                        _configurationService.ApplyChange();
+                        _glamourerService.CheckStatus(true);
+                    }
 
-            bool enableMare = _configurationService.Configuration.IPC.AllowMareIntegration;
-            if(ImGui.Checkbox("允许 Mare Synchronos 集成", ref enableMare))
-            {
-                _configurationService.Configuration.IPC.AllowMareIntegration = enableMare;
-                _configurationService.ApplyChange();
-            }
+                    var glamourerStatus = _glamourerService.CheckStatus();
+                    using(ImRaii.Disabled(!enableGlamourer))
+                    {
+                        ImGui.Text($"Glamourer Status: {glamourerStatus}");
+                        ImGui.SameLine();
+                        if(ImBrio.FontIconButton("refresh_glamourer", FontAwesomeIcon.Sync, "刷新 Glamourer 状态"))
+                        {
+                            _glamourerService.CheckStatus(true);
+                        }
+                    }
 
-            using(ImRaii.Disabled(!enableMare))
-            {
-                ImGui.Text($"Mare Synchronos 状态：{(_mareService.IsMareAvailable ? "已激活" : "未激活")}");
-                ImGui.SameLine();
-                if(ImBrio.FontIconButton("refresh_mare", FontAwesomeIcon.Sync, "刷新 Mare Synchronos 状态"))
-                {
-                    _mareService.RefreshMareStatus();
-                }
-            }
+                    bool enableMare = _configurationService.Configuration.IPC.AllowMareIntegration;
+
+                    if(ImGui.Checkbox("允许 Mare Synchronos 集成", ref enableMare))
+                    {
+                        _configurationService.Configuration.IPC.AllowMareIntegration = enableMare;
+                        _configurationService.ApplyChange();
+                        _mareService.CheckStatus(true);
+                    }
+
+                    var mareStatus = _mareService.CheckStatus();
+                    using(ImRaii.Disabled(!enableMare))
+                    {
+                        ImGui.Text($"Mare Synchronos Status: {mareStatus}");
+                        ImGui.SameLine();
+                        if(ImBrio.FontIconButton("refresh_mare", FontAwesomeIcon.Sync, "刷新 Mare Synchronos 状态"))
+                        {
+                            _mareService.CheckStatus(true);
+                        }
+                    }
+
+                    _glamourerService.Disabled = !enablePenumbra;
+                    _mareService.Disabled = _glamourerService.Disabled;
+                            }
+                        }
         }
     }
 
     private void DrawImportScene()
     {
-
         if(ImGui.CollapsingHeader("常规", ImGuiTreeNodeFlags.DefaultOpen))
         {
-            bool destroyActorsBeforeImport = _configurationService.Configuration.SceneDestoryActorsBeforeImport;
-            if(ImGui.Checkbox("导入场景前销毁角色", ref destroyActorsBeforeImport))
+            var enabled = _configurationService.Configuration.AutoSave.AutoSaveSystemEnabled;
+            if(ImGui.Checkbox("启用自动保存", ref enabled))
             {
-                _configurationService.Configuration.SceneDestoryActorsBeforeImport = destroyActorsBeforeImport;
-                _configurationService.ApplyChange();
-            }
-        }
-
-        if(ImGui.CollapsingHeader("导入", ImGuiTreeNodeFlags.DefaultOpen))
-        {
-
-            bool applyModelTransform = _configurationService.Configuration.Import.ApplyModelTransform;
-            if(ImGui.Checkbox("在导入中应用模型变换", ref applyModelTransform))
-            {
-                _configurationService.Configuration.Import.ApplyModelTransform = applyModelTransform;
+                _configurationService.Configuration.AutoSave.AutoSaveSystemEnabled = enabled;
                 _configurationService.ApplyChange();
             }
 
-            var positionTransformType = _configurationService.Configuration.Import.PositionTransformType;
-            ImGui.SetNextItemWidth(200);
-            using(var combo = ImRaii.Combo("位置", positionTransformType.ToString()))
+            using(ImRaii.Disabled(!enabled))
             {
-                if(combo.Success)
+                var saveInterval = _configurationService.Configuration.AutoSave.AutoSaveInterval;
+                if(ImGui.SliderInt("自动保存间隔", ref saveInterval, 15, 500, "%d 秒"))
                 {
-                    foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
-                    {
-                        if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == positionTransformType))
-                        {
-                            _configurationService.Configuration.Import.PositionTransformType = poseImportTransformType;
-                            _configurationService.ApplyChange();
-                        }
-                    }
+                    _configurationService.Configuration.AutoSave.AutoSaveInterval = saveInterval;
+                    _configurationService.ApplyChange();
                 }
-            }
 
-            var rotationTransformType = _configurationService.Configuration.Import.RotationTransformType;
-            ImGui.SetNextItemWidth(200);
-            using(var combo = ImRaii.Combo("旋转", rotationTransformType.ToString()))
-            {
-                if(combo.Success)
-                {
-                    foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
+                var maxSaves = _configurationService.Configuration.AutoSave.MaxAutoSaves;
+                if(ImGui.SliderInt("最大自动保存次数", ref maxSaves, 3, 30))
                     {
-                        if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == rotationTransformType))
-                        {
-                            _configurationService.Configuration.Import.RotationTransformType = poseImportTransformType;
-                            _configurationService.ApplyChange();
-                        }
-                    }
+                        _configurationService.Configuration.AutoSave.MaxAutoSaves = maxSaves;
+                    _configurationService.ApplyChange();
                 }
-            }
 
-            var scaleTransformType = _configurationService.Configuration.Import.ScaleTransformType;
-            ImGui.SetNextItemWidth(200);
-            using(var combo = ImRaii.Combo("缩放", scaleTransformType.ToString()))
-            {
-                if(combo.Success)
-                {
-                    foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
-                    {
-                        if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == scaleTransformType))
-                        {
-                            _configurationService.Configuration.Import.ScaleTransformType = poseImportTransformType;
-                            _configurationService.ApplyChange();
-                        }
-                    }
-                }
-            }
+                //bool applyModelTransform = _configurationService.Configuration.Import.ApplyModelTransform;
+                //if(ImGui.Checkbox("Apply Model Transform on Import", ref applyModelTransform))
+                //{
+                //    _configurationService.Configuration.Import.ApplyModelTransform = applyModelTransform;
+                //    _configurationService.ApplyChange();
+                //}
 
+                //var positionTransformType = _configurationService.Configuration.Import.PositionTransformType;
+                //ImGui.SetNextItemWidth(200);
+                //using(var combo = ImRaii.Combo("Position", positionTransformType.ToString()))
+                //{
+                //    if(combo.Success)
+                //    {
+                //        foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
+                //        {
+                //            if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == positionTransformType))
+                //            {
+                //                _configurationService.Configuration.Import.PositionTransformType = poseImportTransformType;
+                //                _configurationService.ApplyChange();
+                //            }
+                //        }
+                //    }
+                //}
+
+                //var rotationTransformType = _configurationService.Configuration.Import.RotationTransformType;
+                //ImGui.SetNextItemWidth(200);
+                //using(var combo = ImRaii.Combo("Rotation", rotationTransformType.ToString()))
+                //{
+                //    if(combo.Success)
+                //    {
+                //        foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
+                //        {
+                //            if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == rotationTransformType))
+                //            {
+                //                _configurationService.Configuration.Import.RotationTransformType = poseImportTransformType;
+                //                _configurationService.ApplyChange();
+                //            }
+                //        }
+                //    }
+                //}
+
+                //var scaleTransformType = _configurationService.Configuration.Import.ScaleTransformType;
+                //ImGui.SetNextItemWidth(200);
+                //using(var combo = ImRaii.Combo("Scale", scaleTransformType.ToString()))
+                //{
+                //    if(combo.Success)
+                //    {
+                //        foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
+                //        {
+                //            if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == scaleTransformType))
+                //            {
+                //                _configurationService.Configuration.Import.ScaleTransformType = poseImportTransformType;
+                //                _configurationService.ApplyChange();
+                //            }
+                //        }
+                //    }
+                //}
+            }
         }
     }
 
     private void DrawBrioIPC()
     {
-
         if(ImGui.CollapsingHeader("Brio", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool enableBrioIpc = _configurationService.Configuration.IPC.EnableBrioIPC;
@@ -363,15 +433,14 @@ internal class SettingsWindow : Window
             ImGui.Text($"Brio IPC 状态：{(_brioIPCService.IsIPCEnabled ? "已激活" : "未激活")}");
 
             bool enableWebApi = _configurationService.Configuration.IPC.AllowWebAPI;
-            if(ImGui.Checkbox("启用 Web API", ref enableWebApi))
+            if(ImGui.Checkbox("启用 Brio API", ref enableWebApi))
             {
                 _configurationService.Configuration.IPC.AllowWebAPI = enableWebApi;
                 _configurationService.ApplyChange();
             }
 
-            ImGui.Text($"Web API 状态：{(_webService.IsRunning ? "已激活" : "未激活")}");
+            ImGui.Text($"Brio API 状态：{(_webService.IsRunning ? "已激活" : "未激活")}");
         }
-
     }
 
     private void DrawNPCAppearanceHack()
@@ -601,7 +670,7 @@ internal class SettingsWindow : Window
                 {
                     ImGui.Checkbox("启用[重置为默认设置]按钮", ref resetSettings);
 
-                    using(ImRaii.Disabled(resetSettings))
+                    using(ImRaii.Disabled(!resetSettings))
                     {
                         if(ImGui.Button("重置为默认设置", new(170, 0)))
                         {
@@ -613,7 +682,6 @@ internal class SettingsWindow : Window
 
             }
         }
-
     }
 
     private void DrawEnvironmentSection()
@@ -666,6 +734,15 @@ internal class SettingsWindow : Window
             if(!tab.Success)
                 return;
 
+            bool enableKeyHandlingOnKeyMod = _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod;
+            if(ImGui.Checkbox("Consumed, [Shift], [Ctrl] & [Alt] keyboard input when moving a FreeCam", ref enableKeyHandlingOnKeyMod))
+            {
+                _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod = enableKeyHandlingOnKeyMod;
+                _configurationService.ApplyChange();
+            }
+
+            ImGui.Separator();
+
             bool enableKeybinds = _configurationService.Configuration.Input.EnableKeybinds;
             if(ImGui.Checkbox("启用键盘快捷键", ref enableKeybinds))
             {
@@ -709,7 +786,6 @@ internal class SettingsWindow : Window
             {
                 ImGui.EndDisabled();
             }
-
         }
     }
 
@@ -721,6 +797,5 @@ internal class SettingsWindow : Window
         {
             _configurationService.ApplyChange();
         }
-
     }
 }

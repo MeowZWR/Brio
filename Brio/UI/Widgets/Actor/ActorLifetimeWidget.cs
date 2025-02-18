@@ -7,7 +7,7 @@ using ImGuiNET;
 
 namespace Brio.UI.Widgets.Actor;
 
-internal class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<ActorLifetimeCapability>(capability)
+public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<ActorLifetimeCapability>(capability)
 {
     public override string HeaderName => "Lifetime";
 
@@ -15,13 +15,6 @@ internal class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<
 
     public override void DrawQuickIcons()
     {
-        if(ImBrio.FontIconButton("lifetimewidget_spawn_prop", FontAwesomeIcon.Cubes, "生成道具"))
-        {
-            Capability.SpawnNewProp(false);
-        }
-
-        ImGui.SameLine();
-
         if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "生成新角色"))
         {
             Capability.SpawnNewActor(false, false, true);
@@ -43,9 +36,9 @@ internal class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "删除", Capability.CanDestroy))
+        if(ImBrio.FontIconButton("lifetimewidget_spawn_prop", FontAwesomeIcon.Cubes, "生成道具"))
         {
-            Capability.Destroy();
+            Capability.SpawnNewProp(true);
         }
 
         ImGui.SameLine();
@@ -53,6 +46,13 @@ internal class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<
         if(ImBrio.FontIconButton("lifetimewidget_target", FontAwesomeIcon.Bullseye, "目标"))
         {
             Capability.Target();
+        }
+
+        ImGui.SameLine();
+
+        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "删除", Capability.CanDestroy))
+        {
+            Capability.Destroy();
         }
 
         ImGui.SameLine();

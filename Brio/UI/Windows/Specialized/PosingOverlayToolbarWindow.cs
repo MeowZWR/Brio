@@ -15,7 +15,7 @@ using System.Numerics;
 
 namespace Brio.UI.Windows.Specialized;
 
-internal class PosingOverlayToolbarWindow : Window
+public class PosingOverlayToolbarWindow : Window
 {
     private readonly PosingOverlayWindow _overlayWindow;
     private readonly EntityManager _entityManager;
@@ -38,6 +38,7 @@ internal class PosingOverlayToolbarWindow : Window
         _overlayTransformWindow = overlayTransformWindow;
         _posingService = posingService;
         _configurationService = configurationService;
+
         ShowCloseButton = false;
     }
 
@@ -384,7 +385,7 @@ internal class PosingOverlayToolbarWindow : Window
         const string helpText = "Alt - 隐藏叠加层\nShift - 淡出变换器\nCtrl - 淡出骨骼";
 
         ImGui.SetCursorPosY(0);
-        ImBrio.FontIconButtonRight("overlay_help", FontAwesomeIcon.QuestionCircle, 1f, helpText, bordered: false);
+        ImBrio.FontIconButtonRight("overlay_help", FontAwesomeIcon.QuestionCircle, 2f, helpText, bordered: false);
 
         ImGui.PopClipRect();
         ImGui.SetCursorPos(initialPos);

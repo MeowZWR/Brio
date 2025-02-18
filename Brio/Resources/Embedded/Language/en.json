@@ -275,6 +275,8 @@
     "hands": "手部",
     "weapon": "武器",
     "ivcs": "IVCS",
+    "ex": "EX",
+    "legacy": "旧版骨骼",
     "other": "其他"
   },
 
