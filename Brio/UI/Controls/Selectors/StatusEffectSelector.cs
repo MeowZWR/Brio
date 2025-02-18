@@ -1,7 +1,7 @@
 ﻿using Brio.Resources;
 using Dalamud.Interface.Textures.TextureWraps;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Numerics;
 
@@ -56,7 +56,7 @@ internal class StatusEffectSelector(string id) : Selector<StatusEffectSelectorHo
 
         ImGui.Image(tex.ImGuiHandle, iconSize);
         ImGui.SameLine();
-        ImGui.Text($"{item.Name}\n{item.RowId}\nVFX: {item.VFX.Row} / Hit: {item.HitEffect.Row}");
+        ImGui.Text($"{item.Name.ExtractText()}\n{item.RowId}\nVFX: {item.VFX.RowId} / Hit: {item.HitEffect.RowId}");
     }
 
     protected override int Compare(StatusEffectSelectorHolder sesh1, StatusEffectSelectorHolder sesh2)
@@ -76,11 +76,11 @@ internal class StatusEffectSelector(string id) : Selector<StatusEffectSelectorHo
     protected override bool Filter(StatusEffectSelectorHolder sesh, string search)
     {
         var item = sesh.Status;
-        if(_VFXLockEnabled && item.VFX.Row == 0) return false;
+        if(_VFXLockEnabled && item.VFX.RowId == 0) return false;
 
         if(item.StatusCategory == 0)
             return false;
-        var searchTerm = $"{item.Name} {item.RowId} {item.VFX.Row} {item.HitEffect.Row}";
+        var searchTerm = $"{item.Name} {item.RowId} {item.VFX.RowId} {item.HitEffect.RowId}";
 
         if(searchTerm.Contains(search, StringComparison.InvariantCultureIgnoreCase))
             return true;

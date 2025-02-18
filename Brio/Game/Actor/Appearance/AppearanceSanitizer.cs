@@ -1,5 +1,4 @@
-﻿using Brio.Resources;
-using Brio.Resources.Sheets;
+﻿using Brio.Resources.Sheets;
 using Dalamud.Game.ClientState.Objects.Enums;
 using System.Linq;
 
@@ -30,23 +29,16 @@ internal static class AppearanceSanitizer
                     return;
             }
 
-            var charaMake = GetCharaMakeType(appearance);
-            if(charaMake == null)
+            var menu = BrioCharaMakeType.BuildMenus(appearance).GetMenuForCustomize(CustomizeIndex.RaceFeatureType);
+            if(menu is null)
             {
                 appearance.Customize.RaceFeatureType = 1;
             }
             else
             {
-                var menu = charaMake.BuildMenus().GetMenuForCustomize(CustomizeIndex.RaceFeatureType)!;
                 if(appearance.Customize.RaceFeatureType < 1 || appearance.Customize.RaceFeatureType > menu.SubParams.Length)
                     appearance.Customize.RaceFeatureType = 1;
             }
-
         }
-    }
-
-    public static unsafe BrioCharaMakeType? GetCharaMakeType(ActorAppearance appearance)
-    {
-        return GameDataProvider.Instance.CharaMakeTypes.Select(x => x.Value).FirstOrDefault(x => x.Race.Row == (uint)appearance.Customize.Race && x.Tribe.Row == (uint)appearance.Customize.Tribe && x.Gender == appearance.Customize.Gender);
     }
 }

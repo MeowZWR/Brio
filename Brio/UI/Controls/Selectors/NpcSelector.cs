@@ -2,7 +2,7 @@
 using Brio.Resources;
 using Brio.UI.Controls.Stateless;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -108,10 +108,10 @@ internal class NpcSelector(string id) : Selector<NpcSelectorEntry>(id)
     protected override void DrawItem(NpcSelectorEntry item, bool isHovered)
     {
         var details = item.Appearance.Match(
-            bnpc => $"Battle NPC: {bnpc.RowId}\nModel: {bnpc.ModelChara.Row}",
-            enpc => $"Event NPC: {enpc.RowId}\nModel: {enpc.ModelChara.Row}",
-            mount => $"Mount: {mount.RowId}\nModel: {mount.ModelChara.Row}",
-            companion => $"Companion: {companion.RowId}\nModel: {companion.Model.Row}",
+            bnpc => $"Battle NPC: {bnpc.RowId}\nModel: {bnpc.ModelChara.RowId}",
+            enpc => $"Event NPC: {enpc.RowId}\nModel: {enpc.ModelChara.RowId}",
+            mount => $"Mount: {mount.RowId}\nModel: {mount.ModelChara.RowId}",
+            companion => $"Companion: {companion.RowId}\nModel: {companion.Model.RowId}",
             ornament => $"Ornament: {ornament.RowId}\nModel: {ornament.Model}",
             none => ""
         );
@@ -126,8 +126,8 @@ internal class NpcSelector(string id) : Selector<NpcSelectorEntry>(id)
         bool shouldHide = item.Appearance.Match(
             bnpc => !showBNpcs || bnpc.RowId == 0,
             enpc => !showENpcs || enpc.RowId == 0,
-            mount => !showMounts || mount.ModelChara.Row == 0,
-            companion => !showCompanions || companion.Model.Row == 0,
+            mount => !showMounts || mount.ModelChara.RowId == 0,
+            companion => !showCompanions || companion.Model.RowId == 0,
             ornament => !showOrnaments || ornament.Model == 0,
             none => true
         );
@@ -136,10 +136,10 @@ internal class NpcSelector(string id) : Selector<NpcSelectorEntry>(id)
             return false;
 
         string searchTerm = item.Appearance.Match(
-            bnpc => $"{item.Name} {bnpc.RowId} {bnpc.ModelChara.Row}",
-            enpc => $"{item.Name} {enpc.RowId} {enpc.ModelChara.Row}",
-            mount => $"{item.Name} {mount.RowId} {mount.ModelChara.Row}",
-            companion => $"{item.Name} {companion.RowId} {companion.Model.Row}",
+            bnpc => $"{item.Name} {bnpc.RowId} {bnpc.ModelChara.RowId}",
+            enpc => $"{item.Name} {enpc.RowId} {enpc.ModelChara.RowId}",
+            mount => $"{item.Name} {mount.RowId} {mount.ModelChara.RowId}",
+            companion => $"{item.Name} {companion.RowId} {companion.Model.RowId}",
             ornament => $"{item.Name} {ornament.RowId} {ornament.Model}",
             none => ""
         );
