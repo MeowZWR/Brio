@@ -28,6 +28,6 @@ public static class IntExtensions
 
     public static string ToName(this int i)
     {
-        return ToWords(i, " ");
+        return i.ToBrioName();
     }
 }
