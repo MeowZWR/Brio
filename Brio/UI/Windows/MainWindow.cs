@@ -75,7 +75,7 @@ public class MainWindow : Window, IDisposable
         if(_gPoseService.IsGPosing == false)
         {
             using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
-                ImGui.Text("Open GPose to use Brio!");
+                ImGui.Text("进入集体动作再使用 Brio！");
         }
 
         using(ImRaii.Disabled(_gPoseService.IsGPosing == false))
