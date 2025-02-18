@@ -1,25 +1,28 @@
 [
     {
-        "Author": "Asgard, Minmoose and Contributors",
+        "Author": "Minmoose, Asgard and Contributors",
         "Name": "Brio",
         "Punchline": "增强集体动作体验。",
         "Description": "在集体动作模式中控制参与的角色。",
         "InternalName": "Brio",
-        "AssemblyVersion": "0.4.4.6",
-        "TestingAssemblyVersion": "0.4.4.6",
+        "AssemblyVersion": "0.5.0.2",
+        "TestingAssemblyVersion": "0.5.0.2",
         "RepoUrl": "https://github.com/MeowZWR/Brio",
         "ApplicableVersion": "any",
-        "DalamudApiLevel": 10,
-        "TestingDalamudApiLevel": 10,
-        "DownloadLinkInstall": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/cn0.4.4.6/Brio.zip",
-        "DownloadLinkTesting": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/cn0.4.4.6/Brio.zip",
-        "DownloadLinkUpdate": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/cn0.4.4.6/Brio.zip",
+        "DalamudApiLevel": 11,
+        "TestingDalamudApiLevel": 11,
+        "DownloadLinkInstall": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/0.5.0.2-global/Brio.zip",
+        "DownloadLinkTesting": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/0.5.0.2-global/Brio.zip",
+        "DownloadLinkUpdate": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/0.5.0.2-global/Brio.zip",
         "IconUrl": "https://meowrs.com/https://raw.githubusercontent.com/MeowZWR/Brio/main/Resources/Images/BrioIcon.png",
         "Tags": [ 
             "gpose",
             "brio",
             "posing",
-            "animation"
+            "pose",
+            "animation",
+            "xat",
+            "cutscene"
         ]
     }
 ]
