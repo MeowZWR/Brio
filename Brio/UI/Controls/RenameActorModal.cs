@@ -43,7 +43,7 @@ public class RenameActorModal
         if(IsOpen == false)
             return;
 
-        ImGui.OpenPopup($"重命名##brio_renamemodal_popup");
+        ImGui.OpenPopup($"Rename##brio_renamemodal_popup");
 
         ImGui.SetNextWindowSizeConstraints(MinimumSize, MinimumSize);
         ImGui.SetNextWindowPos(new Vector2((ImGui.GetIO().DisplaySize.X / 2) - (MinimumSize.X / 2), (ImGui.GetIO().DisplaySize.Y / 2) - (MinimumSize.Y / 2)));
