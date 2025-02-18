@@ -67,8 +67,8 @@ public static class PosingEditorCommon
             {
                 options.ApplyModelTransform = selected;
             }
-            }
         }
+    }
 
     public static void DrawBoneFilterEditor(BoneFilter filter)
     {

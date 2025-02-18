@@ -448,7 +448,7 @@ public class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService 
             _capability.SetOverallSpeedOverride(0f);
         }
         ImGui.SameLine();
-        ImGui.Text("滑动条");
+        ImGui.Text("进度条");
     }
 
 private void DrawSlots()

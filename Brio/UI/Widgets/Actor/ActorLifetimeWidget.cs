@@ -50,7 +50,7 @@ public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<Ac
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "删除", Capability.CanDestroy))
+        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "销毁", Capability.CanDestroy))
         {
             Capability.Destroy();
         }
@@ -75,7 +75,7 @@ public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<Ac
 
         if(Capability.CanDestroy)
         {
-            if(ImGui.MenuItem("删除###actorlifetime_destroy"))
+            if(ImGui.MenuItem("销毁###actorlifetime_destroy"))
             {
                 Capability.Destroy();
             }
@@ -86,7 +86,7 @@ public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<Ac
             Capability.Target();
         }
 
-        if(ImGui.MenuItem($"重命名{Capability.Actor.FriendlyName}###actorlifetime_rename"))
+        if(ImGui.MenuItem($"重命名 {Capability.Actor.FriendlyName}###actorlifetime_rename"))
         {
             ImGui.CloseCurrentPopup();
 

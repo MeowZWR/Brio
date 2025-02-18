@@ -54,7 +54,7 @@ public class ActorContainerWidget(ActorContainerCapability capability) : Widget<
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_destroy", FontAwesomeIcon.Trash, "删除", hasSelection))
+            if(ImBrio.FontIconButton("containerwidget_destroy", FontAwesomeIcon.Trash, "销毁", hasSelection))
             {
                 Capability.DestroyCharacter(_selectedActor!);
             }
@@ -75,7 +75,7 @@ public class ActorContainerWidget(ActorContainerCapability capability) : Widget<
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("containerwidget_destroyall", FontAwesomeIcon.Bomb, "全部删除"))
+            if(ImBrio.FontIconButton("containerwidget_destroyall", FontAwesomeIcon.Bomb, "全部销毁"))
             {
                 Capability.DestroyAll();
             }
@@ -104,17 +104,17 @@ public class ActorContainerWidget(ActorContainerCapability capability) : Widget<
 
     public override void DrawPopup()
     {
-        if(ImGui.MenuItem("Spawn###containerwidgetpopup_spawnbasic"))
+        if(ImGui.MenuItem("生成###containerwidgetpopup_spawnbasic"))
         {
             Capability.CreateCharacter(false, true, forceSpawnActorWithoutCompanion: true);
         }
 
-        if(ImGui.MenuItem("Spawn with Companion###containerwidgetpopup_spawncompanion"))
+        if(ImGui.MenuItem("生成（带宠物）###containerwidgetpopup_spawncompanion"))
         {
             Capability.CreateCharacter(true, true);
         }
 
-        if(ImGui.MenuItem("Destroy All###containerwidgetpopup_destroyall"))
+        if(ImGui.MenuItem("全部销毁###containerwidgetpopup_destroyall"))
         {
             Capability.DestroyAll();
         }

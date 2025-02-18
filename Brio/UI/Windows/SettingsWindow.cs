@@ -327,8 +327,8 @@ public class SettingsWindow : Window
 
                     _glamourerService.Disabled = !enablePenumbra;
                     _mareService.Disabled = _glamourerService.Disabled;
-                            }
-                        }
+                }
+            }
         }
     }
 
@@ -354,8 +354,8 @@ public class SettingsWindow : Window
 
                 var maxSaves = _configurationService.Configuration.AutoSave.MaxAutoSaves;
                 if(ImGui.SliderInt("最大自动保存次数", ref maxSaves, 3, 30))
-                    {
-                        _configurationService.Configuration.AutoSave.MaxAutoSaves = maxSaves;
+                {
+                    _configurationService.Configuration.AutoSave.MaxAutoSaves = maxSaves;
                     _configurationService.ApplyChange();
                 }
 
@@ -735,7 +735,7 @@ public class SettingsWindow : Window
                 return;
 
             bool enableKeyHandlingOnKeyMod = _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod;
-            if(ImGui.Checkbox("Consumed, [Shift], [Ctrl] & [Alt] keyboard input when moving a FreeCam", ref enableKeyHandlingOnKeyMod))
+            if(ImGui.Checkbox("在移动自由相机时拦截 [Shift]、[Ctrl] 和 [Alt] 键盘输入", ref enableKeyHandlingOnKeyMod))
             {
                 _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod = enableKeyHandlingOnKeyMod;
                 _configurationService.ApplyChange();

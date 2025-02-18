@@ -35,7 +35,7 @@ public unsafe class CompanionWidget(CompanionCapability capability) : Widget<Com
     public override void DrawPopup()
     {
         if(Capability.Character.HasSpawnedCompanion())
-            if(ImGui.MenuItem("删除宠物###companionowner_popup_destroy"))
+            if(ImGui.MenuItem("销毁宠物###companionowner_popup_destroy"))
                 Capability.DestroyCompanion();
     }
 

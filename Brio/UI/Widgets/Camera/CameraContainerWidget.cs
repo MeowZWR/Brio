@@ -12,7 +12,7 @@ namespace Brio.UI.Widgets.Camera;
 
 public class CameraContainerWidget(CameraContainerCapability capability) : Widget<CameraContainerCapability>(capability)
 {
-    public override string HeaderName => "Cameras";
+    public override string HeaderName => "相机";
 
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody | WidgetFlags.DrawPopup | WidgetFlags.DrawQuickIcons;
 
@@ -24,7 +24,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
         {
             bool hasSelection = _selectedEntity != null;
 
-            if(ImBrio.FontIconButton("CameraContainerWidget_New_Camera", FontAwesomeIcon.Plus, "New Camera"))
+            if(ImBrio.FontIconButton("CameraContainerWidget_New_Camera", FontAwesomeIcon.Plus, "新建相机"))
             {
                 ImGui.OpenPopup("DrawSpawnMenuPopup");
             }
@@ -35,7 +35,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
             using(ImRaii.Disabled(hasSelection == false))
             {
                 using(ImRaii.Disabled(true))
-                    if(ImBrio.FontIconButton("CameraLifetime_clone", FontAwesomeIcon.Clone, "Clone Camera"))
+                    if(ImBrio.FontIconButton("CameraLifetime_clone", FontAwesomeIcon.Clone, "克隆相机"))
                     {
 
                     }
@@ -44,7 +44,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
 
                 using(ImRaii.Disabled(_selectedEntity?.VirtualCamera.CameraID == 0))
                 {
-                    if(ImBrio.FontIconButton("CameraLifetime_destroy", FontAwesomeIcon.Trash, "Destroy Camera"))
+                    if(ImBrio.FontIconButton("CameraLifetime_destroy", FontAwesomeIcon.Trash, "销毁相机"))
                     {
                         Capability.VirtualCameraManager.DestroyCamera(_selectedEntity!.VirtualCamera.CameraID);
                     }
@@ -52,14 +52,14 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
 
                 ImGui.SameLine();
 
-                if(ImBrio.FontIconButton("CameraLifetime_target", FontAwesomeIcon.LocationCrosshairs, "Target Camera"))
+                if(ImBrio.FontIconButton("CameraLifetime_target", FontAwesomeIcon.LocationCrosshairs, "选中相机"))
                 {
                     Capability.VirtualCameraManager.SelectCamera(_selectedEntity!.VirtualCamera);
                 }
 
                 ImGui.SameLine();
 
-                if(ImBrio.FontIconButton("containerwidget_selectinhierarchy", FontAwesomeIcon.FolderTree, "Select in Hierarchy", hasSelection))
+                if(ImBrio.FontIconButton("containerwidget_selectinhierarchy", FontAwesomeIcon.FolderTree, "在层级中选择", hasSelection))
                 {
                     Capability.VirtualCameraManager.SelectInHierarchy(_selectedEntity!);
                 }
@@ -69,7 +69,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
             {
                 ImGui.SameLine();
 
-                if(ImBrio.FontIconButton("containerwidget_destroyall", FontAwesomeIcon.Bomb, "Destroy All"))
+                if(ImBrio.FontIconButton("containerwidget_destroyall", FontAwesomeIcon.Bomb, "销毁全部"))
                 {
                     Capability.VirtualCameraManager.DestroyAll();
                 }
@@ -103,7 +103,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
 
 public class BrioCameraWidget(BrioCameraCapability capability) : Widget<BrioCameraCapability>(capability)
 {
-    public override string HeaderName => "Camera Editor";
+    public override string HeaderName => "相机编辑器";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.DefaultOpen | WidgetFlags.HasAdvanced;
 

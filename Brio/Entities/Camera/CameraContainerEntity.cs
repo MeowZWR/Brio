@@ -20,7 +20,7 @@ public class CameraContainerEntity(IServiceProvider provider) : Entity("cameras"
     private readonly VirtualCameraManager _virtualCameraManager = provider.GetRequiredService<VirtualCameraManager>();
     private readonly GameInputService _gameInputService = provider.GetRequiredService<GameInputService>();
 
-    public override string FriendlyName => "Cameras";
+    public override string FriendlyName => "相机管理";
 
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Camera;
 
@@ -32,7 +32,7 @@ public class CameraContainerEntity(IServiceProvider provider) : Entity("cameras"
         {
             using(ImRaii.PushColor(ImGuiCol.Button, TheameManager.CurrentTheame.Accent.AccentColor))
             {
-                string toolTip = $"New Camera";
+                string toolTip = $"新建相机";
                 if(ImBrio.FontIconButtonRight($"###{Id}_cameras_contextButton", FontAwesomeIcon.Plus, 1f, toolTip, bordered: false))
                 {
                     ImGui.OpenPopup("DrawSpawnMenuPopup");
