@@ -735,7 +735,7 @@ public class SettingsWindow : Window
                 return;
 
             bool enableKeyHandlingOnKeyMod = _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod;
-            if(ImGui.Checkbox("在移动自由相机时拦截 [Shift]、[Ctrl] 和 [Alt] 键盘输入", ref enableKeyHandlingOnKeyMod))
+            if(ImGui.Checkbox("移动自由相机时，[SPACE], [Shift], [Ctrl] & [Alt]键将专用于相机控制", ref enableKeyHandlingOnKeyMod))
             {
                 _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod = enableKeyHandlingOnKeyMod;
                 _configurationService.ApplyChange();

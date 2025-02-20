@@ -46,7 +46,7 @@ public class InfoWindow : Window
                     (AquilaHK), (LotusEcho), & (Yume);
                                         
                     感谢以下人员对Brio代码的贡献！
-                    (Ashadow700), (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), 
+                    (Ashadow700),(@Bronya-Rand), (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), 
                     (@snaeling), (@WorstAquaPlayer), (@Caraxi), (@Enth) & (@gris-fuego);
 
                     维护与开发：Minmoose.
