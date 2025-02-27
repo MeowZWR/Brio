@@ -42,12 +42,13 @@ public class InfoWindow : Window
                     目前仍处于alpha版本，因此可能存在bug。如果您遇到了问题，请向我们报告它们。
 
                     特别感谢以下各位通过Kofi对我们的支持！
-                    (Sufferhymn), (Night Song), (Alvar Valo), (Yasumi), (YikesXD), (Selitha), 
-                    (AquilaHK), (LotusEcho), & (Yume);
+                    (Sufferhymn), (Night Song), (Alvar Valo), (@Conna), (Yasumi),
+                    (YikesXD), (Selitha), (AquilaHK), (LotusEcho), & (Yume);
                                         
                     感谢以下人员对Brio代码的贡献！
-                    (Ashadow700),(@Bronya-Rand), (@MKhayle), (@ashna_ff14), (@Yuki-Codes), (@danma3x), 
-                    (@snaeling), (@WorstAquaPlayer), (@Caraxi), (@Enth) & (@gris-fuego);
+                    (@AsgardXIV), (@Ashadow700), (@ashna_ff14), (@Bronya-Rand), (@Caraxi),
+                    (@Cazzar), (@danma3x), (@Enth), (@gris-fuego), (@HoloWise), 
+                    (@MKhayle), (@WorstAquaPlayer), (@snaeling), (@Yuki-Codes);
 
                     维护与开发：Minmoose.
                     原始开发者: Asgard.
