@@ -54,7 +54,7 @@ public class PosingTransformEditor
 
                     using(ImRaii.Disabled(isBone == false))
                     {
-                        if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "Propagate", realBone?.EligibleForIK == true))
+                        if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "传递", realBone?.EligibleForIK == true))
                             ImGui.OpenPopup("transform_propagate_popup");
 
                         if(compactMode)
@@ -67,7 +67,7 @@ public class PosingTransformEditor
 
                             using(ImRaii.Disabled(posingCapability.Selected.Value is None))
                             {
-                                if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "Clear Selection"))
+                                if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "清除选择"))
                                     posingCapability.ClearSelection();
                             }
 
@@ -86,13 +86,13 @@ public class PosingTransformEditor
                             }
 
                             if(ImGui.IsItemHovered())
-                                ImGui.SetTooltip("Select Parent");
+                                ImGui.SetTooltip("选择父级");
                         }
                     }
                     ImGui.SameLine();
 
                     using(ImRaii.Disabled(true))
-                        if(ImBrio.FontIconButton("copypaste", FontAwesomeIcon.Clipboard, "Copy/Paste"))
+                        if(ImBrio.FontIconButton("copypaste", FontAwesomeIcon.Clipboard, "复制/粘贴"))
                             ImGui.OpenPopup("transform_CopyPaste_popup");
 
                     if(isBone == false)
@@ -100,7 +100,7 @@ public class PosingTransformEditor
                         {
                             ImGui.SameLine();
 
-                            if(ImBrio.FontIconButtonRight("resetTransform", FontAwesomeIcon.Recycle, 1, tooltip: "Reset Model Transform"))
+                            if(ImBrio.FontIconButtonRight("resetTransform", FontAwesomeIcon.Recycle, 1, tooltip: "重置模型变换"))
                             {
                                 posingCapability.ModelPosing.ResetTransform();
                             }
