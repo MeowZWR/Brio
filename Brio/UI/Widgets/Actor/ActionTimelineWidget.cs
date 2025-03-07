@@ -11,7 +11,7 @@ public class ActionTimelineWidget(ActionTimelineCapability capability, EntityMan
 {
     public override string HeaderName => "动画控制（高级选项整合XAT）";
 
-    public override WidgetFlags Flags => capability.Actor.IsProp ? WidgetFlags.None : WidgetFlags.DrawBody | WidgetFlags.HasAdvanced;
+    public override WidgetFlags Flags => Capability.Actor.IsProp ? WidgetFlags.None : WidgetFlags.DrawBody | WidgetFlags.HasAdvanced;
 
     private readonly ActionTimelineEditor _editor = new(null!, null!, entityManager, physicsService, configService);
 

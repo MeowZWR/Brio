@@ -27,11 +27,10 @@ public class CameraLifetimeWidget(CameraLifetimeCapability capability) : Widget<
 
             ImGui.SameLine();
 
-            using(ImRaii.Disabled(true))
-                if(ImBrio.FontIconButton("CameraLifetime_clone", FontAwesomeIcon.Clone, "克隆相机", Capability.CanClone))
-                {
-
-                }
+            if(ImBrio.FontIconButton("CameraLifetime_clone", FontAwesomeIcon.Clone, "克隆相机", Capability.CanClone))
+            {
+                Capability.VirtualCameraManager.CloneCamera(Capability.CameraEntity.CameraID);
+            }
 
             ImGui.SameLine();
 
@@ -71,11 +70,10 @@ public class CameraLifetimeWidget(CameraLifetimeCapability capability) : Widget<
 
         if(Capability.CanClone)
         {
-            using(ImRaii.Disabled(true))
-                if(ImGui.MenuItem("克隆###CameraLifetime_clone"))
-                {
-
-                }
+            if(ImGui.MenuItem("克隆###CameraLifetime_clone"))
+            {
+                Capability.VirtualCameraManager.CloneCamera(Capability.CameraEntity.CameraID);
+            }
         }
 
         if(Capability.CanDestroy)
