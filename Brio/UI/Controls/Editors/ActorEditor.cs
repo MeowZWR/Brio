@@ -25,19 +25,19 @@ public class ActorEditor
         {
             using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
             {
-                if(ImGui.Button("Spawn Actor"))
+                if(ImGui.Button("生成角色"))
                 {
                     actorContainerCapability.CreateCharacter(false, true, forceSpawnActorWithoutCompanion: true);
                 }
 
-                if(ImGui.Button("Spawn Actor with Slot"))
+                if(ImGui.Button("生成带槽的角色"))
                 {
                     actorContainerCapability.CreateCharacter(true, true);
                 }
 
                 ImGui.Separator();
 
-                if(ImGui.Button("Spawn Prop"))
+                if(ImGui.Button("生成道具"))
                 {
                     actorContainerCapability.CreateProp(true);
                 }
