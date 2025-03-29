@@ -255,7 +255,7 @@ public static partial class ImBrio
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip($"Decrease {tooltip}");
+            ImGui.SetTooltip($"减少 {tooltip}");
 
         ImGui.SameLine();
 
@@ -327,7 +327,7 @@ public static partial class ImBrio
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip($"Increase {tooltip}");
+            ImGui.SetTooltip($"增加 {tooltip}");
 
         if(hasLabel)
         {

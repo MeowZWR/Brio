@@ -44,7 +44,7 @@ public class PosingTransformEditor
 
                 if(posingCapability.Actor.IsProp == false)
                 {
-                    if(ImBrio.FontIconButton("transformOffset", FontAwesomeIcon.GaugeSimpleHigh, "Transform Offset"))
+                    if(ImBrio.FontIconButton("transformOffset", FontAwesomeIcon.GaugeSimpleHigh, "变换偏移值"))
                     { 
                         ImGui.OpenPopup("transformOffset");
                     }
@@ -263,7 +263,7 @@ public class PosingTransformEditor
             var bone = posingCapability.SkeletonPosing.GetBone(boneId);
             if(bone is not null)
             {
-                ImBrio.DragFloat($"##transformSpeed_1", ref bone.BoneAdjustmentOffset, 0.001f, 10, 0.01f, "Offset", 50);
+                ImBrio.DragFloat($"##transformSpeed_1", ref bone.BoneAdjustmentOffset, 0.001f, 10, 0.01f, "偏移值", 50);
                 bool freezeTransforms = bone.Freeze;
                 if(ImGui.Checkbox("Freeze Transforms", ref freezeTransforms))
                 {
@@ -278,7 +278,7 @@ public class PosingTransformEditor
         using var popup = ImRaii.Popup("transformOffset");
         if(popup.Success)
         {
-            ImBrio.DragFloat($"##transformSpeed_1", ref posingCapability.ModelPosing.TransformOffset, 0.001f, 10, 0.01f, "Offset", 50);
+            ImBrio.DragFloat($"##transformSpeed_1", ref posingCapability.ModelPosing.TransformOffset, 0.001f, 10, 0.01f, "偏移值", 50);
             bool freezeTransforms = posingCapability.ModelPosing.Freeze;
             if(ImGui.Checkbox("Freeze Transforms", ref freezeTransforms))
             {

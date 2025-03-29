@@ -96,7 +96,7 @@ public class GearEditor()
         {
             if(rightGearGroup.Success)
             {
-                if(ImGui.Checkbox("Replaces Off-Hand with a Prop###offweaponsprops", ref _offHandProp))
+                if(ImGui.Checkbox("将副手替换为道具###offweaponsprops", ref _offHandProp))
                 {
                     if(_offHandProp == false)
                         currentAppearance.Weapons.OffHand = originalAppearance.Weapons.OffHand;
@@ -107,7 +107,7 @@ public class GearEditor()
                 }
 
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Replaces the off-hand weapon with a prop.");
+                    ImGui.SetTooltip("将副手武器替换为道具。");
 
                 ImGui.Spacing();
 

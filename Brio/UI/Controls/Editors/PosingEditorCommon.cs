@@ -33,13 +33,13 @@ public static class PosingEditorCommon
                 Game.Posing.Skeletons.Bone? bone = posing.SkeletonPosing.GetBone(selectedIsBone.Value);
                 if(bone != null && bone.Skeleton.IsValid && bone.Freeze)
                 {
-                    ImGui.Text("This bone's transform values are frozen.");
+                    ImGui.Text("此骨骼的变换值已被冻结。");
                 }
             } else
             {
                 if (posing.ModelPosing.Freeze)
                 {
-                    ImGui.Text("This actor's transform values are frozen.");
+                    ImGui.Text("此角色的变换值已被冻结。");
                 }
             }
         }
