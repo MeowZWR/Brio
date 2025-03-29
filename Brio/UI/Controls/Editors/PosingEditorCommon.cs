@@ -1,6 +1,7 @@
 ﻿using Brio.Capabilities.Posing;
 using Brio.Core;
 using Brio.Game.Posing;
+using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
 using Dalamud.Interface;
@@ -22,6 +23,25 @@ public static class PosingEditorCommon
             ImGui.SetWindowFontScale(0.75f);
             ImGui.TextDisabled(posing.Selected.Subtitle);
             ImGui.SetWindowFontScale(1.0f);
+        }
+
+        BonePoseInfoId? selectedIsBone = posing.IsSelectedBone();
+        using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
+        {
+            if (selectedIsBone.HasValue)
+            {
+                Game.Posing.Skeletons.Bone? bone = posing.SkeletonPosing.GetBone(selectedIsBone.Value);
+                if(bone != null && bone.Skeleton.IsValid && bone.Freeze)
+                {
+                    ImGui.Text("此骨骼的变换值已被冻结。");
+                }
+            } else
+            {
+                if (posing.ModelPosing.Freeze)
+                {
+                    ImGui.Text("此角色的变换值已被冻结。");
+                }
+            }
         }
     }
 
