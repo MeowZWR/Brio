@@ -144,7 +144,7 @@ public class PosingTransformEditor
             }
 
             (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_0", ref realTransform.Position, offset, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置", enableExpanded: compactMode);
-            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, offset, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compactMode);
+            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, offset * 100, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compactMode);
             (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transformScale_0", ref realTransform.Scale, offset, FontAwesomeIcon.ExpandAlt, "缩放", enableExpanded: compactMode);
 
             didChange |= pdidChange |= rdidChange |= sdidChange;
@@ -191,7 +191,7 @@ public class PosingTransformEditor
             bool anyActive = false;
 
             (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_1", ref realTransform.Position, offset, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置", enableExpanded: compactMode);
-            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_1", ref realEuler, offset, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compactMode);
+            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_1", ref realEuler, offset * 100, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compactMode);
 
             bool sdidChange = false;
             bool sanyActive = false;
