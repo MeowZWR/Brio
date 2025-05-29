@@ -14,7 +14,7 @@
         "DownloadLinkInstall": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/0.5.0.6-cn/Brio.zip",
         "DownloadLinkTesting": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/0.5.0.6-cn/Brio.zip",
         "DownloadLinkUpdate": "https://meowrs.com/https://github.com/MeowZWR/Brio/releases/download/0.5.0.6-cn/Brio.zip",
-        "IconUrl": "https://meowrs.com/https://raw.githubusercontent.com/MeowZWR/Brio/main/Resources/Images/BrioIcon.png",
+        "IconUrl": "https://static.meowrs.com/Plugins/Brio/Icon.png",
         "Tags": [ 
             "gpose",
             "brio",
