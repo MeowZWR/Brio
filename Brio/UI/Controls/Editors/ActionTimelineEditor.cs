@@ -787,10 +787,11 @@ private void DrawSlots()
             ImGui.BeginTooltip();
             ImGui.Text("当前动作模组："); ImGui.SameLine(); ImGui.TextColored(new Vector4(0.4f, 0.7f, 1.0f, 1.0f), modName);
             ImGui.Text("文件系统路径："); ImGui.SameLine(); ImGui.TextColored(new Vector4(0.3f, 0.9f, 0.3f, 1.0f), modPath);
+            ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.2f, 1.0f), "* 若该模组包含对此动作的修改，但实际未启用相关选项，且其优先级最高，仍将被识别为当前动作的来源。");
+            ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "* NightLife等大型模组包含大量动作修改，可能导致识别结果不准确，请尽量避免将其优先级设为最高。");
             if (xcpFiles.Count == 0)
             {
-                ImGui.Text("未检测到"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹。");
-                ImGui.Text("请创建"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹，放入后缀名为"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), ".xcp"); ImGui.SameLine(); ImGui.Text("的镜头文件。");
+                ImGui.Text("未检测到"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹。请创建"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹，放入后缀名为"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), ".xcp"); ImGui.SameLine(); ImGui.Text("的镜头文件。");
             }
             ImGui.EndTooltip();
         }

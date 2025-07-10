@@ -6,7 +6,7 @@ namespace Brio.Game.Penumbra
     public class PenumbraModInfo
     {
         public string ModName { get; set; } = string.Empty;
-        public string EmoteName { get; set; } = string.Empty;
+        public List<string> EmoteNames { get; set; }
         public int Priority { get; set; }
         public List<string> XcpFiles { get; set; }
         public bool IsEnabled { get; set; } = false;
@@ -15,6 +15,7 @@ namespace Brio.Game.Penumbra
         public PenumbraModInfo()
         {
             XcpFiles = new List<string>();
+            EmoteNames = new List<string>();
         }
     }
 } 

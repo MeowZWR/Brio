@@ -84,7 +84,7 @@ namespace Brio.Game.Penumbra
 
         public PenumbraModInfo? GetModInfoForEmote(string emoteName) 
         {
-            return _modInfos.FirstOrDefault(m => m.EmoteName == emoteName);
+            return _modInfos.FirstOrDefault(m => m.EmoteNames.Any(e => e == emoteName));
         }
         
         public List<string> GetXcpFilesForEmote(string emoteName)
@@ -178,13 +178,17 @@ namespace Brio.Game.Penumbra
                     var changes = _getChangedItems.Invoke(mod.Key, mod.Value);
                     if (changes != null && changes.Any(c => c.Key.StartsWith("Emote:")))
                     {
-                        var emoteChange = changes.First(c => c.Key.StartsWith("Emote:"));
-                        var emoteText = emoteChange.Key.Replace("Emote:", "").Trim();
-                        var emoteName = System.Text.RegularExpressions.Regex.Replace(emoteText, @"\s*\(\d+\)$", "").Trim();
-                        modInfo.EmoteName = emoteName;
+                        var emoteChanges = changes.Where(c => c.Key.StartsWith("Emote:")).ToList();
+                        foreach (var emoteChange in emoteChanges)
+                        {
+                            var emoteText = emoteChange.Key.Replace("Emote:", "").Trim();
+                            var emoteName = System.Text.RegularExpressions.Regex.Replace(emoteText, @"\s*\(\d+\)$", "").Trim();
+                            if (!modInfo.EmoteNames.Contains(emoteName))
+                                modInfo.EmoteNames.Add(emoteName);
 #if DEBUG
-                        Brio.Log.Information($"模组 '{mod.Value}' 修改情感动作: {modInfo.EmoteName}");
+                            Brio.Log.Information($"模组 '{mod.Value}' 修改情感动作: {emoteName}");
 #endif
+                        }
                     }
 
                     if (currentCollectionId != Guid.Empty)
@@ -238,7 +242,8 @@ namespace Brio.Game.Penumbra
                 Brio.Log.Information("优先级最高的5个模组:");
                 foreach (var mod in topMods)
                 {
-                    Brio.Log.Information($"  - '{mod.ModName}' (优先级: {mod.Priority}, 情感动作: {mod.EmoteName}, XCP文件数: {mod.XcpFiles.Count})");
+                    var emoteNames = mod.EmoteNames.Count > 0 ? string.Join(", ", mod.EmoteNames) : "无";
+                    Brio.Log.Information($"  - '{mod.ModName}' (优先级: {mod.Priority}, 情感动作: {emoteNames}, XCP文件数: {mod.XcpFiles.Count})");
                 }
 #endif
                 
