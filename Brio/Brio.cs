@@ -46,6 +46,9 @@ public class Brio : IDalamudPlugin
         Log = dalamudServices.Log;
         Framework = dalamudServices.Framework;
 
+        // 注册全局通知服务
+        Service.NotificationManager = dalamudServices.NotificationManager;
+
         dalamudServices.Framework.RunOnTick(() =>
         {
             var stopwatch = new Stopwatch();

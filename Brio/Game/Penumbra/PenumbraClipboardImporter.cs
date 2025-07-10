@@ -16,6 +16,18 @@ namespace Brio.Game.Penumbra
             _notify = notify;
         }
 
+        private void ShowNotification(string content, Dalamud.Interface.ImGuiNotification.NotificationType type)
+        {
+            Service.NotificationManager?.AddNotification(new Dalamud.Interface.ImGuiNotification.Notification
+            {
+                Content = content,
+                Title = "卫月通知",
+                Type = type,
+                Minimized = false,
+                InitialDuration = TimeSpan.FromSeconds(3)
+            });
+        }
+
         /// <summary>
         /// 从剪贴板导入.xcp文件到指定模组的XCP文件夹
         /// </summary>
@@ -25,7 +37,9 @@ namespace Brio.Game.Penumbra
         {
             if (string.IsNullOrEmpty(modRootPath) || !Directory.Exists(modRootPath))
             {
-                _notify("模组路径无效，无法导入相机文件。");
+                string msg = "模组路径无效，无法导入相机文件。";
+                _notify(msg);
+                ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Error);
                 return 0;
             }
 
@@ -33,7 +47,9 @@ namespace Brio.Game.Penumbra
 
             if (!System.Windows.Forms.Clipboard.ContainsFileDropList())
             {
-                _notify("剪贴板中未检测到文件。");
+                string msg = "剪贴板中未检测到文件。";
+                _notify(msg);
+                ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Error);
                 return 0;
             }
 
@@ -42,7 +58,9 @@ namespace Brio.Game.Penumbra
             var xcpFiles = files.Where(file => SupportedExtensions.Contains(Path.GetExtension(file)?.ToLowerInvariant())).ToList();
             if (xcpFiles.Count == 0)
             {
-                _notify("未检测到可导入的.xcp文件。");
+                string msg = "未检测到可导入的.xcp文件。";
+                _notify(msg);
+                ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Error);
                 return 0;
             }
 
@@ -72,14 +90,24 @@ namespace Brio.Game.Penumbra
                 }
                 catch (Exception ex)
                 {
-                    _notify($"导入文件失败: {ex.Message}");
+                    string msg = $"导入文件失败: {ex.Message}";
+                    _notify(msg);
+                    ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Error);
                 }
             }
 
             if (imported > 0)
-                _notify($"成功导入 {imported} 个.xcp文件到 {xcpFolder}");
+            {
+                string msg = $"成功导入 {imported} 个.xcp文件到 {xcpFolder}";
+                _notify(msg);
+                ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Success);
+            }
             else
-                _notify("未检测到可导入的.xcp文件。");
+            {
+                string msg = "未检测到可导入的.xcp文件。";
+                _notify(msg);
+                ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Error);
+            }
             return imported;
         }
 
