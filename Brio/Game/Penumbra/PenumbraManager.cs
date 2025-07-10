@@ -171,7 +171,8 @@ namespace Brio.Game.Penumbra
                     var modInfo = new PenumbraModInfo
                     {
                         ModName = mod.Value,
-                        Priority = 0
+                        Priority = 0,
+                        ModDirectory = mod.Key
                     };
 
                     var changes = _getChangedItems.Invoke(mod.Key, mod.Value);

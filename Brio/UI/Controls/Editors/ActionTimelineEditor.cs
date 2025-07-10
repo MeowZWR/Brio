@@ -692,7 +692,7 @@ private void DrawSlots()
         if (!PenumbraManager.Instance.HasEverRefreshed)
         {
             ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.0f, 1.0f), "本次会话尚未获取Penumbra模组状态，请手动点击按钮获取。");
-            if (ImGui.Button("获取当前模组相机文件"))
+            if (ImBrio.FontIconButton("refreshPenumbraModInfo", FontAwesomeIcon.Repeat, "获取当前模组相机文件"))
             {
                 PenumbraManager.Instance.RefreshModInfo();
             }
@@ -707,31 +707,30 @@ private void DrawSlots()
         }
 
         var xcpFiles = PenumbraManager.Instance.GetXcpFilesForEmote(currentEmoteName);
-        
+        var modInfo = PenumbraManager.Instance.GetModInfoForEmote(currentEmoteName);
+        string modName = modInfo?.ModName ?? "未知";
+        string modDirectory = modInfo?.ModDirectory ?? string.Empty;
+        string modPath = "未知";
+        if (modInfo != null && !string.IsNullOrEmpty(modDirectory))
+        {
+            try
+            {
+                var modRootDirectory = PenumbraManager.Instance.GetModRootDirectory();
+                modPath = System.IO.Path.Combine(modRootDirectory, modDirectory);
+            }
+            catch { }
+        }
         if (xcpFiles.Count == 0)
         {
             ImGui.AlignTextToFramePadding();
             ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), $"未找到 {currentEmoteName} 的XCP文件");
-            if (ImGui.Button("重新获取当前模组的相机文件"))
+            if (ImBrio.FontIconButton("refreshPenumbraModInfo", FontAwesomeIcon.Repeat, "重新获取当前模组的相机文件"))
             {
                 PenumbraManager.Instance?.RefreshModInfo();
             }
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("手动获取当前情感动作对应的模组相机文件");
             ImGui.SameLine();
-            // 获取当前动作模组名和路径
-            var modInfo = PenumbraManager.Instance.GetModInfoForEmote(currentEmoteName);
-            string modName = modInfo?.ModName ?? "未知";
-            string modPath = "未知";
-            if (modInfo != null && !string.IsNullOrEmpty(modInfo.ModName))
-            {
-                try
-                {
-                    var modRootDirectory = PenumbraManager.Instance.GetModRootDirectory();
-                    modPath = System.IO.Path.Combine(modRootDirectory, modInfo.ModName);
-                }
-                catch { }
-            }
             Dalamud.Interface.Components.ImGuiComponents.HelpMarker("提示");
             if (ImGui.IsItemHovered())
             {
@@ -742,6 +741,8 @@ private void DrawSlots()
                 ImGui.Text("请创建"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹，放入后缀名为"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), ".xcp"); ImGui.SameLine(); ImGui.Text("的镜头文件。");
                 ImGui.EndTooltip();
             }
+            // 按钮始终显示
+            DrawImportAndOpenButtons(modPath);
             return;
         }
 
@@ -749,15 +750,16 @@ private void DrawSlots()
         ImGui.AlignTextToFramePadding();
         ImGui.Text("Penumbra XCP文件:");
         ImGui.SameLine();
-        if (ImGui.Button("重新获取当前模组的相机文件"))
+        if (ImBrio.FontIconButton("refreshPenumbraModInfo", FontAwesomeIcon.Repeat, "重新获取当前模组的相机文件"))
         {
             PenumbraManager.Instance?.RefreshModInfo();
         }
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("手动获取当前情感动作对应的模组相机文件");
-        ImGui.SetCursorPosY(ImGui.GetCursorPosY());
+        // 按钮始终显示
+        DrawImportAndOpenButtons(modPath);
+        // 修复preview变量未定义
         var preview = string.IsNullOrEmpty(_selectedXcpFile) ? "选择XCP文件..." : Path.GetFileName(_selectedXcpFile);
-        
         if (ImGui.BeginCombo("###penumbra_xcp_combo", preview))
         {
             if (ImGui.Selectable("选择XCP文件...", string.IsNullOrEmpty(_selectedXcpFile)))
@@ -796,6 +798,48 @@ private void DrawSlots()
             }
             
             ImGui.EndCombo();
+        }
+    }
+
+    // 新增：按钮渲染私有方法
+    private void DrawImportAndOpenButtons(string modPath)
+    {
+        ImGui.SameLine();
+        if (ImBrio.FontIconButton("importXcp", FontAwesomeIcon.Clipboard, "从剪贴板导入.xcp文件"))
+        {
+            var importer = new PenumbraClipboardImporter(msg => Brio.Log.Information(msg));
+            importer.ImportXcpFromClipboard(modPath);
+        }
+        ImGui.SameLine();
+        var xcpFolder = System.IO.Path.Combine(modPath, "XCP");
+        bool xcpExists = System.IO.Directory.Exists(xcpFolder);
+        bool ctrlDown = ImGui.GetIO().KeyCtrl;
+        var icon = xcpExists ? FontAwesomeIcon.FolderOpen : FontAwesomeIcon.Plus;
+        var tooltip = xcpExists ? "在文件资源管理器中打开XCP文件夹" : "按住Ctrl点击创建XCP文件夹";
+        bool enabled = xcpExists || ctrlDown;
+
+        ImGui.BeginDisabled(!enabled);
+        bool clicked = ImBrio.FontIconButton("openXcpFolder", icon, tooltip, true);
+        ImGui.EndDisabled();
+
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            ImGui.SetTooltip(tooltip);
+        }
+
+        if (clicked && enabled)
+        {
+            try
+            {
+                if (!xcpExists && ctrlDown)
+                    System.IO.Directory.CreateDirectory(xcpFolder);
+                if (System.IO.Directory.Exists(xcpFolder))
+                    System.Diagnostics.Process.Start("explorer.exe", xcpFolder);
+            }
+            catch (Exception ex)
+            {
+                Brio.Log.Error($"打开文件夹失败: {ex.Message}");
+            }
         }
     }
 
