@@ -14,7 +14,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        submodules: recursive
         
     - name: Install .NET
       uses: actions/setup-dotnet@v1
@@ -23,7 +23,7 @@ jobs:
 
     - name: Download Dalamud
       run: |
-        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
+        Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile latest.zip
         Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
 
     - name: Restore Dependencies
@@ -32,14 +32,32 @@ jobs:
     - name: Build Brio
       run: |
         $ver = '${{ github.ref_name }}' -replace '-cn$', ''
-        dotnet build Brio.sln --no-restore /p:Configuration=Release /p:Version=$ver
+        dotnet build --no-restore Brio.sln --configuration Release --nologo -p:Version=$ver
 
-    - name: Zip Release
-      uses: TheDoctor0/zip-release@0.6.0
-      with:
-        filename: '../../../../Brio.zip'
-        directory: './Brio/bin/x64/Release/'
-        exclusions: 'Brio Brio/*'
+    - name: Debug Build Output
+      run: |
+        Write-Host "Checking build output directories:"
+        Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -eq "Release" } | ForEach-Object { Write-Host $_.FullName }
+        Write-Host "Checking Brio directory structure:"
+        if (Test-Path "Brio/bin") {
+          Get-ChildItem "Brio/bin" -Recurse | ForEach-Object { Write-Host $_.FullName }
+        } else {
+          Write-Host "Brio/bin directory does not exist"
+        }
+
+    - name: Archive
+      run: |
+        $buildPath = "Brio/bin/Release"
+        if (Test-Path $buildPath) {
+          Write-Host "Found build output at: $buildPath"
+          Compress-Archive -Path "$buildPath/*" -DestinationPath "Brio.zip" -Force
+          Write-Host "Archive created successfully"
+        } else {
+          Write-Host "Build path not found: $buildPath"
+          Write-Host "Available directories:"
+          Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -eq "Release" } | ForEach-Object { Write-Host $_.FullName }
+          exit 1
+        }
         
     - name: Upload Release
       uses: ncipollo/release-action@v1

@@ -1,0 +1,67 @@
+name: Build Brio - Dalamud Release
+
+on:
+  push:
+    branches: 
+    - cn
+    tags-ignore: '*'
+  pull_request:
+    branches:
+    - cn
+    
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        
+    - name: Install .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Download Dalamud
+      run: |
+        Invoke-WebRequest -Uri https://raw.githubusercontent.com/ottercorp/dalamud-distrib/main/stg/latest.zip -OutFile latest.zip
+        Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
+
+    - name: Restore Dependencies
+      run: dotnet restore Brio.sln
+      
+    - name: Build Brio
+      run: dotnet build --no-restore Brio.sln --configuration Release --nologo /p:Version=0.0.0.1
+
+    - name: Debug Build Output
+      run: |
+        Write-Host "Checking build output directories:"
+        Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -eq "Release" } | ForEach-Object { Write-Host $_.FullName }
+        Write-Host "Checking Brio directory structure:"
+        if (Test-Path "Brio/bin") {
+          Get-ChildItem "Brio/bin" -Recurse | ForEach-Object { Write-Host $_.FullName }
+        } else {
+          Write-Host "Brio/bin directory does not exist"
+        }
+
+    - name: Archive
+      run: |
+        $buildPath = "Brio/bin/Release"
+        if (Test-Path $buildPath) {
+          Write-Host "Found build output at: $buildPath"
+          Compress-Archive -Path "$buildPath/*" -DestinationPath "Brio.zip" -Force
+          Write-Host "Archive created successfully"
+        } else {
+          Write-Host "Build path not found: $buildPath"
+          Write-Host "Available directories:"
+          Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -eq "Release" } | ForEach-Object { Write-Host $_.FullName }
+          exit 1
+        }
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        path: |
+          ./Brio.zip
