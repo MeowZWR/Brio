@@ -9,6 +9,7 @@ using Brio.Game.Core;
 using Brio.Game.Cutscene;
 using Brio.Game.GPose;
 using Brio.Game.Input;
+using Brio.Game.Penumbra;
 using Brio.Game.Posing;
 using Brio.Game.Scene;
 using Brio.Game.World;
@@ -93,6 +94,7 @@ public class Brio : IDalamudPlugin
         ServiceCollection serviceCollection = new();
 
         // Dalamud
+        serviceCollection.AddSingleton(dalamudServices);
         serviceCollection.AddSingleton(dalamudServices.PluginInterface);
         serviceCollection.AddSingleton(dalamudServices.Framework);
         serviceCollection.AddSingleton(dalamudServices.GameInteropProvider);
@@ -125,6 +127,9 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<GlamourerService>();
         serviceCollection.AddSingleton<MareService>();
         serviceCollection.AddSingleton<CustomizePlusService>();
+
+        // Penumbra
+        serviceCollection.AddSingleton<PenumbraManager>();
 
         // Web
         serviceCollection.AddSingleton<WebService>();

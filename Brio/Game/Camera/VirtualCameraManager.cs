@@ -375,7 +375,7 @@ public class VirtualCameraManager : IDisposable
         else
         {
             var defaultCam = _entityManager.GetEntity<CameraEntity>(new Entities.Core.CameraId(0));
-            defaultCam.VirtualCamera.SaveCameraState();
+            defaultCam?.VirtualCamera.SaveCameraState();
             if(defaultCam != null)
                 SelectCamera(defaultCam.VirtualCamera);
         }

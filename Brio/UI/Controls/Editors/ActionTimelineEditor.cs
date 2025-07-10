@@ -6,6 +6,7 @@ using Brio.Game.Actor.Extensions;
 using Brio.Game.Cutscene;
 using Brio.Game.GPose;
 using Brio.Game.Posing;
+using Brio.Game.Penumbra;
 using Brio.Resources;
 using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
@@ -17,8 +18,6 @@ using System;
 using System.IO;
 using System.Numerics;
 using static Brio.Game.Actor.ActionTimelineService;
-using ImGuiNET;
-using Dalamud.Interface.Components;
 
 namespace Brio.UI.Controls.Editors;
 
@@ -40,6 +39,7 @@ public class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService 
     private string _cameraPath = string.Empty;
     private ActionTimelineCapability _capability = null!;
     private bool _delimitSpeed = false;
+    private string _selectedXcpFile = string.Empty;
 
     public void Draw(bool drawAdvanced, ActionTimelineCapability capability)
     {
@@ -559,6 +559,7 @@ private void DrawSlots()
                     if(success)
                     {
                         _cameraPath = path[0];
+                        _selectedXcpFile = string.Empty; // 清空Penumbra选择
 
                         string? folderPath = Path.GetDirectoryName(_cameraPath);
                         if(folderPath is not null)
@@ -569,18 +570,18 @@ private void DrawSlots()
                             _cutsceneManager.CameraPath = new XATCameraFile(new BinaryReader(File.OpenRead(_cameraPath)));
                         }
                     }
-                    else
-                    {
-                        _cameraPath = string.Empty;
-                        _cutsceneManager.CameraPath = null;
-                    }
+                    // 取消时不改变现有路径，保持原有状态
                 }, 1, _configService.Configuration.LastXATPath, false);
         }
+
+        // Penumbra XCP文件下拉菜单
+        DrawPenumbraXcpDropdown();
 
         ImGui.Separator();
 
         using(ImRaii.Disabled(string.IsNullOrEmpty(_cameraPath)))
         {
+            ImGui.AlignTextToFramePadding();
             ImGui.Checkbox("启用相机视场（FOV）", ref _cutsceneManager.CameraSettings.EnableFOV);
             if(ImGui.IsItemHovered())
                 ImGui.SetTooltip("启用后可通过FOV参数调整相机视角");
@@ -664,6 +665,172 @@ private void DrawSlots()
                 }
             }
         }
+    }
+
+    private void DrawPenumbraXcpDropdown()
+    {
+        if (PenumbraManager.Instance == null)
+        {
+            ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra未连接");
+            return;
+        }
+
+        if (!PenumbraManager.Instance.IsPenumbraAvailable())
+        {
+            ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra连接失败");
+            return;
+        }
+
+        // 获取当前选择的情感动作名称
+        string currentEmoteName = GetCurrentEmoteName();
+        if (string.IsNullOrEmpty(currentEmoteName))
+        {
+            ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "未选择情感动作");
+            return;
+        }
+
+        if (!PenumbraManager.Instance.HasEverRefreshed)
+        {
+            ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.0f, 1.0f), "本次会话尚未获取Penumbra模组状态，请手动点击按钮获取。");
+            if (ImGui.Button("获取当前模组相机文件"))
+            {
+                PenumbraManager.Instance.RefreshModInfo();
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("手动获取当前情感动作对应的模组相机文件");
+            return;
+        }
+
+        if (PenumbraManager.Instance.HasModChangesSinceLastRefresh)
+        {
+            ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.0f, 1.0f), "检测到Penumbra模组设置变动，相机文件不正确时请重新获取。");
+        }
+
+        var xcpFiles = PenumbraManager.Instance.GetXcpFilesForEmote(currentEmoteName);
+        
+        if (xcpFiles.Count == 0)
+        {
+            ImGui.AlignTextToFramePadding();
+            ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), $"未找到 {currentEmoteName} 的XCP文件");
+            if (ImGui.Button("重新获取当前模组的相机文件"))
+            {
+                PenumbraManager.Instance?.RefreshModInfo();
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("手动获取当前情感动作对应的模组相机文件");
+            ImGui.SameLine();
+            // 获取当前动作模组名和路径
+            var modInfo = PenumbraManager.Instance.GetModInfoForEmote(currentEmoteName);
+            string modName = modInfo?.ModName ?? "未知";
+            string modPath = "未知";
+            if (modInfo != null && !string.IsNullOrEmpty(modInfo.ModName))
+            {
+                try
+                {
+                    var modRootDirectory = PenumbraManager.Instance.GetModRootDirectory();
+                    modPath = System.IO.Path.Combine(modRootDirectory, modInfo.ModName);
+                }
+                catch { }
+            }
+            Dalamud.Interface.Components.ImGuiComponents.HelpMarker("提示");
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("当前动作模组："); ImGui.SameLine(); ImGui.TextColored(new Vector4(0.4f, 0.7f, 1.0f, 1.0f), modName);
+                ImGui.Text("文件系统路径："); ImGui.SameLine(); ImGui.TextColored(new Vector4(0.3f, 0.9f, 0.3f, 1.0f), modPath);
+                ImGui.Text("未检测到"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹。");
+                ImGui.Text("请创建"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹，放入后缀名为"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), ".xcp"); ImGui.SameLine(); ImGui.Text("的镜头文件。");
+                ImGui.EndTooltip();
+            }
+            return;
+        }
+
+        // 显示下拉菜单
+        ImGui.AlignTextToFramePadding();
+        ImGui.Text("Penumbra XCP文件:");
+        ImGui.SameLine();
+        if (ImGui.Button("重新获取当前模组的相机文件"))
+        {
+            PenumbraManager.Instance?.RefreshModInfo();
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("手动获取当前情感动作对应的模组相机文件");
+        ImGui.SetCursorPosY(ImGui.GetCursorPosY());
+        var preview = string.IsNullOrEmpty(_selectedXcpFile) ? "选择XCP文件..." : Path.GetFileName(_selectedXcpFile);
+        
+        if (ImGui.BeginCombo("###penumbra_xcp_combo", preview))
+        {
+            if (ImGui.Selectable("选择XCP文件...", string.IsNullOrEmpty(_selectedXcpFile)))
+            {
+                _selectedXcpFile = string.Empty;
+                if (!string.IsNullOrEmpty(_cameraPath) && _cameraPath == _selectedXcpFile)
+                {
+                    _cameraPath = string.Empty;
+                    _cutsceneManager.CameraPath = null;
+                }
+            }
+
+            foreach (var xcpFile in xcpFiles)
+            {
+                var fileName = Path.GetFileName(xcpFile);
+                bool isSelected = _selectedXcpFile == xcpFile;
+                
+                if (ImGui.Selectable(fileName, isSelected))
+                {
+                    _selectedXcpFile = xcpFile;
+                    _cameraPath = xcpFile;
+                    
+                    try
+                    {
+                        _cutsceneManager.CameraPath = new XATCameraFile(new BinaryReader(File.OpenRead(xcpFile)));
+                        Brio.Log.Information($"已加载Penumbra XCP文件: {fileName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Brio.Log.Error($"加载XCP文件失败: {ex.Message}");
+                        _selectedXcpFile = string.Empty;
+                        _cameraPath = string.Empty;
+                        _cutsceneManager.CameraPath = null;
+                    }
+                }
+            }
+            
+            ImGui.EndCombo();
+        }
+    }
+
+    private string GetCurrentEmoteName()
+    {
+        // 从当前选择的基础动画中获取情感动作名称
+        if (_capability.SlotedBaseAnimation == 0)
+            return string.Empty;
+
+        try
+        {
+            // 通过动画ID查找对应的情感动作名称
+            var timelineId = (uint)_capability.SlotedBaseAnimation;
+            if (GameDataProvider.Instance.ActionTimelines.TryGetValue(timelineId, out var timeline))
+            {
+                // 查找对应的情感动作
+                foreach (var emote in GameDataProvider.Instance.Emotes.Values)
+                {
+                    if (emote.ActionTimeline[0].RowId == _capability.SlotedBaseAnimation ||
+                        emote.ActionTimeline[1].RowId == _capability.SlotedBaseAnimation ||
+                        emote.ActionTimeline[2].RowId == _capability.SlotedBaseAnimation ||
+                        emote.ActionTimeline[3].RowId == _capability.SlotedBaseAnimation ||
+                        emote.ActionTimeline[4].RowId == _capability.SlotedBaseAnimation)
+                    {
+                        return emote.Name.ToString();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Brio.Log.Error($"获取情感动作名称失败: {ex.Message}");
+        }
+
+        return string.Empty;
     }
 
     //

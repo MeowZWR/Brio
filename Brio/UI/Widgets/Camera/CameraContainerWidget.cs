@@ -111,6 +111,7 @@ public class BrioCameraWidget(BrioCameraCapability capability, CutsceneManager _
 
     public unsafe override void DrawBody()
     {
+        _ = _configService;
         if(Capability.CameraEntity.CameraType == CameraType.Free)
         {
             CameraEditor.DrawFreeCam("camera_widget_editor", Capability);
