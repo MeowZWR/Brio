@@ -9,6 +9,7 @@ namespace Brio.Game.Penumbra
         public string EmoteName { get; set; } = string.Empty;
         public int Priority { get; set; }
         public List<string> XcpFiles { get; set; }
+        public bool IsEnabled { get; set; } = false;
 
         public PenumbraModInfo()
         {

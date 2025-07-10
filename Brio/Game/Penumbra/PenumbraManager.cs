@@ -192,8 +192,9 @@ namespace Brio.Game.Penumbra
                         if (settingsEc == PenumbraApiEc.Success && settings.HasValue)
                         {
                             modInfo.Priority = settings.Value.Item2;
+                            modInfo.IsEnabled = settings.Value.Item1; // 新增：记录启用状态
 #if DEBUG
-                            Brio.Log.Information($"模组 '{mod.Value}' 优先级: {modInfo.Priority}");
+                            Brio.Log.Information($"模组 '{mod.Value}' 优先级: {modInfo.Priority} 启用: {modInfo.IsEnabled}");
 #endif
                         }
                     }
@@ -227,6 +228,8 @@ namespace Brio.Game.Penumbra
                     _modInfos.Add(modInfo);
                 }
                 
+                // 只保留启用的mod再排序
+                _modInfos.RemoveAll(m => !m.IsEnabled);
                 _modInfos.Sort((a, b) => b.Priority.CompareTo(a.Priority));
                 
 #if DEBUG
