@@ -30,10 +30,6 @@ namespace Brio.Game.Penumbra
             }
 
             var xcpFolder = Path.Combine(modRootPath, "XCP");
-            if (!Directory.Exists(xcpFolder))
-            {
-                Directory.CreateDirectory(xcpFolder);
-            }
 
             if (!System.Windows.Forms.Clipboard.ContainsFileDropList())
             {
@@ -42,15 +38,25 @@ namespace Brio.Game.Penumbra
             }
 
             var files = System.Windows.Forms.Clipboard.GetFileDropList().Cast<string>().ToList();
+            // 先筛选出所有.xcp文件
+            var xcpFiles = files.Where(file => SupportedExtensions.Contains(Path.GetExtension(file)?.ToLowerInvariant())).ToList();
+            if (xcpFiles.Count == 0)
+            {
+                _notify("未检测到可导入的.xcp文件。");
+                return 0;
+            }
+
+            if (!Directory.Exists(xcpFolder))
+            {
+                Directory.CreateDirectory(xcpFolder);
+            }
+
             var imported = 0;
-            foreach (var file in files)
+            foreach (var file in xcpFiles)
             {
                 try
                 {
                     var ext = Path.GetExtension(file)?.ToLowerInvariant();
-                    if (!SupportedExtensions.Contains(ext))
-                        continue;
-
                     var fileName = Path.GetFileName(file);
                     var destPath = Path.Combine(xcpFolder, fileName);
                     // 若重名则加后缀
