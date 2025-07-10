@@ -70,20 +70,30 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit: ${{ vars.GITHUB_SHA }}     
 
-    - name: Update repo.json
+    - name: Write out repo.json
+      run: |
+        $ver = '${{ github.ref_name }}'
+        $verBase = $ver -replace '-cn$', ''
+        $path = './repo.json'
+        $json = Get-Content -Raw $path | ConvertFrom-Json
+        $json[0].AssemblyVersion = $verBase
+        $json[0].TestingAssemblyVersion = $verBase
+        $json[0].DownloadLinkInstall = $json[0].DownloadLinkInstall -replace '[^/]+/Brio.zip',"$ver/Brio.zip"
+        $json[0].DownloadLinkTesting = $json[0].DownloadLinkTesting -replace '[^/]+/Brio.zip',"$ver/Brio.zip"
+        $json[0].DownloadLinkUpdate = $json[0].DownloadLinkUpdate -replace '[^/]+/Brio.zip',"$ver/Brio.zip"
+        $content = $json | ConvertTo-Json -AsArray
+        set-content -Path $path -Value $content
+
+    - name: Commit repo.json
       run: |
         git config --global user.name "Actions User"
         git config --global user.email "actions@github.com"
-        git fetch origin cn && git checkout cn
-        $ver = '${{ github.ref_name }}' -replace '-cn$', ''
-        $path = './Resources/Templates/repo.tmpl'
-        $new_path = './repo.json'
-        $content = get-content -path $path
-        $content = $content -replace '{version}',$ver
-        set-content -Path $new_path -Value $content
+        git fetch origin cn
+        git branch -f cn ${{ github.sha }}
+        git checkout cn
         git add repo.json
-        git commit -m "[CI] Updating versions for $ver" || true
-        git push origin cn || true
+        git commit -m "[CI] Updating repo.json for ${{ github.ref_name }}" || true
+        git push origin cn
 
   trigger_workflow:
     needs: build
