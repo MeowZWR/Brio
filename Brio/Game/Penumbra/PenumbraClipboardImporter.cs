@@ -21,7 +21,7 @@ namespace Brio.Game.Penumbra
             Service.NotificationManager?.AddNotification(new Dalamud.Interface.ImGuiNotification.Notification
             {
                 Content = content,
-                Title = "卫月通知",
+                Title = "镜头文件",
                 Type = type,
                 Minimized = false,
                 InitialDuration = TimeSpan.FromSeconds(3)

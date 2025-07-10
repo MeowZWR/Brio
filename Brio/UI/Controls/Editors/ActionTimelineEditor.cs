@@ -41,6 +41,7 @@ public class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService 
     private ActionTimelineCapability _capability = null!;
     private bool _delimitSpeed = false;
     private string _selectedXcpFile = string.Empty;
+    private string? _lastEmoteName = null;
 
     public void Draw(bool drawAdvanced, ActionTimelineCapability capability)
     {
@@ -684,6 +685,11 @@ private void DrawSlots()
 
         // 获取当前选择的情感动作名称
         string currentEmoteName = GetCurrentEmoteName();
+        if (_lastEmoteName != currentEmoteName)
+        {
+            _selectedXcpFile = string.Empty;
+            _lastEmoteName = currentEmoteName;
+        }
         if (string.IsNullOrEmpty(currentEmoteName))
         {
             DrawBreathingText("未选择情感动作");
