@@ -17,6 +17,8 @@ using System;
 using System.IO;
 using System.Numerics;
 using static Brio.Game.Actor.ActionTimelineService;
+using ImGuiNET;
+using Dalamud.Interface.Components;
 
 namespace Brio.UI.Controls.Editors;
 
@@ -580,12 +582,12 @@ private void DrawSlots()
         using(ImRaii.Disabled(string.IsNullOrEmpty(_cameraPath)))
         {
             ImGui.Checkbox("启用相机视场（FOV）", ref _cutsceneManager.CameraSettings.EnableFOV);
-
-            ImGui.Separator();
-
-            ImGui.Text("禁用FOV会使相机的精度降低。");
-            ImGui.Text("但可以提供更简单的方式来支持更多的角色尺寸。");
-            ImGui.Text("这样就不需要修改相机的缩放和偏移值了！");
+            if(ImGui.IsItemHovered())
+                ImGui.SetTooltip("启用后可通过FOV参数调整相机视角");
+            ImGui.SameLine();
+            Dalamud.Interface.Components.ImGuiComponents.HelpMarker(
+                "禁用FOV会使相机的精度降低。\n但可以提供更简单的方式来支持更多的角色尺寸。\n这样就不需要修改相机的缩放值了！"
+            );
 
             ImGui.Separator();
 
