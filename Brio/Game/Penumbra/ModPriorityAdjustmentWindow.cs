@@ -69,19 +69,6 @@ namespace Brio.Game.Penumbra
             {
                 _includeDisabledChanged = true;
             }
-            
-            ImGui.SameLine();
-            if (ImGui.Button("刷新"))
-            {
-                PenumbraManager.Instance?.RefreshModInfo();
-                UpdateDisplayMods();
-            }
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                ImGui.Text("刷新模组信息\n获取最新的模组状态和优先级");
-                ImGui.EndTooltip();
-            }
             ImGui.Separator();
         }
 
