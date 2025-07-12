@@ -2,11 +2,13 @@
 using Brio.Resources;
 using Brio.Resources.Sheets;
 using Brio.UI.Controls.Stateless;
+using Brio.Game.Penumbra;
 using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using System;
 using System.Numerics;
 using static Brio.Game.Actor.ActionTimelineService;
+using System.Collections.Generic;
 
 namespace Brio.UI.Controls.Selectors;
 
@@ -25,6 +27,8 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
     private bool _showActions = true;
 
     private bool _showBlendable = true;
+    
+
 
     public bool AllowBlending
     {
@@ -74,7 +78,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             // Upper Body
             if(emote.ActionTimeline[4].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[4].RowId, out timeline))
             {
-                AddItem(new ActionTimelineSelectorEntry(emote.Name.ToString(), (ushort)timeline.RowId, emote.RowId, timeline.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Emote, ActionTimelineSelectorEntry.AnimationPurpose.Blend, (ActionTimelineSlots)timeline.Slot, emote.Icon));
+                AddItem(new ActionTimelineSelectorEntry(emote.Name.ToString(), (ushort)timeline.RowId, emote.RowId, timeline.Key.ToString(), ActionTimelineSelectorEntry.OriginalType.Emote, ActionTimelineSelectorEntry.AnimationPurpose.Chair, (ActionTimelineSlots)timeline.Slot, emote.Icon));
             }
         }
 
@@ -85,6 +89,9 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
         }
     }
+    
+
+    
     protected override void DrawItem(ActionTimelineSelectorEntry item, bool isSoftSelected)
     {
         var config = ConfigurationService.Instance.Configuration;
@@ -225,6 +232,8 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
         return false;
     }
+    
+
 }
 
 public record class ActionTimelineSelectorEntry(string Name, ushort TimelineId, uint SecondaryId, string Key, ActionTimelineSelectorEntry.OriginalType TimelineType, ActionTimelineSelectorEntry.AnimationPurpose Purpose, ActionTimelineSlots Slot, uint Icon)

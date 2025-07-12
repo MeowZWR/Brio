@@ -8,6 +8,7 @@ using Brio.Game.GPose;
 using Brio.Game.Posing;
 using Brio.Game.Penumbra;
 using Brio.Resources;
+using Brio.UI;
 using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Interface;
@@ -42,6 +43,7 @@ public class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService 
     private bool _delimitSpeed = false;
     private string _selectedXcpFile = string.Empty;
     private string? _lastEmoteName = null;
+    private readonly ModPriorityAdjustmentWindow _priorityWindow = new();
 
     public void Draw(bool drawAdvanced, ActionTimelineCapability capability)
     {
@@ -236,7 +238,9 @@ public class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService 
                 if(ImGui.IsItemHovered())
                     ImGui.SetTooltip("选择时启动动画");
 
-                _globalTimelineSelector.Draw();
+                        _globalTimelineSelector.Draw();
+        
+
 
                 if(_globalTimelineSelector.SoftSelectionChanged && _globalTimelineSelector.SoftSelected != null)
                 {
@@ -572,7 +576,6 @@ private void DrawSlots()
                             _cutsceneManager.CameraPath = new XATCameraFile(new BinaryReader(File.OpenRead(_cameraPath)));
                         }
                     }
-                    // 取消时不改变现有路径，保持原有状态
                 }, 1, _configService.Configuration.LastXATPath, false);
         }
 
@@ -716,6 +719,29 @@ private void DrawSlots()
             catch { }
         }
 
+        bool isSelectedXcpValid = false;
+        if (!string.IsNullOrEmpty(_selectedXcpFile) && !string.IsNullOrEmpty(modDirectory))
+        {
+            try
+            {
+                var modRootDirectory = PenumbraManager.Instance.GetModRootDirectory();
+                var currentModPath = System.IO.Path.Combine(modRootDirectory, modDirectory);
+                var currentXcpFolder = System.IO.Path.Combine(currentModPath, "XCP");
+                isSelectedXcpValid = _selectedXcpFile.StartsWith(currentXcpFolder);
+            }
+            catch { }
+        }
+
+        if (!string.IsNullOrEmpty(_selectedXcpFile) && !isSelectedXcpValid)
+        {
+            _selectedXcpFile = string.Empty;
+            if (!string.IsNullOrEmpty(_cameraPath) && _cameraPath == _selectedXcpFile)
+            {
+                _cameraPath = string.Empty;
+                _cutsceneManager.CameraPath = null;
+            }
+        }
+
         if (!PenumbraManager.Instance.HasEverRefreshed)
         {
             DrawBreathingText("本次会话尚未获取Penumbra模组状态，请点击下方刷新按钮获取。");
@@ -725,7 +751,7 @@ private void DrawSlots()
             DrawBreathingText("检测到Penumbra模组设置变动，相机文件不正确时请手动刷新。");
         }
         ImGui.AlignTextToFramePadding();
-        ImGui.Text("Penumbra XCP文件:");
+        DrawBreathingText("自动检测镜头文件:");
         ImGui.SameLine();
         // 下拉菜单
         var preview = xcpFiles.Count == 0 ? "未找到镜头文件" : (string.IsNullOrEmpty(_selectedXcpFile) ? "选择XCP文件..." : Path.GetFileName(_selectedXcpFile));
@@ -761,6 +787,8 @@ private void DrawSlots()
                         {
                             _cutsceneManager.CameraPath = new XATCameraFile(new BinaryReader(File.OpenRead(xcpFile)));
                             Brio.Log.Information($"已加载Penumbra XCP文件: {fileName}");
+                            // 自动勾选全员动画
+                            _cutsceneManager.StartAllActorAnimationsOnPlay = true;
                         }
                         catch (Exception ex)
                         {
@@ -773,6 +801,20 @@ private void DrawSlots()
                 }
             }
             ImGui.EndCombo();
+        }
+
+        // 如果当前选择的XCP文件无效，显示警告提示
+        if (!string.IsNullOrEmpty(_selectedXcpFile) && !isSelectedXcpValid)
+        {
+            ImGui.SameLine();
+            ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "⚠");
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.BeginTooltip();
+                ImGui.Text("当前选择的XCP文件不属于当前生效模组");
+                ImGui.Text("请重新选择或调整模组优先级");
+                ImGui.EndTooltip();
+            }
         }
 
         // 按钮同一行右侧
@@ -800,6 +842,44 @@ private void DrawSlots()
                 ImGui.Text("未检测到"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹。请创建"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "XCP"); ImGui.SameLine(); ImGui.Text("文件夹，放入后缀名为"); ImGui.SameLine(); ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), ".xcp"); ImGui.SameLine(); ImGui.Text("的镜头文件。");
             }
             ImGui.EndTooltip();
+        }
+
+        // 优先级调整按钮
+        ImGui.SameLine();
+        var emoteNameForPriority = GetCurrentEmoteName();
+        var modsForEmote = PenumbraManager.Instance?.GetModsForEmote(emoteNameForPriority);
+        bool hasModsForEmote = modsForEmote?.Count > 0;
+        
+        ImGui.BeginDisabled(!hasModsForEmote);
+        if (ImBrio.FontIconButton("adjustModPriority", FontAwesomeIcon.SortNumericUp, "调整模组优先级"))
+        {
+            if (hasModsForEmote)
+            {
+                _priorityWindow.UpdateContent(emoteNameForPriority, modsForEmote, () => {
+                    // 当优先级改变时，重置XCP选择
+                    _selectedXcpFile = string.Empty;
+                    if (!string.IsNullOrEmpty(_cameraPath))
+                    {
+                        _cameraPath = string.Empty;
+                        _cutsceneManager.CameraPath = null;
+                    }
+                });
+                ImGui.OpenPopup("mod_priority_adjustment_popup");
+            }
+        }
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            if (!hasModsForEmote)
+                ImGui.SetTooltip("当前情感动作没有相关的Penumbra模组");
+            else
+                ImGui.SetTooltip($"调整修改 '{emoteNameForPriority}' 的模组优先级");
+        }
+        ImGui.EndDisabled();
+
+        using (var popup = ImRaii.Popup("mod_priority_adjustment_popup", ImGuiWindowFlags.NoCollapse))
+        {
+            if (popup.Success)
+                _priorityWindow.DrawContent();
         }
 
         // 从剪贴板导入按钮

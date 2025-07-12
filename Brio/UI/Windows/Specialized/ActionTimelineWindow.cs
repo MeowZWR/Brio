@@ -69,7 +69,9 @@ public class ActionTimelineWindow : Window, IDisposable
     private void OnGPoseStateChange(bool newState)
     {
         if(!newState)
+        {
             IsOpen = false;
+        }
     }
 
     public void Dispose()

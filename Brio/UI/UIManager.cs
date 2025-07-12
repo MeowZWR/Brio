@@ -1,5 +1,6 @@
 ﻿using Brio.Config;
 using Brio.Game.GPose;
+using Brio.Game.Penumbra;
 using Brio.IPC;
 using Brio.UI.Controls;
 using Brio.UI.Windows;
@@ -254,7 +255,7 @@ public class UIManager : IDisposable
 
         Instance = null!;
     }
-
+    
     public IDalamudTextureWrap LoadImage(byte[] data)
     {
         var imgTask = _textureProvider.CreateFromImageAsync(data);
