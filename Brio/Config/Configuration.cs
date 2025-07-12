@@ -32,6 +32,9 @@ public class Configuration : IPluginConfiguration
     // Library
     public LibraryConfiguration Library { get; set; } = new LibraryConfiguration();
 
+    // Emote
+    public EmoteConfiguration Emote { get; set; } = new EmoteConfiguration();
+
     public string LastMCDFPath { get; set; } = string.Empty;
     public string LastExportPath { get; set; } = string.Empty;
     public string LastXATPath { get; set; } = string.Empty;

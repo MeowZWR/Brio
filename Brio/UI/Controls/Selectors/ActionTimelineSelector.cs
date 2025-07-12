@@ -1,6 +1,8 @@
-﻿using Brio.Resources;
+﻿using Brio.Config;
+using Brio.Resources;
 using Brio.Resources.Sheets;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Interface.Utility.Raii;
 using ImGuiNET;
 using System;
 using System.Numerics;
@@ -85,14 +87,57 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
     }
     protected override void DrawItem(ActionTimelineSelectorEntry item, bool isSoftSelected)
     {
-        var description = $"{item.Name}\n{item.SecondaryId} {item.TimelineType} {item.Slot} {item.Purpose}\n{item.TimelineId} {item.Key}";
+        var config = ConfigurationService.Instance.Configuration;
+        bool isFavorite = item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(item.UniqueId);
+        
+        var description = $"{item.Name}{(isFavorite ? "★" : "")}\n{item.SecondaryId} {item.TimelineType} {item.Slot} {item.Purpose}\n{item.TimelineId} {item.Key}";
 
+        // 右键菜单区域
+        var entryHeight = EntrySize;
+        var entryWidth = ImGui.GetContentRegionAvail().X;
+        var id = $"##emote_invisible_{item.UniqueId}";
+        var cursor = ImGui.GetCursorScreenPos();
+        ImGui.InvisibleButton(id, new Vector2(entryWidth, entryHeight));
+
+        if(ImGui.IsItemHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
+            ImGui.OpenPopup($"emote_context_menu_{item.UniqueId}");
+
+        ImGui.SetCursorScreenPos(cursor);
         ImBrio.BorderedGameIcon("icon", item.Icon, "Images.ActionTimeline.png", description, flags: ImGuiButtonFlags.None, size: IconSize);
+
+        // 情感动作右键菜单
+        if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote)
+        {
+            using(var popup = ImRaii.Popup($"emote_context_menu_{item.UniqueId}"))
+            {
+                if(popup.Success)
+                {
+                    if(ImGui.MenuItem(isFavorite ? "从收藏移除" : "添加到收藏"))
+                    {
+                        if(isFavorite)
+                            config.Emote.Favorites.Remove(item.UniqueId);
+                        else
+                            config.Emote.Favorites.Add(item.UniqueId);
+                        ConfigurationService.Instance.Save();
+                        UpdateList();
+                    }
+                }
+            }
+        }
     }
 
     protected override void DrawTooltip(ActionTimelineSelectorEntry item)
     {
-        ImGui.SetTooltip($"{item.Name}\n{item.TimelineId} - {item.Key}");
+        var tooltip = $"{item.Name}\n{item.TimelineId} - {item.Key}";
+        
+        if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote)
+        {
+            var config = ConfigurationService.Instance.Configuration;
+            bool isFavorite = config.Emote.Favorites.Contains(item.UniqueId);
+            tooltip += $"\n{(isFavorite ? "★ 已收藏" : "右键可收藏")}";
+        }
+        
+        ImGui.SetTooltip(tooltip);
     }
 
     protected override void DrawOptions()
@@ -113,6 +158,16 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
     protected override int Compare(ActionTimelineSelectorEntry itemA, ActionTimelineSelectorEntry itemB)
     {
+        // 收藏的情感动作排在前面
+        var config = ConfigurationService.Instance.Configuration;
+        bool aIsFavorite = itemA.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(itemA.UniqueId);
+        bool bIsFavorite = itemB.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(itemB.UniqueId);
+        
+        if(aIsFavorite && !bIsFavorite)
+            return -1;
+        if(!aIsFavorite && bIsFavorite)
+            return 1;
+
         // Emotes first
         if(itemA.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && itemB.TimelineType != ActionTimelineSelectorEntry.OriginalType.Emote)
             return -1;
@@ -174,6 +229,8 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
 public record class ActionTimelineSelectorEntry(string Name, ushort TimelineId, uint SecondaryId, string Key, ActionTimelineSelectorEntry.OriginalType TimelineType, ActionTimelineSelectorEntry.AnimationPurpose Purpose, ActionTimelineSlots Slot, uint Icon)
 {
+    public string UniqueId => $"{TimelineType}_{SecondaryId}_{Purpose}";
+
     public enum AnimationPurpose
     {
         Unknown,
