@@ -22,6 +22,8 @@ namespace Brio.Game.Penumbra
         private List<PenumbraModInfo> _allModsCached = new();
         private bool _includeDisabled = false;
         private bool _includeDisabledChanged = false;
+        private bool _showEmoteConflicts = false;
+        private bool _showEmoteConflictsChanged = false;
         private bool _needsRefresh = false;
         private Action? _onPriorityChanged;
 
@@ -39,17 +41,21 @@ namespace Brio.Game.Penumbra
         {
             ImGui.SetNextWindowSizeConstraints(new Vector2(440, 240), new Vector2(900, 600));
             
-            // 检查是否需要刷新
             if (_needsRefresh)
             {
                 UpdateDisplayMods();
                 _needsRefresh = false;
             }
             
-            // 检查复选框状态变化
             if (_includeDisabledChanged)
             {
                 _includeDisabledChanged = false;
+                UpdateDisplayMods();
+            }
+            
+            if (_showEmoteConflictsChanged)
+            {
+                _showEmoteConflictsChanged = false;
                 UpdateDisplayMods();
             }
             
@@ -62,13 +68,21 @@ namespace Brio.Game.Penumbra
             int enabledCount = _allMods.Count(m => m.IsEnabled);
             int totalCount = _allMods.Count;
             ImGui.AlignTextToFramePadding();
-            ImGui.Text($"情感动作: {_emoteName}  找到 {enabledCount}/{totalCount} 个相关模组");
+            ImGui.Text($"情感动作：{_emoteName} {enabledCount}/{totalCount}（启用/总数）");
             ImGui.SameLine();
             
-            if (ImGui.Checkbox("包含未启用的模组", ref _includeDisabled))
+            if (ImGui.Checkbox("未启用模组", ref _includeDisabled))
             {
                 _includeDisabledChanged = true;
             }
+            
+            ImGui.SameLine();
+            
+            if (ImGui.Checkbox("表情冲突模组", ref _showEmoteConflicts))
+            {
+                _showEmoteConflictsChanged = true;
+            }
+            
             ImGui.Separator();
         }
 
@@ -107,15 +121,48 @@ namespace Brio.Game.Penumbra
             var priority = mod.Priority;
             var modName = mod.ModName;
             var xcpCount = mod.XcpFiles.Count;
+            var hasEmoteConflicts = HasEmoteConflicts(mod);
+            
+            var currentActiveMod = _allMods.Where(m => m.IsEnabled).OrderByDescending(m => m.Priority).FirstOrDefault();
+            var isCurrentActiveMod = currentActiveMod?.ModDirectory == mod.ModDirectory;
+            var isHighPriorityEmoteConflict = hasEmoteConflicts && 
+                                            currentActiveMod != null && 
+                                            mod.Priority > currentActiveMod.Priority;
+            
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
+            
+            Vector4 nameColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+            if (isCurrentActiveMod)
+            {
+                nameColor = new Vector4(0.2f, 0.8f, 0.2f, 1.0f);
+            }
+            else if (isHighPriorityEmoteConflict)
+            {
+                nameColor = new Vector4(1.0f, 0.6f, 0.2f, 1.0f);
+            }
+            
+            ImGui.PushStyleColor(ImGuiCol.Text, nameColor);
             if (ImGui.Selectable(modName, false, ImGuiSelectableFlags.None, new Vector2(0, ImGui.GetTextLineHeight() * 0.8f)))
                 OpenModPage(mod);
+            ImGui.PopStyleColor();
+            
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
                 ImGui.Text($"模组目录：{mod.ModDirectory}");
                 ImGui.Text("点击以在 Penumbra 中打开模组页面。");
+                if (isCurrentActiveMod)
+                {
+                    ImGui.Separator();
+                    ImGui.TextColored(new Vector4(0.2f, 0.8f, 0.2f, 1.0f), "当前正在使用的模组");
+                }
+                else if (hasEmoteConflicts)
+                {
+                    ImGui.Separator();
+                    ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "此模组包含表情修改");
+                    ImGui.Text("可能与当前动作产生冲突");
+                }
                 ImGui.EndTooltip();
             }
             ImGui.TableNextColumn();
@@ -156,11 +203,12 @@ namespace Brio.Game.Penumbra
             ImGui.SetCursorPosX(buttonPosX);
             var enabledMods = _displayMods.Where(m => m.IsEnabled).ToList();
             var maxPriority = enabledMods.Count > 0 ? enabledMods.Max(m => m.Priority) : 0;
-            var isHighestPriority = isEnabled && mod.Priority >= maxPriority;
-            ImGui.BeginDisabled(isHighestPriority || !isEnabled);
+            var maxPriorityMods = enabledMods.Where(m => m.Priority == maxPriority).ToList();
+            var canPromote = isEnabled && (mod.Priority < maxPriority || (mod.Priority == maxPriority && maxPriorityMods.Count > 1));
+            ImGui.BeginDisabled(!canPromote);
             if (ImGui.Button($"▲##up_{mod.ModDirectory}", new Vector2(buttonSizeX, 0)))
             {
-                var result = PenumbraManager.Instance?.SetModToHighestPriority(mod);
+                var result = PenumbraManager.Instance?.SetModToHighestPriorityForEmote(mod, _emoteName);
                 if (result == PenumbraApiEc.Success)
                 {
                     _needsRefresh = true;
@@ -175,8 +223,10 @@ namespace Brio.Game.Penumbra
                 ImGui.BeginTooltip();
                 if (!isEnabled)
                     ImGui.Text($"模组 '{modName}' 未启用，无法设置优先级");
-                else if (isHighestPriority)
+                else if (!canPromote && mod.Priority >= maxPriority)
                     ImGui.Text($"模组 '{modName}' 已经是最高优先级");
+                else if (canPromote && mod.Priority == maxPriority)
+                    ImGui.Text($"模组 '{modName}' 与其他模组并列最高优先级，可以提升");
                 else
                     ImGui.Text($"将模组 '{modName}' 设置为最高优先级 ({maxPriority + 1})");
                 ImGui.EndTooltip();
@@ -186,7 +236,6 @@ namespace Brio.Game.Penumbra
             float dotWidth = ImGui.CalcTextSize("●").X;
             float crossWidth = ImGui.CalcTextSize("×").X;
             float btnWidth = Math.Max(dotWidth, crossWidth) + ImGui.GetStyle().FramePadding.X * 2f;
-            textWidth = btnWidth;
             float statusPosX = ImGui.GetCursorPosX() + (colWidth - btnWidth) / 2f;
             ImGui.SetCursorPosX(statusPosX);
             var statusText = isEnabled ? "●" : "×";
@@ -214,9 +263,13 @@ namespace Brio.Game.Penumbra
             }
         }
 
+        private bool HasEmoteConflicts(PenumbraModInfo mod)
+        {
+            return mod.EmoteNames.Any(emoteName => emoteName.StartsWith("表情："));
+        }
+
         private void UpdateDisplayMods()
         {
-            // 检查模组列表是否有变化，如果有变化则重新计算缓存
             bool modsChanged = !_allModsCached.SequenceEqual(_allMods, new ModInfoComparer());
             
             if (modsChanged)
@@ -224,23 +277,49 @@ namespace Brio.Game.Penumbra
                 _allModsCached.Clear();
                 _allModsCached.AddRange(_allMods);
                 
-                // 重新计算启用的模组缓存
                 _enabledMods.Clear();
                 _enabledMods.AddRange(_allMods.Where(m => m.IsEnabled));
                 _enabledMods.Sort((a, b) => b.Priority.CompareTo(a.Priority));
             }
             
-            // 根据当前状态选择显示列表
             _displayMods.Clear();
-            if (_includeDisabled)
+            
+            if (_showEmoteConflicts)
             {
-                _displayMods.AddRange(_allModsCached);
-                _displayMods.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+                var allRelevantMods = new List<PenumbraModInfo>();
+                allRelevantMods.AddRange(_allModsCached);
+                
+                var emoteConflictMods = PenumbraManager.Instance?.GetAllModsWithEmoteConflicts(_emoteName) ?? new List<PenumbraModInfo>();
+                foreach (var conflictMod in emoteConflictMods)
+                {
+                    if (!allRelevantMods.Any(m => m.ModDirectory == conflictMod.ModDirectory))
+                    {
+                        allRelevantMods.Add(conflictMod);
+                    }
+                }
+                
+                if (_includeDisabled)
+                {
+                    _displayMods.AddRange(allRelevantMods);
+                }
+                else
+                {
+                    _displayMods.AddRange(allRelevantMods.Where(m => m.IsEnabled));
+                }
             }
             else
             {
-                _displayMods.AddRange(_enabledMods);
+                if (_includeDisabled)
+                {
+                    _displayMods.AddRange(_allModsCached);
+                }
+                else
+                {
+                    _displayMods.AddRange(_enabledMods);
+                }
             }
+            
+            _displayMods.Sort((a, b) => b.Priority.CompareTo(a.Priority));
         }
 
         private void OpenModPage(PenumbraModInfo mod)
@@ -273,7 +352,6 @@ namespace Brio.Game.Penumbra
             }
         }
 
-        // 用于比较模组信息是否相同的比较器
         private class ModInfoComparer : IEqualityComparer<PenumbraModInfo>
         {
             public bool Equals(PenumbraModInfo? x, PenumbraModInfo? y)

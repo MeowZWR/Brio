@@ -75,6 +75,15 @@ namespace Brio.Game.Penumbra
         public List<string> GetXcpFilesForEmote(string emoteName) => GetModInfoForEmote(emoteName)?.XcpFiles ?? new List<string>();
         public string GetModRootDirectory() => _getModDirectory.Invoke();
         public List<PenumbraModInfo> GetModsForEmote(string emoteName) => _modInfos.Where(m => m.EmoteNames.Contains(emoteName)).ToList();
+        
+        public List<PenumbraModInfo> GetAllMods() => _modInfos.ToList();
+        
+        public List<PenumbraModInfo> GetAllModsWithEmoteConflicts(string currentEmoteName)
+        {
+            var emoteConflictMods = _modInfos.Where(m => m.EmoteNames.Any(emoteName => emoteName.StartsWith("表情："))).ToList();
+            return emoteConflictMods.Where(m => !m.EmoteNames.Contains(currentEmoteName)).ToList();
+        }
+        
         public PenumbraApiEc SetModToHighestPriority(PenumbraModInfo mod)
         {
             try
@@ -86,6 +95,28 @@ namespace Brio.Game.Penumbra
                 if (allSettings.Item1 != PenumbraApiEc.Success) return allSettings.Item1;
                 var enabledMods = allSettings.Item2!.Where(kvp => kvp.Value.Item1).ToList();
                 var maxPriority = enabledMods.Count > 0 ? enabledMods.Max(kvp => kvp.Value.Item2) : 0;
+                var result = _setModPriority.Invoke(currentCollectionId, mod.ModDirectory, maxPriority + 1, mod.ModName);
+                if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
+                return result;
+            }
+            catch { return PenumbraApiEc.UnknownError; }
+        }
+        
+        public PenumbraApiEc SetModToHighestPriorityForEmote(PenumbraModInfo mod, string emoteName)
+        {
+            try
+            {
+                var currentCollection = _getCurrentCollection.Invoke(ApiCollectionType.Current);
+                if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
+                var currentCollectionId = currentCollection.Value.Id;
+                var allSettings = _getAllSettings.Invoke(currentCollectionId, false, false, 0);
+                if (allSettings.Item1 != PenumbraApiEc.Success) return allSettings.Item1;
+                
+                var relevantMods = _modInfos.Where(m => m.IsEnabled && 
+                    (m.EmoteNames.Contains(emoteName) || 
+                     m.EmoteNames.Any(emoteName => emoteName.StartsWith("表情：")))).ToList();
+                var maxPriority = relevantMods.Count > 0 ? relevantMods.Max(m => m.Priority) : 0;
+                
                 var result = _setModPriority.Invoke(currentCollectionId, mod.ModDirectory, maxPriority + 1, mod.ModName);
                 if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
                 return result;

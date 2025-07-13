@@ -20,6 +20,7 @@ using System.IO;
 using System.Numerics;
 using static Brio.Game.Actor.ActionTimelineService;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Brio.UI.Controls.Editors;
 
@@ -835,6 +836,35 @@ private void DrawSlots()
             ImGui.BeginTooltip();
             ImGui.Text("当前动作模组："); ImGui.SameLine(); ImGui.TextColored(new Vector4(0.4f, 0.7f, 1.0f, 1.0f), modName);
             ImGui.Text("文件系统路径："); ImGui.SameLine(); ImGui.TextColored(new Vector4(0.3f, 0.9f, 0.3f, 1.0f), modPath);
+            
+            // 检查是否有相同优先级的模组
+            if (modInfo != null)
+            {
+                var allMods = PenumbraManager.Instance?.GetAllMods() ?? new List<PenumbraModInfo>();
+                var samePriorityMods = allMods
+                    .Where(m => m.IsEnabled && 
+                               m.Priority == modInfo.Priority && 
+                               m.ModDirectory != modInfo.ModDirectory &&
+                               m.EmoteNames.Contains(currentEmoteName))
+                    .ToList();
+                
+                if (samePriorityMods.Count > 0)
+                {
+                    ImGui.Separator();
+                    ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "⚠ 检测到修改同样动作的相同优先级模组：");
+                    var displayMods = samePriorityMods.Take(3).ToList();
+                    foreach (var sameMod in displayMods)
+                    {
+                        ImGui.Text($"  • {sameMod.ModName}");
+                    }
+                    if (samePriorityMods.Count > 3)
+                    {
+                        ImGui.Text($"  • ... 还有 {samePriorityMods.Count - 3} 个模组");
+                    }
+                    ImGui.Text("建议调整优先级以避免冲突");
+                }
+            }
+            
             ImGui.TextColored(new Vector4(1.0f, 0.8f, 0.2f, 1.0f), "* 若该模组包含对此动作的修改，但实际未启用相关选项，且其优先级最高，仍将被识别为当前动作的来源。");
             ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "* NightLife等大型模组包含大量动作修改，可能导致识别结果不准确，请尽量避免将其优先级设为最高。");
             if (xcpFiles.Count == 0)
@@ -855,13 +885,20 @@ private void DrawSlots()
         {
             if (hasModsForEmote)
             {
+                var currentHighestMod = PenumbraManager.Instance?.GetModInfoForEmote(emoteNameForPriority);
+                
                 _priorityWindow.UpdateContent(emoteNameForPriority, modsForEmote, () => {
-                    // 当优先级改变时，重置XCP选择
-                    _selectedXcpFile = string.Empty;
-                    if (!string.IsNullOrEmpty(_cameraPath))
+                    var newHighestMod = PenumbraManager.Instance?.GetModInfoForEmote(emoteNameForPriority);
+                    bool highestModChanged = currentHighestMod?.ModDirectory != newHighestMod?.ModDirectory;
+                    
+                    if (highestModChanged)
                     {
-                        _cameraPath = string.Empty;
-                        _cutsceneManager.CameraPath = null;
+                        _selectedXcpFile = string.Empty;
+                        if (!string.IsNullOrEmpty(_cameraPath))
+                        {
+                            _cameraPath = string.Empty;
+                            _cutsceneManager.CameraPath = null;
+                        }
                     }
                 });
                 ImGui.OpenPopup("mod_priority_adjustment_popup");
