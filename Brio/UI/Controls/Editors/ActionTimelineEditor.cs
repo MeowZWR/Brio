@@ -700,7 +700,7 @@ private void DrawSlots()
             return;
         }
 
-        var modInfo = PenumbraManager.Instance.GetModInfoForEmote(currentEmoteName);
+        var modInfo = PenumbraManager.Instance.GetEffectiveModInfoForEmote(currentEmoteName);
         string modName = modInfo?.ModName ?? "未知";
         string modDirectory = modInfo?.ModDirectory ?? string.Empty;
         string modPath = "未知";

@@ -165,6 +165,9 @@ namespace Brio.Game.Penumbra
                 case ModSettingChange.Edited:
                     HasModChangesSinceLastRefresh = true;
                     break;
+                case ModSettingChange.TemporaryMod:
+                case ModSettingChange.TemporarySetting:
+                    break;
                 default:
                     HasModChangesSinceLastRefresh = true;
                     break;
@@ -303,6 +306,57 @@ namespace Brio.Game.Penumbra
         public void RefreshModInfo() => InitializeModInfo();
         public bool HasModChangesSinceLastRefresh { get; private set; } = false;
         public bool HasEverRefreshed { get; private set; } = false;
+
+        public PenumbraModInfo? GetEffectiveModInfoForEmote(string emoteName)
+        {
+            var mods = GetModsForEmote(emoteName);
+            if (mods.Count == 0)
+                return null;
+
+            var pluginInterfaceField = typeof(PenumbraManager).GetField("_pluginInterface", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (pluginInterfaceField?.GetValue(this) is not Dalamud.Plugin.IDalamudPluginInterface pluginInterface)
+                return null;
+
+            var queryTemp = new QueryTemporaryModSettings(pluginInterface);
+
+            var getCurrentCollectionField = typeof(PenumbraManager).GetField("_getCurrentCollection", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (getCurrentCollectionField?.GetValue(this) is not GetCollection getCurrentCollection)
+                return null;
+
+            var currentCollection = getCurrentCollection.Invoke(ApiCollectionType.Current);
+            if (!currentCollection.HasValue)
+                return null;
+
+            var effectiveMods = new List<PenumbraModInfo>();
+            foreach (var mod in mods)
+            {
+                var result = queryTemp.Invoke(
+                    currentCollection.Value.Id,
+                    mod.ModDirectory,
+                    out var settings,
+                    out var source,
+                    0,
+                    mod.ModName);
+
+                if (result == PenumbraApiEc.Success && settings.HasValue)
+                {
+                    effectiveMods.Add(new PenumbraModInfo
+                    {
+                        ModName = mod.ModName,
+                        ModDirectory = mod.ModDirectory,
+                        EmoteNames = mod.EmoteNames,
+                        XcpFiles = mod.XcpFiles,
+                        IsEnabled = settings.Value.Item2,
+                        Priority = settings.Value.Item3
+                    });
+                }
+                else
+                {
+                    effectiveMods.Add(mod);
+                }
+            }
+            return effectiveMods.Where(m => m.IsEnabled).OrderByDescending(m => m.Priority).FirstOrDefault();
+        }
 
         public void Dispose()
         {

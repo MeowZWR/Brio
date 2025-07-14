@@ -130,7 +130,7 @@ public class SettingsWindow : Window
                     }
 
                     bool useFilenameAsActorName = _configurationService.Configuration.Library.UseFilenameAsActorName;
-                    if(ImGui.Checkbox("Use the Character Filename as the Actor Name", ref useFilenameAsActorName))
+                    if(ImGui.Checkbox("使用角色文件名作为参与者名称", ref useFilenameAsActorName))
                     {
                         _configurationService.Configuration.Library.UseFilenameAsActorName = useFilenameAsActorName;
                         _configurationService.ApplyChange();
@@ -202,7 +202,7 @@ public class SettingsWindow : Window
         }
 
         bool enableBrioColor = _configurationService.Configuration.Appearance.EnableBrioColor;
-        if(ImGui.Checkbox("启用 Brio 颜色", ref enableBrioColor))
+        if(ImGui.Checkbox("启用 Brio 颜色（主题的Header颜色不透明会导致看不见高级按钮）", ref enableBrioColor))
         {
             _configurationService.Configuration.Appearance.EnableBrioColor = enableBrioColor;
             _configurationService.ApplyChange();
