@@ -24,27 +24,54 @@ using System.Linq;
 
 namespace Brio.UI.Controls.Editors;
 
-public class ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService gPoseService, EntityManager entityManager, PhysicsService physicsService, ConfigurationService configService)
+public class ActionTimelineEditor
 {
-    private readonly CutsceneManager _cutsceneManager = cutsceneManager;
-    private readonly GPoseService _gPoseService = gPoseService;
-    private readonly PhysicsService _physicsService = physicsService;
-    private readonly ConfigurationService _configService = configService;
-    private readonly EntityManager _entityManager = entityManager;
-
     private static float MaxItemWidth => ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize("XXXXXXXXXXXXXXXXXX").X;
     private static float LabelStart => MaxItemWidth + ImGui.GetCursorPosX() + (ImGui.GetStyle().FramePadding.X * 2f);
-
     private static readonly ActionTimelineSelector _globalTimelineSelector = new("global_timeline_selector");
-
     private static bool _startAnimationOnSelect = true;
-
     private string _cameraPath = string.Empty;
     private ActionTimelineCapability _capability = null!;
     private bool _delimitSpeed = false;
     private string _selectedXcpFile = string.Empty;
-    private string? _lastEmoteName = null;
+    private string? _currentEmoteName = null;
+    private PenumbraModInfo? _cachedModInfoForEmote = null;
     private readonly ModPriorityAdjustmentWindow _priorityWindow = new();
+    private readonly CutsceneManager _cutsceneManager;
+    private readonly GPoseService _gPoseService;
+    private readonly PhysicsService _physicsService;
+    private readonly ConfigurationService _configService;
+    private readonly EntityManager _entityManager;
+    private List<string> _cachedXcpFiles = new();
+    private string _cachedXcpModDirectory = string.Empty;
+    public ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService gPoseService, EntityManager entityManager, PhysicsService physicsService, ConfigurationService configService)
+    {
+        _cutsceneManager = cutsceneManager;
+        _gPoseService = gPoseService;
+        _physicsService = physicsService;
+        _configService = configService;
+        _entityManager = entityManager;
+        if (PenumbraManager.Instance != null)
+            PenumbraManager.Instance.ModInfoChanged += OnPenumbraModInfoChanged;
+    }
+
+    private void OnPenumbraModInfoChanged()
+    {
+        if (!string.IsNullOrEmpty(_currentEmoteName))
+            _cachedModInfoForEmote = PenumbraManager.Instance.GetEffectiveModInfoForEmote(_currentEmoteName);
+        _cachedXcpFiles.Clear();
+        _cachedXcpModDirectory = string.Empty;
+    }
+
+    public void SetCurrentEmoteName(string emoteName)
+    {
+        if (_currentEmoteName != emoteName)
+        {
+            _currentEmoteName = emoteName;
+            _selectedXcpFile = string.Empty;
+            _cachedModInfoForEmote = PenumbraManager.Instance.GetEffectiveModInfoForEmote(emoteName);
+        }
+    }
 
     public void Draw(bool drawAdvanced, ActionTimelineCapability capability)
     {
@@ -675,6 +702,16 @@ private void DrawSlots()
 
     private void DrawPenumbraXcpDropdown()
     {
+        // 自动同步当前情感动作名，保证UI和缓存一致
+        string detectedEmoteName = GetCurrentEmoteName();
+        if (_currentEmoteName != detectedEmoteName)
+        {
+            SetCurrentEmoteName(detectedEmoteName);
+            // 情感动作变动时，强制刷新XCP缓存
+            _cachedXcpFiles.Clear();
+            _cachedXcpModDirectory = string.Empty;
+        }
+
         if (PenumbraManager.Instance == null)
         {
             ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra未连接");
@@ -687,20 +724,12 @@ private void DrawSlots()
             return;
         }
 
-        // 获取当前选择的情感动作名称
-        string currentEmoteName = GetCurrentEmoteName();
-        if (_lastEmoteName != currentEmoteName)
-        {
-            _selectedXcpFile = string.Empty;
-            _lastEmoteName = currentEmoteName;
-        }
-        if (string.IsNullOrEmpty(currentEmoteName))
+        if (string.IsNullOrEmpty(_currentEmoteName))
         {
             DrawBreathingText("未选择情感动作");
             return;
         }
-
-        var modInfo = PenumbraManager.Instance.GetEffectiveModInfoForEmote(currentEmoteName);
+        var modInfo = _cachedModInfoForEmote;
         string modName = modInfo?.ModName ?? "未知";
         string modDirectory = modInfo?.ModDirectory ?? string.Empty;
         string modPath = "未知";
@@ -712,10 +741,15 @@ private void DrawSlots()
                 var modRootDirectory = PenumbraManager.Instance.GetModRootDirectory();
                 modPath = System.IO.Path.Combine(modRootDirectory, modDirectory);
                 var xcpFolderPath = System.IO.Path.Combine(modPath, "XCP");
-                if (System.IO.Directory.Exists(xcpFolderPath))
+                // 只有modDirectory变化时才重新枚举
+                if (_cachedXcpModDirectory != modDirectory)
                 {
-                    xcpFiles.AddRange(System.IO.Directory.GetFiles(xcpFolderPath, "*.xcp"));
+                    _cachedXcpFiles.Clear();
+                    if (System.IO.Directory.Exists(xcpFolderPath))
+                        _cachedXcpFiles.AddRange(System.IO.Directory.GetFiles(xcpFolderPath, "*.xcp"));
+                    _cachedXcpModDirectory = modDirectory;
                 }
+                xcpFiles = _cachedXcpFiles;
             }
             catch { }
         }
@@ -824,6 +858,7 @@ private void DrawSlots()
         if (ImBrio.FontIconButton("refreshPenumbraModInfo", FontAwesomeIcon.Repeat, "手动刷新获取模组信息"))
         {
             PenumbraManager.Instance?.RefreshModInfo();
+            // 刷新后会自动触发OnPenumbraModInfoChanged事件，自动刷新本地缓存
         }
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("手动刷新获取模组信息");
@@ -845,7 +880,7 @@ private void DrawSlots()
                     .Where(m => m.IsEnabled && 
                                m.Priority == modInfo.Priority && 
                                m.ModDirectory != modInfo.ModDirectory &&
-                               m.EmoteNames.Contains(currentEmoteName))
+                               m.EmoteNames.Contains(_currentEmoteName))
                     .ToList();
                 
                 if (samePriorityMods.Count > 0)
@@ -876,9 +911,9 @@ private void DrawSlots()
 
         // 优先级调整按钮
         ImGui.SameLine();
-        var emoteNameForPriority = GetCurrentEmoteName();
+        var emoteNameForPriority = _currentEmoteName ?? string.Empty;
         var modsForEmote = PenumbraManager.Instance?.GetModsForEmote(emoteNameForPriority);
-        bool hasModsForEmote = modsForEmote?.Count > 0;
+        bool hasModsForEmote = modsForEmote != null && modsForEmote.Count > 0;
         
         ImGui.BeginDisabled(!hasModsForEmote);
         if (ImBrio.FontIconButton("adjustModPriority", FontAwesomeIcon.SortNumericUp, "调整模组优先级"))
@@ -927,6 +962,9 @@ private void DrawSlots()
         {
             var importer = new PenumbraClipboardImporter(msg => Brio.Log.Information(msg));
             importer.ImportXcpFromClipboard(modPath);
+            // 粘贴导入后，强制刷新XCP缓存
+            _cachedXcpFiles.Clear();
+            _cachedXcpModDirectory = string.Empty;
         }
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
         {

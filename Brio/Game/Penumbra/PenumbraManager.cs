@@ -34,6 +34,11 @@ namespace Brio.Game.Penumbra
         private readonly GetCollections _getCollections = null!;
         private readonly GetCollection _getCurrentCollection = null!;
         private IReadOnlyList<(string ModDirectory, IReadOnlyDictionary<string, object?> ChangedItems)>? _changedItems;
+        // 缓存：emoteName -> PenumbraModInfo
+        private readonly Dictionary<string, PenumbraModInfo?> _effectiveModInfoCache = new();
+        private string? _lastEffectiveEmoteName = null;
+        private PenumbraModInfo? _lastEffectiveModInfo = null;
+        public event Action? ModInfoChanged;
 
         public PenumbraManager(DalamudServices services)
         {
@@ -149,11 +154,11 @@ namespace Brio.Game.Penumbra
             }
             catch { return PenumbraApiEc.UnknownError; }
         }
-        private void OnPenumbraInitialized() { HasModChangesSinceLastRefresh = false; InitializeModInfo(); }
-        private void OnPenumbraDisposed() { _modInfos.Clear(); _changedItems = null; HasModChangesSinceLastRefresh = false; }
-        private void OnModAdded(string modDirectory) { HasModChangesSinceLastRefresh = true; }
-        private void OnModDeleted(string modDirectory) { HasModChangesSinceLastRefresh = true; }
-        private void OnModMoved(string oldDirectory, string newDirectory) { HasModChangesSinceLastRefresh = true; }
+        private void OnPenumbraInitialized() { HasModChangesSinceLastRefresh = false; InitializeModInfo(); ClearEffectiveModInfoCache(); }
+        private void OnPenumbraDisposed() { _modInfos.Clear(); _changedItems = null; HasModChangesSinceLastRefresh = false; ClearEffectiveModInfoCache(); }
+        private void OnModAdded(string modDirectory) { HasModChangesSinceLastRefresh = true; ClearEffectiveModInfoCache(); }
+        private void OnModDeleted(string modDirectory) { HasModChangesSinceLastRefresh = true; ClearEffectiveModInfoCache(); }
+        private void OnModMoved(string oldDirectory, string newDirectory) { HasModChangesSinceLastRefresh = true; ClearEffectiveModInfoCache(); }
         private void OnModSettingChanged(ModSettingChange changeType, Guid collectionId, string modDirectory, bool inherited)
         {
             switch (changeType)
@@ -161,21 +166,26 @@ namespace Brio.Game.Penumbra
                 case ModSettingChange.Priority:
                 case ModSettingChange.EnableState:
                     UpdateModInfo(modDirectory);
+                    ClearEffectiveModInfoCache();
                     break;
                 case ModSettingChange.Edited:
                     HasModChangesSinceLastRefresh = true;
+                    ClearEffectiveModInfoCache();
                     break;
                 case ModSettingChange.TemporaryMod:
                 case ModSettingChange.TemporarySetting:
                     break;
                 default:
                     HasModChangesSinceLastRefresh = true;
+                    ClearEffectiveModInfoCache();
                     break;
             }
         }
         private void InitializeModInfo()
         {
             _modInfos.Clear();
+            ClearEffectiveModInfoCache();
+            ModInfoChanged?.Invoke();
             try
             {
                 var mods = _getModList.Invoke();
@@ -303,30 +313,50 @@ namespace Brio.Game.Penumbra
                 catch { }
             }
         }
-        public void RefreshModInfo() => InitializeModInfo();
+        public void RefreshModInfo() { InitializeModInfo(); ClearEffectiveModInfoCache(); }
         public bool HasModChangesSinceLastRefresh { get; private set; } = false;
         public bool HasEverRefreshed { get; private set; } = false;
+        // 缓存刷新版本号，每次清空缓存时自增
+        public int RefreshVersion { get; private set; } = 0;
+
+        public void ClearEffectiveModInfoCache()
+        {
+            _effectiveModInfoCache.Clear();
+            _lastEffectiveEmoteName = null;
+            _lastEffectiveModInfo = null;
+            unchecked { RefreshVersion++; } // 溢出自动回绕
+            ModInfoChanged?.Invoke();
+        }
 
         public PenumbraModInfo? GetEffectiveModInfoForEmote(string emoteName)
         {
+            // 节流：只有emoteName变化或模组状态变动时才重新查找
+            if (_lastEffectiveEmoteName == emoteName && !HasModChangesSinceLastRefresh)
+                return _lastEffectiveModInfo;
+            if (_effectiveModInfoCache.TryGetValue(emoteName, out var cached) && !HasModChangesSinceLastRefresh)
+            {
+                _lastEffectiveEmoteName = emoteName;
+                _lastEffectiveModInfo = cached;
+                return cached;
+            }
             var mods = GetModsForEmote(emoteName);
             if (mods.Count == 0)
+            {
+                _effectiveModInfoCache[emoteName] = null;
+                _lastEffectiveEmoteName = emoteName;
+                _lastEffectiveModInfo = null;
                 return null;
-
+            }
             var pluginInterfaceField = typeof(PenumbraManager).GetField("_pluginInterface", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (pluginInterfaceField?.GetValue(this) is not Dalamud.Plugin.IDalamudPluginInterface pluginInterface)
                 return null;
-
             var queryTemp = new QueryTemporaryModSettings(pluginInterface);
-
             var getCurrentCollectionField = typeof(PenumbraManager).GetField("_getCurrentCollection", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (getCurrentCollectionField?.GetValue(this) is not GetCollection getCurrentCollection)
                 return null;
-
             var currentCollection = getCurrentCollection.Invoke(ApiCollectionType.Current);
             if (!currentCollection.HasValue)
                 return null;
-
             var effectiveMods = new List<PenumbraModInfo>();
             foreach (var mod in mods)
             {
@@ -337,7 +367,6 @@ namespace Brio.Game.Penumbra
                     out var source,
                     0,
                     mod.ModName);
-
                 if (result == PenumbraApiEc.Success && settings.HasValue)
                 {
                     effectiveMods.Add(new PenumbraModInfo
@@ -355,7 +384,12 @@ namespace Brio.Game.Penumbra
                     effectiveMods.Add(mod);
                 }
             }
-            return effectiveMods.Where(m => m.IsEnabled).OrderByDescending(m => m.Priority).FirstOrDefault();
+            var resultMod = effectiveMods.Where(m => m.IsEnabled).OrderByDescending(m => m.Priority).FirstOrDefault();
+            _effectiveModInfoCache[emoteName] = resultMod;
+            _lastEffectiveEmoteName = emoteName;
+            _lastEffectiveModInfo = resultMod;
+            HasModChangesSinceLastRefresh = false; // 查询后重置变动标记
+            return resultMod;
         }
 
         public void Dispose()

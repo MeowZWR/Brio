@@ -612,7 +612,7 @@ namespace Brio.Game.Penumbra
                 var currentCollection = GetCurrentCollection();
                 if (currentCollection.HasValue)
                 {
-                    return _setTemporaryModSettings.Invoke(
+                    var result = _setTemporaryModSettings.Invoke(
                         currentCollection.Value.Id, 
                         mod.ModDirectory, 
                         false,
@@ -622,6 +622,10 @@ namespace Brio.Game.Penumbra
                         "Brio", 
                         0,
                         mod.ModName);
+                    // 新增：临时设置成功后，清空PenumbraManager缓存，保证镜头定位实时刷新
+                    if (result == PenumbraApiEc.Success)
+                        PenumbraManager.Instance?.ClearEffectiveModInfoCache();
+                    return result;
                 }
             }
             catch (Exception ex)
