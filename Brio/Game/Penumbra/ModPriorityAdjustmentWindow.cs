@@ -42,32 +42,40 @@ namespace Brio.Game.Penumbra
             _needsRefresh = false;
             _onPriorityChanged = onPriorityChanged;
             
-            if (_setTemporaryModSettings == null)
+            if (PenumbraManager.Instance != null)
             {
-                try
-                {
-                    var penumbraManager = PenumbraManager.Instance;
-                    if (penumbraManager != null)
-                    {
-                        var pluginInterfaceField = typeof(PenumbraManager).GetField("_pluginInterface", 
-                            BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (pluginInterfaceField?.GetValue(penumbraManager) is IDalamudPluginInterface pluginInterface)
-                        {
-                            _setTemporaryModSettings = new SetTemporaryModSettings(pluginInterface);
-                            _queryTemporaryModSettings = new QueryTemporaryModSettings(pluginInterface);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Brio.Log.Warning($"初始化临时设置IPC订阅者失败: {ex.Message}");
-                }
+                PenumbraManager.Instance.ModInfoChanged -= OnPenumbraModInfoChanged;
+                PenumbraManager.Instance.ModInfoChanged += OnPenumbraModInfoChanged;
             }
             
-            // 检测现有临时设置
+            InitializeTemporarySettingsIpc();
             CheckExistingTemporarySettings();
-            
             UpdateDisplayMods();
+        }
+
+        private void InitializeTemporarySettingsIpc()
+        {
+            if (_setTemporaryModSettings != null) return;
+
+            try
+            {
+                var pluginInterface = GetPluginInterface(PenumbraManager.Instance);
+                if (pluginInterface != null)
+                {
+                    _setTemporaryModSettings = new SetTemporaryModSettings(pluginInterface);
+                    _queryTemporaryModSettings = new QueryTemporaryModSettings(pluginInterface);
+                }
+            }
+            catch (Exception ex)
+            {
+                Brio.Log.Warning($"初始化临时设置IPC订阅者失败: {ex.Message}");
+            }
+        }
+
+        private void OnPenumbraModInfoChanged()
+        {
+            _allModsCached.Clear();
+            _needsRefresh = true;
         }
 
         private void CheckExistingTemporarySettings()
@@ -77,38 +85,29 @@ namespace Brio.Game.Penumbra
             try
             {
                 var currentCollection = GetCurrentCollection();
-                if (currentCollection.HasValue)
+                if (!currentCollection.HasValue) return;
+
+                var existingTemporaryMods = new List<string>();
+                
+                foreach (var mod in _allMods)
                 {
-                    var existingTemporaryMods = new List<string>();
+                    var result = _queryTemporaryModSettings.Invoke(
+                        currentCollection.Value.Id, mod.ModDirectory, out var settings, 
+                        out var source, 0, mod.ModName);
                     
-                    foreach (var mod in _allMods)
+                    if (result == PenumbraApiEc.Success && settings.HasValue)
                     {
-                        var result = _queryTemporaryModSettings.Invoke(
-                            currentCollection.Value.Id, 
-                            mod.ModDirectory, 
-                            out var settings, 
-                            out var source, 
-                            0, 
-                            mod.ModName);
+                        _temporaryModStates[mod.ModDirectory] = (true, settings.Value.Item2, settings.Value.Item3);
                         
-                        if (result == PenumbraApiEc.Success && settings.HasValue)
-                        {
-                            // 记录所有临时设置，无论来源
-                            _temporaryModStates[mod.ModDirectory] = (true, settings.Value.Item2, settings.Value.Item3);
-                            
-                            if (source != "Brio")
-                            {
-                                // 其他插件设置的临时设置
-                                existingTemporaryMods.Add($"{mod.ModName} (来源: {source})");
-                            }
-                        }
+                        if (source != "Brio")
+                            existingTemporaryMods.Add($"{mod.ModName} (来源: {source})");
                     }
-                    
-                    if (existingTemporaryMods.Count > 0)
-                    {
-                        var message = $"检测到现有临时设置:\n{string.Join("\n", existingTemporaryMods)}\n这些设置可能影响模组优先级显示。";
-                        Brio.Log.Information(message);
-                    }
+                }
+                
+                if (existingTemporaryMods.Count > 0)
+                {
+                    var message = $"检测到现有临时设置:\n{string.Join("\n", existingTemporaryMods)}\n这些设置可能影响模组优先级显示。";
+                    Brio.Log.Information(message);
                 }
             }
             catch (Exception ex)
@@ -121,32 +120,21 @@ namespace Brio.Game.Penumbra
         {
             ImGui.SetNextWindowSizeConstraints(new Vector2(440, 240), new Vector2(900, 600));
             
-            if (_needsRefresh)
+            ProcessStateChanges();
+            DrawHeader();
+            DrawModTable();
+        }
+
+        private void ProcessStateChanges()
+        {
+            if (_needsRefresh || _includeDisabledChanged || _showEmoteConflictsChanged || _useTemporarySettingsChanged)
             {
                 UpdateDisplayMods();
                 _needsRefresh = false;
-            }
-            
-            if (_includeDisabledChanged)
-            {
                 _includeDisabledChanged = false;
-                UpdateDisplayMods();
-            }
-            
-            if (_showEmoteConflictsChanged)
-            {
                 _showEmoteConflictsChanged = false;
-                UpdateDisplayMods();
-            }
-            
-            if (_useTemporarySettingsChanged)
-            {
                 _useTemporarySettingsChanged = false;
-                UpdateDisplayMods();
             }
-            
-            DrawHeader();
-            DrawModTable();
         }
 
         private void DrawHeader()
@@ -160,13 +148,11 @@ namespace Brio.Game.Penumbra
             DrawHeaderButton("include_disabled", FontAwesomeIcon.EyeSlash, "显示未启用模组", 
                 ref _includeDisabled, ref _includeDisabledChanged, ImGui.GetColorU32(ImGuiCol.CheckMark),
                 "显示或隐藏已禁用的模组\n启用后可以看到所有模组，包括当前未启用的", "当前显示所有模组");
-            
             ImGui.SameLine();
             
             DrawHeaderButton("show_conflicts", FontAwesomeIcon.ExclamationTriangle, "显示表情冲突模组", 
                 ref _showEmoteConflicts, ref _showEmoteConflictsChanged, ImGui.GetColorU32(ImGuiCol.CheckMark),
                 "显示或隐藏包含表情修改的模组\n这些模组可能与当前动作产生冲突", "当前显示冲突模组");
-            
             ImGui.SameLine();
             
             bool wasTemporary = _useTemporarySettings;
@@ -175,29 +161,9 @@ namespace Brio.Game.Penumbra
                 "启用后，优先级和启用状态的修改将使用临时设置\n临时设置不会永久修改Penumbra模组配置，可以随时清除", "当前使用临时设置模式");
             
             if (wasTemporary && !_useTemporarySettings)
-            {
                 TryClearAllTemporarySettings();
-            }
             
-            // 显示临时设置状态
-            var tempModCount = _temporaryModStates.Count(kvp => kvp.Value.IsTemporary);
-            if (tempModCount > 0)
-            {
-                ImGui.SameLine();
-                float t = (float)(ImGui.GetTime() * 0.18f);
-                float hueStart = 0.75f, hueEnd = 0.92f;
-                float interp = 0.5f * (1 + MathF.Sin(t * MathF.PI * 2));
-                float hue = hueStart + (hueEnd - hueStart) * interp;
-                float sat = 0.38f + 0.12f * interp;
-                float val = 0.92f + 0.08f * interp;
-                float r, g, b;
-                ImGui.ColorConvertHSVtoRGB(hue, sat, val, out r, out g, out b);
-                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(r, g, b, 1.0f));
-                string statusText = _useTemporarySettings ? $"临时设置: {tempModCount}" : $"现有临时设置: {tempModCount}";
-                ImGui.TextUnformatted(statusText);
-                ImGui.PopStyleColor();
-            }
-            
+            DrawTemporarySettingsStatus();
             ImGui.Separator();
         }
 
@@ -221,6 +187,24 @@ namespace Brio.Game.Penumbra
                 ImGui.SetTooltip(tip);
             }
         }
+        
+        private void DrawTemporarySettingsStatus()
+        {
+            var tempModCount = _temporaryModStates.Count(kvp => kvp.Value.IsTemporary);
+            if (tempModCount == 0) return;
+
+            ImGui.SameLine();
+            float t = (float)(ImGui.GetTime() * 0.18f);
+            float interp = 0.5f * (1 + MathF.Sin(t * MathF.PI * 2));
+            float hue = 0.75f + (0.92f - 0.75f) * interp;
+            float sat = 0.38f + 0.12f * interp;
+            float val = 0.92f + 0.08f * interp;
+            ImGui.ColorConvertHSVtoRGB(hue, sat, val, out float r, out float g, out float b);
+            
+            using var color = ImRaii.PushColor(ImGuiCol.Text, new Vector4(r, g, b, 1.0f));
+            string statusText = _useTemporarySettings ? $"临时设置: {tempModCount}" : $"现有临时设置: {tempModCount}";
+            ImGui.TextUnformatted(statusText);
+        }
 
         private void DrawModTable()
         {
@@ -230,258 +214,230 @@ namespace Brio.Game.Penumbra
                 .Push(ImGuiStyleVar.FramePadding, new Vector2(2, 1));
             using var table = ImRaii.Table("##mod_priority_table", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.ScrollY, 
                 new Vector2(ImGui.GetContentRegionAvail().X, contentHeight));
-            if (!table)
-                return;
+            if (!table) return;
+            
+            SetupTableColumns();
+            
+            if (_displayMods.Count == 0)
+                DrawEmptyRow();
+            else
+                _displayMods.ForEach(DrawModTableRow);
+        }
+
+        private void SetupTableColumns()
+        {
             ImGui.TableSetupColumn("模组名称", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn("镜头", ImGuiTableColumnFlags.WidthFixed, 28);
             ImGui.TableSetupColumn("优先级", ImGuiTableColumnFlags.WidthFixed, 40);
             ImGui.TableSetupColumn("操作", ImGuiTableColumnFlags.WidthFixed, 28);
             ImGui.TableSetupColumn("状态", ImGuiTableColumnFlags.WidthFixed, 28);
             ImGui.TableHeadersRow();
-            if (_displayMods.Count == 0)
-            {
-                ImGui.TableNextRow();
-                ImGui.TableNextColumn();
-                ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1.0f), "没有找到相关模组");
-            }
-            else
-            {
-                foreach (var mod in _displayMods)
-                    DrawModTableRow(mod);
-            }
+        }
+
+        private void DrawEmptyRow()
+        {
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.TextColored(new Vector4(0.7f, 0.7f, 0.7f, 1.0f), "没有找到相关模组");
         }
 
         private void DrawModTableRow(PenumbraModInfo mod)
         {
-            var isEnabled = mod.IsEnabled;
-            var priority = mod.Priority;
-            var modName = mod.ModName;
-            var xcpCount = mod.XcpFiles.Count;
-            var hasEmoteConflicts = HasEmoteConflicts(mod);
-            
-            var hasTemporarySettings = _temporaryModStates.TryGetValue(mod.ModDirectory, out var tempState);
-            var isTemporary = hasTemporarySettings && tempState.IsTemporary;
-            
-            if (isTemporary)
-            {
-                isEnabled = tempState.Enabled;
-                priority = tempState.Priority;
-            }
-            
-            var currentActiveMod = _allMods.Where(m => m.IsEnabled).OrderByDescending(m => m.Priority).FirstOrDefault();
-            var isCurrentActiveMod = currentActiveMod?.ModDirectory == mod.ModDirectory;
-            var isHighPriorityEmoteConflict = hasEmoteConflicts && 
-                                            currentActiveMod != null && 
-                                            mod.Priority > currentActiveMod.Priority;
-            
-            // 检查是否有其他插件的临时设置但Brio未启用临时设置
+            var (effectiveEnabled, effectivePriority, isTemporary) = GetEffectiveModState(mod);
             var hasOtherTemporarySettings = isTemporary && !_useTemporarySettings;
             
             ImGui.TableNextRow();
+            DrawModNameColumn(mod, effectiveEnabled, effectivePriority, isTemporary, hasOtherTemporarySettings);
+            DrawXcpCountColumn(mod);
+            DrawPriorityColumn(mod, effectivePriority, hasOtherTemporarySettings);
+            DrawPromoteButton(mod, effectiveEnabled, effectivePriority, hasOtherTemporarySettings);
+            DrawStatusColumn(mod, effectiveEnabled, isTemporary, hasOtherTemporarySettings);
+        }
+
+        private (bool enabled, int priority, bool isTemporary) GetEffectiveModState(PenumbraModInfo mod)
+        {
+            if (_temporaryModStates.TryGetValue(mod.ModDirectory, out var tempState) && tempState.IsTemporary)
+                return (tempState.Enabled, tempState.Priority, true);
+            return (mod.IsEnabled, mod.Priority, false);
+        }
+
+        private void DrawModNameColumn(PenumbraModInfo mod, bool effectiveEnabled, int effectivePriority, bool isTemporary, bool hasOtherTemporarySettings)
+        {
             ImGui.TableNextColumn();
             
-            Vector4 nameColor = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-            if (isCurrentActiveMod)
-            {
-                nameColor = new Vector4(0.2f, 0.8f, 0.2f, 1.0f);
-            }
-            else if (isHighPriorityEmoteConflict)
-            {
-                nameColor = new Vector4(1.0f, 0.6f, 0.2f, 1.0f);
-            }
+            var color = GetModNameColor(mod, effectiveEnabled, effectivePriority);
+            using var textColor = ImRaii.PushColor(ImGuiCol.Text, color);
             
-            using (ImRaii.PushColor(ImGuiCol.Text, nameColor))
-            {
-                if (ImGui.Selectable(modName, false, ImGuiSelectableFlags.None, new Vector2(0, ImGui.GetTextLineHeight() * 0.8f)))
-                    OpenModPage(mod);
-            }
-            
+            if (ImGui.Selectable(mod.ModName, false, ImGuiSelectableFlags.None, 
+                new Vector2(0, ImGui.GetTextLineHeight() * 0.8f)))
+                OpenModPage(mod);
+
             if (ImGui.IsItemHovered())
+                DrawModTooltip(mod, isTemporary, hasOtherTemporarySettings);
+        }
+
+        private Vector4 GetModNameColor(PenumbraModInfo mod, bool effectiveEnabled, int effectivePriority)
+        {
+            var currentActiveMod = _allMods.Where(m => GetEffectiveEnabled(m))
+                .OrderByDescending(m => GetEffectivePriority(m)).FirstOrDefault();
+            var isCurrentActiveMod = currentActiveMod?.ModDirectory == mod.ModDirectory;
+            
+            if (isCurrentActiveMod)
+                return new Vector4(0.2f, 0.8f, 0.2f, 1.0f);
+                
+            var hasEmoteConflicts = mod.EmoteNames.Any(name => name.StartsWith("表情："));
+            var isHighPriorityEmoteConflict = hasEmoteConflicts && currentActiveMod != null && 
+                                            effectivePriority > GetEffectivePriority(currentActiveMod);
+            
+            return isHighPriorityEmoteConflict 
+                ? new Vector4(1.0f, 0.6f, 0.2f, 1.0f)
+                : new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+        }
+
+        private void DrawModTooltip(PenumbraModInfo mod, bool isTemporary, bool hasOtherTemporarySettings)
+        {
+            ImGui.BeginTooltip();
+            ImGui.Text($"模组目录：{mod.ModDirectory}");
+            ImGui.Text("点击以在 Penumbra 中打开模组页面。");
+            
+            if (isTemporary)
             {
-                ImGui.BeginTooltip();
-                ImGui.Text($"模组目录：{mod.ModDirectory}");
-                ImGui.Text("点击以在 Penumbra 中打开模组页面。");
-                if (isCurrentActiveMod)
+                ImGui.Separator();
+                ImGui.TextColored(new Vector4(0.8f, 0.4f, 1.0f, 1.0f), "使用临时设置");
+                var source = GetTemporarySettingsSource(mod.ModDirectory);
+                if (!string.IsNullOrEmpty(source))
                 {
-                    ImGui.Separator();
-                    ImGui.TextColored(new Vector4(0.2f, 0.8f, 0.2f, 1.0f), "当前正在使用的模组");
-                }
-                else if (hasEmoteConflicts)
-                {
-                    ImGui.Separator();
-                    ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "此模组包含表情修改");
-                    ImGui.Text("可能与当前动作产生冲突");
-                }
-                if (isTemporary)
-                {
-                    ImGui.Separator();
-                    ImGui.TextColored(new Vector4(0.8f, 0.4f, 1.0f, 1.0f), "使用临时设置");
-                    var source = GetTemporarySettingsSource(mod.ModDirectory);
-                    if (!string.IsNullOrEmpty(source))
+                    ImGui.TextColored(new Vector4(0.8f, 0.4f, 1.0f, 1.0f), $"当前模组临时设置由 {source} 管理");
+                    if (hasOtherTemporarySettings)
                     {
-                        ImGui.TextColored(new Vector4(0.8f, 0.4f, 1.0f, 1.0f), $"当前模组临时设置由 {source} 管理");
-                        if (hasOtherTemporarySettings)
-                        {
-                            ImGui.Separator();
-                            ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "启用Brio临时设置以修改此模组");
-                        }
+                        ImGui.Separator();
+                        ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "启用Brio临时设置以修改此模组");
                     }
                 }
-                ImGui.EndTooltip();
             }
+            ImGui.EndTooltip();
+        }
+
+        private void DrawXcpCountColumn(PenumbraModInfo mod)
+        {
             ImGui.TableNextColumn();
-            float colWidth = ImGui.GetColumnWidth();
-            float textWidth = ImGui.CalcTextSize(xcpCount.ToString()).X;
-            float centerPosX = ImGui.GetCursorPosX() + (colWidth - textWidth) / 2f;
-            ImGui.SetCursorPosX(centerPosX);
-            ImGui.Text(xcpCount.ToString());
+            var xcpCount = mod.XcpFiles.Count;
+            CenterText(xcpCount.ToString());
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
                 ImGui.Text("XCP文件数量");
                 ImGui.EndTooltip();
             }
-            ImGui.TableNextColumn();
-            var priorityInput = priority;
-            ImGui.SetNextItemWidth(38f);
-            ImGui.BeginDisabled(hasOtherTemporarySettings);
-            if (ImGui.InputInt($"##priority_{mod.ModDirectory}", ref priorityInput, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
-            {
-                if (priorityInput != priority)
-                {
-                    var result = SetModPriority(mod, priorityInput);
-                    if (result == PenumbraApiEc.Success)
-                    {
-                        Brio.Log.Information($"成功设置模组 '{modName}' 优先级为 {priorityInput}");
-                        mod.Priority = priorityInput;
-                        _needsRefresh = true;
-                        _onPriorityChanged?.Invoke();
-                    }
-                    else
-                        Brio.Log.Warning($"设置模组 '{modName}' 优先级失败: {result}");
-                }
-            }
-            ImGui.EndDisabled();
-            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            {
-                ImGui.BeginTooltip();
-                if (hasOtherTemporarySettings)
-                {
-                    ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "此模组有临时设置，无法修改永久优先级");
-                    ImGui.Text("启用Brio临时设置以管理此模组");
-                }
-                else
-                {
-                    ImGui.Text("输入新的优先级数值");
-                }
-                ImGui.EndTooltip();
-            }
-            ImGui.TableNextColumn();
-            colWidth = ImGui.GetColumnWidth();
-            float buttonSizeX = ImGui.GetFrameHeight() * 0.8f;
-            float buttonPosX = ImGui.GetCursorPosX() + (colWidth - buttonSizeX) / 2f;
-            ImGui.SetCursorPosX(buttonPosX);
-            var enabledMods = _displayMods.Where(m => m.IsEnabled).ToList();
-            var maxPriority = enabledMods.Count > 0 ? enabledMods.Max(m => m.Priority) : 0;
-            var maxPriorityMods = enabledMods.Where(m => m.Priority == maxPriority).ToList();
-            var canPromote = isEnabled && (mod.Priority < maxPriority || (mod.Priority == maxPriority && maxPriorityMods.Count > 1));
-            ImGui.BeginDisabled(!canPromote || hasOtherTemporarySettings);
-            if (ImGui.Button($"▲##up_{mod.ModDirectory}", new Vector2(buttonSizeX, 0)))
-            {
-                var result = SetModToHighestPriorityForEmote(mod, _emoteName);
-                if (result == PenumbraApiEc.Success)
-                {
-                    _needsRefresh = true;
-                    _onPriorityChanged?.Invoke();
-                }
-                else
-                    Brio.Log.Warning($"设置模组 '{modName}' 优先级失败: {result}");
-            }
-            ImGui.EndDisabled();
-            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            {
-                ImGui.BeginTooltip();
-                if (hasOtherTemporarySettings)
-                {
-                    ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "此模组有临时设置，无法修改永久优先级");
-                    ImGui.Text("启用Brio临时设置以管理此模组");
-                }
-                else if (!isEnabled)
-                    ImGui.Text($"模组 '{modName}' 未启用，无法设置优先级");
-                else if (!canPromote && mod.Priority >= maxPriority)
-                    ImGui.Text($"模组 '{modName}' 已经是最高优先级");
-                else if (canPromote && mod.Priority == maxPriority)
-                    ImGui.Text($"模组 '{modName}' 与其他模组并列最高优先级，可以提升");
-                else
-                    ImGui.Text($"将模组 '{modName}' 设置为最高优先级 ({maxPriority + 1})");
-                ImGui.EndTooltip();
-            }
-            ImGui.TableNextColumn();
-            colWidth = ImGui.GetColumnWidth();
-            float dotWidth = ImGui.CalcTextSize("●").X;
-            float crossWidth = ImGui.CalcTextSize("X").X;
-            float btnWidth = Math.Max(dotWidth, crossWidth) + ImGui.GetStyle().FramePadding.X * 2f;
-            float statusPosX = ImGui.GetCursorPosX() + (colWidth - btnWidth) / 2f;
-            ImGui.SetCursorPosX(statusPosX);
-            var statusText = isEnabled ? "●" : "X";
-            var statusColor = isEnabled ? new Vector4(0.2f, 0.8f, 0.2f, 1.0f) : new Vector4(0.8f, 0.2f, 0.2f, 1.0f);
-            
-            if (isTemporary)
-            {
-                statusColor = new Vector4(0.8f, 0.4f, 1.0f, 1.0f);
-            }
-            
-            bool buttonClicked = false;
-            ImGui.BeginDisabled(hasOtherTemporarySettings);
-            using (ImRaii.PushColor(ImGuiCol.Text, statusColor))
-            {
-                buttonClicked = ImGui.Button($"{statusText}##toggle_{mod.ModDirectory}", new Vector2(btnWidth, 0));
-            }
-            ImGui.EndDisabled();
-            
-            if (buttonClicked)
-            {
-                var result = SetModEnabled(mod, !isEnabled);
-                if (result == PenumbraApiEc.Success)
-                {
-                    _needsRefresh = true;
-                    _onPriorityChanged?.Invoke();
-                }
-                else
-                {
-                    Brio.Log.Warning($"切换模组 '{modName}' 启用状态失败: {result}");
-                }
-            }
-            
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                if (hasOtherTemporarySettings)
-                {
-                    ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "此模组有临时设置，无法修改永久状态");
-                    ImGui.Text("启用Brio临时设置以管理此模组");
-                }
-                else
-                {
-                    ImGui.Text(isEnabled ? "点击禁用模组" : "点击启用模组");
-                }
-                if (isTemporary)
-                {
-                    ImGui.Separator();
-                    ImGui.TextColored(new Vector4(0.8f, 0.4f, 1.0f, 1.0f), "临时设置");
-                    var source = GetTemporarySettingsSource(mod.ModDirectory);
-                    if (!string.IsNullOrEmpty(source))
-                    {
-                        ImGui.TextColored(new Vector4(0.8f, 0.4f, 1.0f, 1.0f), $"当前模组临时设置由 {source} 管理");
-                    }
-                }
-                ImGui.EndTooltip();
-            }
         }
 
-        private bool HasEmoteConflicts(PenumbraModInfo mod)
+        private void DrawPriorityColumn(PenumbraModInfo mod, int effectivePriority, bool hasOtherTemporarySettings)
         {
-            return mod.EmoteNames.Any(emoteName => emoteName.StartsWith("表情："));
+            ImGui.TableNextColumn();
+            var priorityInput = effectivePriority;
+            ImGui.SetNextItemWidth(38f);
+            
+            using var disabled = ImRaii.Disabled(hasOtherTemporarySettings);
+            if (ImGui.InputInt($"##priority_{mod.ModDirectory}", ref priorityInput, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue) &&
+                priorityInput != effectivePriority)
+            {
+                var result = SetModPriority(mod, priorityInput);
+                if (result == PenumbraApiEc.Success)
+                {
+                    Brio.Log.Debug($"成功设置模组 '{mod.ModName}' 优先级为 {priorityInput}");
+                    mod.Priority = priorityInput;
+                    _needsRefresh = true;
+                    _onPriorityChanged?.Invoke();
+                }
+                else
+                    Brio.Log.Warning($"设置模组 '{mod.ModName}' 优先级失败: {result}");
+            }
+
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip(hasOtherTemporarySettings ? "此模组有临时设置，无法修改永久优先级" : "输入新的优先级数值");
+        }
+
+        private void DrawPromoteButton(PenumbraModInfo mod, bool effectiveEnabled, int effectivePriority, bool hasOtherTemporarySettings)
+        {
+            ImGui.TableNextColumn();
+            CenterButton("▲", $"up_{mod.ModDirectory}", () => SetModToHighestPriorityForEmote(mod, _emoteName),
+                CanPromoteMod(mod, effectiveEnabled, effectivePriority) && !hasOtherTemporarySettings);
+        }
+
+        private bool CanPromoteMod(PenumbraModInfo mod, bool effectiveEnabled, int effectivePriority)
+        {
+            if (!effectiveEnabled) return false;
+            
+            var enabledMods = _displayMods.Where(m => GetEffectiveEnabled(m)).ToList();
+            var maxPriority = enabledMods.Count > 0 ? enabledMods.Max(m => GetEffectivePriority(m)) : 0;
+            var maxPriorityMods = enabledMods.Where(m => GetEffectivePriority(m) == maxPriority).ToList();
+            
+            return effectivePriority < maxPriority || (effectivePriority == maxPriority && maxPriorityMods.Count > 1);
+        }
+
+        private void DrawStatusColumn(PenumbraModInfo mod, bool effectiveEnabled, bool isTemporary, bool hasOtherTemporarySettings)
+        {
+            ImGui.TableNextColumn();
+            
+            var statusText = effectiveEnabled ? "●" : "X";
+            var statusColor = effectiveEnabled 
+                ? new Vector4(0.2f, 0.8f, 0.2f, 1.0f) 
+                : new Vector4(0.8f, 0.2f, 0.2f, 1.0f);
+            
+            if (isTemporary)
+                statusColor = new Vector4(0.8f, 0.4f, 1.0f, 1.0f);
+            
+            using var disabled = ImRaii.Disabled(hasOtherTemporarySettings);
+            using var color = ImRaii.PushColor(ImGuiCol.Text, statusColor);
+            
+            if (CenterButton(statusText, $"toggle_{mod.ModDirectory}", () => SetModEnabled(mod, !effectiveEnabled)))
+            {
+                _needsRefresh = true;
+                _onPriorityChanged?.Invoke();
+            }
+
+            if (ImGui.IsItemHovered())
+                DrawStatusTooltip(effectiveEnabled, isTemporary, hasOtherTemporarySettings);
+        }
+
+        private void DrawStatusTooltip(bool effectiveEnabled, bool isTemporary, bool hasOtherTemporarySettings)
+        {
+            ImGui.BeginTooltip();
+            if (hasOtherTemporarySettings)
+            {
+                ImGui.TextColored(new Vector4(1.0f, 0.6f, 0.2f, 1.0f), "此模组有临时设置，无法修改永久状态");
+                ImGui.Text("启用Brio临时设置以管理此模组");
+            }
+            else
+            {
+                ImGui.Text(effectiveEnabled ? "点击禁用模组" : "点击启用模组");
+            }
+            ImGui.EndTooltip();
+        }
+
+        private void CenterText(string text)
+        {
+            float colWidth = ImGui.GetColumnWidth();
+            float textWidth = ImGui.CalcTextSize(text).X;
+            float centerPosX = ImGui.GetCursorPosX() + (colWidth - textWidth) / 2f;
+            ImGui.SetCursorPosX(centerPosX);
+            ImGui.Text(text);
+        }
+
+        private bool CenterButton(string text, string id, Action onClick, bool enabled = true)
+        {
+            float colWidth = ImGui.GetColumnWidth();
+            float buttonWidth = Math.Max(ImGui.CalcTextSize(text).X, ImGui.CalcTextSize("●").X) + ImGui.GetStyle().FramePadding.X * 2f;
+            float centerPosX = ImGui.GetCursorPosX() + (colWidth - buttonWidth) / 2f;
+            ImGui.SetCursorPosX(centerPosX);
+            
+            using var disabled = ImRaii.Disabled(!enabled);
+            bool clicked = ImGui.Button($"{text}##{id}", new Vector2(buttonWidth, 0));
+            
+            if (clicked && enabled)
+                onClick();
+                
+            return clicked && enabled;
         }
 
         private void UpdateDisplayMods()
@@ -498,92 +454,86 @@ namespace Brio.Game.Penumbra
                 _enabledMods.Sort((a, b) => b.Priority.CompareTo(a.Priority));
             }
             
-            // 无论是否启用临时设置，都查询现有临时设置
             QueryTemporarySettings();
             
             _displayMods.Clear();
+            var baseCollection = _showEmoteConflicts ? GetRelevantMods() : _allModsCached;
             
-            if (_showEmoteConflicts)
-            {
-                var allRelevantMods = new List<PenumbraModInfo>();
-                allRelevantMods.AddRange(_allModsCached);
-                
-                var emoteConflictMods = PenumbraManager.Instance?.GetAllModsWithEmoteConflicts(_emoteName) ?? new List<PenumbraModInfo>();
-                foreach (var conflictMod in emoteConflictMods)
-                {
-                    if (!allRelevantMods.Any(m => m.ModDirectory == conflictMod.ModDirectory))
-                    {
-                        allRelevantMods.Add(conflictMod);
-                    }
-                }
-                
-                if (_includeDisabled)
-                {
-                    _displayMods.AddRange(allRelevantMods);
-                }
-                else
-                {
-                    _displayMods.AddRange(allRelevantMods.Where(m => m.IsEnabled));
-                }
-            }
-            else
-            {
-                if (_includeDisabled)
-                {
-                    _displayMods.AddRange(_allModsCached);
-                }
-                else
-                {
-                    _displayMods.AddRange(_enabledMods);
-                }
-            }
+            _displayMods.AddRange(_includeDisabled 
+                ? baseCollection 
+                : baseCollection.Where(m => GetEffectiveEnabled(m)));
             
-            _displayMods.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+            _displayMods.Sort((a, b) => GetEffectivePriority(b).CompareTo(GetEffectivePriority(a)));
         }
 
-        private void RefreshModStates()
+        private List<PenumbraModInfo> GetRelevantMods()
         {
+            var allRelevantMods = new List<PenumbraModInfo>(_allModsCached);
+            
+            var emoteConflictMods = PenumbraManager.Instance?.GetAllModsWithEmoteConflicts(_emoteName) ?? new List<PenumbraModInfo>();
+            foreach (var conflictMod in emoteConflictMods)
+            {
+                if (!allRelevantMods.Any(m => m.ModDirectory == conflictMod.ModDirectory))
+                    allRelevantMods.Add(conflictMod);
+            }
+            
+            return allRelevantMods;
+        }
+
+        private void QueryTemporarySettings()
+        {
+            if (_queryTemporaryModSettings == null) return;
+            
             try
             {
-                var penumbraManager = PenumbraManager.Instance;
-                if (penumbraManager != null)
+                var currentCollection = GetCurrentCollection();
+                if (!currentCollection.HasValue) return;
+
+                var oldCount = _temporaryModStates.Count;
+                _temporaryModStates.Clear();
+                
+                foreach (var mod in _allMods)
                 {
-                    // 重新查询每个模组的实际状态
-                    foreach (var mod in _allMods)
-                    {
-                        var updateModInfoMethod = typeof(PenumbraManager).GetMethod("UpdateModInfo", 
-                            BindingFlags.NonPublic | BindingFlags.Instance);
-                        updateModInfoMethod?.Invoke(penumbraManager, new object[] { mod.ModDirectory });
-                    }
+                    var result = _queryTemporaryModSettings.Invoke(currentCollection.Value.Id, mod.ModDirectory, 
+                        out var settings, out var source, 0, mod.ModName);
+                    
+                    if (result == PenumbraApiEc.Success && settings.HasValue)
+                        _temporaryModStates[mod.ModDirectory] = (true, settings.Value.Item2, settings.Value.Item3);
                 }
+                
+                if (oldCount != _temporaryModStates.Count)
+                    _needsRefresh = true;
             }
             catch (Exception ex)
             {
-                Brio.Log.Warning($"刷新模组状态失败: {ex.Message}");
+                Brio.Log.Warning($"查询临时设置失败: {ex.Message}");
             }
         }
 
-        private PenumbraApiEc SetModPriority(PenumbraModInfo mod, int newPriority)
-        {
-            return SetModSettings(mod, mod.IsEnabled, newPriority, 
-                () => PenumbraManager.Instance?.SetModPriority(mod, newPriority) ?? PenumbraApiEc.UnknownError);
-        }
+        private int GetEffectivePriority(PenumbraModInfo mod) =>
+            _temporaryModStates.TryGetValue(mod.ModDirectory, out var tempState) && tempState.IsTemporary
+                ? tempState.Priority : mod.Priority;
 
-        private PenumbraApiEc SetModEnabled(PenumbraModInfo mod, bool enabled)
-        {
-            return SetModSettings(mod, enabled, mod.Priority, 
+        private bool GetEffectiveEnabled(PenumbraModInfo mod) =>
+            _temporaryModStates.TryGetValue(mod.ModDirectory, out var tempState) && tempState.IsTemporary
+                ? tempState.Enabled : mod.IsEnabled;
+
+        private PenumbraApiEc SetModPriority(PenumbraModInfo mod, int newPriority) =>
+            SetModSettings(mod, mod.IsEnabled, newPriority, 
+                () => PenumbraManager.Instance?.SetModPriority(mod, newPriority) ?? PenumbraApiEc.UnknownError);
+
+        private PenumbraApiEc SetModEnabled(PenumbraModInfo mod, bool enabled) =>
+            SetModSettings(mod, enabled, mod.Priority, 
                 () => PenumbraManager.Instance?.SetModEnabled(mod, enabled) ?? PenumbraApiEc.UnknownError);
-        }
 
         private PenumbraApiEc SetModToHighestPriorityForEmote(PenumbraModInfo mod, string emoteName)
         {
-            var relevantMods = _allMods.Where(m => m.IsEnabled && 
-                (m.EmoteNames.Contains(emoteName) || 
-                 m.EmoteNames.Any(emoteName => emoteName.StartsWith("表情：")))).ToList();
-            var maxPriority = relevantMods.Count > 0 ? relevantMods.Max(m => m.Priority) : 0;
+            var relevantMods = _allMods.Where(m => GetEffectiveEnabled(m) && 
+                (m.EmoteNames.Contains(emoteName) || m.EmoteNames.Any(name => name.StartsWith("表情：")))).ToList();
+            var maxPriority = relevantMods.Count > 0 ? relevantMods.Max(m => GetEffectivePriority(m)) : 0;
             var newPriority = maxPriority + 1;
             
-            return SetModSettings(mod, mod.IsEnabled, newPriority, 
+            return SetModSettings(mod, GetEffectiveEnabled(mod), newPriority, 
                 () => PenumbraManager.Instance?.SetModToHighestPriorityForEmote(mod, emoteName) ?? PenumbraApiEc.UnknownError);
         }
 
@@ -610,64 +560,19 @@ namespace Brio.Game.Penumbra
             try
             {
                 var currentCollection = GetCurrentCollection();
-                if (currentCollection.HasValue)
-                {
-                    var result = _setTemporaryModSettings.Invoke(
-                        currentCollection.Value.Id, 
-                        mod.ModDirectory, 
-                        false,
-                        enabled, 
-                        priority,
-                        new Dictionary<string, IReadOnlyList<string>>(),
-                        "Brio", 
-                        0,
-                        mod.ModName);
-                    // 新增：临时设置成功后，清空PenumbraManager缓存，保证镜头定位实时刷新
-                    if (result == PenumbraApiEc.Success)
-                        PenumbraManager.Instance?.ClearEffectiveModInfoCache();
-                    return result;
-                }
+                if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
+
+                var result = _setTemporaryModSettings.Invoke(currentCollection.Value.Id, mod.ModDirectory, false,
+                    enabled, priority, new Dictionary<string, IReadOnlyList<string>>(), "Brio", 0, mod.ModName);
+                
+                if (result == PenumbraApiEc.Success)
+                    PenumbraManager.Instance?.ClearEffectiveModInfoCache();
+                return result;
             }
             catch (Exception ex)
             {
                 Brio.Log.Warning($"临时设置模组失败: {ex.Message}");
-            }
-            
-            return PenumbraApiEc.UnknownError;
-        }
-
-        private void QueryTemporarySettings()
-        {
-            if (_queryTemporaryModSettings == null) return;
-            
-            try
-            {
-                var currentCollection = GetCurrentCollection();
-                if (currentCollection.HasValue)
-                {
-                    _temporaryModStates.Clear();
-                    
-                    foreach (var mod in _allMods)
-                    {
-                        var result = _queryTemporaryModSettings.Invoke(
-                            currentCollection.Value.Id, 
-                            mod.ModDirectory, 
-                            out var settings, 
-                            out var source, 
-                            0, 
-                            mod.ModName);
-                        
-                        if (result == PenumbraApiEc.Success && settings.HasValue)
-                        {
-                            // 记录所有临时设置，无论来源
-                            _temporaryModStates[mod.ModDirectory] = (true, settings.Value.Item2, settings.Value.Item3);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Brio.Log.Warning($"查询临时设置失败: {ex.Message}");
+                return PenumbraApiEc.UnknownError;
             }
         }
 
@@ -675,13 +580,9 @@ namespace Brio.Game.Penumbra
         {
             try
             {
-                var penumbraManager = PenumbraManager.Instance;
-                if (penumbraManager != null)
-                {
-                    var updateModInfoMethod = typeof(PenumbraManager).GetMethod("UpdateModInfo", 
-                        BindingFlags.NonPublic | BindingFlags.Instance);
-                    updateModInfoMethod?.Invoke(penumbraManager, new object[] { modDirectory });
-                }
+                var updateModInfoMethod = typeof(PenumbraManager).GetMethod("UpdateModInfo", 
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                updateModInfoMethod?.Invoke(PenumbraManager.Instance, new object[] { modDirectory });
             }
             catch (Exception ex)
             {
@@ -693,24 +594,20 @@ namespace Brio.Game.Penumbra
         {
             try
             {
-                var penumbraManager = PenumbraManager.Instance;
-                if (penumbraManager == null)
+                var pluginInterface = GetPluginInterface(PenumbraManager.Instance);
+                if (pluginInterface == null)
                 {
-                    Brio.Log.Warning("PenumbraManager未初始化，无法打开模组页面");
+                    Brio.Log.Warning("无法获取PluginInterface，无法打开模组页面");
                     return;
                 }
-                var pluginInterface = GetPluginInterface(penumbraManager);
-                if (pluginInterface != null)
-                {
-                    var openMainWindow = new OpenMainWindow(pluginInterface);
-                    var result = openMainWindow.Invoke(TabType.Mods, mod.ModDirectory, mod.ModName);
-                    if (result == PenumbraApiEc.Success)
-                        Brio.Log.Information($"成功在Penumbra中打开模组: {mod.ModName}");
-                    else
-                        Brio.Log.Warning($"在Penumbra中打开模组失败: {result}");
-                }
+
+                var openMainWindow = new OpenMainWindow(pluginInterface);
+                var result = openMainWindow.Invoke(TabType.Mods, mod.ModDirectory, mod.ModName);
+                
+                if (result == PenumbraApiEc.Success)
+                    Brio.Log.Debug($"成功在Penumbra中打开模组: {mod.ModName}");
                 else
-                    Brio.Log.Warning("无法获取PluginInterface，无法打开模组页面");
+                    Brio.Log.Warning($"在Penumbra中打开模组失败: {result}");
             }
             catch (Exception ex)
             {
@@ -722,26 +619,23 @@ namespace Brio.Game.Penumbra
         {
             try
             {
-                var penumbraManager = PenumbraManager.Instance;
-                if (penumbraManager != null)
+                var pluginInterface = GetPluginInterface(PenumbraManager.Instance);
+                if (pluginInterface != null)
                 {
-                    var pluginInterface = GetPluginInterface(penumbraManager);
-                    if (pluginInterface != null)
+                    var removeAllTemporaryModSettings = new RemoveAllTemporaryModSettings(pluginInterface);
+                    var currentCollection = GetCurrentCollection();
+                    
+                    if (currentCollection.HasValue)
                     {
-                        var removeAllTemporaryModSettings = new RemoveAllTemporaryModSettings(pluginInterface);
-                        var getCurrentCollection = new GetCollection(pluginInterface);
-                        var currentCollection = getCurrentCollection.Invoke(ApiCollectionType.Current);
-                        if (currentCollection.HasValue)
+                        var result = removeAllTemporaryModSettings.Invoke(currentCollection.Value.Id, 0);
+                        if (result == PenumbraApiEc.Success)
                         {
-                            var result = removeAllTemporaryModSettings.Invoke(currentCollection.Value.Id, 0);
-                            if (result == PenumbraApiEc.Success)
-                            {
-                                Brio.Log.Information("已清除所有临时设置");
-                            }
-                            else
-                            {
-                                Brio.Log.Warning($"清除临时设置失败: {result}");
-                            }
+                            Brio.Log.Information("已清除所有临时设置");
+                            _temporaryModStates.Clear();
+                        }
+                        else
+                        {
+                            Brio.Log.Warning($"清除临时设置失败: {result}");
                         }
                     }
                 }
@@ -752,25 +646,16 @@ namespace Brio.Game.Penumbra
             }
         }
 
-        private IDalamudPluginInterface? GetPluginInterface(PenumbraManager penumbraManager)
-        {
-            var pluginInterfaceField = typeof(PenumbraManager).GetField("_pluginInterface", 
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            return pluginInterfaceField?.GetValue(penumbraManager) as IDalamudPluginInterface;
-        }
+        private IDalamudPluginInterface? GetPluginInterface(PenumbraManager? penumbraManager) =>
+            typeof(PenumbraManager).GetField("_pluginInterface", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.GetValue(penumbraManager) as IDalamudPluginInterface;
 
         private (Guid Id, string Name)? GetCurrentCollection()
         {
-            var penumbraManager = PenumbraManager.Instance;
-            if (penumbraManager != null)
-            {
-                var getCurrentCollectionField = typeof(PenumbraManager).GetField("_getCurrentCollection", 
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-                if (getCurrentCollectionField?.GetValue(penumbraManager) is GetCollection getCurrentCollection)
-                {
-                    return getCurrentCollection.Invoke(ApiCollectionType.Current);
-                }
-            }
+            var getCurrentCollectionField = typeof(PenumbraManager).GetField("_getCurrentCollection", 
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            if (getCurrentCollectionField?.GetValue(PenumbraManager.Instance) is GetCollection getCurrentCollection)
+                return getCurrentCollection.Invoke(ApiCollectionType.Current);
             return null;
         }
 
@@ -783,18 +668,11 @@ namespace Brio.Game.Penumbra
                 var currentCollection = GetCurrentCollection();
                 if (currentCollection.HasValue)
                 {
-                    var result = _queryTemporaryModSettings.Invoke(
-                        currentCollection.Value.Id, 
-                        modDirectory, 
-                        out var settings, 
-                        out var source, 
-                        0, 
-                        string.Empty);
+                    var result = _queryTemporaryModSettings.Invoke(currentCollection.Value.Id, modDirectory, 
+                        out var settings, out var source, 0, string.Empty);
                     
                     if (result == PenumbraApiEc.Success && settings.HasValue)
-                    {
                         return source;
-                    }
                 }
             }
             catch (Exception ex)
@@ -805,6 +683,12 @@ namespace Brio.Game.Penumbra
             return string.Empty;
         }
 
+        public void Cleanup()
+        {
+            if (PenumbraManager.Instance != null)
+                PenumbraManager.Instance.ModInfoChanged -= OnPenumbraModInfoChanged;
+        }
+
         private class ModInfoComparer : IEqualityComparer<PenumbraModInfo>
         {
             public bool Equals(PenumbraModInfo? x, PenumbraModInfo? y)
@@ -812,18 +696,13 @@ namespace Brio.Game.Penumbra
                 if (ReferenceEquals(x, y)) return true;
                 if (x is null || y is null) return false;
                 
-                return x.ModDirectory == y.ModDirectory &&
-                       x.ModName == y.ModName &&
-                       x.Priority == y.Priority &&
-                       x.IsEnabled == y.IsEnabled &&
-                       x.XcpFiles.Count == y.XcpFiles.Count &&
-                       x.EmoteNames.Count == y.EmoteNames.Count;
+                return x.ModDirectory == y.ModDirectory && x.ModName == y.ModName &&
+                       x.Priority == y.Priority && x.IsEnabled == y.IsEnabled &&
+                       x.XcpFiles.Count == y.XcpFiles.Count && x.EmoteNames.Count == y.EmoteNames.Count;
             }
 
-            public int GetHashCode(PenumbraModInfo obj)
-            {
-                return HashCode.Combine(obj.ModDirectory, obj.ModName, obj.Priority, obj.IsEnabled);
-            }
+            public int GetHashCode(PenumbraModInfo obj) =>
+                HashCode.Combine(obj.ModDirectory, obj.ModName, obj.Priority, obj.IsEnabled);
         }
     }
 } 

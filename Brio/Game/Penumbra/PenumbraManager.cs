@@ -13,56 +13,60 @@ namespace Brio.Game.Penumbra
     public class PenumbraManager : IDisposable
     {
         public static PenumbraManager? Instance { get; private set; }
+        
         private readonly List<PenumbraModInfo> _modInfos = new();
-        private readonly IDalamudPluginInterface _pluginInterface = null!;
-        private readonly EventSubscriber _penumbraInitialized = null!;
-        private readonly EventSubscriber _penumbraDisposed = null!;
-        private readonly EventSubscriber<string> _modAdded = null!;
-        private readonly EventSubscriber<string> _modDeleted = null!;
-        private readonly EventSubscriber<string, string> _modMoved = null!;
-        private readonly EventSubscriber<ModSettingChange, Guid, string, bool> _modSettingChanged = null!;
-        private readonly GetModList _getModList = null!;
-        private readonly GetChangedItems _getChangedItems = null!;
-        private readonly GetChangedItemAdapterDictionary _getChangedItemAdapterDictionary = null!;
-        private readonly GetCurrentModSettings _getCurrentModSettings = null!;
-        private readonly GetModDirectory _getModDirectory = null!;
-        private readonly GetAllModSettings _getAllSettings = null!;
-        private readonly GetCurrentModSettingsWithTemp _getCurrentSettingsWithTemp = null!;
-        private readonly GetChangedItemAdapterList _getChangedItemAdapterList = null!;
-        private readonly TrySetModPriority _setModPriority = null!;
-        private readonly TrySetMod _setModEnabled = null!;
-        private readonly GetCollections _getCollections = null!;
-        private readonly GetCollection _getCurrentCollection = null!;
-        private IReadOnlyList<(string ModDirectory, IReadOnlyDictionary<string, object?> ChangedItems)>? _changedItems;
-        // 缓存：emoteName -> PenumbraModInfo
+        private readonly IDalamudPluginInterface _pluginInterface;
         private readonly Dictionary<string, PenumbraModInfo?> _effectiveModInfoCache = new();
-        private string? _lastEffectiveEmoteName = null;
-        private PenumbraModInfo? _lastEffectiveModInfo = null;
+        private IReadOnlyList<(string ModDirectory, IReadOnlyDictionary<string, object?> ChangedItems)>? _changedItems;
+        
+        // IPC 订阅者
+        private readonly EventSubscriber _penumbraInitialized;
+        private readonly EventSubscriber _penumbraDisposed;
+        private readonly EventSubscriber<string> _modAdded;
+        private readonly EventSubscriber<string> _modDeleted;
+        private readonly EventSubscriber<string, string> _modMoved;
+        private readonly EventSubscriber<ModSettingChange, Guid, string, bool> _modSettingChanged;
+        private readonly GetModList _getModList;
+        private readonly GetChangedItems _getChangedItems;
+        private readonly GetChangedItemAdapterList _getChangedItemAdapterList;
+        private readonly GetCurrentModSettings _getCurrentModSettings;
+        private readonly GetModDirectory _getModDirectory;
+        private readonly GetAllModSettings _getAllSettings;
+        private readonly TrySetModPriority _setModPriority;
+        private readonly TrySetMod _setModEnabled;
+        private readonly GetCollections _getCollections;
+        private readonly GetCollection _getCurrentCollection;
+        
         public event Action? ModInfoChanged;
+        public bool HasModChangesSinceLastRefresh { get; private set; } = false;
+        public bool HasEverRefreshed { get; private set; } = false;
 
         public PenumbraManager(DalamudServices services)
         {
             try
             {
                 _pluginInterface = services.PluginInterface;
+                
+                // 初始化所有IPC订阅者
                 _getModList = new GetModList(_pluginInterface);
                 _getChangedItems = new GetChangedItems(_pluginInterface);
-                _getChangedItemAdapterDictionary = new GetChangedItemAdapterDictionary(_pluginInterface);
+                _getChangedItemAdapterList = new GetChangedItemAdapterList(_pluginInterface);
                 _getCurrentModSettings = new GetCurrentModSettings(_pluginInterface);
                 _getModDirectory = new GetModDirectory(_pluginInterface);
                 _getAllSettings = new GetAllModSettings(_pluginInterface);
-                _getCurrentSettingsWithTemp = new GetCurrentModSettingsWithTemp(_pluginInterface);
-                _getChangedItemAdapterList = new GetChangedItemAdapterList(_pluginInterface);
                 _setModPriority = new TrySetModPriority(_pluginInterface);
                 _setModEnabled = new TrySetMod(_pluginInterface);
                 _getCollections = new GetCollections(_pluginInterface);
                 _getCurrentCollection = new GetCollection(_pluginInterface);
+                
+                // 事件订阅
                 _penumbraInitialized = Initialized.Subscriber(_pluginInterface, OnPenumbraInitialized);
                 _penumbraDisposed = Disposed.Subscriber(_pluginInterface, OnPenumbraDisposed);
                 _modAdded = ModAdded.Subscriber(_pluginInterface, OnModAdded);
                 _modDeleted = ModDeleted.Subscriber(_pluginInterface, OnModDeleted);
                 _modMoved = ModMoved.Subscriber(_pluginInterface, OnModMoved);
                 _modSettingChanged = ModSettingChanged.Subscriber(_pluginInterface, OnModSettingChanged);
+                
                 Instance = this;
             }
             catch (Exception ex)
@@ -71,94 +75,122 @@ namespace Brio.Game.Penumbra
                 Instance = this;
             }
         }
+
         public bool IsPenumbraAvailable()
         {
             try { _getModList.Invoke(); return true; }
             catch { return false; }
         }
-        public PenumbraModInfo? GetModInfoForEmote(string emoteName) => _modInfos.Where(m => m.IsEnabled && m.EmoteNames.Any(e => e == emoteName)).OrderByDescending(m => m.Priority).FirstOrDefault();
-        public List<string> GetXcpFilesForEmote(string emoteName) => GetModInfoForEmote(emoteName)?.XcpFiles ?? new List<string>();
+
+        public PenumbraModInfo? GetModInfoForEmote(string emoteName) => 
+            _modInfos.Where(m => m.IsEnabled && m.EmoteNames.Any(e => e == emoteName))
+                     .OrderByDescending(m => m.Priority).FirstOrDefault();
+
+        public List<string> GetXcpFilesForEmote(string emoteName) => 
+            GetModInfoForEmote(emoteName)?.XcpFiles ?? new List<string>();
+
         public string GetModRootDirectory() => _getModDirectory.Invoke();
-        public List<PenumbraModInfo> GetModsForEmote(string emoteName) => _modInfos.Where(m => m.EmoteNames.Contains(emoteName)).ToList();
-        
+
+        public List<PenumbraModInfo> GetModsForEmote(string emoteName) => 
+            _modInfos.Where(m => m.EmoteNames.Contains(emoteName)).ToList();
+
         public List<PenumbraModInfo> GetAllMods() => _modInfos.ToList();
-        
-        public List<PenumbraModInfo> GetAllModsWithEmoteConflicts(string currentEmoteName)
-        {
-            var emoteConflictMods = _modInfos.Where(m => m.EmoteNames.Any(emoteName => emoteName.StartsWith("表情："))).ToList();
-            return emoteConflictMods.Where(m => !m.EmoteNames.Contains(currentEmoteName)).ToList();
-        }
-        
-        public PenumbraApiEc SetModToHighestPriority(PenumbraModInfo mod)
-        {
-            try
-            {
-                var currentCollection = _getCurrentCollection.Invoke(ApiCollectionType.Current);
+
+        public List<PenumbraModInfo> GetAllModsWithEmoteConflicts(string currentEmoteName) =>
+            _modInfos.Where(m => m.EmoteNames.Any(name => name.StartsWith("表情：")) && 
+                               !m.EmoteNames.Contains(currentEmoteName)).ToList();
+
+        public PenumbraApiEc SetModToHighestPriority(PenumbraModInfo mod) =>
+            SetModToHighestPriorityInternal(mod, GetMaxPriorityFromAllMods);
+
+        public PenumbraApiEc SetModToHighestPriorityForEmote(PenumbraModInfo mod, string emoteName) =>
+            SetModToHighestPriorityInternal(mod, () => GetMaxPriorityForEmote(emoteName));
+
+        public PenumbraApiEc SetModPriority(PenumbraModInfo mod, int newPriority) =>
+            ExecuteModOperation(() => {
+                var currentCollection = GetCurrentCollectionId();
                 if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
-                var currentCollectionId = currentCollection.Value.Id;
-                var allSettings = _getAllSettings.Invoke(currentCollectionId, false, false, 0);
-                if (allSettings.Item1 != PenumbraApiEc.Success) return allSettings.Item1;
-                var enabledMods = allSettings.Item2!.Where(kvp => kvp.Value.Item1).ToList();
-                var maxPriority = enabledMods.Count > 0 ? enabledMods.Max(kvp => kvp.Value.Item2) : 0;
-                var result = _setModPriority.Invoke(currentCollectionId, mod.ModDirectory, maxPriority + 1, mod.ModName);
-                if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
-                return result;
-            }
-            catch { return PenumbraApiEc.UnknownError; }
-        }
-        
-        public PenumbraApiEc SetModToHighestPriorityForEmote(PenumbraModInfo mod, string emoteName)
-        {
-            try
-            {
-                var currentCollection = _getCurrentCollection.Invoke(ApiCollectionType.Current);
-                if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
-                var currentCollectionId = currentCollection.Value.Id;
-                var allSettings = _getAllSettings.Invoke(currentCollectionId, false, false, 0);
-                if (allSettings.Item1 != PenumbraApiEc.Success) return allSettings.Item1;
                 
-                var relevantMods = _modInfos.Where(m => m.IsEnabled && 
-                    (m.EmoteNames.Contains(emoteName) || 
-                     m.EmoteNames.Any(emoteName => emoteName.StartsWith("表情：")))).ToList();
-                var maxPriority = relevantMods.Count > 0 ? relevantMods.Max(m => m.Priority) : 0;
+                var result = _setModPriority.Invoke(currentCollection.Value, mod.ModDirectory, newPriority, mod.ModName);
+                if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
+                return result;
+            });
+
+        public PenumbraApiEc SetModEnabled(PenumbraModInfo mod, bool enabled) =>
+            ExecuteModOperation(() => {
+                var currentCollection = GetCurrentCollectionId();
+                if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
                 
-                var result = _setModPriority.Invoke(currentCollectionId, mod.ModDirectory, maxPriority + 1, mod.ModName);
+                var result = _setModEnabled.Invoke(currentCollection.Value, mod.ModDirectory, enabled, mod.ModName);
                 if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
                 return result;
-            }
-            catch { return PenumbraApiEc.UnknownError; }
-        }
-        public PenumbraApiEc SetModPriority(PenumbraModInfo mod, int newPriority)
+            });
+
+        public PenumbraModInfo? GetEffectiveModInfoForEmote(string emoteName)
         {
-            try
+            if (_effectiveModInfoCache.TryGetValue(emoteName, out var cached) && !HasModChangesSinceLastRefresh)
             {
-                var currentCollection = _getCurrentCollection.Invoke(ApiCollectionType.Current);
-                if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
-                var currentCollectionId = currentCollection.Value.Id;
-                var result = _setModPriority.Invoke(currentCollectionId, mod.ModDirectory, newPriority, mod.ModName);
-                if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
-                return result;
+                Brio.Log.Debug($"使用缓存的生效模组信息 '{emoteName}': {cached?.ModName ?? "null"}");
+                return cached;
             }
-            catch { return PenumbraApiEc.UnknownError; }
+
+            Brio.Log.Debug($"重新计算情感动作 '{emoteName}' 的生效模组");
+            var mods = GetModsForEmote(emoteName);
+            if (mods.Count == 0)
+            {
+                _effectiveModInfoCache[emoteName] = null;
+                Brio.Log.Debug($"未找到情感动作 '{emoteName}' 的相关模组");
+                return null;
+            }
+
+            Brio.Log.Debug($"找到 {mods.Count} 个相关模组，开始查询临时设置");
+            var effectiveMods = GetEffectiveModStates(mods);
+            var enabledMods = effectiveMods.Where(m => m.IsEnabled).ToList();
+            var resultMod = enabledMods.OrderByDescending(m => m.Priority).FirstOrDefault();
+            
+            if (resultMod != null)
+                Brio.Log.Debug($"最终选择的生效模组: '{resultMod.ModName}' (优先级: {resultMod.Priority})");
+            else
+                Brio.Log.Debug($"情感动作 '{emoteName}' 没有启用的模组");
+            
+            _effectiveModInfoCache[emoteName] = resultMod;
+            HasModChangesSinceLastRefresh = false;
+            return resultMod;
         }
-        public PenumbraApiEc SetModEnabled(PenumbraModInfo mod, bool enabled)
+
+        public void RefreshModInfo() 
+        { 
+            InitializeModInfo(); 
+            ClearEffectiveModInfoCache(); 
+        }
+
+        public void ClearEffectiveModInfoCache()
         {
-            try
-            {
-                var currentCollection = _getCurrentCollection.Invoke(ApiCollectionType.Current);
-                if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
-                var currentCollectionId = currentCollection.Value.Id;
-                var result = _setModEnabled.Invoke(currentCollectionId, mod.ModDirectory, enabled, mod.ModName);
-                if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
-                return result;
-            }
-            catch { return PenumbraApiEc.UnknownError; }
+            Brio.Log.Debug("清除生效模组信息缓存，触发ModInfoChanged事件");
+            _effectiveModInfoCache.Clear();
+            ModInfoChanged?.Invoke();
         }
-        private void OnPenumbraInitialized() { HasModChangesSinceLastRefresh = false; InitializeModInfo(); ClearEffectiveModInfoCache(); }
-        private void OnPenumbraDisposed() { _modInfos.Clear(); _changedItems = null; HasModChangesSinceLastRefresh = false; ClearEffectiveModInfoCache(); }
-        private void OnModAdded(string modDirectory) { HasModChangesSinceLastRefresh = true; ClearEffectiveModInfoCache(); }
-        private void OnModDeleted(string modDirectory) { HasModChangesSinceLastRefresh = true; ClearEffectiveModInfoCache(); }
-        private void OnModMoved(string oldDirectory, string newDirectory) { HasModChangesSinceLastRefresh = true; ClearEffectiveModInfoCache(); }
+
+        // 事件处理
+        private void OnPenumbraInitialized() 
+        { 
+            HasModChangesSinceLastRefresh = false; 
+            InitializeModInfo(); 
+            ClearEffectiveModInfoCache(); 
+        }
+
+        private void OnPenumbraDisposed() 
+        { 
+            _modInfos.Clear(); 
+            _changedItems = null; 
+            HasModChangesSinceLastRefresh = false; 
+            ClearEffectiveModInfoCache(); 
+        }
+
+        private void OnModAdded(string modDirectory) => MarkModInfoChanged();
+        private void OnModDeleted(string modDirectory) => MarkModInfoChanged();
+        private void OnModMoved(string oldDirectory, string newDirectory) => MarkModInfoChanged();
+
         private void OnModSettingChanged(ModSettingChange changeType, Guid collectionId, string modDirectory, bool inherited)
         {
             switch (changeType)
@@ -168,104 +200,44 @@ namespace Brio.Game.Penumbra
                     UpdateModInfo(modDirectory);
                     ClearEffectiveModInfoCache();
                     break;
-                case ModSettingChange.Edited:
-                    HasModChangesSinceLastRefresh = true;
-                    ClearEffectiveModInfoCache();
-                    break;
                 case ModSettingChange.TemporaryMod:
                 case ModSettingChange.TemporarySetting:
+                    Brio.Log.Debug($"检测到临时设置变更: {changeType} for {modDirectory}");
+                    ClearEffectiveModInfoCache();
                     break;
                 default:
-                    HasModChangesSinceLastRefresh = true;
-                    ClearEffectiveModInfoCache();
+                    MarkModInfoChanged();
                     break;
             }
         }
+
+        // 私有辅助方法
+        private void MarkModInfoChanged()
+        {
+            HasModChangesSinceLastRefresh = true;
+            ClearEffectiveModInfoCache();
+        }
+
         private void InitializeModInfo()
         {
             _modInfos.Clear();
             ClearEffectiveModInfoCache();
-            ModInfoChanged?.Invoke();
+            
             try
             {
                 var mods = _getModList.Invoke();
-                var collections = _getCollections.Invoke();
-                var currentCollectionId = collections.FirstOrDefault().Key;
+                var currentCollectionId = GetCurrentCollectionId();
+                if (!currentCollectionId.HasValue) return;
+
                 InitializeChangedItems();
-                if (_getAllSettings != null && currentCollectionId != Guid.Empty)
+                var allSettings = GetAllModSettings(currentCollectionId.Value);
+
+                foreach (var mod in mods)
                 {
-                    var allSettings = _getAllSettings.Invoke(currentCollectionId, false, false, 0);
-                    if (allSettings.Item1 is PenumbraApiEc.Success)
-                    {
-                        foreach (var mod in mods)
-                        {
-                            var modInfo = new PenumbraModInfo { ModName = mod.Value, ModDirectory = mod.Key };
-                            if (allSettings.Item2!.TryGetValue(mod.Key, out var settings))
-                            {
-                                modInfo.Priority = settings.Item2;
-                                modInfo.IsEnabled = settings.Item1;
-                            }
-                            var changes = GetChangedItemsForMod(mod.Key, mod.Value);
-                            if (changes != null && changes.Any(c => c.Key.StartsWith("Emote:")))
-                            {
-                                foreach (var emoteChange in changes.Where(c => c.Key.StartsWith("Emote:")))
-                                {
-                                    var emoteText = emoteChange.Key.Replace("Emote:", "").Trim();
-                                    var emoteName = System.Text.RegularExpressions.Regex.Replace(emoteText, @"\s*\(\d+\)$", "").Trim();
-                                    if (!modInfo.EmoteNames.Contains(emoteName))
-                                        modInfo.EmoteNames.Add(emoteName);
-                                }
-                            }
-                            try
-                            {
-                                var modRootDirectory = _getModDirectory.Invoke();
-                                var actualModPath = Path.Combine(modRootDirectory, mod.Key);
-                                var xcpFolderPath = Path.Combine(actualModPath, "XCP");
-                                if (Directory.Exists(xcpFolderPath))
-                                    modInfo.XcpFiles.AddRange(Directory.GetFiles(xcpFolderPath, "*.xcp"));
-                            }
-                            catch { }
-                            _modInfos.Add(modInfo);
-                        }
-                    }
+                    var modInfo = CreateModInfo(mod, allSettings, currentCollectionId.Value);
+                    _modInfos.Add(modInfo);
                 }
-                else
-                {
-                    foreach (var mod in mods)
-                    {
-                        var modInfo = new PenumbraModInfo { ModName = mod.Value, Priority = 0, ModDirectory = mod.Key };
-                        var changes = _getChangedItems.Invoke(mod.Key, mod.Value);
-                        if (changes != null && changes.Any(c => c.Key.StartsWith("Emote:")))
-                        {
-                            foreach (var emoteChange in changes.Where(c => c.Key.StartsWith("Emote:")))
-                            {
-                                var emoteText = emoteChange.Key.Replace("Emote:", "").Trim();
-                                var emoteName = System.Text.RegularExpressions.Regex.Replace(emoteText, @"\s*\(\d+\)$", "").Trim();
-                                if (!modInfo.EmoteNames.Contains(emoteName))
-                                    modInfo.EmoteNames.Add(emoteName);
-                            }
-                        }
-                        if (currentCollectionId != Guid.Empty)
-                        {
-                            var (settingsEc, settings) = _getCurrentModSettings.Invoke(currentCollectionId, mod.Key, mod.Value, false);
-                            if (settingsEc == PenumbraApiEc.Success && settings.HasValue)
-                            {
-                                modInfo.Priority = settings.Value.Item2;
-                                modInfo.IsEnabled = settings.Value.Item1;
-                            }
-                        }
-                        try
-                        {
-                            var modRootDirectory = _getModDirectory.Invoke();
-                            var actualModPath = Path.Combine(modRootDirectory, mod.Key);
-                            var xcpFolderPath = Path.Combine(actualModPath, "XCP");
-                            if (Directory.Exists(xcpFolderPath))
-                                modInfo.XcpFiles.AddRange(Directory.GetFiles(xcpFolderPath, "*.xcp"));
-                        }
-                        catch { }
-                        _modInfos.Add(modInfo);
-                    }
-                }
+
                 _modInfos.Sort((a, b) => b.Priority.CompareTo(a.Priority));
                 HasModChangesSinceLastRefresh = false;
                 HasEverRefreshed = true;
@@ -275,100 +247,87 @@ namespace Brio.Game.Penumbra
                 Brio.Log.Error($"初始化模组信息失败: {ex.Message}");
             }
         }
-        private void InitializeChangedItems()
+
+        private PenumbraModInfo CreateModInfo(KeyValuePair<string, string> mod, 
+            Dictionary<string, (bool, int)>? allSettings, Guid currentCollectionId)
         {
-            try { _changedItems = _getChangedItemAdapterList.Invoke(); }
-            catch { _changedItems = null; }
-        }
-        private IReadOnlyDictionary<string, object?>? GetChangedItemsForMod(string modDirectory, string modName)
-        {
-            if (_changedItems != null)
+            var modInfo = new PenumbraModInfo { ModName = mod.Value, ModDirectory = mod.Key };
+
+            // 设置优先级和启用状态
+            if (allSettings?.TryGetValue(mod.Key, out var settings) == true)
             {
-                var cached = _changedItems.FirstOrDefault(x => x.ModDirectory == modDirectory);
-                if (cached.ChangedItems != null)
-                    return cached.ChangedItems;
+                modInfo.Priority = settings.Item2;
+                modInfo.IsEnabled = settings.Item1;
             }
-            return _getChangedItems.Invoke(modDirectory, modName);
-        }
-        private void UpdateModInfo(string modDirectory)
-        {
-            var mod = _modInfos.FirstOrDefault(m => m.ModDirectory == modDirectory);
-            if (mod != null)
+            else
             {
-                try
+                var (ec, currentSettings) = _getCurrentModSettings.Invoke(currentCollectionId, mod.Key, mod.Value, false);
+                if (ec == PenumbraApiEc.Success && currentSettings.HasValue)
                 {
-                    var collections = _getCollections.Invoke();
-                    var currentCollectionId = collections.FirstOrDefault().Key;
-                    if (currentCollectionId != Guid.Empty)
-                    {
-                        var (settingsEc, settings) = _getCurrentModSettings.Invoke(currentCollectionId, modDirectory, mod.ModName, false);
-                        if (settingsEc == PenumbraApiEc.Success && settings.HasValue)
-                        {
-                            mod.Priority = settings.Value.Item2;
-                            mod.IsEnabled = settings.Value.Item1;
-                        }
-                        _modInfos.Sort((a, b) => b.Priority.CompareTo(a.Priority));
-                    }
+                    modInfo.Priority = currentSettings.Value.Item2;
+                    modInfo.IsEnabled = currentSettings.Value.Item1;
                 }
-                catch { }
             }
-        }
-        public void RefreshModInfo() { InitializeModInfo(); ClearEffectiveModInfoCache(); }
-        public bool HasModChangesSinceLastRefresh { get; private set; } = false;
-        public bool HasEverRefreshed { get; private set; } = false;
-        // 缓存刷新版本号，每次清空缓存时自增
-        public int RefreshVersion { get; private set; } = 0;
 
-        public void ClearEffectiveModInfoCache()
-        {
-            _effectiveModInfoCache.Clear();
-            _lastEffectiveEmoteName = null;
-            _lastEffectiveModInfo = null;
-            unchecked { RefreshVersion++; } // 溢出自动回绕
-            ModInfoChanged?.Invoke();
+            // 处理情感动作名称
+            var changes = GetChangedItemsForMod(mod.Key, mod.Value);
+            if (changes?.Any(c => c.Key.StartsWith("Emote:")) == true)
+            {
+                foreach (var emoteChange in changes.Where(c => c.Key.StartsWith("Emote:")))
+                {
+                    var emoteName = System.Text.RegularExpressions.Regex
+                        .Replace(emoteChange.Key.Replace("Emote:", "").Trim(), @"\s*\(\d+\)$", "").Trim();
+                    if (!modInfo.EmoteNames.Contains(emoteName))
+                        modInfo.EmoteNames.Add(emoteName);
+                }
+            }
+
+            // 添加XCP文件
+            AddXcpFiles(modInfo, mod.Key);
+            
+            return modInfo;
         }
 
-        public PenumbraModInfo? GetEffectiveModInfoForEmote(string emoteName)
+        private void AddXcpFiles(PenumbraModInfo modInfo, string modDirectory)
         {
-            // 节流：只有emoteName变化或模组状态变动时才重新查找
-            if (_lastEffectiveEmoteName == emoteName && !HasModChangesSinceLastRefresh)
-                return _lastEffectiveModInfo;
-            if (_effectiveModInfoCache.TryGetValue(emoteName, out var cached) && !HasModChangesSinceLastRefresh)
+            try
             {
-                _lastEffectiveEmoteName = emoteName;
-                _lastEffectiveModInfo = cached;
-                return cached;
+                var modRootDirectory = _getModDirectory.Invoke();
+                var xcpFolderPath = Path.Combine(modRootDirectory, modDirectory, "XCP");
+                if (Directory.Exists(xcpFolderPath))
+                    modInfo.XcpFiles.AddRange(Directory.GetFiles(xcpFolderPath, "*.xcp"));
             }
-            var mods = GetModsForEmote(emoteName);
-            if (mods.Count == 0)
+            catch { /* 忽略文件系统错误 */ }
+        }
+
+        private Dictionary<string, (bool, int)>? GetAllModSettings(Guid currentCollectionId)
+        {
+            var allSettings = _getAllSettings.Invoke(currentCollectionId, false, false, 0);
+            return allSettings.Item1 == PenumbraApiEc.Success 
+                ? allSettings.Item2?.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value.Item1, kvp.Value.Item2))
+                : null;
+        }
+
+        private List<PenumbraModInfo> GetEffectiveModStates(List<PenumbraModInfo> mods)
+        {
+            var queryTemp = new QueryTemporaryModSettings(_pluginInterface);
+            var currentCollection = GetCurrentCollectionId();
+            if (!currentCollection.HasValue) 
             {
-                _effectiveModInfoCache[emoteName] = null;
-                _lastEffectiveEmoteName = emoteName;
-                _lastEffectiveModInfo = null;
-                return null;
+                Brio.Log.Warning("无法获取当前集合ID，使用原始模组状态");
+                return mods;
             }
-            var pluginInterfaceField = typeof(PenumbraManager).GetField("_pluginInterface", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (pluginInterfaceField?.GetValue(this) is not Dalamud.Plugin.IDalamudPluginInterface pluginInterface)
-                return null;
-            var queryTemp = new QueryTemporaryModSettings(pluginInterface);
-            var getCurrentCollectionField = typeof(PenumbraManager).GetField("_getCurrentCollection", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (getCurrentCollectionField?.GetValue(this) is not GetCollection getCurrentCollection)
-                return null;
-            var currentCollection = getCurrentCollection.Invoke(ApiCollectionType.Current);
-            if (!currentCollection.HasValue)
-                return null;
+
+            Brio.Log.Debug($"查询临时设置，集合ID: {currentCollection.Value}");
             var effectiveMods = new List<PenumbraModInfo>();
             foreach (var mod in mods)
             {
-                var result = queryTemp.Invoke(
-                    currentCollection.Value.Id,
-                    mod.ModDirectory,
-                    out var settings,
-                    out var source,
-                    0,
-                    mod.ModName);
+                var result = queryTemp.Invoke(currentCollection.Value, mod.ModDirectory, 
+                    out var settings, out var source, 0, mod.ModName);
+                
                 if (result == PenumbraApiEc.Success && settings.HasValue)
                 {
+                    Brio.Log.Debug($"模组 '{mod.ModName}' 发现临时设置: 启用={settings.Value.Item2}, 优先级={settings.Value.Item3}, 来源={source}");
                     effectiveMods.Add(new PenumbraModInfo
                     {
                         ModName = mod.ModName,
@@ -381,15 +340,80 @@ namespace Brio.Game.Penumbra
                 }
                 else
                 {
+                    if (result != PenumbraApiEc.Success)
+                        Brio.Log.Debug($"模组 '{mod.ModName}' 临时设置查询失败: {result}");
                     effectiveMods.Add(mod);
                 }
             }
-            var resultMod = effectiveMods.Where(m => m.IsEnabled).OrderByDescending(m => m.Priority).FirstOrDefault();
-            _effectiveModInfoCache[emoteName] = resultMod;
-            _lastEffectiveEmoteName = emoteName;
-            _lastEffectiveModInfo = resultMod;
-            HasModChangesSinceLastRefresh = false; // 查询后重置变动标记
-            return resultMod;
+            return effectiveMods;
+        }
+
+        private PenumbraApiEc SetModToHighestPriorityInternal(PenumbraModInfo mod, Func<int> getMaxPriority) =>
+            ExecuteModOperation(() => {
+                var currentCollection = GetCurrentCollectionId();
+                if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
+                
+                var maxPriority = getMaxPriority();
+                var result = _setModPriority.Invoke(currentCollection.Value, mod.ModDirectory, maxPriority + 1, mod.ModName);
+                if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
+                return result;
+            });
+
+        private int GetMaxPriorityFromAllMods()
+        {
+            var currentCollectionId = GetCurrentCollectionId();
+            if (!currentCollectionId.HasValue) return 0;
+            
+            var allSettings = _getAllSettings.Invoke(currentCollectionId.Value, false, false, 0);
+            if (allSettings.Item1 != PenumbraApiEc.Success) return 0;
+            
+            return allSettings.Item2?.Where(kvp => kvp.Value.Item1).Max(kvp => kvp.Value.Item2) ?? 0;
+        }
+
+        private int GetMaxPriorityForEmote(string emoteName)
+        {
+            var relevantMods = _modInfos.Where(m => m.IsEnabled && 
+                (m.EmoteNames.Contains(emoteName) || m.EmoteNames.Any(name => name.StartsWith("表情：")))).ToList();
+            return relevantMods.Count > 0 ? relevantMods.Max(m => m.Priority) : 0;
+        }
+
+        private PenumbraApiEc ExecuteModOperation(Func<PenumbraApiEc> operation)
+        {
+            try { return operation(); }
+            catch { return PenumbraApiEc.UnknownError; }
+        }
+
+        private Guid? GetCurrentCollectionId()
+        {
+            var currentCollection = _getCurrentCollection.Invoke(ApiCollectionType.Current);
+            return currentCollection?.Id;
+        }
+
+        private void InitializeChangedItems()
+        {
+            try { _changedItems = _getChangedItemAdapterList.Invoke(); }
+            catch { _changedItems = null; }
+        }
+
+        private IReadOnlyDictionary<string, object?>? GetChangedItemsForMod(string modDirectory, string modName) =>
+            _changedItems?.FirstOrDefault(x => x.ModDirectory == modDirectory).ChangedItems 
+            ?? _getChangedItems.Invoke(modDirectory, modName);
+
+        private void UpdateModInfo(string modDirectory)
+        {
+            var mod = _modInfos.FirstOrDefault(m => m.ModDirectory == modDirectory);
+            if (mod == null) return;
+
+            var currentCollectionId = GetCurrentCollectionId();
+            if (!currentCollectionId.HasValue) return;
+
+            var (ec, settings) = _getCurrentModSettings.Invoke(currentCollectionId.Value, modDirectory, mod.ModName, false);
+            if (ec == PenumbraApiEc.Success && settings.HasValue)
+            {
+                mod.Priority = settings.Value.Item2;
+                mod.IsEnabled = settings.Value.Item1;
+                _modInfos.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+            }
         }
 
         public void Dispose()
