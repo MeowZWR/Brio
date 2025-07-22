@@ -55,10 +55,7 @@ namespace Brio.Game.Penumbra
                     var ext = Path.GetExtension(file)?.ToLowerInvariant();
                     var fileName = Path.GetFileName(file);
                     var destPath = Path.Combine(xcpFolder, fileName);
-                    var uniqueDestPath = destPath;
-                    int count = 1;
-                    while (File.Exists(uniqueDestPath))
-                        uniqueDestPath = Path.Combine(xcpFolder, Path.GetFileNameWithoutExtension(fileName) + $"_{count}" + ext);
+                    var uniqueDestPath = GetUniqueFilePath(destPath);
                     File.Copy(file, uniqueDestPath);
                     imported++;
                 }
@@ -85,6 +82,31 @@ namespace Brio.Game.Penumbra
             _notify(msg);
             ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Error);
             return 0;
+        }
+
+        private string GetUniqueFilePath(string originalPath)
+        {
+            if (!File.Exists(originalPath))
+                return originalPath;
+
+            var directory = Path.GetDirectoryName(originalPath) ?? string.Empty;
+            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(originalPath);
+            var extension = Path.GetExtension(originalPath);
+
+            const int maxRetries = 1000;
+            
+            for (int count = 1; count <= maxRetries; count++)
+            {
+                var newFileName = $"{fileNameWithoutExt}_{count}{extension}";
+                var newPath = Path.Combine(directory, newFileName);
+                
+                if (!File.Exists(newPath))
+                    return newPath;
+            }
+
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
+            var fallbackFileName = $"{fileNameWithoutExt}_{timestamp}{extension}";
+            return Path.Combine(directory, fallbackFileName);
         }
 
         public void DrawPasteButton(string modName, string modRootPath)
