@@ -15,27 +15,27 @@ namespace Brio.Game.Penumbra
         public static PenumbraManager? Instance { get; private set; }
         
         private readonly List<PenumbraModInfo> _modInfos = new();
-        private readonly IDalamudPluginInterface _pluginInterface;
+        private readonly IDalamudPluginInterface? _pluginInterface;
         private readonly Dictionary<string, PenumbraModInfo?> _effectiveModInfoCache = new();
         private IReadOnlyList<(string ModDirectory, IReadOnlyDictionary<string, object?> ChangedItems)>? _changedItems;
         
-        // IPC 订阅者
-        private readonly EventSubscriber _penumbraInitialized;
-        private readonly EventSubscriber _penumbraDisposed;
-        private readonly EventSubscriber<string> _modAdded;
-        private readonly EventSubscriber<string> _modDeleted;
-        private readonly EventSubscriber<string, string> _modMoved;
-        private readonly EventSubscriber<ModSettingChange, Guid, string, bool> _modSettingChanged;
-        private readonly GetModList _getModList;
-        private readonly GetChangedItems _getChangedItems;
-        private readonly GetChangedItemAdapterList _getChangedItemAdapterList;
-        private readonly GetCurrentModSettings _getCurrentModSettings;
-        private readonly GetModDirectory _getModDirectory;
-        private readonly GetAllModSettings _getAllSettings;
-        private readonly TrySetModPriority _setModPriority;
-        private readonly TrySetMod _setModEnabled;
-        private readonly GetCollections _getCollections;
-        private readonly GetCollection _getCurrentCollection;
+        // IPC 订阅
+        private readonly EventSubscriber? _penumbraInitialized;
+        private readonly EventSubscriber? _penumbraDisposed;
+        private readonly EventSubscriber<string>? _modAdded;
+        private readonly EventSubscriber<string>? _modDeleted;
+        private readonly EventSubscriber<string, string>? _modMoved;
+        private readonly EventSubscriber<ModSettingChange, Guid, string, bool>? _modSettingChanged;
+        private readonly GetModList? _getModList;
+        private readonly GetChangedItems? _getChangedItems;
+        private readonly GetChangedItemAdapterList? _getChangedItemAdapterList;
+        private readonly GetCurrentModSettings? _getCurrentModSettings;
+        private readonly GetModDirectory? _getModDirectory;
+        private readonly GetAllModSettings? _getAllSettings;
+        private readonly TrySetModPriority? _setModPriority;
+        private readonly TrySetMod? _setModEnabled;
+        private readonly GetCollections? _getCollections;
+        private readonly GetCollection? _getCurrentCollection;
         
         public event Action? ModInfoChanged;
         public bool HasModChangesSinceLastRefresh { get; private set; } = false;
@@ -47,7 +47,7 @@ namespace Brio.Game.Penumbra
             {
                 _pluginInterface = services.PluginInterface;
                 
-                // 初始化所有IPC订阅者
+                // 初始化所有IPC订阅
                 _getModList = new GetModList(_pluginInterface);
                 _getChangedItems = new GetChangedItems(_pluginInterface);
                 _getChangedItemAdapterList = new GetChangedItemAdapterList(_pluginInterface);
@@ -78,7 +78,7 @@ namespace Brio.Game.Penumbra
 
         public bool IsPenumbraAvailable()
         {
-            try { _getModList.Invoke(); return true; }
+            try { _getModList?.Invoke(); return _getModList != null; }
             catch { return false; }
         }
 
@@ -89,7 +89,7 @@ namespace Brio.Game.Penumbra
         public List<string> GetXcpFilesForEmote(string emoteName) => 
             GetModInfoForEmote(emoteName)?.XcpFiles ?? new List<string>();
 
-        public string GetModRootDirectory() => _getModDirectory.Invoke();
+        public string GetModRootDirectory() => _getModDirectory?.Invoke() ?? string.Empty;
 
         public List<PenumbraModInfo> GetModsForEmote(string emoteName) => 
             _modInfos.Where(m => m.EmoteNames.Contains(emoteName)).ToList();
@@ -111,7 +111,7 @@ namespace Brio.Game.Penumbra
                 var currentCollection = GetCurrentCollectionId();
                 if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
                 
-                var result = _setModPriority.Invoke(currentCollection.Value, mod.ModDirectory, newPriority, mod.ModName);
+                var result = _setModPriority?.Invoke(currentCollection.Value, mod.ModDirectory, newPriority, mod.ModName) ?? PenumbraApiEc.UnknownError;
                 if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
                 return result;
             });
@@ -121,7 +121,7 @@ namespace Brio.Game.Penumbra
                 var currentCollection = GetCurrentCollectionId();
                 if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
                 
-                var result = _setModEnabled.Invoke(currentCollection.Value, mod.ModDirectory, enabled, mod.ModName);
+                var result = _setModEnabled?.Invoke(currentCollection.Value, mod.ModDirectory, enabled, mod.ModName) ?? PenumbraApiEc.UnknownError;
                 if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
                 return result;
             });
@@ -211,7 +211,6 @@ namespace Brio.Game.Penumbra
             }
         }
 
-        // 私有辅助方法
         private void MarkModInfoChanged()
         {
             HasModChangesSinceLastRefresh = true;
@@ -225,7 +224,7 @@ namespace Brio.Game.Penumbra
             
             try
             {
-                var mods = _getModList.Invoke();
+                var mods = _getModList?.Invoke() ?? [];
                 var currentCollectionId = GetCurrentCollectionId();
                 if (!currentCollectionId.HasValue) return;
 
@@ -261,7 +260,7 @@ namespace Brio.Game.Penumbra
             }
             else
             {
-                var (ec, currentSettings) = _getCurrentModSettings.Invoke(currentCollectionId, mod.Key, mod.Value, false);
+                var (ec, currentSettings) = _getCurrentModSettings?.Invoke(currentCollectionId, mod.Key, mod.Value, false) ?? (PenumbraApiEc.UnknownError, null);
                 if (ec == PenumbraApiEc.Success && currentSettings.HasValue)
                 {
                     modInfo.Priority = currentSettings.Value.Item2;
@@ -292,7 +291,7 @@ namespace Brio.Game.Penumbra
         {
             try
             {
-                var modRootDirectory = _getModDirectory.Invoke();
+                var modRootDirectory = _getModDirectory?.Invoke() ?? string.Empty;
                 var xcpFolderPath = Path.Combine(modRootDirectory, modDirectory, "XCP");
                 if (Directory.Exists(xcpFolderPath))
                     modInfo.XcpFiles.AddRange(Directory.GetFiles(xcpFolderPath, "*.xcp"));
@@ -302,7 +301,7 @@ namespace Brio.Game.Penumbra
 
         private Dictionary<string, (bool, int)>? GetAllModSettings(Guid currentCollectionId)
         {
-            var allSettings = _getAllSettings.Invoke(currentCollectionId, false, false, 0);
+            var allSettings = _getAllSettings?.Invoke(currentCollectionId, false, false, 0) ?? (PenumbraApiEc.UnknownError, null);
             return allSettings.Item1 == PenumbraApiEc.Success 
                 ? allSettings.Item2?.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value.Item1, kvp.Value.Item2))
                 : null;
@@ -310,6 +309,8 @@ namespace Brio.Game.Penumbra
 
         private List<PenumbraModInfo> GetEffectiveModStates(List<PenumbraModInfo> mods)
         {
+            if (_pluginInterface == null) return mods;
+            
             var queryTemp = new QueryTemporaryModSettings(_pluginInterface);
             var currentCollection = GetCurrentCollectionId();
             if (!currentCollection.HasValue) 
@@ -354,7 +355,7 @@ namespace Brio.Game.Penumbra
                 if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
                 
                 var maxPriority = getMaxPriority();
-                var result = _setModPriority.Invoke(currentCollection.Value, mod.ModDirectory, maxPriority + 1, mod.ModName);
+                var result = _setModPriority?.Invoke(currentCollection.Value, mod.ModDirectory, maxPriority + 1, mod.ModName) ?? PenumbraApiEc.UnknownError;
                 if (result == PenumbraApiEc.Success) UpdateModInfo(mod.ModDirectory);
                 return result;
             });
@@ -364,7 +365,7 @@ namespace Brio.Game.Penumbra
             var currentCollectionId = GetCurrentCollectionId();
             if (!currentCollectionId.HasValue) return 0;
             
-            var allSettings = _getAllSettings.Invoke(currentCollectionId.Value, false, false, 0);
+            var allSettings = _getAllSettings?.Invoke(currentCollectionId.Value, false, false, 0) ?? (PenumbraApiEc.UnknownError, null);
             if (allSettings.Item1 != PenumbraApiEc.Success) return 0;
             
             return allSettings.Item2?.Where(kvp => kvp.Value.Item1).Max(kvp => kvp.Value.Item2) ?? 0;
@@ -385,19 +386,19 @@ namespace Brio.Game.Penumbra
 
         private Guid? GetCurrentCollectionId()
         {
-            var currentCollection = _getCurrentCollection.Invoke(ApiCollectionType.Current);
+            var currentCollection = _getCurrentCollection?.Invoke(ApiCollectionType.Current) ?? null;
             return currentCollection?.Id;
         }
 
         private void InitializeChangedItems()
         {
-            try { _changedItems = _getChangedItemAdapterList.Invoke(); }
+            try { _changedItems = _getChangedItemAdapterList?.Invoke() ?? null; }
             catch { _changedItems = null; }
         }
 
         private IReadOnlyDictionary<string, object?>? GetChangedItemsForMod(string modDirectory, string modName) =>
             _changedItems?.FirstOrDefault(x => x.ModDirectory == modDirectory).ChangedItems 
-            ?? _getChangedItems.Invoke(modDirectory, modName);
+            ?? _getChangedItems?.Invoke(modDirectory, modName) ?? null;
 
         private void UpdateModInfo(string modDirectory)
         {
@@ -407,7 +408,7 @@ namespace Brio.Game.Penumbra
             var currentCollectionId = GetCurrentCollectionId();
             if (!currentCollectionId.HasValue) return;
 
-            var (ec, settings) = _getCurrentModSettings.Invoke(currentCollectionId.Value, modDirectory, mod.ModName, false);
+            var (ec, settings) = _getCurrentModSettings?.Invoke(currentCollectionId.Value, modDirectory, mod.ModName, false) ?? (PenumbraApiEc.UnknownError, null);
             if (ec == PenumbraApiEc.Success && settings.HasValue)
             {
                 mod.Priority = settings.Value.Item2;

@@ -561,9 +561,10 @@ namespace Brio.Game.Penumbra
             {
                 var currentCollection = GetCurrentCollection();
                 if (!currentCollection.HasValue) return PenumbraApiEc.CollectionMissing;
+                if (_setTemporaryModSettings == null) return PenumbraApiEc.UnknownError;
 
                 var result = _setTemporaryModSettings.Invoke(currentCollection.Value.Id, mod.ModDirectory, false,
-                    enabled, priority, new Dictionary<string, IReadOnlyList<string>>(), "Brio", 0, mod.ModName);
+                    enabled, priority, new Dictionary<string, IReadOnlyList<string>>(), "Brio", 0, mod.ModName ?? string.Empty);
                 
                 if (result == PenumbraApiEc.Success)
                     PenumbraManager.Instance?.ClearEffectiveModInfoCache();

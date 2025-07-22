@@ -65,7 +65,7 @@ namespace Brio.Game.Penumbra
 
         private void DrawStatusMessages()
         {
-            if (!PenumbraManager.Instance.HasEverRefreshed)
+            if (PenumbraManager.Instance?.HasEverRefreshed != true)
             {
                 DrawBreathingText("本次会话尚未获取Penumbra模组状态，请点击下方刷新按钮获取。");
             }
@@ -97,7 +97,7 @@ namespace Brio.Game.Penumbra
             
             return _xcpService.IsSelectedFromPenumbra 
                 ? Path.GetFileName(_xcpService.SelectedXcpFile)
-                : "使用手动选择的镜头文件";
+                : "正在使用上方相机路径";
         }
 
         private void DrawComboItems(System.Collections.Generic.IReadOnlyList<string> xcpFiles, Action<string> setCameraPath)
@@ -212,11 +212,14 @@ namespace Brio.Game.Penumbra
             {
                 var currentHighestMod = PenumbraManager.Instance?.GetEffectiveModInfoForEmote(emoteNameForPriority);
                 
-                _priorityWindow.UpdateContent(emoteNameForPriority, modsForEmote, () => {
-                    var newHighestMod = PenumbraManager.Instance?.GetEffectiveModInfoForEmote(emoteNameForPriority);
-                    if (currentHighestMod?.ModDirectory != newHighestMod?.ModDirectory)
-                        _xcpService.ClearSelectedXcpFile();
-                });
+                if (modsForEmote != null)
+                {
+                    _priorityWindow.UpdateContent(emoteNameForPriority, modsForEmote, () => {
+                        var newHighestMod = PenumbraManager.Instance?.GetEffectiveModInfoForEmote(emoteNameForPriority);
+                        if (currentHighestMod?.ModDirectory != newHighestMod?.ModDirectory)
+                            _xcpService.ClearSelectedXcpFile();
+                    });
+                }
                 ImGui.OpenPopup("mod_priority_adjustment_popup");
             }
             
@@ -232,13 +235,15 @@ namespace Brio.Game.Penumbra
 
         private void DrawClipboardImportButton()
         {
-            bool enabled = PenumbraManager.Instance.HasEverRefreshed;
+            bool enabled = PenumbraManager.Instance?.HasEverRefreshed == true;
             
             ImGui.BeginDisabled(!enabled);
             if (ImBrio.FontIconButton("importXcp", FontAwesomeIcon.Clipboard, "从剪贴板导入.xcp文件到该模组"))
             {
                 var modPath = _xcpService.GetCurrentModPath();
-                var importer = new PenumbraClipboardImporter(msg => Brio.Log.Information(msg));
+                var importer = new PenumbraClipboardImporter(
+                    msg => Brio.Log.Information(msg), 
+                    () => _xcpService.RefreshXcpCache());
                 importer.ImportXcpFromClipboard(modPath);
             }
             
@@ -253,7 +258,7 @@ namespace Brio.Game.Penumbra
         {
             bool xcpExists = _xcpService.XcpFolderExists();
             bool ctrlDown = ImGui.GetIO().KeyCtrl;
-            bool enabled = (xcpExists || ctrlDown) && PenumbraManager.Instance.HasEverRefreshed;
+            bool enabled = (xcpExists || ctrlDown) && PenumbraManager.Instance?.HasEverRefreshed == true;
             
             var icon = xcpExists ? FontAwesomeIcon.FolderOpen : FontAwesomeIcon.Plus;
             var tooltip = xcpExists ? "在文件资源管理器中打开XCP文件夹" : "按住Ctrl点击创建XCP文件夹";
@@ -264,7 +269,7 @@ namespace Brio.Game.Penumbra
             
             if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             {
-                var finalTooltip = PenumbraManager.Instance.HasEverRefreshed ? tooltip : "请先手动刷新获取模组信息";
+                var finalTooltip = PenumbraManager.Instance?.HasEverRefreshed == true ? tooltip : "请先手动刷新获取模组信息";
                 ImGui.SetTooltip(finalTooltip);
             }
             

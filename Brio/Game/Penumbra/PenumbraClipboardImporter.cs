@@ -10,8 +10,13 @@ namespace Brio.Game.Penumbra
     {
         private static readonly string[] SupportedExtensions = { ".xcp" };
         private readonly Action<string> _notify;
+        private readonly Action? _refreshCallback;
 
-        public PenumbraClipboardImporter(Action<string> notify) => _notify = notify;
+        public PenumbraClipboardImporter(Action<string> notify, Action? refreshCallback = null) 
+        {
+            _notify = notify;
+            _refreshCallback = refreshCallback;
+        }
 
         private void ShowNotification(string content, Dalamud.Interface.ImGuiNotification.NotificationType type)
         {
@@ -67,6 +72,8 @@ namespace Brio.Game.Penumbra
                 var msg = $"成功导入 {imported} 个.xcp文件到 {xcpFolder}";
                 _notify(msg);
                 ShowNotification(msg, Dalamud.Interface.ImGuiNotification.NotificationType.Success);
+                
+                _refreshCallback?.Invoke();
             }
             else
                 NotifyError("未检测到可导入的.xcp文件。");

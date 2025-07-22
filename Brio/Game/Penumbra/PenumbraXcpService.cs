@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Brio.Capabilities.Actor;
 using Brio.Files;
 using Brio.Game.Cutscene;
@@ -19,6 +20,7 @@ namespace Brio.Game.Penumbra
         private bool _isSelectedFromPenumbra = false;
         
         private readonly CutsceneManager _cutsceneManager;
+        private FileSystemWatcher? _xcpFileWatcher;
         
         public event Action<string>? SelectedXcpFileChanged;
         public event Action<string?>? CurrentEmoteNameChanged;
@@ -172,10 +174,12 @@ namespace Brio.Game.Penumbra
             }
         }
 
-        private void RefreshXcpCache()
+        public void RefreshXcpCache()
         {
             _cachedXcpFiles.Clear();
             _cachedXcpModDirectory = string.Empty;
+            
+            StopFileWatcher();
 
             if (_cachedModInfoForEmote == null) return;
 
@@ -188,7 +192,11 @@ namespace Brio.Game.Penumbra
                     var xcpFolderPath = Path.Combine(modPath, "XCP");
 
                     if (Directory.Exists(xcpFolderPath))
+                    {
                         _cachedXcpFiles.AddRange(Directory.GetFiles(xcpFolderPath, "*.xcp"));
+                        
+                        StartFileWatcher(xcpFolderPath);
+                    }
 
                     _cachedXcpModDirectory = _cachedModInfoForEmote.ModDirectory;
                 }
@@ -249,8 +257,89 @@ namespace Brio.Game.Penumbra
             }
         }
 
+        private void StartFileWatcher(string xcpFolderPath)
+        {
+            try
+            {
+                _xcpFileWatcher = new FileSystemWatcher(xcpFolderPath)
+                {
+                    Filter = "*.xcp",
+                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.LastWrite,
+                    EnableRaisingEvents = true
+                };
+
+                _xcpFileWatcher.Created += OnXcpFileChanged;
+                _xcpFileWatcher.Deleted += OnXcpFileChanged;
+                _xcpFileWatcher.Renamed += OnXcpFileChanged;
+                
+                Brio.Log.Debug($"开始监控XCP文件夹: {xcpFolderPath}");
+            }
+            catch (Exception ex)
+            {
+                Brio.Log.Warning($"启动文件监控失败: {ex.Message}");
+            }
+        }
+
+        private void StopFileWatcher()
+        {
+            if (_xcpFileWatcher != null)
+            {
+                _xcpFileWatcher.EnableRaisingEvents = false;
+                _xcpFileWatcher.Created -= OnXcpFileChanged;
+                _xcpFileWatcher.Deleted -= OnXcpFileChanged;
+                _xcpFileWatcher.Renamed -= OnXcpFileChanged;
+                _xcpFileWatcher.Dispose();
+                _xcpFileWatcher = null;
+                Brio.Log.Debug("停止XCP文件监控");
+            }
+        }
+
+        private void OnXcpFileChanged(object sender, FileSystemEventArgs e)
+        {
+            try
+            {
+                // 延迟一小段时间以避免文件操作冲突
+                Task.Delay(100).ContinueWith(_ =>
+                {
+                    Brio.Log.Debug($"检测到XCP文件变化: {e.Name} ({e.ChangeType})");
+                    RefreshXcpCacheFiles();
+                });
+            }
+            catch (Exception ex)
+            {
+                Brio.Log.Warning($"处理文件变化事件失败: {ex.Message}");
+            }
+        }
+
+        private void RefreshXcpCacheFiles()
+        {
+            if (_cachedModInfoForEmote == null) return;
+
+            try
+            {
+                var modRootDirectory = PenumbraManager.Instance?.GetModRootDirectory();
+                if (!string.IsNullOrEmpty(modRootDirectory))
+                {
+                    var modPath = Path.Combine(modRootDirectory, _cachedModInfoForEmote.ModDirectory);
+                    var xcpFolderPath = Path.Combine(modPath, "XCP");
+
+                    _cachedXcpFiles.Clear();
+                    if (Directory.Exists(xcpFolderPath))
+                        _cachedXcpFiles.AddRange(Directory.GetFiles(xcpFolderPath, "*.xcp"));
+                        
+                    Brio.Log.Debug($"已刷新XCP文件缓存，找到 {_cachedXcpFiles.Count} 个文件");
+                }
+            }
+            catch (Exception ex)
+            {
+                Brio.Log.Warning($"刷新XCP文件缓存失败: {ex.Message}");
+            }
+        }
+
         public void Dispose()
         {
+            StopFileWatcher();
+            
             if (PenumbraManager.Instance != null)
                 PenumbraManager.Instance.ModInfoChanged -= OnPenumbraModInfoChanged;
         }
