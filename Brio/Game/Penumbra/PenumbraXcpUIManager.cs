@@ -19,6 +19,17 @@ namespace Brio.Game.Penumbra
         private readonly ModPriorityAdjustmentWindow _priorityWindow = new();
         private bool _lastXcpExisted = false;
         
+        // UI验证缓存
+        private uint _lastValidationFrame = 0;
+        private bool _cachedValidatePenumbra = false;
+        private const uint UI_CACHE_INTERVAL = 10; // UI缓存刷新间隔
+        
+        // IPC调用缓存
+        private System.Collections.Generic.List<PenumbraModInfo>? _cachedModsForEmote;
+        private string _cachedEmoteNameForMods = string.Empty;
+        private uint _modsForEmoteCacheFrame = 0;
+        private const uint MODS_CACHE_INTERVAL = 60; // 模组缓存刷新间隔
+        
         public PenumbraXcpUIManager(PenumbraXcpService xcpService, ConfigurationService configService, CutsceneManager cutsceneManager)
         {
             _xcpService = xcpService;
@@ -49,19 +60,22 @@ namespace Brio.Game.Penumbra
 
         private bool ValidatePenumbra()
         {
-            if (PenumbraManager.Instance == null)
+            var currentFrame = (uint)ImGui.GetFrameCount();
+            if (currentFrame - _lastValidationFrame < UI_CACHE_INTERVAL)
+                return _cachedValidatePenumbra;
+
+            _cachedValidatePenumbra = PenumbraManager.Instance?.IsPenumbraAvailable() == true;
+            _lastValidationFrame = currentFrame;
+
+            if (!_cachedValidatePenumbra)
             {
-                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra未连接");
-                return false;
+                if (PenumbraManager.Instance == null)
+                    ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra未连接");
+                else
+                    ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra连接失败");
             }
 
-            if (!PenumbraManager.Instance.IsPenumbraAvailable())
-            {
-                ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra连接失败");
-                return false;
-            }
-
-            return true;
+            return _cachedValidatePenumbra;
         }
 
         private void DrawStatusMessages()
@@ -180,6 +194,10 @@ namespace Brio.Game.Penumbra
         {
             if (modInfo == null || string.IsNullOrEmpty(_xcpService.CurrentEmoteName)) return;
 
+            // 性能优化：限制冲突检查的执行频率
+            var currentFrame = (uint)ImGui.GetFrameCount();
+            if (currentFrame % 120 != 0) return;
+
             var allMods = PenumbraManager.Instance?.GetAllMods() ?? new System.Collections.Generic.List<PenumbraModInfo>();
             var samePriorityMods = allMods
                 .Where(m => m.IsEnabled && m.Priority == modInfo.Priority && 
@@ -205,7 +223,24 @@ namespace Brio.Game.Penumbra
         private void DrawPriorityAdjustmentButton()
         {
             var emoteNameForPriority = _xcpService.CurrentEmoteName ?? string.Empty;
-            var modsForEmote = PenumbraManager.Instance?.GetModsForEmote(emoteNameForPriority);
+            
+            // 缓存模组列表查询结果
+            System.Collections.Generic.List<PenumbraModInfo>? modsForEmote = null;
+            var currentFrame = (uint)ImGui.GetFrameCount();
+            
+            if (_cachedEmoteNameForMods == emoteNameForPriority && 
+                currentFrame - _modsForEmoteCacheFrame < MODS_CACHE_INTERVAL)
+            {
+                modsForEmote = _cachedModsForEmote;
+            }
+            else
+            {
+                modsForEmote = PenumbraManager.Instance?.GetModsForEmote(emoteNameForPriority);
+                _cachedModsForEmote = modsForEmote;
+                _cachedEmoteNameForMods = emoteNameForPriority;
+                _modsForEmoteCacheFrame = currentFrame;
+            }
+            
             bool hasModsForEmote = modsForEmote != null && modsForEmote.Count > 0;
             
             ImGui.BeginDisabled(!hasModsForEmote);
@@ -219,6 +254,9 @@ namespace Brio.Game.Penumbra
                         var newHighestMod = PenumbraManager.Instance?.GetEffectiveModInfoForEmote(emoteNameForPriority);
                         if (currentHighestMod?.ModDirectory != newHighestMod?.ModDirectory)
                             _xcpService.ClearSelectedXcpFile();
+                        
+                        _cachedModsForEmote = null;
+                        _cachedEmoteNameForMods = string.Empty;
                     });
                 }
                 ImGui.OpenPopup("mod_priority_adjustment_popup");
@@ -257,21 +295,25 @@ namespace Brio.Game.Penumbra
 
         private void DrawXcpFolderButton()
         {
+            var currentFrame = (uint)ImGui.GetFrameCount();
             bool xcpExists = _xcpService.XcpFolderExists();
             bool ctrlDown = ImGui.GetIO().KeyCtrl;
             bool enabled = (xcpExists || ctrlDown) && PenumbraManager.Instance?.HasEverRefreshed == true;
             
-            if (xcpExists && !_lastXcpExisted && PenumbraManager.Instance?.HasEverRefreshed == true)
+            if (xcpExists != _lastXcpExisted && PenumbraManager.Instance?.HasEverRefreshed == true)
             {
-                Brio.Log.Debug("检测到XCP文件夹被外部创建，启动文件监控...");
-                _xcpService.RefreshXcpCache();
+                if (xcpExists && !_lastXcpExisted)
+                {
+                    Brio.Log.Debug("检测到XCP文件夹被外部创建，启动文件监控...");
+                    _xcpService.RefreshXcpCache();
+                }
+                else if (!xcpExists && _lastXcpExisted)
+                {
+                    Brio.Log.Debug("检测到XCP文件夹被外部删除，停止文件监控...");
+                    _xcpService.RefreshXcpCache();
+                }
+                _lastXcpExisted = xcpExists;
             }
-            else if (!xcpExists && _lastXcpExisted && PenumbraManager.Instance?.HasEverRefreshed == true)
-            {
-                Brio.Log.Debug("检测到XCP文件夹被外部删除，停止文件监控...");
-                _xcpService.RefreshXcpCache();
-            }
-            _lastXcpExisted = xcpExists;
             
             var icon = xcpExists ? FontAwesomeIcon.FolderOpen : FontAwesomeIcon.Plus;
             var tooltip = xcpExists ? "在文件资源管理器中打开XCP文件夹" : "按住Ctrl点击创建XCP文件夹";
@@ -330,7 +372,7 @@ namespace Brio.Game.Penumbra
 
         private static void DrawBreathingText(string text)
         {
-            float t = (float)(ImGui.GetTime() * 0.18f);
+            float t = (float)(ImGui.GetTime() * 0.12f);
             float interp = 0.5f * (1 + MathF.Sin(t * MathF.PI * 2));
             
             float hue = 0.5f + (0.92f - 0.5f) * interp;

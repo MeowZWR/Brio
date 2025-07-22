@@ -38,6 +38,9 @@ public class ActionTimelineEditor
     private readonly PenumbraXcpService _xcpService;
     private readonly PenumbraXcpUIManager _xcpUIManager;
     
+    // 缓存上次的动作ID，避免重复更新
+    private int _lastBaseAnimationId = -1;
+    
     private readonly CutsceneManager _cutsceneManager;
     private readonly GPoseService _gPoseService;
     private readonly PhysicsService _physicsService;
@@ -69,8 +72,12 @@ public class ActionTimelineEditor
     {
         _capability = capability;
         
-        // 更新当前情感动作
-        _xcpService.UpdateCurrentEmoteFromCapability(capability);
+        // 只在动作ID发生变化时才更新情感动作
+        if (_lastBaseAnimationId != capability.SlotedBaseAnimation)
+        {
+            _xcpService.UpdateCurrentEmoteFromCapability(capability);
+            _lastBaseAnimationId = capability.SlotedBaseAnimation;
+        }
 
         DrawHeder();
 

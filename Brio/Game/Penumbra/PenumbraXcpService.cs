@@ -7,6 +7,7 @@ using Brio.Capabilities.Actor;
 using Brio.Files;
 using Brio.Game.Cutscene;
 using Brio.Resources;
+using ImGuiNET;
 
 namespace Brio.Game.Penumbra
 {
@@ -21,6 +22,13 @@ namespace Brio.Game.Penumbra
         
         private readonly CutsceneManager _cutsceneManager;
         private FileSystemWatcher? _xcpFileWatcher;
+        
+        // 文件系统操作缓存
+        private string _cachedModPath = string.Empty;
+        private string _cachedXcpFolderPath = string.Empty;
+        private bool? _cachedXcpFolderExists;
+        private uint _cacheFrame = 0;
+        private const uint CACHE_REFRESH_INTERVAL = 30; // 每30帧刷新一次缓存
         
         public event Action<string>? SelectedXcpFileChanged;
         public event Action<string?>? CurrentEmoteNameChanged;
@@ -77,7 +85,16 @@ namespace Brio.Game.Penumbra
                 ? PenumbraManager.Instance?.GetEffectiveModInfoForEmote(emoteName)
                 : null;
                 
+            InvalidateCache();
             RefreshXcpCache();
+        }
+        
+        private void InvalidateCache()
+        {
+            _cachedModPath = string.Empty;
+            _cachedXcpFolderPath = string.Empty;
+            _cachedXcpFolderExists = null;
+            _cacheFrame = 0;
         }
 
         public bool SelectXcpFile(string xcpFilePath, bool isFromPenumbra)
@@ -114,27 +131,54 @@ namespace Brio.Game.Penumbra
 
         public string GetCurrentModPath()
         {
-            if (_cachedModInfoForEmote == null || PenumbraManager.Instance == null)
-                return "未知";
+            var currentFrame = (uint)ImGui.GetFrameCount();
+            if (currentFrame - _cacheFrame < CACHE_REFRESH_INTERVAL && !string.IsNullOrEmpty(_cachedModPath))
+                return _cachedModPath;
 
-            try
+            if (_cachedModInfoForEmote == null || PenumbraManager.Instance == null)
             {
-                var modRootDirectory = PenumbraManager.Instance.GetModRootDirectory();
-                return Path.Combine(modRootDirectory, _cachedModInfoForEmote.ModDirectory);
+                _cachedModPath = "未知";
             }
-            catch
+            else
             {
-                return "未知";
+                try
+                {
+                    var modRootDirectory = PenumbraManager.Instance.GetModRootDirectory();
+                    _cachedModPath = Path.Combine(modRootDirectory, _cachedModInfoForEmote.ModDirectory);
+                }
+                catch
+                {
+                    _cachedModPath = "未知";
+                }
             }
+            
+            _cacheFrame = currentFrame;
+            return _cachedModPath;
         }
 
         public string GetCurrentXcpFolderPath()
         {
             var modPath = GetCurrentModPath();
-            return modPath != "未知" ? Path.Combine(modPath, "XCP") : string.Empty;
+            if (modPath == "未知") 
+            {
+                _cachedXcpFolderPath = string.Empty;
+                return _cachedXcpFolderPath;
+            }
+            
+            _cachedXcpFolderPath = Path.Combine(modPath, "XCP");
+            return _cachedXcpFolderPath;
         }
 
-        public bool XcpFolderExists() => Directory.Exists(GetCurrentXcpFolderPath());
+        public bool XcpFolderExists() 
+        {
+            var currentFrame = (uint)ImGui.GetFrameCount();
+            if (currentFrame - _cacheFrame < CACHE_REFRESH_INTERVAL && _cachedXcpFolderExists.HasValue)
+                return _cachedXcpFolderExists.Value;
+                
+            var folderPath = GetCurrentXcpFolderPath();
+            _cachedXcpFolderExists = !string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath);
+            return _cachedXcpFolderExists.Value;
+        }
 
         public bool TryCreateXcpFolder()
         {
@@ -144,6 +188,9 @@ namespace Brio.Game.Penumbra
                 if (!string.IsNullOrEmpty(xcpFolderPath))
                 {
                     Directory.CreateDirectory(xcpFolderPath);
+                    
+                    // 创建文件夹后立即清空缓存，确保下次检查时能获取到最新状态
+                    InvalidateCache();
                     return true;
                 }
                 return false;
@@ -180,6 +227,8 @@ namespace Brio.Game.Penumbra
             _cachedXcpModDirectory = string.Empty;
             
             StopFileWatcher();
+            
+            InvalidateCache();
 
             if (_cachedModInfoForEmote == null) return;
 
@@ -236,7 +285,8 @@ namespace Brio.Game.Penumbra
             
             if (!string.IsNullOrEmpty(_currentEmoteName))
                 _cachedModInfoForEmote = PenumbraManager.Instance?.GetEffectiveModInfoForEmote(_currentEmoteName);
-                
+            
+            InvalidateCache();
             RefreshXcpCache();
             
             bool modChanged = (oldModInfo?.ModDirectory != _cachedModInfoForEmote?.ModDirectory) ||
