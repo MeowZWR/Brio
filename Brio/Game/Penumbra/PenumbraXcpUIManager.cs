@@ -17,6 +17,7 @@ namespace Brio.Game.Penumbra
         private readonly ConfigurationService _configService;
         private readonly CutsceneManager _cutsceneManager;
         private readonly ModPriorityAdjustmentWindow _priorityWindow = new();
+        private bool _lastXcpExisted = false;
         
         public PenumbraXcpUIManager(PenumbraXcpService xcpService, ConfigurationService configService, CutsceneManager cutsceneManager)
         {
@@ -260,6 +261,18 @@ namespace Brio.Game.Penumbra
             bool ctrlDown = ImGui.GetIO().KeyCtrl;
             bool enabled = (xcpExists || ctrlDown) && PenumbraManager.Instance?.HasEverRefreshed == true;
             
+            if (xcpExists && !_lastXcpExisted && PenumbraManager.Instance?.HasEverRefreshed == true)
+            {
+                Brio.Log.Debug("检测到XCP文件夹被外部创建，启动文件监控...");
+                _xcpService.RefreshXcpCache();
+            }
+            else if (!xcpExists && _lastXcpExisted && PenumbraManager.Instance?.HasEverRefreshed == true)
+            {
+                Brio.Log.Debug("检测到XCP文件夹被外部删除，停止文件监控...");
+                _xcpService.RefreshXcpCache();
+            }
+            _lastXcpExisted = xcpExists;
+            
             var icon = xcpExists ? FontAwesomeIcon.FolderOpen : FontAwesomeIcon.Plus;
             var tooltip = xcpExists ? "在文件资源管理器中打开XCP文件夹" : "按住Ctrl点击创建XCP文件夹";
             
@@ -276,8 +289,17 @@ namespace Brio.Game.Penumbra
             if (clicked && enabled)
             {
                 if (!xcpExists && ctrlDown)
-                    _xcpService.TryCreateXcpFolder();
-                _xcpService.TryOpenXcpFolderInExplorer();
+                {
+                    if (_xcpService.TryCreateXcpFolder())
+                    {
+                        Brio.Log.Debug("XCP 文件夹已创建，刷新缓存...");
+                        _xcpService.RefreshXcpCache();
+                    }
+                }
+                else
+                {
+                    _xcpService.TryOpenXcpFolderInExplorer();
+                }
             }
         }
 
