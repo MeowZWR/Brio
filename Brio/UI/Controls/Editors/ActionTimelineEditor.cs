@@ -909,7 +909,7 @@ private void DrawSlots()
             if (!hasModsForEmote)
                 ImGui.SetTooltip("当前情感动作没有相关的Penumbra模组");
             else
-                ImGui.SetTooltip($"调整修改 '{emoteNameForPriority}' 的模组优先级");
+                ImGui.SetTooltip($"调整 '{emoteNameForPriority}' 相关模组的优先级");
         }
         ImGui.EndDisabled();
 
@@ -923,7 +923,7 @@ private void DrawSlots()
         ImGui.SameLine();
         bool penumbraRefreshed = PenumbraManager.Instance.HasEverRefreshed;
         ImGui.BeginDisabled(!penumbraRefreshed);
-        if (ImBrio.FontIconButton("importXcp", FontAwesomeIcon.Clipboard, "从剪贴板导入.xcp文件"))
+        if (ImBrio.FontIconButton("importXcp", FontAwesomeIcon.Clipboard, "从剪贴板导入.xcp文件到该模组"))
         {
             var importer = new PenumbraClipboardImporter(msg => Brio.Log.Information(msg));
             importer.ImportXcpFromClipboard(modPath);
