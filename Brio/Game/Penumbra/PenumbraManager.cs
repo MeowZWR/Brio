@@ -154,7 +154,6 @@ namespace Brio.Game.Penumbra
                 Brio.Log.Debug($"情感动作 '{emoteName}' 没有启用的模组");
             
             _effectiveModInfoCache[emoteName] = resultMod;
-            HasModChangesSinceLastRefresh = false;
             return resultMod;
         }
 
