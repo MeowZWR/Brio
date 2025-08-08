@@ -240,7 +240,13 @@ public class ActionTimelineEditor
         ImGui.SameLine();
 
         if(ImBrio.FontIconButtonRight("base_play", FontAwesomeIcon.PlayCircle, 3, "播放", _capability.SlotedBaseAnimation != 0))
+        {
+            if(_cutsceneManager.IsRunning)
+            {
+                _cutsceneManager.StopPlayback();
+            }
             ApplyBaseOverride(_capability);
+        }
 
         ImGui.SameLine();
 
