@@ -10,6 +10,7 @@ using Brio.UI.Controls.Editors;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 using System;
 using System.Diagnostics;
 using System.Numerics;
@@ -200,8 +201,17 @@ public class CutsceneManager : IDisposable
         {
             if(CameraSettings.Loop)
             {
+
+                
+                if(StartAllActorAnimationsOnPlay)
+                {
+                    ResetAllActorsAnimationTime();
+                }
+                
                 Stopwatch.Restart();
-                UpdateCamera();
+                _animationStarted = false;
+                
+                return UpdateCamera();
             }
             else
             {
@@ -239,6 +249,56 @@ public class CutsceneManager : IDisposable
 
         // Create the final matrix
         return basePositionMatrix * (localTranslationMatrix * invertedLocalRotationMatrix);
+    }
+
+    // 重置所有角色的动画时间
+    private unsafe void ResetAllActorsAnimationTime()
+    {
+        foreach(var actor in _entityManager.TryGetAllActors())
+        {
+            if(actor.TryGetCapability<ActionTimelineCapability>(out ActionTimelineCapability? atCap))
+            {
+                if(atCap is null)
+                    continue;
+
+                var drawObj = atCap.Character.Native()->GameObject.DrawObject;
+                if(drawObj == null)
+                    continue;
+
+                if(drawObj->Object.GetObjectType() != ObjectType.CharacterBase)
+                    continue;
+
+                var charaBase = (CharacterBase*)drawObj;
+                if(charaBase->Skeleton == null)
+                    continue;
+
+                var skeleton = charaBase->Skeleton;
+                for(int p = 0; p < skeleton->PartialSkeletonCount; ++p)
+                {
+                    var partial = &skeleton->PartialSkeletons[p];
+                    var animatedSkele = partial->GetHavokAnimatedSkeleton(0);
+                    if(animatedSkele == null)
+                        continue;
+
+                    for(int c = 0; c < animatedSkele->AnimationControls.Length; ++c)
+                    {
+                        var control = animatedSkele->AnimationControls[c].Value;
+                        if(control == null)
+                            continue;
+
+                        var binding = control->hkaAnimationControl.Binding;
+                        if(binding.ptr == null)
+                            continue;
+
+                        var anim = binding.ptr->Animation.ptr;
+                        if(anim == null)
+                            continue;
+
+                        control->hkaAnimationControl.LocalTime = 0f;
+                    }
+                }
+            }
+        }
     }
 
     public void Dispose()
