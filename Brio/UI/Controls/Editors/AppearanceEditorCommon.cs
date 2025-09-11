@@ -2,9 +2,9 @@
 using Brio.Game.Actor.Appearance;
 using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -67,7 +67,7 @@ public static class AppearanceEditorCommon
 
         if(ImBrio.FontIconButton(FontAwesomeIcon.TheaterMasks, new Vector2(25)))
         {
-
+            capability.GlamourerService.OpenGlamourer();
         }
 
         if(ImGui.IsItemHovered())
@@ -115,7 +115,7 @@ public static class AppearanceEditorCommon
 
         if(ImGui.Button("C+", new Vector2(25)))
         {
-
+            capability.CustomizePlusService.OpenCustomizePlus();
         }
 
         if(ImGui.IsItemHovered())

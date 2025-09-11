@@ -280,22 +280,34 @@
     "other": "其他"
   },
 
-  "keys": {
-    "Interface_ToggleBrioWindow": "开关Brio窗口",
-    "Interface_ToggleBindPromptWindow": "开关绑定按键提示窗口",
-    "Interface_IncrementSmallModifier": "小增量修改键",
-    "Interface_IncrementLargeModifier": "大增量修改键",
-    "Interface_StopCutscene": "停止场景",
-    "Interface_StartAllActorsAnimations": "开始所有角色的动画",
-    "Interface_StopAllActorsAnimations": "停止所有角色的动画",
-    "Posing_DisableGizmo": "淡出变换器",
-    "Posing_DisableSkeleton": "淡出骨骼",
-    "Posing_HideOverlay": "隐藏叠加层",
-    "Posing_ToggleOverlay": "开关叠加层",
-    "Posing_Undo": "撤销",
-    "Posing_Redo": "重做",
-    "Posing_Translate": "位置",
-    "Posing_Rotate": "旋转",
-    "Posing_Scale": "缩放"
-  }
+    "keys": {
+        "Interface_ToggleBrioWindow": "开关Brio窗口",
+        "Interface_ToggleBindPromptWindow": "开关绑定按键提示窗口",
+        "Interface_IncrementSmallModifier": "小增量修改键",
+        "Interface_IncrementLargeModifier": "大增量修改键",
+        "Interface_StopCutscene": "停止场景",
+        "Interface_StartAllActorsAnimations": "开始所有角色的动画",
+        "Interface_StopAllActorsAnimations": "停止所有角色的动画",
+        "Posing_DisableGizmo": "淡出变换器",
+        "Posing_DisableSkeleton": "淡出骨骼",
+        "Posing_HideOverlay": "隐藏叠加层",
+        "Posing_ToggleOverlay": "开关叠加层",
+        "Posing_Undo": "撤销",
+        "Posing_Redo": "重做",
+        "Posing_Translate": "Cycle Gizmo to Position",
+        "Posing_Rotate": "Cycle Gizmo to Rotation",
+        "Posing_Scale": "Cycle Gizmo to Scale",
+        "Posing_Universal": "Cycle Gizmo to Universal",
+        "Posing_ToggleLink": "Cycle Mirror/Link Mode",
+        "FreeCamera_Forward": "Forward",
+        "FreeCamera_Backward": "Backward",
+        "FreeCamera_Left": "Left",
+        "FreeCamera_Right": "Right",
+        "FreeCamera_Up": "Up",
+        "FreeCamera_Down": "Down",
+        "FreeCamera_UpAlt": "Up (Alternative)",
+        "FreeCamera_DownAlt": "Down (Alternative)",
+        "FreeCamera_IncreaseCamMovement": "Increase Camera Movement",
+        "FreeCamera_DecreaseCamMovement": "Decrease Camera Movement"
+    }
 }

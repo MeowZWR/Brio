@@ -6,10 +6,10 @@ using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.Web;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
-using Dalamud.Bindings.ImGui;
 using System;
 using System.Numerics;
 
@@ -23,7 +23,6 @@ public class SettingsWindow : Window
     private readonly WebService _webService;
     private readonly BrioIPCService _brioIPCService;
     private readonly CustomizePlusService _customizePlusService;
-    private readonly MareService _mareService;
 
     public SettingsWindow(
         ConfigurationService configurationService,
@@ -31,8 +30,7 @@ public class SettingsWindow : Window
         GlamourerService glamourerService,
         WebService webService,
         CustomizePlusService customizePlusService,
-        BrioIPCService brioIPCService,
-        MareService mareService) : base($"{Brio.Name} 设置###brio_settings_window", ImGuiWindowFlags.NoResize)
+        BrioIPCService brioIPCService) : base($"{Brio.Name} 设置###brio_settings_window", ImGuiWindowFlags.NoResize)
     {
         Namespace = "brio_settings_namespace";
 
@@ -41,10 +39,9 @@ public class SettingsWindow : Window
         _glamourerService = glamourerService;
         _webService = webService;
         _brioIPCService = brioIPCService;
-        _mareService = mareService;
         _customizePlusService = customizePlusService;
 
-        Size = new Vector2(450, 450);
+        Size = new Vector2(500, 550);
     }
 
     private bool _isModal = false;
@@ -69,6 +66,7 @@ public class SettingsWindow : Window
         _libraryPadding = null;
     }
 
+    int selected;
     public override void Draw()
     {
         using(ImRaii.PushId("brio_settings"))
@@ -84,17 +82,36 @@ public class SettingsWindow : Window
             }
             else
             {
-                using(var tab = ImRaii.TabBar("###brio_settings_tabs"))
+                ImBrio.ToggleButtonStrip("settings_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["General", "IPC", "Posing", "Library", "Auto-Save", "Input", "Advanced"]);
+
+                using(var child = ImRaii.Child("###settingsPane"))
                 {
-                    if(tab.Success)
+                    if(child.Success)
                     {
-                        DrawGeneralTab();
-                        DrawIPCTab();
-                        DrawPosingTab();
-                        DrawLibraryTab();
-                        DrawSceneTab();
-                        DrawKeysTab();
-                        DrawAdvancedTab();
+                        switch(selected)
+                        {
+                            case 0:
+                                DrawGeneralTab();
+                                break;
+                            case 1:
+                                DrawIPCTab();
+                                break;
+                            case 2:
+                                DrawPosingTab();
+                                break;
+                            case 3:
+                                DrawLibraryTab();
+                                break;
+                            case 4:
+                                DrawSceneTab();
+                                break;
+                            case 5:
+                                DrawKeysTab();
+                                break;
+                            case 6:
+                                DrawAdvancedTab();
+                                break;
+                        }
                     }
                 }
             }
@@ -103,47 +120,33 @@ public class SettingsWindow : Window
 
     private void DrawGeneralTab()
     {
-        using(var tab = ImRaii.TabItem("常规设置"))
+        if(ImGui.CollapsingHeader("资产库", ImGuiTreeNodeFlags.DefaultOpen))
         {
-            if(tab.Success)
+            bool useLibraryWhenImporting = _configurationService.Configuration.UseLibraryWhenImporting;
+            if(ImGui.Checkbox("导入文件时使用资产库", ref useLibraryWhenImporting))
             {
-                if(ImGui.CollapsingHeader("窗口", ImGuiTreeNodeFlags.DefaultOpen))
-                {
-                    DrawOpenBrioSetting();
-                    DrawHideSettings();
-                }
-
-                if(ImGui.CollapsingHeader("资产库", ImGuiTreeNodeFlags.DefaultOpen))
-                {
-                    bool useLibraryWhenImporting = _configurationService.Configuration.UseLibraryWhenImporting;
-                    if(ImGui.Checkbox("导入文件时使用资产库", ref useLibraryWhenImporting))
-                    {
-                        _configurationService.Configuration.UseLibraryWhenImporting = useLibraryWhenImporting;
-                        _configurationService.ApplyChange();
-                    }
-
-                    bool returnToLastLocation = _configurationService.Configuration.Library.ReturnLibraryToLastLocation;
-                    if(ImGui.Checkbox("在我最后浏览的位置打开资产库", ref returnToLastLocation))
-                    {
-                        _configurationService.Configuration.Library.ReturnLibraryToLastLocation = returnToLastLocation;
-                        _configurationService.ApplyChange();
-                    }
-
-                    bool useFilenameAsActorName = _configurationService.Configuration.Library.UseFilenameAsActorName;
-                    if(ImGui.Checkbox("Use the Character Filename as the Actor Name", ref useFilenameAsActorName))
-                    {
-                        _configurationService.Configuration.Library.UseFilenameAsActorName = useFilenameAsActorName;
-                        _configurationService.ApplyChange();
-                    }
-                }
-
-                DrawNPCAppearanceHack();
-
-                if(ImGui.CollapsingHeader("显示", ImGuiTreeNodeFlags.DefaultOpen))
-                {
-                    DrawDisplaySettings();
-                }
+                _configurationService.Configuration.UseLibraryWhenImporting = useLibraryWhenImporting;
+                _configurationService.ApplyChange();
             }
+
+            bool returnToLastLocation = _configurationService.Configuration.Library.ReturnLibraryToLastLocation;
+            if(ImGui.Checkbox("打开资产库并跳转到我上次浏览的位置。 ", ref returnToLastLocation))
+            {
+                _configurationService.Configuration.Library.ReturnLibraryToLastLocation = returnToLastLocation;
+                _configurationService.ApplyChange();
+            }
+
+            bool useFilenameAsActorName = _configurationService.Configuration.Library.UseFilenameAsActorName;
+            if(ImGui.Checkbox("使用角色文件名作为角色名称", ref useFilenameAsActorName))
+            {
+                _configurationService.Configuration.Library.UseFilenameAsActorName = useFilenameAsActorName;
+                _configurationService.ApplyChange();
+            }
+        }
+
+        if(ImGui.CollapsingHeader("显示", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            DrawDisplaySettings();
         }
     }
 
@@ -151,7 +154,7 @@ public class SettingsWindow : Window
     {
         var selectedBrioOpenBehavior = _configurationService.Configuration.Interface.OpenBrioBehavior;
         const string label = "Brio开启时机 ";
-        ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label).X);
+        ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label).X - 20);
         using(var combo = ImRaii.Combo(label, selectedBrioOpenBehavior.ToString()))
         {
             if(combo.Success)
@@ -201,6 +204,13 @@ public class SettingsWindow : Window
             _configurationService.ApplyChange();
         }
 
+        bool hideNames = _configurationService.Configuration.Posing.HideNameOnGPoseSettingsWindow;
+        if(ImGui.Checkbox("Hide Name in 'Group Pose Settings' Window", ref hideNames))
+        {
+            _configurationService.Configuration.Posing.HideNameOnGPoseSettingsWindow = hideNames;
+            _configurationService.ApplyChange();
+        }
+
         bool enableBrioColor = _configurationService.Configuration.Appearance.EnableBrioColor;
         if(ImGui.Checkbox("启用 Brio 颜色", ref enableBrioColor))
         {
@@ -209,7 +219,7 @@ public class SettingsWindow : Window
         }
 
         bool enableBrioScale = _configurationService.Configuration.Appearance.EnableBrioScale;
-        if(ImGui.Checkbox("启用 Brio 文本缩放", ref enableBrioScale))
+        if(ImGui.Checkbox("启用 Brio 缩放", ref enableBrioScale))
         {
             _configurationService.Configuration.Appearance.EnableBrioScale = enableBrioScale;
             _configurationService.ApplyChange();
@@ -218,25 +228,13 @@ public class SettingsWindow : Window
 
     private void DrawSceneTab()
     {
-        using(var tab = ImRaii.TabItem("自动保存"))
-        {
-            if(tab.Success)
-            {
-                DrawImportScene();
-            }
-        }
+        DrawImportScene();
     }
 
     private void DrawIPCTab()
     {
-        using(var tab = ImRaii.TabItem("IPC设置"))
-        {
-            if(tab.Success)
-            {
-                DrawBrioIPC();
-                DrawThirdPartyIPC();
-            }
-        }
+        DrawBrioIPC();
+        DrawThirdPartyIPC();
     }
 
     private void DrawThirdPartyIPC()
@@ -254,17 +252,14 @@ public class SettingsWindow : Window
             var customizePlusStatus = _customizePlusService.CheckStatus();
             using(ImRaii.Disabled(!enableCustomizePlus))
             {
-                ImGui.Text($"Customize+ Status: {customizePlusStatus}");
+                ImGui.Text($"Customize+ 状态：{customizePlusStatus}");
                 ImGui.SameLine();
                 if(ImBrio.FontIconButton("refresh_Customize", FontAwesomeIcon.Sync, "刷新 Customize+ 状态"))
                 {
                     _customizePlusService.CheckStatus(true);
                 }
             }
-        }
 
-        if(ImGui.CollapsingHeader("第三方 [基于 Penumbra]", ImGuiTreeNodeFlags.DefaultOpen))
-        {
             var penumbraStatus = _penumbraService.CheckStatus();
             var penumbraUnavailable = penumbraStatus is IPCStatus.None or IPCStatus.NotInstalled or IPCStatus.VersionMismatch or IPCStatus.Error;
 
@@ -290,52 +285,27 @@ public class SettingsWindow : Window
                 {
                     _penumbraService.CheckStatus(true);
                 }
+            }
 
-                using(ImRaii.Disabled(!enablePenumbra))
+            bool enableGlamourer = _configurationService.Configuration.IPC.AllowGlamourerIntegration;
+            if(ImGui.Checkbox("允许 Glamourer 集成", ref enableGlamourer))
+            {
+                _configurationService.Configuration.IPC.AllowGlamourerIntegration = enableGlamourer;
+                _configurationService.ApplyChange();
+                _glamourerService.CheckStatus(true);
+            }
+
+            var glamourerStatus = _glamourerService.CheckStatus();
+            using(ImRaii.Disabled(!enableGlamourer))
+            {
+                ImGui.Text($"Glamourer 状态：{glamourerStatus}");
+                ImGui.SameLine();
+                if(ImBrio.FontIconButton("refresh_glamourer", FontAwesomeIcon.Sync, "刷新 Glamourer 状态"))
                 {
-                    bool enableGlamourer = _configurationService.Configuration.IPC.AllowGlamourerIntegration;
-                    if(ImGui.Checkbox("允许 Glamourer 集成", ref enableGlamourer))
-                    {
-                        _configurationService.Configuration.IPC.AllowGlamourerIntegration = enableGlamourer;
-                        _configurationService.ApplyChange();
-                        _glamourerService.CheckStatus(true);
-                    }
-
-                    var glamourerStatus = _glamourerService.CheckStatus();
-                    using(ImRaii.Disabled(!enableGlamourer))
-                    {
-                        ImGui.Text($"Glamourer Status: {glamourerStatus}");
-                        ImGui.SameLine();
-                        if(ImBrio.FontIconButton("refresh_glamourer", FontAwesomeIcon.Sync, "刷新 Glamourer 状态"))
-                        {
-                            _glamourerService.CheckStatus(true);
-                        }
-                    }
-
-                    bool enableMare = _configurationService.Configuration.IPC.AllowMareIntegration;
-
-                    if(ImGui.Checkbox("允许 Mare Synchronos 集成", ref enableMare))
-                    {
-                        _configurationService.Configuration.IPC.AllowMareIntegration = enableMare;
-                        _configurationService.ApplyChange();
-                        _mareService.CheckStatus(true);
-                    }
-
-                    var mareStatus = _mareService.CheckStatus();
-                    using(ImRaii.Disabled(!enableMare))
-                    {
-                        ImGui.Text($"Mare Synchronos Status: {mareStatus}");
-                        ImGui.SameLine();
-                        if(ImBrio.FontIconButton("refresh_mare", FontAwesomeIcon.Sync, "刷新 Mare Synchronos 状态"))
-                        {
-                            _mareService.CheckStatus(true);
-                        }
-                    }
-
-                    _glamourerService.Disabled = !enablePenumbra;
-                    _mareService.Disabled = _glamourerService.Disabled;
+                    _glamourerService.CheckStatus(true);
                 }
             }
+
         }
     }
 
@@ -352,6 +322,14 @@ public class SettingsWindow : Window
 
             using(ImRaii.Disabled(!enabled))
             {
+
+                var individual = _configurationService.Configuration.AutoSave.AutoSaveIndividualPoses;
+                if(ImGui.Checkbox("Save Individual Poses", ref individual))
+                {
+                    _configurationService.Configuration.AutoSave.AutoSaveIndividualPoses = individual;
+                    _configurationService.ApplyChange();
+                }
+
                 var saveInterval = _configurationService.Configuration.AutoSave.AutoSaveInterval;
                 if(ImGui.SliderInt("自动保存间隔", ref saveInterval, 15, 500, "%d 秒"))
                 {
@@ -365,64 +343,6 @@ public class SettingsWindow : Window
                     _configurationService.Configuration.AutoSave.MaxAutoSaves = maxSaves;
                     _configurationService.ApplyChange();
                 }
-
-                //bool applyModelTransform = _configurationService.Configuration.Import.ApplyModelTransform;
-                //if(ImGui.Checkbox("Apply Model Transform on Import", ref applyModelTransform))
-                //{
-                //    _configurationService.Configuration.Import.ApplyModelTransform = applyModelTransform;
-                //    _configurationService.ApplyChange();
-                //}
-
-                //var positionTransformType = _configurationService.Configuration.Import.PositionTransformType;
-                //ImGui.SetNextItemWidth(200);
-                //using(var combo = ImRaii.Combo("Position", positionTransformType.ToString()))
-                //{
-                //    if(combo.Success)
-                //    {
-                //        foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
-                //        {
-                //            if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == positionTransformType))
-                //            {
-                //                _configurationService.Configuration.Import.PositionTransformType = poseImportTransformType;
-                //                _configurationService.ApplyChange();
-                //            }
-                //        }
-                //    }
-                //}
-
-                //var rotationTransformType = _configurationService.Configuration.Import.RotationTransformType;
-                //ImGui.SetNextItemWidth(200);
-                //using(var combo = ImRaii.Combo("Rotation", rotationTransformType.ToString()))
-                //{
-                //    if(combo.Success)
-                //    {
-                //        foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
-                //        {
-                //            if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == rotationTransformType))
-                //            {
-                //                _configurationService.Configuration.Import.RotationTransformType = poseImportTransformType;
-                //                _configurationService.ApplyChange();
-                //            }
-                //        }
-                //    }
-                //}
-
-                //var scaleTransformType = _configurationService.Configuration.Import.ScaleTransformType;
-                //ImGui.SetNextItemWidth(200);
-                //using(var combo = ImRaii.Combo("Scale", scaleTransformType.ToString()))
-                //{
-                //    if(combo.Success)
-                //    {
-                //        foreach(var poseImportTransformType in Enum.GetValues<ScenePoseTransformType>())
-                //        {
-                //            if(ImGui.Selectable($"{poseImportTransformType}", poseImportTransformType == scaleTransformType))
-                //            {
-                //                _configurationService.Configuration.Import.ScaleTransformType = poseImportTransformType;
-                //                _configurationService.ApplyChange();
-                //            }
-                //        }
-                //    }
-                //}
             }
         }
     }
@@ -455,8 +375,8 @@ public class SettingsWindow : Window
         if(ImGui.CollapsingHeader("外观设置", ImGuiTreeNodeFlags.DefaultOpen))
         {
             var allowNPCHackBehavior = _configurationService.Configuration.Appearance.ApplyNPCHack;
-            const string label = "允许NPC外观出现在玩家身上";
-            ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label).X);
+            const string label = "允许 NPC 外观出现在玩家身上";
+            ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label).X - 15);
             using(var combo = ImRaii.Combo(label, allowNPCHackBehavior.ToString()))
             {
                 if(combo.Success)
@@ -483,15 +403,9 @@ public class SettingsWindow : Window
 
     private void DrawPosingTab()
     {
-        using(var tab = ImRaii.TabItem("姿势设置"))
-        {
-            if(tab.Success)
-            {
-                DrawPosingGeneralSection();
-                DrawGPoseSection();
-                DrawOverlaySection();
-            }
-        }
+        DrawPosingGeneralSection();
+        DrawGPoseSection();
+        DrawOverlaySection();
     }
 
     private void DrawGPoseSection()
@@ -667,26 +581,27 @@ public class SettingsWindow : Window
     bool resetSettings = false;
     private void DrawAdvancedTab()
     {
-        using(var tab = ImRaii.TabItem("高级"))
+        if(ImGui.CollapsingHeader("场景管理器", ImGuiTreeNodeFlags.DefaultOpen))
         {
-            if(tab.Success)
+            DrawOpenBrioSetting();
+            DrawHideSettings();
+        }
+
+        DrawNPCAppearanceHack();
+
+        DrawEnvironmentSection();
+
+        if(ImGui.CollapsingHeader("Brio", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            ImGui.Checkbox("启用 [重置为默认设置] 按钮", ref resetSettings);
+
+            using(ImRaii.Disabled(!resetSettings))
             {
-                DrawEnvironmentSection();
-
-                if(ImGui.CollapsingHeader("Brio", ImGuiTreeNodeFlags.DefaultOpen))
+                if(ImGui.Button("重置为默认设置", new(170, 0)))
                 {
-                    ImGui.Checkbox("启用[重置为默认设置]按钮", ref resetSettings);
-
-                    using(ImRaii.Disabled(!resetSettings))
-                    {
-                        if(ImGui.Button("重置为默认设置", new(170, 0)))
-                        {
-                            _configurationService.Reset();
-                            resetSettings = false;
-                        }
-                    }
+                    _configurationService.Reset();
+                    resetSettings = false;
                 }
-
             }
         }
     }
@@ -720,13 +635,7 @@ public class SettingsWindow : Window
 
     private void DrawLibraryTab()
     {
-        using(var tab = ImRaii.TabItem("资产库"))
-        {
-            if(tab.Success)
-            {
-                DrawLibrarySection();
-            }
-        }
+        DrawLibrarySection();
     }
 
     private void DrawLibrarySection()
@@ -736,71 +645,86 @@ public class SettingsWindow : Window
 
     private void DrawKeysTab()
     {
-        using(var tab = ImRaii.TabItem("按键绑定"))
+        bool enableKeybinds = _configurationService.Configuration.InputManager.Enable;
+        if(ImGui.Checkbox("启用键盘快捷键", ref enableKeybinds))
         {
-            if(!tab.Success)
-                return;
+            _configurationService.Configuration.InputManager.Enable = enableKeybinds;
+            _configurationService.ApplyChange();
+        }
+        
+        bool enableKeyHandlingOnKeyMod = _configurationService.Configuration.InputManager.EnableKeyHandlingOnKeyMod;
+        if(ImGui.Checkbox("移动自由相机时，[SPACE], [Shift], [Ctrl] & [Alt]键将专用于相机控制", ref enableKeyHandlingOnKeyMod))
+        {
+            _configurationService.Configuration.InputManager.EnableKeyHandlingOnKeyMod = enableKeyHandlingOnKeyMod;
+            _configurationService.ApplyChange();
+        }
 
-            bool enableKeyHandlingOnKeyMod = _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod;
-            if(ImGui.Checkbox("移动自由相机时，[SPACE], [Shift], [Ctrl] & [Alt]键将专用于相机控制", ref enableKeyHandlingOnKeyMod))
-            {
-                _configurationService.Configuration.Input.EnableKeyHandlingOnKeyMod = enableKeyHandlingOnKeyMod;
-                _configurationService.ApplyChange();
-            }
+        bool handlingAllOnKeys = _configurationService.Configuration.InputManager.EnableConsumeAllInput;
+        if(ImGui.Checkbox("在集体动作中屏蔽所有游戏输入", ref handlingAllOnKeys))
+        {
+            _configurationService.Configuration.InputManager.EnableConsumeAllInput = handlingAllOnKeys;
+            _configurationService.ApplyChange();
+        }
 
-            ImGui.Separator();
+        bool showPrompts = _configurationService.Configuration.InputManager.ShowPromptsInGPose;
+        if(ImGui.Checkbox("在集体动作中显示提示", ref showPrompts))
+        {
+            _configurationService.Configuration.InputManager.ShowPromptsInGPose = showPrompts;
+            _configurationService.ApplyChange();
+        }
 
-            bool enableKeybinds = _configurationService.Configuration.Input.EnableKeybinds;
-            if(ImGui.Checkbox("启用键盘快捷键", ref enableKeybinds))
-            {
-                _configurationService.Configuration.Input.EnableKeybinds = enableKeybinds;
-                _configurationService.ApplyChange();
-            }
+        bool flipKeybindsPastNinety = _configurationService.Configuration.InputManager.FlipKeyBindsPastNinety;
+        if(ImGui.Checkbox("自由相机翻转键位突破-90/90度限制", ref flipKeybindsPastNinety))
+        {
+            _configurationService.Configuration.InputManager.FlipKeyBindsPastNinety = flipKeybindsPastNinety;
+            _configurationService.ApplyChange();
+        }
 
-            if(enableKeybinds == false)
-            {
-                ImGui.BeginDisabled();
-            }
+        if(ImGui.CollapsingHeader("自由相机", ImGuiTreeNodeFlags.DefaultOpen))
+        {
+            DrawKeyBind(InputAction.FreeCamera_Forward);
+            DrawKeyBind(InputAction.FreeCamera_Backward);
+            DrawKeyBind(InputAction.FreeCamera_Left);
+            DrawKeyBind(InputAction.FreeCamera_Right);
+            DrawKeyBind(InputAction.FreeCamera_Up);
+            DrawKeyBind(InputAction.FreeCamera_UpAlt);
+            DrawKeyBind(InputAction.FreeCamera_Down);
+            DrawKeyBind(InputAction.FreeCamera_DownAlt);
+            DrawKeyBind(InputAction.FreeCamera_IncreaseCamMovement);
+            DrawKeyBind(InputAction.FreeCamera_DecreaseCamMovement);
+        }
 
-            bool showPrompts = _configurationService.Configuration.Input.ShowPromptsInGPose;
-            if(ImGui.Checkbox("在集体动作中显示提示", ref showPrompts))
-            {
-                _configurationService.Configuration.Input.ShowPromptsInGPose = showPrompts;
-                _configurationService.ApplyChange();
-            }
-
+        using(ImRaii.Disabled(!enableKeybinds))
+        {
             if(ImGui.CollapsingHeader("界面", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                DrawKeyBind(KeyBindEvents.Interface_ToggleBrioWindow);
-                DrawKeyBind(KeyBindEvents.Interface_IncrementSmallModifier);
-                DrawKeyBind(KeyBindEvents.Interface_IncrementLargeModifier);
+                DrawKeyBind(InputAction.Interface_ToggleBrioWindow);
+                DrawKeyBind(InputAction.Posing_Undo);
+                DrawKeyBind(InputAction.Posing_Redo);
+                DrawKeyBind(InputAction.Interface_IncrementSmallModifier);
+                DrawKeyBind(InputAction.Interface_IncrementLargeModifier);
             }
 
             if(ImGui.CollapsingHeader("姿势", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                DrawKeyBind(KeyBindEvents.Posing_DisableGizmo);
-                DrawKeyBind(KeyBindEvents.Posing_DisableSkeleton);
-                DrawKeyBind(KeyBindEvents.Posing_HideOverlay);
-                DrawKeyBind(KeyBindEvents.Posing_ToggleOverlay);
-                DrawKeyBind(KeyBindEvents.Posing_Undo);
-                DrawKeyBind(KeyBindEvents.Posing_Redo);
-                DrawKeyBind(KeyBindEvents.Posing_Translate);
-                DrawKeyBind(KeyBindEvents.Posing_Rotate);
-                DrawKeyBind(KeyBindEvents.Posing_Scale);
-            }
-
-            if(enableKeybinds == false)
-            {
-                ImGui.EndDisabled();
+                DrawKeyBind(InputAction.Posing_ToggleOverlay);
+                DrawKeyBind(InputAction.Posing_HideOverlay);
+                DrawKeyBind(InputAction.Posing_DisableGizmo);
+                DrawKeyBind(InputAction.Posing_DisableSkeleton);
+                DrawKeyBind(InputAction.Posing_ToggleLink);
+                DrawKeyBind(InputAction.Posing_Translate);
+                DrawKeyBind(InputAction.Posing_Rotate);
+                DrawKeyBind(InputAction.Posing_Scale);
+                DrawKeyBind(InputAction.Posing_Universal);
             }
         }
     }
 
-    private void DrawKeyBind(KeyBindEvents evt)
+    private void DrawKeyBind(InputAction keyAction)
     {
-        string evtText = Localize.Get($"keys.{evt}") ?? evt.ToString();
+        string evtText = Localize.Get($"keys.{keyAction}") ?? keyAction.ToString();
 
-        if(KeybindEditor.KeySelector(evtText, evt, _configurationService.Configuration.Input))
+        if(KeybindEditor.KeySelector(evtText, keyAction, _configurationService.Configuration.InputManager))
         {
             _configurationService.ApplyChange();
         }

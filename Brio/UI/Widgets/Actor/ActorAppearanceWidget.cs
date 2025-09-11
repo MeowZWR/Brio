@@ -6,10 +6,10 @@ using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
-using Dalamud.Bindings.ImGui;
 using System.Numerics;
 
 namespace Brio.UI.Widgets.Actor;
@@ -69,7 +69,6 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
     {
         bool didChange = false;
 
-        //var resetTo = ImGui.GetCursorPos();
         bool equipChanged = !currentAppearance.Equipment.Equals(originalAppearance.Equipment) || !currentAppearance.Weapons.Equals(originalAppearance.Weapons) || !currentAppearance.Runtime.Equals(originalAppearance.Runtime);
         if(ImBrio.FontIconButtonRight("reset_equipment", FontAwesomeIcon.Undo, 1, "重置装备", equipChanged))
         {
@@ -78,7 +77,6 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
             currentAppearance.Runtime = originalAppearance.Runtime;
             didChange |= true;
         }
-        //ImGui.SetCursorPos(resetTo);
 
         return didChange;
     }
@@ -181,13 +179,31 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
 
         ImGui.SameLine();
 
-        if(Capability.CanMcdf)
+        using(ImRaii.Disabled(Capability.CanMCDF is false))
         {
-            if(ImBrio.FontIconButton("load_mcdf", FontAwesomeIcon.CloudDownloadAlt, "加载月海角色数据（MCDF）"))
+            using(ImRaii.Disabled(Capability.IsSelf || Capability.IsAnyMCDFLoading))
             {
-                FileUIHelpers.ShowImportMCDFModal(Capability);
+                if(ImBrio.FontIconButton("load_mcdf", FontAwesomeIcon.CloudDownloadAlt, "加载 MCDF"))
+                {
+                    FileUIHelpers.ShowImportMCDFModal(Capability);
+                }
+                ImGui.SameLine();
             }
-            ImGui.SameLine();
+            if(Capability.IsSelf)
+                ImBrio.AttachToolTip("无法在你的角色身上加载 MCDF。生成一个角色来加载 MCDF。");
+            if(Capability.IsAnyMCDFLoading)
+                ImBrio.AttachToolTip("另一个 MCDF 正在加载，请等待它完成。");
+
+            using(ImRaii.Disabled(Capability.HasMCDF))
+            {
+                if(ImBrio.FontIconButton("save_mcdf", FontAwesomeIcon.CloudUploadAlt, "保存 MCDF"))
+                {
+                    FileUIHelpers.ShowExportMCDFModal(Capability);
+                }
+                ImGui.SameLine();
+            }
+            if(Capability.HasMCDF)
+                ImBrio.AttachToolTip("无法为已经加载 MCDF 的角色保存 MCDF 数据。重置角色来保存 MCDF。");
         }
 
         if(ImBrio.FontIconButton("advanced_appearance", FontAwesomeIcon.UserEdit, "高级"))

@@ -1,21 +1,26 @@
-﻿using Brio.Entities;
+﻿using Brio.Core;
+using Brio.Entities;
 using Brio.Entities.Core;
 using Brio.Game.GPose;
+using Brio.Input;
 using Brio.UI.Theming;
 using Brio.UI.Widgets.Core;
-using Dalamud.Interface;
-using Dalamud.Interface.Utility.Raii;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
+using Dalamud.Interface.Utility;
+using Dalamud.Interface.Utility.Raii;
+using System.Linq;
 using System.Numerics;
 
 namespace Brio.UI.Entitites;
 
-public class EntityHierarchyView(EntityManager entityManager, GPoseService gPoseService)
+public class EntityHierarchyView(EntityManager entityManager, GPoseService gPoseService, HistoryService groupedUndoService)
 {
-    private readonly float buttonWidth = ImGui.GetTextLineHeight() * 13f;
-    private readonly float offsetWidth = 16f;
+    private float buttonWidth => ImGui.GetWindowContentRegionMax().X;
+    private readonly float offsetWidth = 18f;
 
     private EntityId? _lastSelectedId;
+    private Entity? _lastSelectedEntityRef;
 
     public void Draw(Entity root)
     {
@@ -30,6 +35,15 @@ public class EntityHierarchyView(EntityManager entityManager, GPoseService gPose
             _lastSelectedId = selectedEntityId;
         }
 
+        //if(InputManagerService.ActionKeysPressed(InputAction.Interface_SelectAllActors))
+        //{
+        //    entityManager.ClearSelectedEntities();
+        //    foreach(var e in entityManager.TryGetAllActors())
+        //    {
+        //        entityManager.AddSelectedEntity(e.Id);
+        //    }
+        //}
+
         using(ImRaii.PushId($"entity_hierarchy_{root.Id}"))
         {
             foreach(var item in root.Children)
@@ -41,46 +55,76 @@ public class EntityHierarchyView(EntityManager entityManager, GPoseService gPose
         }
     }
 
-    private void DrawEntity(Entity entity, EntityId? selectedEntityId, float lastOffset = 0, bool isChild = false)
+    private void DrawEntity(Entity entity, EntityId? selectedEntityId, float lastOffset = 0)
     {
         bool isSelected = false;
         bool hasChildren = false;
+        bool hasOffset = false;
 
+        bool isMutiSelected = false;
+
+        if(lastOffset > 0)
+            hasOffset = true;
         if(entity.Children.Count > 0)
             hasChildren = true;
         if(selectedEntityId != null && entity.Id.Equals(selectedEntityId))
             isSelected = true;
+
+        if(entityManager.SelectedEntityIds.Contains(entity.Id))
+            isMutiSelected = true;
 
         using(ImRaii.PushColor(ImGuiCol.ButtonActive, 0))
         {
             using(ImRaii.PushColor(ImGuiCol.Button, 0))
             {
                 var invsButtonPos = ImGui.GetCursorPos();
+
                 float width = buttonWidth;
-                if(entity.ContextButtonCount >= 2)
+
+                if(entity.ContextButtonCount >= 1)
+                    width -= ((30 * ImGuiHelpers.GlobalScale) * entity.ContextButtonCount);
+                else
+                    width -= 5;
+
+                if(ImGui.Button($"###{entity.Id}_invs_button", new(width, 24 * ImGuiHelpers.GlobalScale)))
                 {
-                    width -= 30 - entity.ContextButtonCount;
+                    var io = ImGui.GetIO();
+
+                    // Ctrl+Click toggles selection
+                    if(InputManagerService.ActionKeysPressed(InputAction.Brio_Ctrl))
+                    {
+                        if(entityManager.SelectedEntityIds.Contains(entity.Id))
+                            entityManager.RemoveSelectedEntity(entity.Id);
+                        else
+                            entityManager.AddSelectedEntity(entity.Id);
+
+                        _lastSelectedEntityRef = entity;
+                    }
+                    else
+                    {
+                        groupedUndoService.Clear();
+
+                        Select(entity);
+                    }
                 }
-                if(ImGui.Button($"###{entity.Id}_invs_button", new(width, 0)))
+
+                if(ImGui.IsItemHovered())
                 {
-                    Select(entity);
+                    if(entity.Flags.HasFlag(EntityFlags.AllowDoubleClick) && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                    {
+                        entity.OnDoubleClick();
+                    }
                 }
-                //if(ImGui.IsItemHovered())
-                //{
-                //    if(entity.Flags.HasFlag(EntityFlags.AllowDoubleClick) && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
-                //    {
-                //        entity.OnDoubleClick();
-                //    }
-                //}
                 if(ImGui.IsItemClicked(ImGuiMouseButton.Right))
                 {
                     ImGui.OpenPopup($"context_popup{entity.Id}");
                 }
 
+
                 ImGui.SetCursorPos(invsButtonPos);
             }
 
-            if(lastOffset > 0)
+            if(hasOffset)
             {
                 var curPos = ImGui.GetCursorPos();
 
@@ -88,7 +132,7 @@ public class EntityHierarchyView(EntityManager entityManager, GPoseService gPose
                 lastOffset += offsetWidth;
             }
 
-            using(ImRaii.PushColor(ImGuiCol.Button, TheameManager.CurrentTheame.Accent.AccentColor, isSelected))
+            using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor, isSelected || isMutiSelected))
             {
                 using(ImRaii.Disabled(true))
                 {

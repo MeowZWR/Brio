@@ -16,8 +16,11 @@ using Brio.Input;
 using Brio.IPC;
 using Brio.Library;
 using Brio.Library.Sources;
+using Brio.MCDF.Game.FileCache;
+using Brio.MCDF.Game.Services;
 using Brio.Resources;
 using Brio.UI;
+using Brio.UI.Controls.Stateless;
 using Brio.UI.Windows;
 using Brio.UI.Windows.Specialized;
 using Brio.Web;
@@ -31,7 +34,7 @@ namespace Brio;
 
 public class Brio : IDalamudPlugin
 {
-    public const string Name = "Brio";
+    public const string Name = "BRIO DEV";
 
     private static ServiceProvider? _services = null;
 
@@ -107,23 +110,31 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton(dalamudServices.Log);
         serviceCollection.AddSingleton(dalamudServices.ChatGui);
         serviceCollection.AddSingleton(dalamudServices.KeyState);
+        serviceCollection.AddSingleton(dalamudServices.Conditions);
+        serviceCollection.AddSingleton(dalamudServices.GameConfig);
 
         // Core / Misc
         serviceCollection.AddSingleton<EventBus>();
+        serviceCollection.AddSingleton<DalamudService>();
         serviceCollection.AddSingleton<ConfigurationService>();
         serviceCollection.AddSingleton<ResourceProvider>();
         serviceCollection.AddSingleton<GameDataProvider>();
         serviceCollection.AddSingleton<WelcomeService>();
-        serviceCollection.AddSingleton<InputService>();
+        serviceCollection.AddSingleton<InputManagerService>();
         serviceCollection.AddSingleton<SceneService>();
         serviceCollection.AddSingleton<ProjectSystem>();
         serviceCollection.AddSingleton<AutoSaveService>();
+        serviceCollection.AddSingleton<HistoryService>();
+        serviceCollection.AddSingleton<FileCacheService>();
+        serviceCollection.AddSingleton<MCDFService>();
+        serviceCollection.AddSingleton<TransientResourceService>();
+        serviceCollection.AddSingleton<ActorLookAtService>();
+        serviceCollection.AddSingleton<CharacterHandlerService>();
 
         // IPC
         serviceCollection.AddSingleton<BrioIPCService>();
         serviceCollection.AddSingleton<PenumbraService>();
         serviceCollection.AddSingleton<GlamourerService>();
-        serviceCollection.AddSingleton<MareService>();
         serviceCollection.AddSingleton<CustomizePlusService>();
 
         // Web
@@ -138,6 +149,7 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<ActorSpawnService>();
         serviceCollection.AddSingleton<ActorRedrawService>();
         serviceCollection.AddSingleton<ActorAppearanceService>();
+        serviceCollection.AddSingleton<ActorVFXService>();
         serviceCollection.AddSingleton<ActionTimelineService>();
         serviceCollection.AddSingleton<GPoseService>();
         serviceCollection.AddSingleton<CommandHandlerService>();
@@ -154,7 +166,8 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<PhysicsService>();
         serviceCollection.AddSingleton<GameInputService>();
         serviceCollection.AddSingleton<VirtualCameraManager>();
-
+        serviceCollection.AddSingleton<AutoSaveWindow>();
+        serviceCollection.AddSingleton<MCDFWindow>();
         serviceCollection.AddSingleton<CutsceneManager>();
 
         // Library
@@ -188,6 +201,7 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<PosingTransformWindow>();
         serviceCollection.AddSingleton<CameraWindow>();
         serviceCollection.AddSingleton<PosingGraphicalWindow>();
+        serviceCollection.AddSingleton<ImBrioText>();
 
         return serviceCollection;
     }

@@ -1,5 +1,4 @@
 ﻿using Brio.Core;
-using Dalamud.Bindings.ImGui;
 using Dalamud.Bindings.ImGuizmo;
 
 namespace Brio.Game.Posing;
@@ -30,6 +29,11 @@ public class PosingService
     {
         OverlayFilter = new BoneFilter(this);
         OverlayFilter.DisableCategory("ex");
+        OverlayFilter.DisableCategory("weapon");
+        OverlayFilter.DisableCategory("clothing");
+        //OverlayFilter.DisableCategory("other");
+        OverlayFilter.DisableCategory("legacy");
+
 
         DefaultImporterOptions = new PoseImporterOptions(new BoneFilter(this), TransformComponents.Rotation, false);
         DefaultImporterOptions.BoneFilter.DisableCategory("weapon");

@@ -15,14 +15,16 @@ using Brio.Library.Filters;
 using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Windows;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using Dalamud.Bindings.ImGui;
+using Dalamud.Utility;
 using MessagePack;
 using OneOf;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 
 namespace Brio.UI.Controls.Stateless;
 
@@ -79,15 +81,17 @@ public class FileUIHelpers
 
         if(popup.Success)
         {
+            var imIO = ImGui.GetIO();
+            var _lastGlobalScale = imIO.FontGlobalScale;
+            imIO.FontGlobalScale = 1f;
+
             using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
             {
+                var size = new Vector2(245, 400); //= ImGui.GetContentRegionAvail(); //ImGui.CalcTextSize("XXXX Freeze Actor on Import");
 
-                var size = ImGui.GetContentRegionAvail(); //ImGui.CalcTextSize("XXXX Freeze Actor on Import");
                 size.Y = 44;
 
                 var buttonSize = size / 8;
-
-                var with = buttonSize * 4;
 
                 ImGui.Checkbox("导入时冻结角色", ref freezeOnLoad);
 
@@ -161,11 +165,6 @@ public class FileUIHelpers
 
                 if(ImGui.Button("导入", new(size.X, 25)))
                 {
-                    //bool? modelTransformOverride = null;
-                    //if(doTransform)
-                    //{
-                    //    modelTransformOverride = doTransform;
-                    //}
                     ShowImportPoseModal(capability, freezeOnLoad: freezeOnLoad, transformComponents: transformComponents, applyModelTransformOverride: doTransform);
                 }
 
@@ -191,6 +190,8 @@ public class FileUIHelpers
                     PosingEditorCommon.DrawImportOptionEditor(service.DefaultImporterOptions, true);
                 }
             }
+
+            ImGui.GetIO().FontGlobalScale = _lastGlobalScale;
         }
     }
 
@@ -283,7 +284,7 @@ public class FileUIHelpers
     {
         List<Type> types = [typeof(ActorAppearanceUnion), typeof(AnamnesisCharaFile)];
 
-        if(capability.CanMcdf)
+        if(capability.CanMCDF)
             types.Add(typeof(MareCharacterDataFile));
 
         TypeFilter filter = new TypeFilter("角色", [.. types]);
@@ -307,7 +308,7 @@ public class FileUIHelpers
                 }
                 else if(r is MareCharacterDataFile mareFile)
                 {
-                    capability.LoadMcdf(mareFile.GetPath());
+                    _ = capability.LoadMCDF(mareFile.GetPath());
                 }
             });
 
@@ -331,7 +332,7 @@ public class FileUIHelpers
                 }
                 else if(r is MareCharacterDataFile mareFile)
                 {
-                    capability.LoadMcdf(mareFile.GetPath());
+                    _ = capability.LoadMCDF(mareFile.GetPath());
                 }
             });
         }
@@ -362,7 +363,7 @@ public class FileUIHelpers
 
     public static void ShowImportMCDFModal(ActorAppearanceCapability capability)
     {
-        UIManager.Instance.FileDialogManager.OpenFileDialog("导入MCDF文件###import_character_window", "月海角色数据文件(*.mcdf){.mcdf}",
+        UIManager.Instance.FileDialogManager.OpenFileDialog("导入MCDF文件###import_mcdf_window", "月海角色数据文件(*.mcdf){.mcdf}",
                  (success, paths) =>
                  {
                      if(success && paths.Count == 1)
@@ -374,9 +375,32 @@ public class FileUIHelpers
                              ConfigurationService.Instance.Configuration.LastMCDFPath = directory;
                              ConfigurationService.Instance.Save();
                          }
-                         capability.LoadMcdf(path);
+                         _ = capability.LoadMCDF(path);
                      }
                  }, 1, ConfigurationService.Instance.Configuration.LastMCDFPath, true);
+    }
+
+    public static void ShowExportMCDFModal(ActorAppearanceCapability capability)
+    {
+        UIManager.Instance.FileDialogManager.SaveFileDialog("Export MCDF File###export_mcdf_window", "Mare Character Data File (*.mcdf){.mcdf}", "mcdf", "{.mcdf}",
+                 (success, path) =>
+                 {
+                     if(success && !path.IsNullOrEmpty())
+                     {
+                         Brio.Log.Info("Exporting MCDF...");
+                         if(!path.EndsWith(".mcdf"))
+                             path += ".mcdf";
+
+                         var directory = Path.GetDirectoryName(path);
+                         if(directory is not null)
+                         {
+                             ConfigurationService.Instance.Configuration.MCDF.LastSavedCharaDataLocation = directory;
+                             ConfigurationService.Instance.Save();
+                         }
+
+                         _ = capability.SaveMcdf(path, string.Empty);
+                     }
+                 }, ConfigurationService.Instance.Configuration.MCDF.LastSavedCharaDataLocation, true);
     }
 
     public static void ShowExportSceneModal(EntityManager entityManager, SceneService sceneService)

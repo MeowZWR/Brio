@@ -4,12 +4,14 @@ using Brio.Entities.Actor;
 using Brio.Game.Actor.Appearance;
 using Brio.Game.Actor.Extensions;
 using Brio.Game.GPose;
+using Brio.MCDF.Game.Services;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
+using Brio.UI.Entitites;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
-using Dalamud.Bindings.ImGui;
 using System;
 using System.Numerics;
 
@@ -21,17 +23,18 @@ public class ActorAppearanceWindow : Window, IDisposable
     private readonly GearEditor _gearEditor;
     private readonly ExtendedAppearanceEditor _extendedAppearanceEditor;
     private readonly ModelShaderEditor _modelShaderEditor;
+    private readonly MCDFService _mCDFService;
 
     private readonly EntityManager _entityManager;
     private readonly GPoseService _gPoseService;
     private ActorAppearanceCapability _capability = null!;
     private AppearanceImportOptions _importOptions = AppearanceImportOptions.Default;
 
-    public ActorAppearanceWindow(EntityManager entityManager, GPoseService gPoseService) : base($"{Brio.Name} - Appearance###brio_character_editor_window")
+    public ActorAppearanceWindow(EntityManager entityManager, GPoseService gPoseService, MCDFService mCDFService) : base($"{Brio.Name} - APPEARANCE###brio_character_editor_window")
     {
         Namespace = "brio_character_editor_namespace";
 
-
+        _mCDFService = mCDFService;
         _entityManager = entityManager;
         _gPoseService = gPoseService;
         _customizeEditor = new();
@@ -41,8 +44,8 @@ public class ActorAppearanceWindow : Window, IDisposable
 
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(970, 720),
-            MaximumSize = new Vector2(8000, 3000)
+            MinimumSize = new Vector2(500, 610),
+            MaximumSize = new Vector2(1200, 1100)
         };
 
         _gPoseService.OnGPoseStateChange += OnGPoseStateChanged;
@@ -63,105 +66,99 @@ public class ActorAppearanceWindow : Window, IDisposable
         return base.DrawConditions();
     }
 
-
+    int selected = 0;
+    bool isAdvancedMenuOpen = true;
     public unsafe override void Draw()
     {
-        if(_entityManager.TryGetCapabilityFromSelectedEntity<ActorAppearanceCapability>(out var capability, considerParents: true))
-        {
-            _capability = capability;
-        }
-        else
-        {
+        if(!_entityManager.TryGetCapabilityFromSelectedEntity<ActorAppearanceCapability>(out ActorAppearanceCapability? capability, considerParents: true))
             return;
-        }
+
+        _capability = capability;
 
         WindowName = $"{Brio.Name} - 外观 - {capability.Entity.FriendlyName}###brio_character_editor_window";
 
+        using(ImRaii.Disabled(capability.Entity.IsLoading))
+        {
+            DrawHeader();
+
+            DrawBody(capability);
+        }
+
+        if(capability.Entity.IsLoading)
+        {
+            EntityHelpers.DrawSpinner();
+        }
+    }
+
+    public unsafe void DrawBody(ActorAppearanceCapability? actorAppearance)
+    {
         var currentAppearance = _capability.CurrentAppearance;
         var originalAppearance = _capability.OriginalAppearance;
 
         float windowWidth = ImGui.GetWindowWidth();
-        float customizeWidth = windowWidth * 0.3f;
+        float customizeWidth = windowWidth - 13;
 
         bool shouldSetAppearance = false;
 
-        try
+        ImBrio.ToggleButtonStrip("appearance_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["Equipment", "Customize"]);
+
+        if(selected == 1)
         {
-            using(var customizeChild = ImRaii.Child("leftpane", new Vector2(customizeWidth, -1), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+            try
             {
-                if(customizeChild.Success)
+                using(var customizeChild = ImRaii.Child("customizePane", new Vector2(ImGui.GetContentRegionAvail().X, -1), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
                 {
-                    shouldSetAppearance |= _customizeEditor.DrawCustomize(ref currentAppearance, originalAppearance, _capability);
-                }
-            }
-        }
-        catch(Exception ex) { Brio.Log.Error(ex, "绘制外貌窗格时出错"); }
-
-        ImGui.SameLine();
-
-        using(var gearChild = ImRaii.Child("rightpane", new Vector2(ImGui.GetContentRegionAvail().X, -1), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
-        {
-            float sectionWidth = ImGui.GetContentRegionAvail().X / 3f - ImGui.GetStyle().FramePadding.X;
-
-            if(gearChild.Success)
-            {
-                shouldSetAppearance |= _gearEditor.DrawGear(ref currentAppearance, originalAppearance, _capability);
-            }
-
-            using(var extendedChild = ImRaii.Child("extended", new Vector2(sectionWidth, -1), true))
-            {
-                if(extendedChild.Success)
-                {
-                    shouldSetAppearance |= _extendedAppearanceEditor.Draw(ref currentAppearance, originalAppearance, _capability.CanTint);
-                }
-            }
-
-            ImGui.SameLine();
-
-            using(var shaderChild = ImRaii.Child("shaders", new Vector2(sectionWidth, -1), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
-            {
-                if(shaderChild.Success)
-                {
-                    var shaderParams = capability.Character.GetShaderParams();
-                    if(shaderParams != null)
+                    if(customizeChild.Success)
                     {
-                        shouldSetAppearance |= _modelShaderEditor.Draw(*shaderParams, ref _capability._modelShaderOverride, _capability);
+                        shouldSetAppearance |= _customizeEditor.DrawCustomize(ref currentAppearance, originalAppearance, _capability);
+                    }
+
+                    float sectionWidth = ImGui.GetContentRegionAvail().X / 2f - ImGui.GetStyle().FramePadding.X + 2;
+
+                    using(var extendedChild = ImRaii.Child("extended", new Vector2(sectionWidth, -1), true))
+                    {
+                        if(extendedChild.Success)
+                        {
+                            shouldSetAppearance |= _extendedAppearanceEditor.Draw(ref currentAppearance, originalAppearance, _capability.CanTint);
+                        }
+                    }
+
+                    ImGui.SameLine();
+
+                    var shaderParams = actorAppearance!.Character.GetShaderParams();
+                    using(var shaderChild = ImRaii.Child("shaders", new Vector2(sectionWidth, -1), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+                    {
+                        if(shaderChild.Success && shaderParams is not null)
+                        {
+                            shouldSetAppearance |= _modelShaderEditor.Draw(*shaderParams, ref _capability._modelShaderOverride, _capability);
+                        }
                     }
                 }
             }
-
-            ImGui.SameLine();
-
-            using(var optionsChild = ImRaii.Child("options", new Vector2(-1, -1), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+            catch(Exception ex) { Brio.Log.Error(ex, "Error drawing customize pane"); }
+        }
+        else
+        {
+            using(var gearChild = ImRaii.Child("equipmentPane", new Vector2(ImGui.GetContentRegionAvail().X, -1), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
             {
-                if(optionsChild.Success)
+                if(gearChild.Success)
                 {
-                    DrawOptions();
+                    shouldSetAppearance |= _gearEditor.DrawGear(ref currentAppearance, originalAppearance, _capability);
                 }
             }
         }
 
         if(shouldSetAppearance)
-            _ = capability.SetAppearance(currentAppearance, AppearanceImportOptions.All);
-
+        {
+            _ = actorAppearance?.SetAppearance(currentAppearance, AppearanceImportOptions.All);
+        }
     }
 
-    private void DrawOptions()
+    private void DrawHeader()
     {
-        var buttonSize = new Vector2(ImGui.GetContentRegionAvail().X / 2.0f - ImGui.GetStyle().FramePadding.X, 0);
+        var buttonSize = new Vector2(ImGui.GetContentRegionAvail().X / 3f - (ImGui.GetStyle().FramePadding.X / 2), 0);
 
-        using(ImRaii.Disabled(!_capability.IsAppearanceOverridden))
-        {
-            if(ImGui.Button("还原", buttonSize))
-                _ = _capability.ResetAppearance();
-        }
-
-        ImGui.SameLine();
-
-        if(ImGui.Button("重绘", buttonSize))
-            _ = _capability.Redraw();
-
-        if(ImGui.Button("加载NPC", buttonSize))
+        if(ImBrio.Button("加载NPC", FontAwesomeIcon.PersonArrowDownToLine, buttonSize))
         {
             AppearanceEditorCommon.ResetNPCSelector();
             ImGui.OpenPopup("window_load_npc");
@@ -169,9 +166,74 @@ public class ActorAppearanceWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        if(ImGui.Button("导入", buttonSize))
+        using(ImRaii.Disabled(!_capability.IsAppearanceOverridden))
+        {
+            if(ImBrio.Button("还原", FontAwesomeIcon.RedoAlt, buttonSize))
+                _ = _capability.ResetAppearance();
+        }
+
+        ImGui.SameLine();
+
+        if(ImBrio.Button("重绘", FontAwesomeIcon.PaintBrush, buttonSize))
+            _ = _capability.Redraw();
+
+        using(ImRaii.Disabled(!_capability.HasPenumbraIntegration && !_capability.HasCustomizePlusIntegration && !_capability.HasGlamourerIntegration))
+        {
+            if(ImBrio.FontIconButton("toggle_adv_bar", isAdvancedMenuOpen ? FontAwesomeIcon.ArrowUp : FontAwesomeIcon.ArrowDown, "Toggle Advanced Menu"))
+            {
+                isAdvancedMenuOpen = !isAdvancedMenuOpen;
+            }
+        }
+
+        ImGui.SameLine();
+
+        using(ImRaii.Disabled(_capability.CanMCDF is false))
+        {
+            using(ImRaii.Disabled(_capability.IsSelf || _capability.IsAnyMCDFLoading))
+            {
+                if(ImBrio.FontIconButton("load_mcdf", FontAwesomeIcon.CloudDownloadAlt, "Load MCDF"))
+                {
+                    FileUIHelpers.ShowImportMCDFModal(_capability);
+                }
+                ImGui.SameLine();
+            }
+            if(_capability.IsSelf)
+                ImBrio.AttachToolTip("无法在你的角色上加载MCDF。生成一个角色来加载MCDF。");
+            if(_capability.IsAnyMCDFLoading)
+                ImBrio.AttachToolTip("另一个MCDF正在加载，请等待它完成。");
+
+            using(ImRaii.Disabled(_capability.HasMCDF))
+            {
+                if(ImBrio.FontIconButton("save_mcdf", FontAwesomeIcon.CloudUploadAlt, "保存MCDF"))
+                {
+                    FileUIHelpers.ShowExportMCDFModal(_capability);
+                }
+                ImGui.SameLine();
+            }
+            if(_capability.HasMCDF)
+                ImBrio.AttachToolTip("无法为已经加载MCDF数据的角色保存MCDF。重置此角色来保存MCDF。");
+        }
+
+        if(ImBrio.FontIconButtonRight("import", FontAwesomeIcon.FileDownload, 2, "导入角色"))
             FileUIHelpers.ShowImportCharacterModal(_capability, _importOptions);
 
+        ImGui.SameLine();
+
+        DrawImportOptions();
+
+        ImGui.SameLine();
+
+        if(ImBrio.FontIconButtonRight("export", FontAwesomeIcon.Save, 3, "保存角色文件"))
+            FileUIHelpers.ShowExportCharacterModal(_capability);
+
+        ImGui.Separator();
+
+        if(isAdvancedMenuOpen)
+        {
+            AppearanceEditorCommon.DrawPenumbraCollectionSwitcher(_capability);
+            AppearanceEditorCommon.DrawGlamourerDesignSwitcher(_capability);
+            AppearanceEditorCommon.DrawCustomizePlusProfileSwitcher(_capability);
+        }
 
         using(var importPopup = ImRaii.Popup("window_load_npc"))
         {
@@ -181,19 +243,6 @@ public class ActorAppearanceWindow : Window, IDisposable
                     ImGui.CloseCurrentPopup();
             }
         }
-
-        if(ImGui.Button("导出", buttonSize))
-            FileUIHelpers.ShowExportCharacterModal(_capability);
-
-        ImGui.SameLine();
-
-        DrawImportOptions();
-
-        ImGui.Separator();
-
-        AppearanceEditorCommon.DrawPenumbraCollectionSwitcher(_capability);
-
-
     }
 
     private void DrawImportOptions()
@@ -242,7 +291,7 @@ public class ActorAppearanceWindow : Window, IDisposable
                 }
 
                 bool shaders = _importOptions.HasFlag(AppearanceImportOptions.Shaders);
-                if(ImGui.Checkbox("Shaders", ref shaders))
+                if(ImGui.Checkbox("着色器", ref shaders))
                 {
                     if(shaders)
                         _importOptions |= AppearanceImportOptions.Shaders;
@@ -262,5 +311,7 @@ public class ActorAppearanceWindow : Window, IDisposable
     public void Dispose()
     {
         _gPoseService.OnGPoseStateChange -= OnGPoseStateChanged;
+
+        GC.SuppressFinalize(this);
     }
 }

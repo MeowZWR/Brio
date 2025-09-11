@@ -1,13 +1,11 @@
 ﻿using Brio.Capabilities.Camera;
-using Brio.Config;
 using Brio.Entities.Camera;
-using Brio.Game.Cutscene;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using Dalamud.Bindings.ImGui;
 using System.Numerics;
 
 namespace Brio.UI.Widgets.Camera;
@@ -103,7 +101,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
     }
 }
 
-public class BrioCameraWidget(BrioCameraCapability capability, CutsceneManager _cutsceneManager, ConfigurationService _configService) : Widget<BrioCameraCapability>(capability)
+public class BrioCameraWidget(BrioCameraCapability capability) : Widget<BrioCameraCapability>(capability)
 {
     public override string HeaderName => "相机编辑器";
 

@@ -1,8 +1,8 @@
 ﻿using Brio.Capabilities.World;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
-using Dalamud.Interface;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
 using System;
 using System.Numerics;
 
@@ -15,7 +15,7 @@ public class TimeWidget(TimeCapability timeCapability) : Widget<TimeCapability>(
 
     public override void DrawBody()
     {
-        Vector2 unlockPos = Vector2.Zero;
+        var unlockPos = Vector2.Zero;
         var isLocked = Capability.TimeService.IsTimeFrozen;
         var isLockedPrevious = isLocked;
         int minuteOfDay = Capability.TimeService.MinuteOfDay;
@@ -39,16 +39,8 @@ public class TimeWidget(TimeCapability timeCapability) : Widget<TimeCapability>(
 
         var preservePos = ImGui.GetCursorPos();
         ImGui.SetCursorPos(unlockPos);
-        if(isLocked)
-        {
-            if(ImBrio.FontIconButtonRight("timelock", FontAwesomeIcon.Unlock, 1, "解锁时间", bordered: false))
-                isLocked = false;
-        }
-        else
-        {
-            if(ImBrio.FontIconButtonRight("timelock", FontAwesomeIcon.Lock, 1, "锁定时间", bordered: false))
-                isLocked = true;
-        }
+        if(ImBrio.FontIconButtonRight("timeLock", isLocked ? FontAwesomeIcon.Lock : FontAwesomeIcon.Unlock, 1, isLocked ? "解锁时间" : "锁定时间", bordered: false))
+            isLocked = !isLocked;
         ImGui.SetCursorPos(preservePos);
 
         if(originalMinute != minuteOfDay)

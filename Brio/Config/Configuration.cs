@@ -32,6 +32,9 @@ public class Configuration : IPluginConfiguration
     // Library
     public LibraryConfiguration Library { get; set; } = new LibraryConfiguration();
 
+    // MCDF Data
+    public MCDFConfiguration MCDF { get; set; } = new MCDFConfiguration();
+
     public string LastMCDFPath { get; set; } = string.Empty;
     public string LastExportPath { get; set; } = string.Empty;
     public string LastXATPath { get; set; } = string.Empty;
@@ -43,7 +46,7 @@ public class Configuration : IPluginConfiguration
     public bool SceneDestoryActorsBeforeImport { get; set; } = false;
 
     // Input
-    public InputConfiguration Input { get; set; } = new InputConfiguration();
+    public InputManagerConfiguration InputManager { get; set; } = new InputManagerConfiguration();
 
     // AutoSave
     public AutoSaveConfiguration AutoSave { get; set; } = new AutoSaveConfiguration();

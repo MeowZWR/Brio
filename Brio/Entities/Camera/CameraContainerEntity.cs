@@ -1,14 +1,13 @@
 ﻿using Brio.Capabilities.Camera;
 using Brio.Entities.Core;
 using Brio.Game.Camera;
-using Brio.Game.GPose;
 using Brio.Game.Input;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using Dalamud.Bindings.ImGui;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -16,7 +15,6 @@ namespace Brio.Entities.Camera;
 
 public class CameraContainerEntity(IServiceProvider provider) : Entity("cameras", provider)
 {
-    private readonly GPoseService _gPoseService = provider.GetRequiredService<GPoseService>();
     private readonly VirtualCameraManager _virtualCameraManager = provider.GetRequiredService<VirtualCameraManager>();
     private readonly GameInputService _gameInputService = provider.GetRequiredService<GameInputService>();
 
@@ -24,21 +22,20 @@ public class CameraContainerEntity(IServiceProvider provider) : Entity("cameras"
 
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Camera;
 
+    public override int ContextButtonCount => 1;
+
     public override EntityFlags Flags => EntityFlags.DefaultOpen | EntityFlags.HasContextButton;
 
     public override void DrawContextButton()
     {
-        using(ImRaii.Disabled(_gPoseService.IsGPosing == false))
+        using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor))
         {
-            using(ImRaii.PushColor(ImGuiCol.Button, TheameManager.CurrentTheame.Accent.AccentColor))
+            string toolTip = $"新建相机";
+            if(ImBrio.FontIconButtonRight($"###{Id}_cameras_contextButton", FontAwesomeIcon.Plus, 1f, toolTip, bordered: false))
             {
-                string toolTip = $"新建相机";
-                if(ImBrio.FontIconButtonRight($"###{Id}_cameras_contextButton", FontAwesomeIcon.Plus, 1f, toolTip, bordered: false))
-                {
-                    ImGui.OpenPopup("DrawSpawnMenuPopup");
-                }
-                CameraEditor.DrawSpawnMenu(_virtualCameraManager);
+                ImGui.OpenPopup("DrawSpawnMenuPopup");
             }
+            CameraEditor.DrawSpawnMenu(_virtualCameraManager);
         }
     }
 
