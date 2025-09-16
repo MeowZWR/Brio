@@ -12,10 +12,10 @@ using System.Numerics;
 namespace Brio.UI.Widgets.Actor;
 public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Widget<ActorDynamicPoseCapability>(capability)
 {
-    public override string HeaderName => "Dynamic Face Control";
+    public override string HeaderName => "动态表情控制";
 
     public override WidgetFlags Flags => Capability.Actor.IsProp ? WidgetFlags.CanHide :
-        WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
+        WidgetFlags.DrawBody;
 
     bool eyes;
     bool body;
@@ -32,10 +32,19 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
     Vector3 cameraVector3;
     public override void DrawBody()
     {
+        using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
+        {
+            ImGui.Text("功能目前不可用。");
+            ImGui.Text("请等待未来的更新！");
+        }
+        return;
+
+#pragma warning disable CS0162 // 保留下方代码以便功能恢复时快速启用
+
         if(Capability.Camera is not null)
             cameraVector3 = Capability.Camera.RealPosition;
 
-        if(ImBrio.ToggelButton("Enable Face Control", enable))
+        if(ImBrio.ToggelButton("启用动态表情控制", enable))
         {
             enable = !enable;
 
@@ -56,7 +65,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
         {
             ImGui.Separator();
 
-            if(ImBrio.ToggleButtonStrip("DynamicFaceControlSelector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["Camera", "Position", "Actor"]))
+            if(ImBrio.ToggleButtonStrip("DynamicFaceControlSelector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["相机", "位置", "角色"]))
             {
                 Reset();
 
@@ -87,14 +96,15 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
                 case 2:
                     using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
                     {
-                        ImGui.Text("Feature currently unavailable.");
-                        ImGui.Text("Check back in a future update!");
+                        ImGui.Text("功能目前不可用。");
+                        ImGui.Text("请等待未来的更新！");
                     }
                     break;
             }
 
         }
     }
+#pragma warning restore CS0162
 
     public void Reset()
     {
@@ -114,11 +124,11 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
             df3h = ImBrio.DragFloat3Simple($"###dynamicFaceControlSelector_drag3", ref cameraVector3, 1);
 
         var size = ImBrio.GetRemainingWidth() / 3;
-        (bool eyetoggle, bool eyelock) = ImBrio.ToggleLock("Eyes", size, ref eyes, ref eyesLock, disableOnLock: true);
+        (bool eyetoggle, bool eyelock) = ImBrio.ToggleLock("眼睛", size, ref eyes, ref eyesLock, disableOnLock: true);
         ImGui.SameLine();
-        (bool bodytoggle, bool bodylock) = ImBrio.ToggleLock("Body", size, ref body, ref bodyLock, disableOnLock: true);
+        (bool bodytoggle, bool bodylock) = ImBrio.ToggleLock("身体", size, ref body, ref bodyLock, disableOnLock: true);
         ImGui.SameLine();
-        (bool headtoggle, bool headlock) = ImBrio.ToggleLock("Head", size, ref head, ref headLock, disableOnLock: true);
+        (bool headtoggle, bool headlock) = ImBrio.ToggleLock("头部", size, ref head, ref headLock, disableOnLock: true);
 
         if(eyetoggle || bodytoggle || headtoggle)
         {
@@ -168,7 +178,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
         bool bodytoggle = false;
         bool headtoggle = false;
 
-        if(ImBrio.ToggelButton($"Eyes###toggleButton_Eyes", new Vector2(53 * ImGuiHelpers.GlobalScale, 25 * ImGuiHelpers.GlobalScale), eyes))
+        if(ImBrio.ToggelButton($"眼睛###toggleButton_Eyes", new Vector2(53 * ImGuiHelpers.GlobalScale, 25 * ImGuiHelpers.GlobalScale), eyes))
         {
             eyetoggle = true;
             eyes = !eyes;
@@ -178,7 +188,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
 
         using(ImRaii.Disabled(!eyes))
         {
-            if(ImBrio.FontIconButton("###dynamicFaceControlSelector_Eyes_button", FontAwesomeIcon.LocationCrosshairs, "Set to camera value"))
+            if(ImBrio.FontIconButton("###dynamicFaceControlSelector_Eyes_button", FontAwesomeIcon.LocationCrosshairs, "设置为相机值"))
             {
                 eyesVector3 = cameraVector3;
                 Capability.SetTargetLock(true, LookAtTargetType.Eyes, eyesVector3);
@@ -188,7 +198,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
             eyesVectorDrag = ImBrio.DragFloat3Simple($"###dynamicFaceControlSelector_Eyes_drag3", ref eyesVector3, 1);
         }
 
-        if(ImBrio.ToggelButton($"Body###toggleButton_Body", new Vector2(53 * ImGuiHelpers.GlobalScale, 25 * ImGuiHelpers.GlobalScale), body))
+        if(ImBrio.ToggelButton($"身体###toggleButton_Body", new Vector2(53 * ImGuiHelpers.GlobalScale, 25 * ImGuiHelpers.GlobalScale), body))
         {
             bodytoggle = true;
             body = !body;
@@ -198,7 +208,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
 
         using(ImRaii.Disabled(!body))
         {
-            if(ImBrio.FontIconButton("###dynamicFaceControlSelector_Body_button", FontAwesomeIcon.LocationCrosshairs, "Set to camera value"))
+            if(ImBrio.FontIconButton("###dynamicFaceControlSelector_Body_button", FontAwesomeIcon.LocationCrosshairs, "设置为相机值"))
             {
                 bodyVector3 = cameraVector3;
                 Capability.SetTargetLock(true, LookAtTargetType.Body, bodyVector3);
@@ -208,7 +218,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
             bodyVectorDrag = ImBrio.DragFloat3Simple($"###dynamicFaceControlSelector_Body_drag3", ref bodyVector3, 1);
         }
 
-        if(ImBrio.ToggelButton($"Head###toggleButton_Head", new Vector2(53 * ImGuiHelpers.GlobalScale, 25 * ImGuiHelpers.GlobalScale), head))
+        if(ImBrio.ToggelButton($"头部###toggleButton_Head", new Vector2(53 * ImGuiHelpers.GlobalScale, 25 * ImGuiHelpers.GlobalScale), head))
         {
             headtoggle = true;
             head = !head;
@@ -217,7 +227,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
 
         using(ImRaii.Disabled(!head))
         {
-            if(ImBrio.FontIconButton("###dynamicFaceControlSelector_Head_button", FontAwesomeIcon.LocationCrosshairs, "Set to camera value"))
+            if(ImBrio.FontIconButton("###dynamicFaceControlSelector_Head_button", FontAwesomeIcon.LocationCrosshairs, "设置为相机值"))
             {
                 headVector3 = cameraVector3;
                 Capability.SetTargetLock(true, LookAtTargetType.Head, headVector3);
