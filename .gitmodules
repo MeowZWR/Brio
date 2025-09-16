@@ -1,4 +1,0 @@
-[submodule "Penumbra.Api"]
-	path = Penumbra.Api
-	url = https://github.com/meowzwr/Penumbra.Api.git
-	branch = cn
