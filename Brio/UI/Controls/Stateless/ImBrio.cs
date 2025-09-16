@@ -1,15 +1,19 @@
 ﻿using Brio.Resources;
 using Brio.UI.Controls.Core;
 using Brio.UI.Theming;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
+using System;
 using System.Numerics;
 
 namespace Brio.UI.Controls.Stateless;
 public static partial class ImBrio
 {
+    public const string TooltipSeparator = "--SEP--";
+
     public static void FontIcon(FontAwesomeIcon icon)
     {
         using(ImRaii.PushFont(UiBuilder.IconFont))
@@ -50,7 +54,7 @@ public static partial class ImBrio
 
         using(ImRaii.PushFont(UiBuilder.IconFont))
         {
-            if(ImGui.Button($"{icon.ToIconString()}###{id}", new Vector2(25)))
+            if(ImGui.Button($"{icon.ToIconString()}###{id}", new Vector2(25 * ImGuiHelpers.GlobalScale)))
                 wasClicked = true;
         }
 
@@ -68,8 +72,10 @@ public static partial class ImBrio
 
         return wasClicked;
     }
-    public static bool FontIconButtonRight(string id, FontAwesomeIcon icon, float position, string? tooltip = null, bool enabled = true, bool bordered = true, uint? textColor = null)
+    public static bool FontIconButtonRight(string id, FontAwesomeIcon icon, float position, string? tooltip = null, bool enabled = true, bool bordered = true, uint? textColor = null, Vector2? size = null)
     {
+        size ??= new Vector2(25);
+
         bool wasClicked = false;
 
         if(enabled is false)
@@ -87,7 +93,7 @@ public static partial class ImBrio
 
         using(ImRaii.PushFont(UiBuilder.IconFont))
         {
-            if(ImGui.Button($"{icon.ToIconString()}###{id}", new Vector2(25)))
+            if(ImGui.Button($"{icon.ToIconString()}###{id}", size.Value * ImGuiHelpers.GlobalScale))
                 wasClicked = true;
         }
 
@@ -144,10 +150,14 @@ public static partial class ImBrio
                     ImGui.SetTooltip(hoverText);
             }
 
-            ImGui.SetCursorPos(startPos + ImGui.GetStyle().FramePadding);
-            using(ImRaii.PushFont(UiBuilder.IconFont))
+            if(icon != FontAwesomeIcon.None)
             {
-                ImGui.Text(icon.ToIconString());
+                ImGui.SetCursorPos(startPos + ImGui.GetStyle().FramePadding);
+                using(ImRaii.PushFont(UiBuilder.IconFont))
+                {
+
+                    ImGui.Text(icon.ToIconString());
+                }
             }
 
             size.Y = 1;
@@ -162,19 +172,19 @@ public static partial class ImBrio
 
     public static bool ToggelButton(string lable, bool isToggled, uint toggledColor = 0, string hoverText = "")
     {
-        if(toggledColor == 0) toggledColor = TheameManager.CurrentTheame.Accent.AccentColor;
+        if(toggledColor == 0) toggledColor = ThemeManager.CurrentTheme.Accent.AccentColor;
 
         return ToggelButton(lable, Vector2.Zero, isToggled, toggledColor, hoverText);
     }
 
     public static bool ToggelButton(string lable, Vector2 size, bool isToggled, uint toggledColor = 0, string hoverText = "")
     {
-        if(toggledColor == 0) toggledColor = TheameManager.CurrentTheame.Accent.AccentColor;
+        if(toggledColor == 0) toggledColor = ThemeManager.CurrentTheme.Accent.AccentColor;
 
         if(isToggled)
             ImGui.PushStyleColor(ImGuiCol.Button, toggledColor);
 
-        bool clicked = ImGui.Button(lable, size);
+        bool clicked = ImGui.Button(lable, size * ImGuiHelpers.GlobalScale);
 
         if(isToggled)
             ImGui.PopStyleColor();
@@ -192,7 +202,7 @@ public static partial class ImBrio
     {
         var clicked = false;
 
-        if(toggledColor == 0) toggledColor = TheameManager.CurrentTheame.Accent.AccentColor;
+        if(toggledColor == 0) toggledColor = ThemeManager.CurrentTheme.Accent.AccentColor;
 
         if(isToggled)
             ImGui.PushStyleColor(ImGuiCol.Button, toggledColor);
@@ -204,7 +214,7 @@ public static partial class ImBrio
 
         using(ImRaii.PushFont(UiBuilder.IconFont))
         {
-            if(ImGui.Button($"{icon.ToIconString()}###{id}", size))
+            if(ImGui.Button($"{icon.ToIconString()}###{id}", size * ImGuiHelpers.GlobalScale))
                 clicked = true;
         }
 
@@ -264,7 +274,7 @@ public static partial class ImBrio
             var totalSize = border.Size * scale + scaleOffsetTopLeft;
 
             ImGui.SetCursorPos(startPos + scaleOffsetTopLeft);
-            ImGui.Image(texture.ImGuiHandle, containedSize);
+            ImGui.Image(texture.Handle, containedSize);
 
             if(flags.HasFlag(ImGuiButtonFlags.MouseButtonLeft) || flags.HasFlag(ImGuiButtonFlags.MouseButtonRight) || flags.HasFlag(ImGuiButtonFlags.MouseButtonMiddle))
             {
@@ -281,7 +291,7 @@ public static partial class ImBrio
             }
 
             ImGui.SetCursorPos(startPos);
-            ImGui.Image(border.ImGuiHandle, totalSize);
+            ImGui.Image(border.Handle, totalSize);
 
             if(!string.IsNullOrEmpty(description))
             {
@@ -291,5 +301,37 @@ public static partial class ImBrio
 
             return result;
         }
+    }
+
+    public static void AttachToolTip(string text)
+    {
+        if(ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            ImGui.BeginTooltip();
+            ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35f);
+            if(text.Contains(TooltipSeparator, StringComparison.Ordinal))
+            {
+                var splitText = text.Split(TooltipSeparator, StringSplitOptions.RemoveEmptyEntries);
+                for(int i = 0; i < splitText.Length; i++)
+                {
+                    ImGui.TextUnformatted(splitText[i]);
+                    if(i != splitText.Length - 1) ImGui.Separator();
+                }
+            }
+            else
+            {
+                ImGui.TextUnformatted(text);
+            }
+            ImGui.PopTextWrapPos();
+            ImGui.EndTooltip();
+        }
+    }
+    public static void VerticalPadding(float leng)
+    {
+        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + leng * ImGuiHelpers.GlobalScale);
+    }
+    public static void HorizontalPadding(float leng)
+    {
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + leng * ImGuiHelpers.GlobalScale);
     }
 }

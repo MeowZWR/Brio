@@ -7,9 +7,9 @@ using Brio.Game.Input;
 using Brio.UI.Controls;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -83,7 +83,7 @@ public class CameraEntity(IServiceProvider provider, int cameraID, CameraType ca
     public override void OnDoubleClick()
     {
         var ce = GetCapability<CameraLifetimeCapability>();
-        if (!ce.CanDestroy) return;
+        if(!ce.CanDestroy) return;
         RenameActorModal.Open(ce.Entity);
     }
 
@@ -112,7 +112,7 @@ public class CameraEntity(IServiceProvider provider, int cameraID, CameraType ca
 
             string toolTip = $"设置为活动相机";
 
-            using(ImRaii.PushColor(ImGuiCol.Text, TheameManager.CurrentTheame.Accent.AccentColor, VirtualCamera.IsActiveCamera))
+            using(ImRaii.PushColor(ImGuiCol.Text, ThemeManager.CurrentTheme.Accent.AccentColor, VirtualCamera.IsActiveCamera))
             {
                 if(ImBrio.FontIconButtonRight($"###{Id}_camera_contextButton", FontAwesomeIcon.LocationCrosshairs, 1f, toolTip, bordered: false))
                 {

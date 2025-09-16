@@ -12,11 +12,11 @@ using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
-using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -46,8 +46,6 @@ public class LibraryWindow : Window
 
     private readonly ConfigurationService _configurationService;
     private readonly LibraryManager _libraryManager;
-    private readonly IPluginLog _log;
-    private readonly IServiceProvider _serviceProvider;
     private readonly GPoseService _gPoseService;
     private readonly PosingService _posingService;
     private readonly IFramework _frameworkService;
@@ -96,15 +94,13 @@ public class LibraryWindow : Window
     private Action<object>? _modalCallback;
 
     public LibraryWindow(
-        IPluginLog log,
         GPoseService gPoseService,
         EntityManager entityManager,
         ConfigurationService configurationService,
         LibraryManager libraryManager,
         PosingService posingService,
         IFramework frameworkService,
-        SettingsWindow settingsWindow,
-        IServiceProvider serviceProvider)
+        SettingsWindow settingsWindow)
         : base($"{Brio.Name} 资产库###brio_library_window")
     {
         this.Namespace = "brio_library_namespace";
@@ -116,10 +112,8 @@ public class LibraryWindow : Window
         };
         this.SizeConstraints = constraints;
 
-        _log = log;
         _configurationService = configurationService;
         _libraryManager = libraryManager;
-        _serviceProvider = serviceProvider;
         _gPoseService = gPoseService;
         _frameworkService = frameworkService;
         _posingService = posingService;
@@ -388,7 +382,7 @@ public class LibraryWindow : Window
                     float mouseWheel = ImGui.GetIO().MouseWheel * 10;
                     // TODO: replace this ctrl listener with the new key bind system when it is merged
                     // as ImGUI ctrl support is _spotty_
-                    if(InputService.IsKeyBindDown(KeyBindEvents.Interface_IncrementSmallModifier) && mouseWheel != 0)
+                    if(InputManagerService.ActionKeysPressed(InputAction.Interface_IncrementSmallModifier) && mouseWheel != 0)
                     {
                         float val = _configurationService.Configuration.Library.IconSize;
                         val = Math.Clamp(val + mouseWheel, MinEntrySize, MaxEntrySize);
@@ -441,7 +435,7 @@ public class LibraryWindow : Window
                             var config = ConfigurationService.Instance.Configuration;
                             bool isFavorite = config.Library.Favorites.Contains(ieb.Identifier);
 
-                            using(ImRaii.PushColor(ImGuiCol.Text, isFavorite ? TheameManager.CurrentTheame.Accent.AccentColor : UIConstants.ToggleButtonInactive))
+                            using(ImRaii.PushColor(ImGuiCol.Text, isFavorite ? ThemeManager.CurrentTheme.Accent.AccentColor : UIConstants.ToggleButtonInactive))
                             {
                                 if(ImBrio.FontIconButton(FontAwesomeIcon.Heart))
                                 {
@@ -837,7 +831,7 @@ public class LibraryWindow : Window
         _searchTextNeedsClear = true;
     }
 
-    private unsafe int OnSearchFunc(ImGuiInputTextCallbackData* data)
+    private int OnSearchFunc(ref ImGuiInputTextCallbackData data)
     {
         if(_searchTextNeedsClear)
         {
@@ -845,12 +839,12 @@ public class LibraryWindow : Window
             _searchText = string.Empty;
 
             // clear the search input buffer
-            data->BufTextLen = 0;
-            data->BufSize = 0;
-            data->CursorPos = 0;
-            data->SelectionStart = 0;
-            data->SelectionEnd = 0;
-            data->BufDirty = 1;
+            data.BufTextLen = 0;
+            data.BufSize = 0;
+            data.CursorPos = 0;
+            data.SelectionStart = 0;
+            data.SelectionEnd = 0;
+            data.BufDirty = 1;
         }
 
         return 1;

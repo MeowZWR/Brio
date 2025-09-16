@@ -1,5 +1,5 @@
 ﻿using Brio.Core;
-using ImGuizmoNET;
+using Dalamud.Bindings.ImGuizmo;
 
 namespace Brio.Game.Posing;
 
@@ -29,6 +29,11 @@ public class PosingService
     {
         OverlayFilter = new BoneFilter(this);
         OverlayFilter.DisableCategory("ex");
+        OverlayFilter.DisableCategory("weapon");
+        OverlayFilter.DisableCategory("clothing");
+        //OverlayFilter.DisableCategory("other");
+        OverlayFilter.DisableCategory("legacy");
+
 
         DefaultImporterOptions = new PoseImporterOptions(new BoneFilter(this), TransformComponents.Rotation, false);
         DefaultImporterOptions.BoneFilter.DisableCategory("weapon");
@@ -86,19 +91,19 @@ public enum PosingOperation
 
 public static class PosingExtensions
 {
-    public static MODE AsGizmoMode(this PosingCoordinateMode mode) => mode switch
+    public static ImGuizmoMode AsGizmoMode(this PosingCoordinateMode mode) => mode switch
     {
-        PosingCoordinateMode.Local => MODE.LOCAL,
-        PosingCoordinateMode.World => MODE.WORLD,
-        _ => MODE.LOCAL
+        PosingCoordinateMode.Local => ImGuizmoMode.Local,
+        PosingCoordinateMode.World => ImGuizmoMode.World,
+        _ => ImGuizmoMode.Local
     };
 
-    public static OPERATION AsGizmoOperation(this PosingOperation operation) => operation switch
+    public static ImGuizmoOperation AsGizmoOperation(this PosingOperation operation) => operation switch
     {
-        PosingOperation.Translate => OPERATION.TRANSLATE,
-        PosingOperation.Rotate => OPERATION.ROTATE,
-        PosingOperation.Scale => OPERATION.SCALE,
-        PosingOperation.Universal => OPERATION.TRANSLATE | OPERATION.ROTATE | OPERATION.SCALE,
-        _ => OPERATION.ROTATE
+        PosingOperation.Translate => ImGuizmoOperation.Translate,
+        PosingOperation.Rotate => ImGuizmoOperation.Rotate,
+        PosingOperation.Scale => ImGuizmoOperation.Scale,
+        PosingOperation.Universal => ImGuizmoOperation.Translate | ImGuizmoOperation.Rotate | ImGuizmoOperation.Scale,
+        _ => ImGuizmoOperation.Rotate
     };
 }

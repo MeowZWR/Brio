@@ -1,9 +1,10 @@
 ﻿using Brio.Core;
 using Brio.Input;
 using Brio.UI.Controls.Core;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -28,7 +29,7 @@ public static partial class ImBrio
             {
                 using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
                 {
-                    if(Button($"{label}##Button", icon, new Vector2(25)))
+                    if(Button($"{label}##Button", icon, new Vector2(25 * ImGuiHelpers.GlobalScale)))
                     {
                         if(isExpanded)
                         {
@@ -58,8 +59,6 @@ public static partial class ImBrio
 
         if(isExpanded && enableExpanded)
         {
-            float height = (GetLineHeight()) * 3 + (ImGui.GetStyle().ItemSpacing.Y * 2) + (ImGui.GetStyle().WindowPadding.Y * 2);
-
             ImGui.PushStyleColor(ImGuiCol.FrameBg, UIConstants.GizmoBlue);
 
             float x = vectorValue.X;
@@ -84,14 +83,20 @@ public static partial class ImBrio
             active |= panyActive |= ranyActive |= sanyActive;
 
             ImGui.PopStyleColor();
-
-            //if(ImGui.BeginChild($"###{label}_child", new Vector2(GetRemainingWidth(), height), false))
-            //{
-            //    ImGui.EndChild();
-            //}
         }
 
         return (active, changed);
+    }
+
+
+    public static (bool anyActive, bool didChange) DragFloat3Simple(string label, ref Vector3 value, float step)
+    {
+        Vector2 d3size = new(0, 0)
+        {
+            X = GetRemainingWidth() + ImGui.GetStyle().ItemSpacing.X
+        };
+
+        return DragFloat3Horizontal($"###{label}", ref value, step, d3size);
     }
 
     public static (bool anyActive, bool didChange) DragFloat3Horizontal(string label, ref Vector3 value, float step, Vector2 size)
@@ -99,10 +104,10 @@ public static partial class ImBrio
         bool changed = false;
         bool active = false;
 
-        if(InputService.IsKeyBindDown(KeyBindEvents.Interface_IncrementSmallModifier))
+        if(InputManagerService.ActionKeysPressed(InputAction.Interface_IncrementSmallModifier))
             step /= 10;
 
-        if(InputService.IsKeyBindDown(KeyBindEvents.Interface_IncrementLargeModifier))
+        if(InputManagerService.ActionKeysPressed(InputAction.Interface_IncrementLargeModifier))
             step *= 10;
 
         if(size.X <= 0)
@@ -164,15 +169,15 @@ public static partial class ImBrio
         bool changed = false;
         bool active = false;
 
-        if(InputService.IsKeyBindDown(KeyBindEvents.Interface_IncrementSmallModifier))
+        if(InputManagerService.ActionKeysPressed(InputAction.Interface_IncrementSmallModifier))
             step /= 10;
 
-        if(InputService.IsKeyBindDown(KeyBindEvents.Interface_IncrementLargeModifier))
+        if(InputManagerService.ActionKeysPressed(InputAction.Interface_IncrementLargeModifier))
             step *= 10;
 
         float buttonWidth = 32;
         ImGui.SetNextItemWidth(buttonWidth);
-        if(ImGui.ArrowButton($"##{label}_decrease", ImGuiDir.Left))
+        if(ImGui.Button($"◀##{label}_decrease"))
         {
             value -= step;
             changed = true;
@@ -193,7 +198,7 @@ public static partial class ImBrio
         {
             ImGui.SetNextItemWidth((ImBrio.GetRemainingWidth() - buttonWidth) + ImGui.GetStyle().ItemSpacing.X);
         }
-        
+
         changed |= ImGui.DragFloat($"##{label}_drag", ref value, step / 10.0f);
         active |= ImGui.IsItemActive();
 
@@ -210,7 +215,7 @@ public static partial class ImBrio
 
         ImGui.SameLine();
         ImGui.SetNextItemWidth(buttonWidth);
-        if(ImGui.ArrowButton($"##{label}_increase", ImGuiDir.Right))
+        if(ImGui.Button($"▶##{label}_increase"))
         {
             value += step;
             changed = true;
@@ -233,17 +238,17 @@ public static partial class ImBrio
         bool changed = false;
         bool active = false;
 
-        if(InputService.IsKeyBindDown(KeyBindEvents.Interface_IncrementSmallModifier))
+        if(InputManagerService.ActionKeysPressed(InputAction.Interface_IncrementSmallModifier))
             step /= 10;
 
-        if(InputService.IsKeyBindDown(KeyBindEvents.Interface_IncrementLargeModifier))
+        if(InputManagerService.ActionKeysPressed(InputAction.Interface_IncrementLargeModifier))
             step *= 10;
 
-        float buttonWidth = 32;
+        float buttonWidth = 32 * ImGuiHelpers.GlobalScale;
         ImGui.SetNextItemWidth(buttonWidth);
-        if(ImGui.ArrowButton($"##{label}_decrease", ImGuiDir.Left))
+        if(ImGui.Button($"◀##{label}_decrease"))
         {
-            if (value - step <= min)
+            if(value - step <= min)
             {
                 value = min;
             }
@@ -274,7 +279,7 @@ public static partial class ImBrio
         {
             ImGui.SetNextItemWidth(width);
         }
-        
+
         if(ImGui.DragFloat($"##{label}_drag", ref value, step / 10.0f, min, max))
         {
             if(value < min)
@@ -313,7 +318,7 @@ public static partial class ImBrio
 
         ImGui.SameLine();
         ImGui.SetNextItemWidth(buttonWidth);
-        if(ImGui.ArrowButton($"##{label}_increase", ImGuiDir.Right))
+        if(ImGui.Button($"▶##{label}_increase"))
         {
             if(value + step >= max)
             {

@@ -1,20 +1,22 @@
 ﻿using Brio.Capabilities.Actor;
 using Brio.Config;
 using Brio.Core;
+using Brio.Entities;
 using Brio.Entities.Actor;
 using Brio.Files;
 using Brio.Game.Input;
 using Brio.Game.Posing;
+using Brio.Game.Posing.Skeletons;
 using Brio.Input;
 using Brio.Resources;
 using Brio.UI.Widgets.Posing;
 using Brio.UI.Windows.Specialized;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Common.Lua;
 using OneOf;
 using OneOf.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Brio.Capabilities.Posing;
 
@@ -29,6 +31,8 @@ public class PosingCapability : ActorCharacterCapability
 
     public PosingService PosingService => _posingService;
 
+
+    public bool IsEntitySelected;
     public bool HasOverride
     {
         get
@@ -45,8 +49,8 @@ public class PosingCapability : ActorCharacterCapability
         }
     }
 
-    public bool HasUndoStack => _undoStack.Count > 1;
-    public bool HasRedoStack => _redoStack.Any();
+    public bool CanUndo => _undoStack.Count is not 0 and not 1 || _groupedUndoService.CanUndo;
+    public bool CanRedo => _redoStack.Count > 0 || _groupedUndoService.CanRedo;
     public bool HasIKApplied => SkeletonPosing.PoseInfo.HasIKStacks;
 
     private Stack<PoseStack> _undoStack = [];
@@ -74,46 +78,49 @@ public class PosingCapability : ActorCharacterCapability
     private readonly ConfigurationService _configurationService;
     private readonly PosingTransformWindow _overlayTransformWindow;
     private readonly IFramework _framework;
-    private readonly InputService _input;
     private readonly GameInputService _gameInputService;
+    private readonly HistoryService _groupedUndoService;
+    private readonly EntityManager _entityManager;
 
     public PosingCapability(
         ActorEntity parent,
         PosingOverlayWindow window,
+        HistoryService groupedUndoService,
         PosingService posingService,
+        EntityManager entityManager,
         ConfigurationService configurationService,
         PosingTransformWindow overlayTransformWindow,
         IFramework framework,
-        GameInputService gameInputService,
-        InputService input)
+        GameInputService gameInputService)
         : base(parent)
     {
         Widget = new PosingWidget(this);
+
         _overlayWindow = window;
         _posingService = posingService;
         _configurationService = configurationService;
         _overlayTransformWindow = overlayTransformWindow;
+        _entityManager = entityManager;
         _framework = framework;
-        _input = input;
+        _groupedUndoService = groupedUndoService;
         _gameInputService = gameInputService;
     }
 
-    public override void OnEntitySelected()
+    private void OnFrameworkUpdate(IFramework framework)
     {
-        base.OnEntitySelected();
+        if(IsEntitySelected)
+        {
+            if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Undo))
+            {
+                Brio.Log.Warning($"Undo ActionKeysPressedLastFrame");
 
-        _input.AddListener(KeyBindEvents.Posing_ToggleOverlay, ToggleOverlay);
-        _input.AddListener(KeyBindEvents.Posing_Undo, Undo);
-        _input.AddListener(KeyBindEvents.Posing_Redo, Redo);
-    }
+            }
+            if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Redo))
+            {
+                Brio.Log.Warning($"Redo ActionKeysPressedLastFrame");
 
-    public override void OnEntityDeselected()
-    {
-        base.OnEntityDeselected();
-
-        _input.RemoveListener(KeyBindEvents.Posing_ToggleOverlay, ToggleOverlay);
-        _input.RemoveListener(KeyBindEvents.Posing_Undo, Undo);
-        _input.RemoveListener(KeyBindEvents.Posing_Redo, Redo);
+            }
+        }
     }
 
     public void ClearSelection() => Selected = PosingSelectionType.None;
@@ -285,6 +292,12 @@ public class PosingCapability : ActorCharacterCapability
 
     public void Redo()
     {
+        if(_entityManager.SelectedEntityIds.Count > 1)
+        {
+            _groupedUndoService.Redo();
+            return;
+        }
+
         if(_redoStack.TryPop(out var redoStack))
         {
             _undoStack.Push(redoStack);
@@ -295,6 +308,12 @@ public class PosingCapability : ActorCharacterCapability
 
     public void Undo()
     {
+        if(_entityManager.SelectedEntityIds.Count > 1)
+        {
+            _groupedUndoService.Undo();
+            return;
+        }
+
         if(_undoStack.TryPop(out var undoStack))
             _redoStack.Push(undoStack);
 
@@ -316,11 +335,6 @@ public class PosingCapability : ActorCharacterCapability
 
         if(generateSnapshot)
             Snapshot(reset);
-    }
-
-    public void ToggleOverlay()
-    {
-        OverlayOpen = !OverlayOpen;
     }
 
     private void Reconcile(bool reset = true, bool generateSnapshot = true)
@@ -345,18 +359,56 @@ public class PosingCapability : ActorCharacterCapability
     }
     public BonePoseInfoId? IsSelectedBone()
     {
-        Game.Posing.Skeletons.Bone? realBone = null;
+        Bone? realBone = null;
         return Selected.Match<BonePoseInfoId?>(
             bone =>
             {
                 realBone = SkeletonPosing.GetBone(bone);
-                if (realBone != null && realBone.Skeleton.IsValid)
+                if(realBone != null && realBone.Skeleton.IsValid)
                     return bone;
                 return null;
             },
             _ => null,
             _ => null
         );
+    }
+
+    public static void FlipBone(Bone bone, BonePoseInfo poseInfo)
+    {
+        var newBoneTransform = bone.LastTransform;
+
+        // Convert to Euler (like the Gizmo)
+        var boneRotationEuler = bone.LastTransform.Rotation.ToEuler();
+        boneRotationEuler.X = 180 - boneRotationEuler.X;
+        boneRotationEuler.Y = -boneRotationEuler.Y;
+        var newBoneRotation = boneRotationEuler.ToQuaternion();
+
+        newBoneTransform.Rotation = newBoneRotation;
+
+        poseInfo.Apply(newBoneTransform, bone.LastRawTransform, TransformComponents.All, TransformComponents.All, poseInfo.DefaultIK, poseInfo.MirrorMode, true);
+    }
+
+    public void FlipBoneModel()
+    {
+        BonePoseInfoId? selectedIsBone = IsSelectedBone();
+        // Bone Flip
+        if(selectedIsBone.HasValue)
+        {
+            // Get current bone rotation data
+            var bone = SkeletonPosing.GetBone(selectedIsBone.Value);
+            if(bone != null)
+            {
+                var poseInfo = SkeletonPosing.PoseInfo.GetPoseInfo(bone);
+                FlipBone(bone, poseInfo);
+
+                // record change for undo
+                Snapshot(reset: false);
+            }
+        }
+        else
+        {
+            // Model Flip (TODO: Implement)
+        }
     }
 
     public record struct PoseStack(PoseInfo Info, Transform ModelTransform);

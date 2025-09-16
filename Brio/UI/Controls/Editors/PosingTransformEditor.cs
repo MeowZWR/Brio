@@ -2,9 +2,9 @@
 using Brio.Core;
 using Brio.Game.Posing;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
 using OneOf.Types;
 using System.Numerics;
 
@@ -31,7 +31,7 @@ public class PosingTransformEditor
                 bool isBone = false;
                 Game.Posing.Skeletons.Bone? realBone = null;
 
-                if (selectedIsBone.HasValue && !posingCapability.Actor.IsProp)
+                if(selectedIsBone.HasValue && !posingCapability.Actor.IsProp)
                 {
                     isBone = true;
                     realBone = posingCapability.SkeletonPosing.GetBone(selectedIsBone.Value);
@@ -45,7 +45,7 @@ public class PosingTransformEditor
                 if(posingCapability.Actor.IsProp == false)
                 {
                     if(ImBrio.FontIconButton("transformOffset", FontAwesomeIcon.GaugeSimpleHigh, "变换偏移量"))
-                    { 
+                    {
                         ImGui.OpenPopup("transformOffset");
                     }
 
@@ -55,6 +55,13 @@ public class PosingTransformEditor
 
                     using(ImRaii.Disabled(isBone == false))
                     {
+                        //if(ImBrio.FontIconButton("flipBoneModelButton", FontAwesomeIcon.Repeat, "Flip Bone"))
+                        //{
+                        //    posingCapability.FlipBoneModel();
+                        //}
+
+                        //ImGui.SameLine();
+
                         if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "传递", realBone?.EligibleForIK == true))
                             ImGui.OpenPopup("transform_propagate_popup");
 
@@ -186,7 +193,7 @@ public class PosingTransformEditor
         var realEuler = _trackingEuler ?? before.Rotation.ToEuler();
 
         using(ImRaii.Disabled(posingCapability.ModelPosing.Freeze == true))
-        { 
+        {
             bool didChange = false;
             bool anyActive = false;
 

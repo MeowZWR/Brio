@@ -3,10 +3,10 @@ using Brio.Game.Actor.Appearance;
 using Brio.Resources;
 using Brio.Resources.Sheets;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,26 +24,34 @@ public class CustomizeEditor()
 
     public bool DrawCustomize(ref ActorAppearance currentAppearance, ActorAppearance originalAppearance, ActorAppearanceCapability capability)
     {
-        _capability = capability;
-
         bool didChange = false;
 
-        didChange |= DrawReset(ref currentAppearance, originalAppearance);
-        didChange |= DrawModelIdSelector(ref currentAppearance.ModelCharaId);
+        _capability = capability;
 
-        if(_capability.IsHuman)
+        var slotSizes = ImGui.GetContentRegionAvail() / new Vector2(1, 1.32f);
+        using(var customizeGroup = ImRaii.Child("customizeGroup", slotSizes))
         {
-            ImGui.Separator();
-            didChange |= DrawRaceSelector(ref currentAppearance.Customize);
-            ImGui.Separator();
+            if(customizeGroup.Success)
+            {
 
-            var menus = BrioCharaMakeType.BuildMenus(currentAppearance);
-            didChange |= DrawMenus(ref currentAppearance, menus);
-        }
-        else
-        {
-            if(ImGui.Button("Make Human"))
-                _ = _capability.MakeHuman();
+                didChange |= DrawReset(ref currentAppearance, originalAppearance);
+                didChange |= DrawModelIdSelector(ref currentAppearance.ModelCharaId);
+
+                if(_capability.IsHuman)
+                {
+                    ImGui.Separator();
+                    didChange |= DrawRaceSelector(ref currentAppearance.Customize);
+                    ImGui.Separator();
+
+                    var menus = BrioCharaMakeType.BuildMenus(currentAppearance);
+                    didChange |= DrawMenus(ref currentAppearance, menus);
+                }
+                else
+                {
+                    if(ImGui.Button("Make Human"))
+                        _ = _capability.MakeHuman();
+                }
+            }
         }
 
         return didChange;
@@ -154,7 +162,7 @@ public class CustomizeEditor()
 
         const string modelIdLabel = "模型";
         ImGui.SetNextItemWidth(MaxItemWidth);
-        if(ImGui.InputInt("###model_id", ref modelId, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+        if(ImGui.InputInt("###model_id", ref modelId, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
             madeChange |= true;
         ImGui.SameLine();
         ImGui.Text(modelIdLabel);
@@ -299,7 +307,7 @@ public class CustomizeEditor()
             {
 
                 ImGui.SetNextItemWidth(MaxItemWidth);
-                if(ImGui.InputInt("###hair_style", ref currentHairIdx, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+                if(ImGui.InputInt("###hair_style", ref currentHairIdx, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
                 {
                     madeChange |= true;
                     customize.HairStyle = (byte)currentHairIdx;
@@ -348,7 +356,7 @@ public class CustomizeEditor()
 
         int eyeShape = customize.RealEyeShape;
         ImGui.SetNextItemWidth(MaxItemWidth / 1.97f);
-        if(ImGui.InputInt("###eye_shape", ref eyeShape, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+        if(ImGui.InputInt("###eye_shape", ref eyeShape, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
         {
             customize.RealEyeShape = (byte)eyeShape;
             madeChange |= true;
@@ -398,7 +406,7 @@ public class CustomizeEditor()
             ImGui.SetNextItemWidth(MaxItemWidth);
         }
 
-        if(ImGui.InputInt("###mouth_id", ref currentMouthIdx, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+        if(ImGui.InputInt("###mouth_id", ref currentMouthIdx, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
         {
             madeChange |= true;
             customize.RealLipStyle = (byte)currentMouthIdx;
@@ -473,7 +481,7 @@ public class CustomizeEditor()
             {
 
                 ImGui.SetNextItemWidth(MaxItemWidth);
-                if(ImGui.InputInt("###facepaint_id", ref currentFacepaintIdx, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+                if(ImGui.InputInt("###facepaint_id", ref currentFacepaintIdx, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
                 {
                     madeChange |= true;
                     customize.RealFacepaint = (byte)currentFacepaintIdx;
@@ -541,7 +549,7 @@ public class CustomizeEditor()
                 if(group.Success)
                 {
                     ImGui.SetNextItemWidth(MaxItemWidth);
-                    if(ImGui.InputInt("###feature_ids", ref currentFeatures, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("###feature_ids", ref currentFeatures, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         madeChange |= true;
                         customize.FaceFeatures = (FacialFeature)currentFeatures;
@@ -572,7 +580,7 @@ public class CustomizeEditor()
 
         int value = customize.Data[(int)customizeIndex];
         ImGui.SetNextItemWidth(MaxItemWidth);
-        if(ImGui.InputInt($"###{title}", ref value, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+        if(ImGui.InputInt($"###{title}", ref value, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
         {
             customize.Data[(int)customizeIndex] = (byte)value;
             didChange |= true;
@@ -606,7 +614,7 @@ public class CustomizeEditor()
             if(group.Success)
             {
                 ImGui.SetNextItemWidth(MaxItemWidth);
-                if(ImGui.InputInt($"###{customizeIndex}", ref value, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+                if(ImGui.InputInt($"###{customizeIndex}", ref value, 1, 1, default, ImGuiInputTextFlags.EnterReturnsTrue))
                 {
                     customize.Data[(int)customizeIndex] = (byte)value;
                     didChange |= true;

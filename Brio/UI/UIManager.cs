@@ -1,16 +1,17 @@
 ﻿using Brio.Config;
 using Brio.Game.GPose;
-using Brio.Game.Penumbra;
+using Brio.Input;
 using Brio.IPC;
 using Brio.UI.Controls;
 using Brio.UI.Windows;
 using Brio.UI.Windows.Specialized;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using ImGuiNET;
+using FFXIVClientStructs.FFXIV.Common.Lua;
 using System;
 using System.Collections.Generic;
 
@@ -27,6 +28,8 @@ public class UIManager : IDisposable
     private readonly InfoWindow _infoWindow;
     private readonly ProjectWindow _projectWindow;
     private readonly UpdateWindow _updateWindow;
+    private readonly AutoSaveWindow _autoSaveWindow;
+    private readonly MCDFWindow _mCDFWindow;
     private readonly LibraryWindow _libraryWindow;
     private readonly ActorAppearanceWindow _actorAppearanceWindow;
     private readonly ActionTimelineWindow _actionTimelineWindow;
@@ -44,7 +47,6 @@ public class UIManager : IDisposable
 
     private readonly PenumbraService _penumbraService;
     private readonly GlamourerService _glamourerService;
-    private readonly MareService _mareService;
 
     private readonly WindowSystem _windowSystem;
 
@@ -86,10 +88,11 @@ public class UIManager : IDisposable
             PosingTransformWindow overlayTransformWindow,
             PosingGraphicalWindow graphicalWindow,
             CameraWindow cameraWindow,
+            AutoSaveWindow autoSaveWindow,
+            MCDFWindow mCDFWindow,
 
             PenumbraService penumbraService,
-            GlamourerService glamourerService,
-            MareService mareService
+            GlamourerService glamourerService
         )
     {
         Instance = this;
@@ -114,12 +117,13 @@ public class UIManager : IDisposable
         _overlayTransformWindow = overlayTransformWindow;
         _graphicalWindow = graphicalWindow;
         _cameraWindow = cameraWindow;
+        _autoSaveWindow = autoSaveWindow;
+        _mCDFWindow = mCDFWindow;
 
         _framework = framework;
 
         _penumbraService = penumbraService;
         _glamourerService = glamourerService;
-        _mareService = mareService;
 
         _windowSystem = new(Brio.Name);
 
@@ -137,6 +141,8 @@ public class UIManager : IDisposable
         _windowSystem.AddWindow(_overlayTransformWindow);
         _windowSystem.AddWindow(_graphicalWindow);
         _windowSystem.AddWindow(_cameraWindow);
+        _windowSystem.AddWindow(_autoSaveWindow);
+        _windowSystem.AddWindow(_mCDFWindow);
 
         _gPoseService.OnGPoseStateChange += OnGPoseStateChange;
         _configurationService.OnConfigurationChanged += ApplySettings;
@@ -213,10 +219,29 @@ public class UIManager : IDisposable
             FileDialogManager.Draw();
             _libraryWindow.DrawModal();
             RenameActorModal.DrawModal();
+
+            UpdateKeyBinds();
         }
         finally
         {
             BrioStyle.PopStyle();
+        }
+    }
+
+    private void UpdateKeyBinds()
+    {
+        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_ToggleBrioWindow))
+        {
+            _mainWindow.IsOpen = !_mainWindow.IsOpen;
+        }
+        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_ToggleBindPromptWindow))
+        {
+            _configurationService.Configuration.InputManager.ShowPromptsInGPose = !_configurationService.Configuration.InputManager.ShowPromptsInGPose;
+            _configurationService.ApplyChange();
+        }
+        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_ToggleOverlay))
+        {
+            _overlayWindow.IsOpen = !_overlayWindow.IsOpen;
         }
     }
 
@@ -254,6 +279,8 @@ public class UIManager : IDisposable
         _windowSystem.RemoveAllWindows();
 
         Instance = null!;
+
+        GC.SuppressFinalize(this);
     }
     
     public IDalamudTextureWrap LoadImage(byte[] data)

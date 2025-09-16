@@ -32,8 +32,8 @@ public class Configuration : IPluginConfiguration
     // Library
     public LibraryConfiguration Library { get; set; } = new LibraryConfiguration();
 
-    // Emote
-    public EmoteConfiguration Emote { get; set; } = new EmoteConfiguration();
+    // MCDF Data
+    public MCDFConfiguration MCDF { get; set; } = new MCDFConfiguration();
 
     public string LastMCDFPath { get; set; } = string.Empty;
     public string LastExportPath { get; set; } = string.Empty;
@@ -46,10 +46,13 @@ public class Configuration : IPluginConfiguration
     public bool SceneDestoryActorsBeforeImport { get; set; } = false;
 
     // Input
-    public InputConfiguration Input { get; set; } = new InputConfiguration();
+    public InputManagerConfiguration InputManager { get; set; } = new InputManagerConfiguration();
 
     // AutoSave
     public AutoSaveConfiguration AutoSave { get; set; } = new AutoSaveConfiguration();
+
+    // Emote
+    public EmoteConfiguration Emote { get; set; } = new EmoteConfiguration();
 
     // Developer
     public bool ForceDebug { get; set; } = false;

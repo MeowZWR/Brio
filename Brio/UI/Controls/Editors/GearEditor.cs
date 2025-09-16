@@ -4,10 +4,10 @@ using Brio.Game.Types;
 using Brio.Resources;
 using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
-using ImGuiNET;
 using System.Numerics;
 
 namespace Brio.UI.Controls.Editors;
@@ -16,7 +16,7 @@ public class GearEditor()
 {
     private WeaponModelId BlankItem = new() { Id = 0, Type = 0 };
 
-    private Vector2 IconSize => new(ImGui.GetTextLineHeight() * 3.9f);
+    private Vector2 IconSize => new(ImGui.GetTextLineHeight() * 3.3f);
 
     private ActorAppearanceCapability _capability = null!;
 
@@ -58,7 +58,7 @@ public class GearEditor()
 
         ImGui.Spacing();
 
-        var slotSizes = ImGui.GetContentRegionAvail() / new Vector2(2, 1.32f);
+        var slotSizes = ImGui.GetContentRegionAvail() / new Vector2(2, 1f);
 
         using(var leftGearGroup = ImRaii.Child("leftGearGroup", slotSizes))
         {
@@ -169,6 +169,8 @@ public class GearEditor()
 
         using(ImRaii.PushId(slot.ToString()))
         {
+            ImGui.Text($"{slot}: {model?.Name ?? "Unknown"}");
+
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
                 _gearSelector.SetGearSelect(model, slot);
@@ -181,12 +183,8 @@ public class GearEditor()
             {
                 if(group.Success)
                 {
-                    string description = $"{slot}: {model?.Name ?? "未知"}";
-
-                    ImGui.Text(description);
-
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##id", ref equipId, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##id", ref equipId, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Id = (ushort)equipId;
                         didChange |= true;
@@ -195,7 +193,7 @@ public class GearEditor()
                     ImGui.SameLine();
 
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##variant", ref equipVariant, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##variant", ref equipVariant, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Variant = (byte)equipVariant;
                         didChange |= true;
@@ -315,6 +313,8 @@ public class GearEditor()
 
         using(ImRaii.PushId(slot.ToString()))
         {
+            ImGui.Text($"{slot}: {model?.Name ?? "Unknown"}");
+
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
                 _gearSelector.SetGearSelect(model, _weaponSlots);
@@ -327,12 +327,8 @@ public class GearEditor()
             {
                 if(group.Success)
                 {
-                    string description = $"{slot}: {model?.Name ?? "未知"}";
-
-                    ImGui.Text(description);
-
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##id", ref equipId, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##id", ref equipId, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Id = (ushort)equipId;
                         didChange |= true;
@@ -341,7 +337,7 @@ public class GearEditor()
                     ImGui.SameLine();
 
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##type", ref equipType, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##type", ref equipType, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Type = (ushort)equipType;
                         didChange |= true;
@@ -350,7 +346,7 @@ public class GearEditor()
                     ImGui.SameLine();
 
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##variant", ref equipVariant, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##variant", ref equipVariant, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Variant = (byte)equipVariant;
                         didChange |= true;
@@ -466,6 +462,8 @@ public class GearEditor()
 
         using(ImRaii.PushId(slot.ToString()))
         {
+            ImGui.Text($"{slot}: {model?.Name ?? "Unknown"}");
+
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
                 _gearSelector.SetGearSelect(model, _propSlots);
@@ -478,12 +476,9 @@ public class GearEditor()
             {
                 if(group.Success)
                 {
-                    string description = $"{slot}: {model?.Name ?? "未知"}";
-
-                    ImGui.Text(description);
 
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##id", ref equipId, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##id", ref equipId, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Id = (ushort)equipId;
                         didChange |= true;
@@ -492,7 +487,7 @@ public class GearEditor()
                     ImGui.SameLine();
 
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##type", ref equipType, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##type", ref equipType, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Type = (ushort)equipType;
                         didChange |= true;
@@ -501,7 +496,7 @@ public class GearEditor()
                     ImGui.SameLine();
 
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
-                    if(ImGui.InputInt("##variant", ref equipVariant, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##variant", ref equipVariant, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         equip.Variant = (byte)equipVariant;
                         didChange |= true;
@@ -537,12 +532,11 @@ public class GearEditor()
         return didChange;
     }
 
-
     private bool DrawFacewearSlot(ref ActorAppearance appearance)
     {
         bool didChange = false;
 
-        Vector2 faceIconSize = new Vector2(ImGui.GetTextLineHeight() * 2.3f);
+        Vector2 faceIconSize = new(ImGui.GetTextLineHeight() * 2.0f);
 
         FacewearUnion facewearUnion = new FacewearId(appearance.Facewear);
         var (facewearId, facewearName, facewearIcon) = facewearUnion.Match(
@@ -552,6 +546,8 @@ public class GearEditor()
 
         using(ImRaii.PushId("facewear"))
         {
+            ImGui.Text($"Facewear: {facewearName}");
+
             if(ImBrio.BorderedGameIcon("##icon", facewearIcon, "Images.Facewear.png", size: faceIconSize))
             {
                 _facewearSelector.Select(facewearUnion, true);
@@ -566,13 +562,10 @@ public class GearEditor()
             {
                 if(group.Success)
                 {
-                    string description = $"Facewear: {facewearName}";
-
-                    ImGui.Text(description);
 
                     ImGui.SetNextItemWidth(ImGui.CalcTextSize("XXXXX").X);
                     int value = facewearId;
-                    if(ImGui.InputInt("##facewearid", ref value, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue))
+                    if(ImGui.InputInt("##facewearid", ref value, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue))
                     {
                         appearance.Facewear = (ushort)value;
                         didChange |= true;

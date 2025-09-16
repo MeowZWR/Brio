@@ -1,8 +1,8 @@
 ﻿using Brio.Capabilities.Core;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
 using System.Collections.Generic;
 
 namespace Brio.UI.Widgets.Core;
@@ -39,7 +39,7 @@ public class WidgetHelpers
                 var startPos = ImGui.GetCursorPos();
                 string tool = $"高级{widget.HeaderName}";
 
-                if(ImBrio.FontIconButtonRight("advanced", FontAwesomeIcon.SquareArrowUpRight, 1, tool, bordered: false))
+                if(ImBrio.FontIconButtonRight("advanced", FontAwesomeIcon.SquareArrowUpRight, 1, tool, bordered: false, size: new System.Numerics.Vector2(23)))
                     widget.ToggleAdvancedWindow();
 
                 ImGui.SetCursorPos(startPos);

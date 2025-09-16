@@ -4,9 +4,9 @@ using Brio.Game.GPose;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -15,12 +15,13 @@ namespace Brio.Entities.Actor;
 public class ActorContainerEntity(IServiceProvider provider) : Entity("actorContainer", provider)
 {
     private readonly GPoseService _gPoseService = provider.GetRequiredService<GPoseService>();
-    private readonly EntityManager _entityManager = provider.GetRequiredService<EntityManager>();
 
     public override string FriendlyName => "角色";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Users;
 
     public override EntityFlags Flags => EntityFlags.HasContextButton;
+
+    public override int ContextButtonCount => 1;
 
     public override void OnAttached()
     {
@@ -34,7 +35,7 @@ public class ActorContainerEntity(IServiceProvider provider) : Entity("actorCont
     {
         using(ImRaii.Disabled(_gPoseService.IsGPosing == false))
         {
-            using(ImRaii.PushColor(ImGuiCol.Button, TheameManager.CurrentTheame.Accent.AccentColor))
+            using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor))
             {
                 string toolTip = $"新建角色";
                 if(ImBrio.FontIconButtonRight($"###{Id}_actors_contextButton", FontAwesomeIcon.Plus, 1f, toolTip, bordered: false))

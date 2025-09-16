@@ -9,6 +9,7 @@ public class CommandHandlerService : IDisposable
 {
     private const string BrioCommandName = "/brio";
     private const string XATCommandName = "/xat";
+    private const string MCDFCommandName = "/mcdf";
 
     private readonly ICommandManager _commandManager;
     private readonly IChatGui _chatGui;
@@ -29,6 +30,11 @@ public class CommandHandlerService : IDisposable
         {
             HelpMessage = "开关Brio窗口。",
             ShowInHelp = false,
+        });
+        _commandManager.AddHandler(MCDFCommandName, new CommandInfo(OnCommand)
+        {
+            HelpMessage = "Toggles Brio's MCDF window.",
+            ShowInHelp = true,
         });
     }
 

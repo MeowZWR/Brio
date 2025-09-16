@@ -7,16 +7,15 @@ using GameCamera = FFXIVClientStructs.FFXIV.Client.Game.Camera;
 [StructLayout(LayoutKind.Explicit, Size = 0x2B0)]
 public struct BrioCamera
 {
-    [FieldOffset(0x0)]
-    public GameCamera Camera;
+    [FieldOffset(0x000)] public GameCamera Camera;
 
-    [FieldOffset(0x12C)] public float FoV;
+    [FieldOffset(0x13C)] public float FoV;
 
-    [FieldOffset(0x130)] public Vector2 Angle;
+    [FieldOffset(0x140)] public Vector2 Angle;
 
-    [FieldOffset(0x150)] public Vector2 Pan;
+    [FieldOffset(0x160)] public Vector2 Pan;
 
-    [FieldOffset(0x160)] public float Rotation;
+    [FieldOffset(0x170)] public float Rotation;
 
-    [FieldOffset(0x208)] public Vector2 Collide;
+    [FieldOffset(0x218)] public Vector2 Collide;
 }

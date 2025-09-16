@@ -5,10 +5,10 @@ using Brio.Game.Camera;
 using Brio.Game.Posing;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
 using OneOf.Types;
 using System.Numerics;
 
@@ -23,7 +23,7 @@ public class PosingTransformWindow : Window
 
     private Matrix4x4? _trackingMatrix;
 
-    public PosingTransformWindow(EntityManager entityManager, CameraService cameraService, PosingService posingService) : base($"{Brio.Name} - Transform###brio_transform_window", ImGuiWindowFlags.AlwaysVerticalScrollbar)
+    public PosingTransformWindow(EntityManager entityManager, CameraService cameraService, PosingService posingService) : base($"{Brio.Name} - TRANSFORM###brio_transform_window", ImGuiWindowFlags.AlwaysVerticalScrollbar)
     {
         Namespace = "brio_transform_namespace";
 
