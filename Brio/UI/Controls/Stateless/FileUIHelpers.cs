@@ -49,7 +49,7 @@ public class FileUIHelpers
                     autoSaveService.ShowAutoSaves();
                 }
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("View Scene Auto-Saves");
+                    ImGui.SetTooltip("查看场景自动保存");
 
                 ImGui.Separator();
 

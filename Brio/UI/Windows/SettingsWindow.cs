@@ -85,7 +85,7 @@ public class SettingsWindow : Window
             }
             else
             {
-                ImBrio.ToggleButtonStrip("settings_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["General", "IPC", "Posing", "Library", "Auto-Save", "Input", "Advanced"]);
+                ImBrio.ToggleButtonStrip("settings_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["常规", "IPC", "姿势", "资产库", "自动保存", "输入", "高级"]);
 
                 using(var child = ImRaii.Child("###settingsPane"))
                 {
@@ -346,7 +346,7 @@ public class SettingsWindow : Window
             {
 
                 var individual = _configurationService.Configuration.AutoSave.AutoSaveIndividualPoses;
-                if(ImGui.Checkbox("Save Individual Poses", ref individual))
+                if(ImGui.Checkbox("保存单独姿势", ref individual))
                 {
                     _configurationService.Configuration.AutoSave.AutoSaveIndividualPoses = individual;
                     _configurationService.ApplyChange();
