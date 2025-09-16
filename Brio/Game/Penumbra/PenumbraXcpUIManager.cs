@@ -7,7 +7,7 @@ using Brio.Game.Cutscene;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace Brio.Game.Penumbra
 {
@@ -379,7 +379,8 @@ namespace Brio.Game.Penumbra
             float sat = 0.38f + 0.12f * interp;
             float val = 0.92f + 0.08f * interp;
             
-            ImGui.ColorConvertHSVtoRGB(hue, sat, val, out float r, out float g, out float b);
+            float r = 0, g = 0, b = 0;
+            ImGui.ColorConvertHSVtoRGB(hue, sat, val, ref r, ref g, ref b);
             ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(r, g, b, 1.0f));
             ImGui.TextUnformatted(text);
             ImGui.PopStyleColor();

@@ -1,4 +1,5 @@
 ﻿using Brio.Capabilities.Camera;
+using Brio.Config;
 using Brio.Entities.Camera;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
@@ -106,6 +107,8 @@ public class BrioCameraWidget(BrioCameraCapability capability) : Widget<BrioCame
     public override string HeaderName => "相机编辑器";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.DefaultOpen | WidgetFlags.HasAdvanced;
+
+    private readonly ConfigurationService _configService = ConfigurationService.Instance;
 
     public unsafe override void DrawBody()
     {

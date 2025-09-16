@@ -7,7 +7,7 @@ using Brio.Capabilities.Actor;
 using Brio.Files;
 using Brio.Game.Cutscene;
 using Brio.Resources;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace Brio.Game.Penumbra
 {

@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using Dalamud.Bindings.ImGui;
 using System.IO;
 using System.Linq;
 using Brio.Core;
@@ -112,15 +112,15 @@ namespace Brio.Game.Penumbra
         public void DrawPasteButton(string modName, string modRootPath)
         {
             var buttonLabel = $"粘贴导入相机文件 ({modName})";
-            if (ImGuiNET.ImGui.Button(buttonLabel))
+            if (ImGui.Button(buttonLabel))
                 ImportXcpFromClipboard(modRootPath);
-            if (ImGuiNET.ImGui.IsItemHovered())
+            if (ImGui.IsItemHovered())
             {
-                ImGuiNET.ImGui.BeginTooltip();
-                ImGuiNET.ImGui.Text($"目标模组: {modName}");
-                ImGuiNET.ImGui.Text($"文件夹: {modRootPath}\\XCP");
-                ImGuiNET.ImGui.Text("将剪贴板中的.xcp文件导入到该模组的XCP文件夹");
-                ImGuiNET.ImGui.EndTooltip();
+                ImGui.BeginTooltip();
+                ImGui.Text($"目标模组: {modName}");
+                ImGui.Text($"文件夹: {modRootPath}\\XCP");
+                ImGui.Text("将剪贴板中的.xcp文件导入到该模组的XCP文件夹");
+                ImGui.EndTooltip();
             }
         }
     }

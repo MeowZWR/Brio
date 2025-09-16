@@ -3,7 +3,7 @@ using Brio.UI.Controls.Stateless;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Plugin;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using Penumbra.Api.Enums;
 using Penumbra.Api.IpcSubscribers;
 using System;
@@ -199,7 +199,8 @@ namespace Brio.Game.Penumbra
             float hue = 0.75f + (0.92f - 0.75f) * interp;
             float sat = 0.38f + 0.12f * interp;
             float val = 0.92f + 0.08f * interp;
-            ImGui.ColorConvertHSVtoRGB(hue, sat, val, out float r, out float g, out float b);
+            float r = 0, g = 0, b = 0;
+            ImGui.ColorConvertHSVtoRGB(hue, sat, val, ref r, ref g, ref b);
             
             using var color = ImRaii.PushColor(ImGuiCol.Text, new Vector4(r, g, b, 1.0f));
             string statusText = _useTemporarySettings ? $"临时设置: {tempModCount}" : $"现有临时设置: {tempModCount}";
@@ -338,7 +339,7 @@ namespace Brio.Game.Penumbra
             ImGui.SetNextItemWidth(38f);
             
             using var disabled = ImRaii.Disabled(hasOtherTemporarySettings);
-            if (ImGui.InputInt($"##priority_{mod.ModDirectory}", ref priorityInput, 0, 0, ImGuiInputTextFlags.EnterReturnsTrue) &&
+            if (ImGui.InputInt($"##priority_{mod.ModDirectory}", ref priorityInput, 1, 0, default, ImGuiInputTextFlags.EnterReturnsTrue) &&
                 priorityInput != effectivePriority)
             {
                 var result = SetModPriority(mod, priorityInput);

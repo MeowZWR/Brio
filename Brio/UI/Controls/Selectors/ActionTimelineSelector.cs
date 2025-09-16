@@ -4,7 +4,6 @@ using Brio.Resources.Sheets;
 using Brio.UI.Controls.Stateless;
 using Brio.Game.Penumbra;
 using Dalamud.Interface.Utility.Raii;
-using ImGuiNET;
 using Dalamud.Bindings.ImGui;
 using System;
 using System.Numerics;
