@@ -339,7 +339,7 @@ namespace Brio.Game.Penumbra
             ImGui.SetNextItemWidth(38f);
             
             using var disabled = ImRaii.Disabled(hasOtherTemporarySettings);
-            if (ImGui.InputInt($"##priority_{mod.ModDirectory}", ref priorityInput, 1, 0, default, ImGuiInputTextFlags.EnterReturnsTrue) &&
+            if (ImGui.InputInt($"##priority_{mod.ModDirectory}", ref priorityInput, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue) &&
                 priorityInput != effectivePriority)
             {
                 var result = SetModPriority(mod, priorityInput);
