@@ -141,6 +141,7 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<PenumbraService>();
         serviceCollection.AddSingleton<GlamourerService>();
         serviceCollection.AddSingleton<CustomizePlusService>();
+        serviceCollection.AddSingleton<MareService>();
 
         // Penumbra
         serviceCollection.AddSingleton<PenumbraManager>();
