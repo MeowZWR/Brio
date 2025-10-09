@@ -18,7 +18,7 @@ public class EnvironmentContainerEntity(IServiceProvider provider) : Entity("env
     private readonly GPoseService _gPoseService = provider.GetRequiredService<GPoseService>();
     private readonly LightingService _lightingService = provider.GetRequiredService<LightingService>();
 
-    public override string FriendlyName => "Environment";
+    public override string FriendlyName => "环境";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.MountainSun;
 
     public override int ContextButtonCount => 1;
@@ -30,7 +30,7 @@ public class EnvironmentContainerEntity(IServiceProvider provider) : Entity("env
         {
             using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor))
             {
-                string toolTip = $"New Light";
+                string toolTip = $"新建灯光";
                 if(ImBrio.FontIconButtonRight($"###{Id}_light_contextButton", FontAwesomeIcon.Plus, 1f, toolTip, bordered: false))
                 {
                     ImGui.OpenPopup("DrawLightSpawnMenuPopup");

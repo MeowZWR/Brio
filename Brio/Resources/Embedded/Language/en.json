@@ -324,5 +324,11 @@
     "FreeCamera_DownAlt": "相机下移（备用）",
     "FreeCamera_IncreaseCamMovement": "加快相机移动",
     "FreeCamera_DecreaseCamMovement": "减慢相机移动"
+  },
+
+  "falloff_type": {
+    "Linear": "线性",
+    "Quadratic": "二次",
+    "Cubic": "三次"
   }
 }

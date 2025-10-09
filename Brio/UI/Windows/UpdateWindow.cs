@@ -195,7 +195,7 @@ public class UpdateWindow : Window
         }
 
         ImGui.SetCursorPosX((ImGui.GetWindowSize().Y - _closeButtonWidth) / 2);
-        if(ImBrio.Button("关闭", FontAwesomeIcon.SquareXmark, new Vector2(_closeButtonWidth, 0), centerTest: true, tooltip: "要重新打开此窗口，请点击 Brio 场景管理器上的 `信息` 按钮！"))
+        if(ImBrio.Button("关闭", FontAwesomeIcon.SquareXmark, new Vector2(_closeButtonWidth, 0), centerTest: true, tooltip: "如需再次打开此窗口，请点击 Brio 场景管理器中的“信息”按钮！"))
         {
             IsOpen = false;
         }
@@ -209,7 +209,7 @@ public class UpdateWindow : Window
         // Dev Message
         if(entry.Message.IsNullOrEmpty() is false)
         {
-            if(CollapsingHeader($" {entry.Name} –- {entry.Date} ", $" {entry.Tagline} ", currentColor, isCurrent))
+            if(CollapsingHeader($" {entry.Name} - {entry.Date} ", $" {entry.Tagline} ", currentColor, isCurrent))
             {
                 ImBrio.VerticalPadding(10);
 
@@ -220,7 +220,7 @@ public class UpdateWindow : Window
             return;
         }
 
-        if(CollapsingHeader($" {entry.Name} –- {entry.Date} ", $"  –-  {entry.Tagline} ", currentColor, isCurrent))
+        if(CollapsingHeader($" {entry.Name} - {entry.Date} ", $"  -  {entry.Tagline} ", currentColor, isCurrent))
         {
             ImBrio.VerticalPadding(10);
 

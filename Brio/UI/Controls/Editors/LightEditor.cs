@@ -2,6 +2,7 @@
 using Brio.Core;
 using Brio.Game.World;
 using Brio.Input;
+using Brio.Resources;
 using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Bindings.ImGui;
@@ -22,17 +23,17 @@ public class LightEditor
         {
             using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
             {
-                if(ImGui.Button("Spawn Spot Light"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
+                if(ImGui.Button("生成聚光灯"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
                 {
                     lightingService.SpawnLight(LightType.SpotLight);
                 }
 
-                if(ImGui.Button("Spawn Area Light"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
+                if(ImGui.Button("生成区域光"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
                 {
                     lightingService.SpawnLight(LightType.AreaLight);
                 }
 
-                if(ImGui.Button("Spawn Flat Light"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
+                if(ImGui.Button("生成平面光"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
                 {
                     lightingService.SpawnLight(LightType.FlatLight);
                 }
@@ -45,15 +46,15 @@ public class LightEditor
         var light = Capability.GameLight.GameLight != null ? Capability.GameLight.GameLight->LightRenderObject : null;
         if(light == null) return;
 
-        ImGui.Text("Character Shadow Range:"u8);
+        ImGui.Text("角色阴影范围:"u8);
         ImBrio.CenterNextElementWithPadding(15);
         ImGui.DragFloat("###shadowRange"u8, ref light->CharacterShadowRange, 0.1f, 0.001f, 1000.0f);
 
-        ImGui.Text("Shadow Plane Near:"u8);
+        ImGui.Text("阴影平面近端:"u8);
         ImBrio.CenterNextElementWithPadding(15);
         ImGui.DragFloat("###shadowNear"u8, ref light->ShadowPlaneNear, 0.01f, 0.001f, 1000.0f);
 
-        ImGui.Text("Shadow Plane Far:"u8);
+        ImGui.Text("阴影平面远端:"u8);
         ImBrio.CenterNextElementWithPadding(15);
         ImGui.DragFloat("###shadowFar"u8, ref light->ShadowPlaneFar, 0.01f, 0.001f, 1000.0f);
     }
@@ -64,33 +65,33 @@ public class LightEditor
         if(light == null) return;
 
         ImBrio.VerticalPadding(5);
-        ImGui.Text("Falloff Mode / Power & Light Range"u8);
+        ImGui.Text("衰减模式 / 功率与光照范围"u8);
 
         // Falloff Mode
         ImBrio.CenterNextElementWithPadding(15);
-        if(ImGui.BeginCombo("###falloffMode"u8, $"{light->FalloffType.ToString()}"))
+        if(ImGui.BeginCombo("###falloffMode"u8, $"{Localize.Get($"falloff_type.{light->FalloffType}")}"))
         {
             foreach(var value in Enum.GetValues<FalloffType>())
             {
-                if(ImGui.Selectable(value.ToString(), light->FalloffType == value))
+                if(ImGui.Selectable(Localize.Get($"falloff_type.{value}"), light->FalloffType == value))
                 {
                     light->FalloffType = value;
                 }
             }
             ImGui.EndCombo();
         }
-        ImBrio.AttachToolTip("Light Falloff Type");
+        ImBrio.AttachToolTip("光照衰减类型");
 
         // Falloff Power
         ImBrio.CenterNextElementWithPadding(15);
         ImGui.DragFloat("###falloffPower"u8, ref light->Falloff, 0.01f, 0.0f, 1000.0f);
-        ImBrio.AttachToolTip("Light Falloff Power");
+        ImBrio.AttachToolTip("光照衰减功率");
 
         // Range
         ImBrio.CenterNextElementWithPadding(15);
         if(ImGui.DragFloat("###lightRange"u8, ref light->Range, 0.1f, 0, 900))
             Capability.GameLight.NeedsUpdate = true;
-        ImBrio.AttachToolTip("Light Range");
+        ImBrio.AttachToolTip("光照范围");
 
         ImBrio.VerticalPadding(5);
     }
@@ -101,14 +102,14 @@ public class LightEditor
         //
         // Hedder Buttons
 
-        if(ImBrio.ToggelFontIconButton("togglelight", FontAwesomeIcon.Lightbulb, Vector2.Zero, Capability.GameLight.IsVisible, hoverText: Capability.GameLight.IsVisible ? "Turn Light Off" : "Turn Light On"))
+        if(ImBrio.ToggelFontIconButton("togglelight", FontAwesomeIcon.Lightbulb, Vector2.Zero, Capability.GameLight.IsVisible, hoverText: Capability.GameLight.IsVisible ? "关闭灯光" : "开启灯光"))
         {
             Capability.GameLight.ToggleLight();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "Reset Light Properties", Capability.HasOverride))
+        if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置灯光属性", Capability.HasOverride))
         {
             Capability.Reset();
         }
@@ -120,7 +121,7 @@ public class LightEditor
         if(light == null) return;
 
         ImGui.Separator();
-        ImGui.Text("Light Type"u8);
+        ImGui.Text("灯光类型"u8);
 
         if(Capability.SelectedLightType == -1)
         {
@@ -141,7 +142,7 @@ public class LightEditor
             }
         }
 
-        if(ImBrio.ButtonSelectorStrip("light_type", Vector2.Zero, ref Capability.SelectedLightType, ["Spot", "Area", "Flat", "World"]))
+        if(ImBrio.ButtonSelectorStrip("light_type", Vector2.Zero, ref Capability.SelectedLightType, ["聚光", "区域", "平面", "世界"]))
         {
             switch(Capability.SelectedLightType)
             {
@@ -164,29 +165,29 @@ public class LightEditor
         {
             case LightType.SpotLight:
                 ImBrio.CenterNextElementWithPadding(15);
-                ImGui.SliderFloat("###lightAngle"u8, ref light->LightAngle, 0.0f, 180.0f, "%0.0f Degrees"u8);
-                ImBrio.AttachToolTip("Spot Light Angle");
+                ImGui.SliderFloat("###lightAngle"u8, ref light->LightAngle, 0.0f, 180.0f, "%0.0f 度"u8);
+                ImBrio.AttachToolTip("聚光灯角度");
 
                 ImBrio.CenterNextElementWithPadding(15);
-                ImGui.SliderFloat("###lightSmothing"u8, ref light->FalloffAngle, 0.0f, 180.0f, "%0.0f Degrees"u8);
-                ImBrio.AttachToolTip("Spot Light Smothing");
+                ImGui.SliderFloat("###lightSmothing"u8, ref light->FalloffAngle, 0.0f, 180.0f, "%0.0f 度"u8);
+                ImBrio.AttachToolTip("聚光灯平滑度");
                 break;
 
             case LightType.FlatLight:
                 using(ImRaii.ItemWidth((ImGui.CalcItemWidth() / 2) - ImGui.GetStyle().ItemInnerSpacing.X))
                 {
                     ImGui.SliderAngle("###lightAngle_x"u8, ref light->Angle.X, -90, 90);
-                    ImBrio.AttachToolTip("Flat Light X");
+                    ImBrio.AttachToolTip("平面光X轴");
 
                     ImGui.SameLine();
 
                     ImGui.SliderAngle("###lightAngle_y"u8, ref light->Angle.Y, -90, 90);
-                    ImBrio.AttachToolTip("Flat Light Y");
+                    ImBrio.AttachToolTip("平面光Y轴");
                 }
 
                 ImBrio.CenterNextElementWithPadding(15);
-                ImGui.SliderFloat("###lightAngleSlider"u8, ref light->FalloffAngle, 0.0f, 180.0f, "%0.0f Degrees"u8);
-                ImBrio.AttachToolTip("Flat Light Falloff");
+                ImGui.SliderFloat("###lightAngleSlider"u8, ref light->FalloffAngle, 0.0f, 180.0f, "%0.0f 度"u8);
+                ImBrio.AttachToolTip("平面光衰减");
                 break;
         }
 
@@ -194,7 +195,7 @@ public class LightEditor
 
         ImBrio.VerticalPadding(5);
         ImGui.Separator();
-        ImGui.Text("Color & Intensity"u8);
+        ImGui.Text("颜色与强度"u8);
 
         var color = Vector3.SquareRoot(light->Color / 6);
         ImBrio.CenterNextElementWithPadding(15);
@@ -202,20 +203,20 @@ public class LightEditor
         {
             light->Color = color * color * 6;
         }
-        ImBrio.AttachToolTip("Light Color");
+        ImBrio.AttachToolTip("灯光颜色");
 
         ImBrio.CenterNextElementWithPadding(15);
         ImGui.DragFloat("###intensity"u8, ref light->Intensity, 0.01f, 0.0f, 100.0f);
-        ImBrio.AttachToolTip("Intensity");
+        ImBrio.AttachToolTip("强度");
 
         //
 
         ImBrio.VerticalPadding(5);
         ImGui.Separator();
-        ImGui.Text("Shadows & Reflections"u8);
+        ImGui.Text("阴影与反射"u8);
 
         var flag = light->LightFlags.HasFlag(LightFlags.Reflection);
-        if(ImGui.Checkbox("Enable Material Reflections"u8, ref flag))
+        if(ImGui.Checkbox("启用材质反射"u8, ref flag))
         {
             light->LightFlags ^= LightFlags.Reflection;
         }
@@ -226,7 +227,7 @@ public class LightEditor
             light->LightFlags.HasFlag(LightFlags.ObjectShadow),
             light->LightFlags.HasFlag(LightFlags.Dynamic),
         ];
-        if(ImBrio.ToggleSelecterStrip("shadows_enable", Vector2.Zero, ref bools, ["Character", "Object", "Dynamic"], "Shadows"))
+        if(ImBrio.ToggleSelecterStrip("shadows_enable", Vector2.Zero, ref bools, ["角色", "物体", "动态"], "阴影"))
         {
             SetFlag(light, LightFlags.CharaShadow, bools[0]);
             SetFlag(light, LightFlags.ObjectShadow, bools[1]);
@@ -246,35 +247,35 @@ public class LightEditor
         // Hedder Buttons
 
         var overlayOpen = Capability.OverlayOpen;
-        if(ImBrio.FontIconButton($"overlay_{Capability.Entity.Id}", overlayOpen ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, overlayOpen ? "Close Overlay" : "Open Overlay"))
+        if(ImBrio.FontIconButton($"overlay_{Capability.Entity.Id}", overlayOpen ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, overlayOpen ? "关闭叠加层" : "打开叠加层"))
         {
             Capability.OverlayOpen = !overlayOpen;
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.ToggelFontIconButton($"###togglegizmo_{Capability.Entity.Id}", FontAwesomeIcon.Crosshairs, Vector2.Zero, Capability.IsGismoVisible, hoverText: Capability.IsGismoVisible ? "Diable, Force Gizmo Viable" : "Force Gizmo Viable"))
+        if(ImBrio.ToggelFontIconButton($"###togglegizmo_{Capability.Entity.Id}", FontAwesomeIcon.Crosshairs, Vector2.Zero, Capability.IsGismoVisible, hoverText: Capability.IsGismoVisible ? "禁用强制显示小工具" : "强制显示小工具"))
         {
             Capability.IsGismoVisible = !Capability.IsGismoVisible;
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton($"undo_{Capability.Entity.Id}", FontAwesomeIcon.Backward, "Undo", Capability.CanUndo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Undo) && Capability.CanUndo))
+        if(ImBrio.FontIconButton($"undo_{Capability.Entity.Id}", FontAwesomeIcon.Backward, "撤销", Capability.CanUndo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Undo) && Capability.CanUndo))
         {
             Capability.Undo();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton($"redo_{Capability.Entity.Id}", FontAwesomeIcon.Forward, "Redo", Capability.CanRedo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Redo) && Capability.CanRedo))
+        if(ImBrio.FontIconButton($"redo_{Capability.Entity.Id}", FontAwesomeIcon.Forward, "重做", Capability.CanRedo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Redo) && Capability.CanRedo))
         {
             Capability.Redo();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight($"reset_{Capability.Entity.Id}", FontAwesomeIcon.Undo, 1, "Reset Light Transform", Capability.HasOverride))
+        if(ImBrio.FontIconButtonRight($"reset_{Capability.Entity.Id}", FontAwesomeIcon.Undo, 1, "重置灯光变换", Capability.HasOverride))
         {
             Capability.Reset();
         }
@@ -297,9 +298,9 @@ public class LightEditor
                 Capability.position = (Capability.Transform.Position = light->Transform->Position);
 
             ImBrio.VerticalPadding(2);
-            (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transform_Light_Position_0", ref Capability.position, 0.1f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position", enableExpanded: false);
+            (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transform_Light_Position_0", ref Capability.position, 0.1f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置", enableExpanded: false);
             ImBrio.VerticalPadding(2);
-            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transform_Light_Rotation_0", ref Capability.rotation, 1f * 10, FontAwesomeIcon.ArrowsSpin, "Rotation", enableExpanded: false);
+            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transform_Light_Rotation_0", ref Capability.rotation, 1f * 10, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: false);
 
             didChange |= pdidChange |= rdidChange;
             anyActive |= panyActive |= ranyActive;

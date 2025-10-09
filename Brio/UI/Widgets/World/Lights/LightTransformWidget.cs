@@ -6,7 +6,7 @@ namespace Brio.UI.Widgets.World.Lights;
 
 public class LightTransformWidget(LightTransformCapability lightGizmoCapability) : Widget<LightTransformCapability>(lightGizmoCapability)
 {
-    public override string HeaderName => "Light Transform";
+    public override string HeaderName => "灯光变换";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.DefaultOpen | WidgetFlags.CanHide;
 

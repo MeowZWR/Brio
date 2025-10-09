@@ -133,7 +133,7 @@ public class PosingOverlayToolbarWindow : Window
                         _overlayTransformWindow.IsOpen = !_overlayTransformWindow.IsOpen;
                 }
             }
-            ImBrio.AttachToolTip("Toggle Transform Window");
+            ImBrio.AttachToolTip("开关变换窗口");
 
             ImGui.SameLine();
 
@@ -145,7 +145,7 @@ public class PosingOverlayToolbarWindow : Window
                         _lightWindow.IsOpen = !_lightWindow.IsOpen;
                 }
             }
-            ImBrio.AttachToolTip("Toggle Light Window");
+            ImBrio.AttachToolTip("开关灯光窗口");
 
             ImGui.SameLine();
 
@@ -154,14 +154,13 @@ public class PosingOverlayToolbarWindow : Window
                 if(ImGui.Button($"{FontAwesomeIcon.WindowClose.ToIconString()}###close_overlay", button3XSizeVevtor2))
                     _overlayWindow.IsOpen = false;
             }
-            ImBrio.AttachToolTip("Close Overlay");
+            ImBrio.AttachToolTip("关闭叠加层");
          
             ImGui.PopStyleColor();
 
-            ImGui.TextColored(ImGuiColors.DalamudRed, "Attention! No valid,");
-            ImGui.TextColored(ImGuiColors.DalamudRed, "Actor or Light Selected!");
-            ImGui.TextColored(ImGuiColors.DalamudRed, "Please selected one,");
-            ImGui.TextColored(ImGuiColors.DalamudRed, "in the Scene Manager!");
+            ImGui.TextColored(ImGuiColors.DalamudRed, "注意！");
+            ImGui.TextColored(ImGuiColors.DalamudRed, "没有有效的角色或灯光被选中！");
+            ImGui.TextColored(ImGuiColors.DalamudRed, "请在场景管理器中选择一个！");
         }
     }
 
@@ -195,7 +194,7 @@ public class PosingOverlayToolbarWindow : Window
             if(ImGui.Button($"{(_lightingService.CoordinateMode == LightGizmoCoordinateMode.Local ? FontAwesomeIcon.Globe.ToIconString() : FontAwesomeIcon.Atom.ToIconString())}###select_mode", button3XSizeVevtor2) || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_ToggleWorld))
                 _lightingService.CoordinateMode = _lightingService.CoordinateMode == LightGizmoCoordinateMode.Local ? LightGizmoCoordinateMode.World : LightGizmoCoordinateMode.Local;
         }
-        ImBrio.AttachToolTip(_lightingService.CoordinateMode == LightGizmoCoordinateMode.Local ? "Switch to World" : "Switch to Local");
+        ImBrio.AttachToolTip(_lightingService.CoordinateMode == LightGizmoCoordinateMode.Local ? "切换为世界坐标" : "切换为本地坐标");
 
         ImGui.SameLine();
 
@@ -207,7 +206,7 @@ public class PosingOverlayToolbarWindow : Window
                     _lightWindow.IsOpen = !_lightWindow.IsOpen;
             }
         }
-        ImBrio.AttachToolTip("Toggle Light Window");
+        ImBrio.AttachToolTip("开关灯光窗口");
 
         ImGui.SameLine();
 
@@ -216,7 +215,7 @@ public class PosingOverlayToolbarWindow : Window
             if(ImGui.Button($"{FontAwesomeIcon.WindowClose.ToIconString()}###close_overlay", button3XSizeVevtor2))
                 _overlayWindow.IsOpen = false;
         }
-        ImBrio.AttachToolTip("Close Overlay");
+        ImBrio.AttachToolTip("关闭叠加层");
 
         //
         // -------------
@@ -234,7 +233,7 @@ public class PosingOverlayToolbarWindow : Window
                     _lightingService.Operation = LightGizmoOperation.Translate;
             }
         }
-        ImBrio.AttachToolTip("Position");
+        ImBrio.AttachToolTip("位置");
 
         ImGui.SameLine();
 
@@ -247,7 +246,7 @@ public class PosingOverlayToolbarWindow : Window
                     _lightingService.Operation = LightGizmoOperation.Rotate;
             }
         }
-        ImBrio.AttachToolTip("Rotation");
+        ImBrio.AttachToolTip("旋转");
 
         ImGui.SameLine();
 
@@ -261,7 +260,7 @@ public class PosingOverlayToolbarWindow : Window
                 }
             }
         }
-        ImBrio.AttachToolTip("Universal");
+        ImBrio.AttachToolTip("通用");
         //
         // -------------
         //
@@ -282,7 +281,7 @@ public class PosingOverlayToolbarWindow : Window
                 }
             }
         }
-        ImBrio.AttachToolTip("Undo last Light Action");
+        ImBrio.AttachToolTip("撤销上次灯光操作");
 
         ImGui.SameLine();
 
@@ -298,7 +297,7 @@ public class PosingOverlayToolbarWindow : Window
                 }
             }
         }
-        ImBrio.AttachToolTip("Redo last Light Action");
+        ImBrio.AttachToolTip("重做上次灯光操作");
 
         ImGui.SameLine();
 
@@ -312,7 +311,7 @@ public class PosingOverlayToolbarWindow : Window
                     lightTransformCapability?.Reset(false, false);
             }
         }
-        ImBrio.AttachToolTip("Reset Light Transform");
+        ImBrio.AttachToolTip("重置灯光变换");
 
         //
         // -------------
@@ -333,7 +332,7 @@ public class PosingOverlayToolbarWindow : Window
 
                 }
             }
-            ImBrio.AttachToolTip("Load Light from Clipboard");
+            ImBrio.AttachToolTip("从剪贴板加载灯光");
 
             ImGui.SameLine();
 
@@ -346,7 +345,7 @@ public class PosingOverlayToolbarWindow : Window
 
                 }
             }
-            ImBrio.AttachToolTip("Save Light to Clipboard");
+            ImBrio.AttachToolTip("保存灯光到剪贴板");
         }
 
         ImGui.PopStyleColor();

@@ -13,13 +13,13 @@ namespace Brio.UI.Widgets.World.Lights;
 
 public class LightRenderingWidget(LightRenderingCapability lightRenderingCapability) : Widget<LightRenderingCapability>(lightRenderingCapability)
 {
-    public override string HeaderName => "Light Properties";
+    public override string HeaderName => "灯光属性";
 
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody | WidgetFlags.DrawPopup | WidgetFlags.CanHide;
 
     public override void DrawPopup()
     {
-        var togglenText = Capability.GameLight.IsVisible ? $"Turn OFF {Capability.Entity.FriendlyName}" : $"Turn ON {Capability.Entity.FriendlyName}";
+        var togglenText = Capability.GameLight.IsVisible ? $"关闭 {Capability.Entity.FriendlyName}" : $"开启 {Capability.Entity.FriendlyName}";
         if(ImGui.MenuItem($"{togglenText}###togglelight"))
         {
             Capability.GameLight.ToggleLight();
@@ -32,12 +32,12 @@ public class LightRenderingWidget(LightRenderingCapability lightRenderingCapabil
 
         ImBrio.VerticalPadding(5);
 
-        if(ImGui.CollapsingHeader("Advanced Shadows Settings"u8, ImGuiTreeNodeFlags.None))
+        if(ImGui.CollapsingHeader("高级阴影设置"u8, ImGuiTreeNodeFlags.None))
         {
             LightEditor.DrawAdvancedShadows(Capability);
         }
 
-        if(ImGui.CollapsingHeader("Advanced Settings"u8, ImGuiTreeNodeFlags.None))
+        if(ImGui.CollapsingHeader("高级设置"u8, ImGuiTreeNodeFlags.None))
         {
             LightEditor.DrawAdvancedSettings(Capability);
         }

@@ -16,35 +16,35 @@ public class LightLifetimeWidget(LightLifetimeCapability lightLifetimeCapability
 
     public override void DrawQuickIcons()
     {
-        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "Spawn New Light"))
+        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "新建灯光"))
         {
             ImGui.OpenPopup("DrawLightSpawnMenuPopup");
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "Clone Light", Capability.CanClone))
+        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "克隆灯光", Capability.CanClone))
         {
             Capability.Clone();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "Destroy Light", Capability.CanDestroy))
+        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "删除灯光", Capability.CanDestroy))
         {
             Capability.Destroy();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "Rename Light"))
+        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "重命名灯光"))
         {
             RenameActorModal.Open(Capability.Entity);
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight($"lifetimewidget_openAdvaned", FontAwesomeIcon.SquareArrowUpRight, 1, Capability.IsLightWindowOpen ? "Close Light Window" : "Open Light Window"))
+        if(ImBrio.FontIconButtonRight($"lifetimewidget_openAdvaned", FontAwesomeIcon.SquareArrowUpRight, 1, Capability.IsLightWindowOpen ? "关闭灯光窗口" : "打开灯光窗口"))
         {
             Capability.ToggleLightWindow();
         }
@@ -56,7 +56,7 @@ public class LightLifetimeWidget(LightLifetimeCapability lightLifetimeCapability
     {
         if(Capability.CanClone)
         {
-            if(ImGui.MenuItem("Clone###actorlifetime_clone"))
+            if(ImGui.MenuItem("克隆###actorlifetime_clone"))
             {
                 Capability.Clone();
             }
@@ -64,20 +64,20 @@ public class LightLifetimeWidget(LightLifetimeCapability lightLifetimeCapability
 
         if(Capability.CanDestroy)
         {
-            if(ImGui.MenuItem("Destroy###actorlifetime_destroy"))
+            if(ImGui.MenuItem("删除###actorlifetime_destroy"))
             {
                 Capability.Destroy();
             }
         }
 
-        if(ImGui.MenuItem($"Rename {Capability.Entity.FriendlyName}###actorlifetime_rename"))
+        if(ImGui.MenuItem($"重命名 {Capability.Entity.FriendlyName}###actorlifetime_rename"))
         {
             ImGui.CloseCurrentPopup();
 
             RenameActorModal.Open(Capability.Entity);
         }
 
-        if(ImGui.MenuItem("Open Light Window###actorlifetime_lightwindow"))
+        if(ImGui.MenuItem("打开灯光窗口###actorlifetime_lightwindow"))
         {
             Capability.OpenLightWindow();
         }

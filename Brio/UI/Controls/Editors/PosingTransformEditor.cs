@@ -49,11 +49,11 @@ public class PosingTransformEditor
 
                 ImBrio.VerticalPadding(3);
 
-                if(ImBrio.FontIconButton("transformOffset", FontAwesomeIcon.GaugeSimpleHigh, "Transform Movement Speed"))
+                if(ImBrio.FontIconButton("transformOffset", FontAwesomeIcon.GaugeSimpleHigh, "变换移动速度"))
                 {
                     ImGui.OpenPopup("transformOffset");
                 }
-                ImBrio.AttachToolTip("Adjusts the speed of the transform controls");
+                ImBrio.AttachToolTip("调整变换控制的速度");
 
                 DrawTransformOffset(posingCapability);
 
@@ -61,14 +61,14 @@ public class PosingTransformEditor
 
                 using(ImRaii.Disabled(isBone == false))
                 {
-                    //if(ImBrio.FontIconButton("flipBoneModelButton", FontAwesomeIcon.Repeat, "Flip Bone"))
+                    //if(ImBrio.FontIconButton("flipBoneModelButton", FontAwesomeIcon.Repeat, "翻转骨骼"))
                     //{
                     //    posingCapability.FlipBoneModel();
                     //}
 
                     //ImGui.SameLine();
 
-                    if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "Propagate", realBone?.EligibleForIK == true))
+                    if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "传递", realBone?.EligibleForIK == true))
                         ImGui.OpenPopup("transform_propagate_popup");
 
                     if(compactMode)
@@ -81,11 +81,11 @@ public class PosingTransformEditor
 
                         using(ImRaii.Disabled(posingCapability.Selected.Value is None))
                         {
-                            if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "Clear Selection"))
+                            if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "清除选择"))
                                 posingCapability.ClearSelection();
                         }
 
-                        // Select Parent
+                        // 选择父骨骼
                         ImGui.SameLine();
 
                         var parentBone = posingCapability.Selected.Match(
@@ -99,22 +99,22 @@ public class PosingTransformEditor
                             if(ImBrio.FontIconButton(FontAwesomeIcon.LevelUpAlt))
                                 posingCapability.Selected = new BonePoseInfoId(parentBone!.Name, parentBone!.PartialId, PoseInfoSlot.Character);
                         }
-                        ImBrio.AttachToolTip("Select Parent");
+                        ImBrio.AttachToolTip("选择父骨骼");
                     }
                 }
                 ImGui.SameLine();
 
                 using(ImRaii.Disabled(selectedIsBone.HasValue)) // This is borken to all hell
-                    if(ImBrio.FontIconButton("copypaste", FontAwesomeIcon.Clipboard, "Copy & Paste Transform"))
+                    if(ImBrio.FontIconButton("copypaste", FontAwesomeIcon.Clipboard, "复制粘贴变换"))
                         ImGui.OpenPopup("CopyPastePopup");
                 if(selectedIsBone.HasValue)
-                    ImBrio.AttachToolTip("Copy & Paste is currently only available for Model Transform");
+                    ImBrio.AttachToolTip("复制粘贴目前仅支持模型变换");
 
                 using(ImRaii.Disabled(!posingCapability.CanResetBone(realBone)))
                 {
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetTransform", FontAwesomeIcon.Recycle, 1, tooltip: "Reset Bone"))
+                    if(ImBrio.FontIconButtonRight("resetTransform", FontAwesomeIcon.Recycle, 1, tooltip: "重置骨骼"))
                     {
                         posingCapability.ResetSelectedBone();
                     }

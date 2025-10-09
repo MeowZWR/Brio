@@ -15,7 +15,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
 {
     public const int DayTime = 86400 / 60;
 
-    public override string HeaderName => "Time & Weather";
+    public override string HeaderName => "时间与天气";
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
 
 
@@ -39,30 +39,30 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
         var dateTime = new DateTime().AddMinutes(minuteOfDay);
 
         ImBrio.VerticalPadding(5);
-        ImGui.Text("Time of Day"u8);
+        ImGui.Text("一天中的时间"u8);
         ImBrio.VerticalPadding(5);
 
         var preservePostime = ImGui.GetCursorPos();
         ImGui.SetCursorPos(unlockPos);
-        if(ImBrio.FontIconButtonRight("timeLock", isTimeFrozen ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, 1, isTimeFrozen ? "Unlock Time" : "Lock Time", bordered: false))
+        if(ImBrio.FontIconButtonRight("timeLock", isTimeFrozen ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, 1, isTimeFrozen ? "解锁时间" : "锁定时间", bordered: false))
             isTimeFrozen = !isTimeFrozen;
         ImGui.SetCursorPos(preservePostime);
 
         ImBrio.CenterNextElementWithPadding(15);
         var realTime = ImGui.SliderInt("##time_real"u8, ref minuteOfDay, 0, DayTime, dateTime.ToShortTimeString(), ImGuiSliderFlags.NoInput);
-        ImBrio.AttachToolTip("Time of Day");
+        ImBrio.AttachToolTip("一天中的时间");
 
         var time = false;
         var dragday = false;
         using(ImRaii.ItemWidth((ImBrio.GetRemainingWidth() / 2) - ImGui.GetStyle().ItemInnerSpacing.X))
         {
             time = ImGui.SliderInt("##time_set"u8, ref minuteOfDay, 10, DayTime, "%.0f"u8);
-            ImBrio.AttachToolTip("Time of Day (In Minutes)");
+            ImBrio.AttachToolTip("一天中的时间（分钟）");
 
             ImGui.SameLine();
 
             dragday = ImGui.SliderInt("##day_set"u8, ref dayOfMonth, 10, 31, "%.0f"u8);
-            ImBrio.AttachToolTip("Day of Month");
+            ImBrio.AttachToolTip("月份中的日期");
         }
 
         if(realTime || time || dragday)
@@ -108,7 +108,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
 
         ImBrio.CenterNextElementWithPadding(10);
         ImGui.InputInt("###current_weather_input", ref currentWeather, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue);
-        ImBrio.AttachToolTip("Weather ID");
+        ImBrio.AttachToolTip("天气ID");
 
         ImBrio.VerticalPadding(5);
 
@@ -135,12 +135,12 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
         ImGui.SetCursorPos(unlockPos);
         if(isWeatherOverrideEnabledLocked)
         {
-            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Unlock, 1, "Unlock Weather", bordered: false))
+            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Unlock, 1, "解锁天气", bordered: false))
                 isWeatherOverrideEnabledLocked = false;
         }
         else
         {
-            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Lock, 1, "Lock Weather", bordered: false))
+            if(ImBrio.FontIconButtonRight("lock", FontAwesomeIcon.Lock, 1, "锁定天气", bordered: false))
                 isWeatherOverrideEnabledLocked = true;
         }
         ImGui.SetCursorPos(preservePos);

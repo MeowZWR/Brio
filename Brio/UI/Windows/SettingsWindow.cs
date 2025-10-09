@@ -524,7 +524,7 @@ public class SettingsWindow : Window
             }
 
             bool skeletonLineToCircle = _configurationService.Configuration.Posing.SkeletonLineToCircle;
-            if(ImGui.Checkbox("Draw skeleton line to edge of bone circle", ref skeletonLineToCircle))
+            if(ImGui.Checkbox("骨骼线条连接到圆环边缘", ref skeletonLineToCircle))
             {
                 _configurationService.Configuration.Posing.SkeletonLineToCircle = skeletonLineToCircle;
                 _configurationService.ApplyChange();
@@ -552,10 +552,10 @@ public class SettingsWindow : Window
             }
 
             ImGui.Separator();
-            ImGui.Text("Overlay Colors"u8);
+            ImGui.Text("叠加层颜色"u8);
 
             Vector4 lightCircleNormalColor = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.LightCircleNormalColor);
-            if(ImGui.ColorEdit4("Light Normal Color", ref lightCircleNormalColor, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("灯光节点标准颜色", ref lightCircleNormalColor, ImGuiColorEditFlags.NoInputs))
             {
                 _configurationService.Configuration.Posing.LightCircleNormalColor = ImGui.ColorConvertFloat4ToU32(lightCircleNormalColor);
                 _configurationService.ApplyChange();
@@ -564,14 +564,14 @@ public class SettingsWindow : Window
             }
 
             Vector4 lightCircleHoveredColor = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.LightCircleHoveredColor);
-            if(ImGui.ColorEdit4("Light Hovered Color", ref lightCircleHoveredColor, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("灯光节点悬停颜色", ref lightCircleHoveredColor, ImGuiColorEditFlags.NoInputs))
             {
                 _configurationService.Configuration.Posing.LightCircleHoveredColor = ImGui.ColorConvertFloat4ToU32(lightCircleHoveredColor);
                 _configurationService.ApplyChange();
             }
 
             Vector4 lightCircleSelectedColor = ImGui.ColorConvertU32ToFloat4(_configurationService.Configuration.Posing.LightCircleSelectedColor);
-            if(ImGui.ColorEdit4("Light Selected Color", ref lightCircleSelectedColor, ImGuiColorEditFlags.NoInputs))
+            if(ImGui.ColorEdit4("灯光节点选中颜色", ref lightCircleSelectedColor, ImGuiColorEditFlags.NoInputs))
             {
                 _configurationService.Configuration.Posing.LightCircleSelectedColor = ImGui.ColorConvertFloat4ToU32(lightCircleSelectedColor);
                 _configurationService.ApplyChange();

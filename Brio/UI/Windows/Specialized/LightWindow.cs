@@ -23,7 +23,7 @@ public class LightWindow : Window, IDisposable
     private readonly ConfigurationService _configService;
     private readonly LightingService _lightingService;
 
-    public LightWindow(EntityManager entityManager, LightingService lightingService, GPoseService gPoseService, ConfigurationService configService) : base($"{Brio.Name} - LIGHT###brio_light_window")
+    public LightWindow(EntityManager entityManager, LightingService lightingService, GPoseService gPoseService, ConfigurationService configService) : base($"{Brio.Name} - 灯光###brio_light_window")
     {
         Namespace = "brio_light_namespace";
 
@@ -52,14 +52,14 @@ public class LightWindow : Window, IDisposable
     {
         ImBrio.VerticalPadding(2);
 
-        ImGui.Text("Select Light to Edit:");
+        ImGui.Text("选择要编辑的灯光:");
         ImBrio.CenterNextElementWithPadding(15);
         using(ImRaii.Disabled(_lightingService.SpawnedLightEntitiesCount == 0))
             if(ImGui.BeginCombo("###setlight"u8, $"{_lightingService.SelectedLightEntity?.FriendlyName}"))
             {
                 foreach(var value in _lightingService.SpawnedLightEntities)
                 {
-                    if(ImGui.Selectable($"Select Light: [ {value.FriendlyName} ]"))
+                    if(ImGui.Selectable($"选择灯光: [ {value.FriendlyName} ]"))
                     {
                         _lightingService.SelectedLightEntity = value;
                     }
@@ -69,7 +69,7 @@ public class LightWindow : Window, IDisposable
             else
                 WindowName = $"{Brio.Name} - LIGHT###brio_light_window";
 
-        ImBrio.AttachToolTip("Current Light");
+        ImBrio.AttachToolTip("当前灯光");
 
         ImBrio.VerticalPadding(5);
 
@@ -85,7 +85,7 @@ public class LightWindow : Window, IDisposable
         //
         // Hedder
 
-        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "Spawn New Light"))
+        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "生成新灯光"))
         {
             ImGui.OpenPopup("DrawLightSpawnMenuPopup");
         }
@@ -100,21 +100,21 @@ public class LightWindow : Window, IDisposable
 
         using(ImRaii.Disabled(_lightingService!.SelectedLightEntity is null))
         {
-            if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "Clone Light", light?.CanClone ?? false))
+            if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "克隆灯光", light?.CanClone ?? false))
             {
                 light!.Clone();
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "Destroy Light", light?.CanDestroy ?? false))
+            if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "销毁灯光", light?.CanDestroy ?? false))
             {
                 light!.Destroy();
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "Rename Light"))
+            if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "重命名灯光"))
             {
                 RenameActorModal.Open(light!.Entity);
             }      
@@ -124,7 +124,7 @@ public class LightWindow : Window, IDisposable
 
         if(_lightingService.SelectedLightEntity is null || _lightingService.SelectedLightEntity.GameLight.IsValid == false)
         {
-            ImGui.TextColored(ImGuiColors.DalamudRed, "No valid light Available.");
+            ImGui.TextColored(ImGuiColors.DalamudRed, "没有可用的有效灯光。");
             return;
         }
 
@@ -140,24 +140,24 @@ public class LightWindow : Window, IDisposable
         //
         // Body
 
-        if(ImGui.CollapsingHeader("Light Transform"u8, ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("灯光变换"u8, ImGuiTreeNodeFlags.DefaultOpen))
         {
             LightEditor.DrawLightTransform(lightGizmo, ref state);
         }
 
-        if(ImGui.CollapsingHeader("Light Properties"u8, ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("灯光属性"u8, ImGuiTreeNodeFlags.DefaultOpen))
         {
             LightEditor.DrawLightProperties(lightRender);
         }
 
         ImBrio.VerticalPadding(5);
 
-        if(ImGui.CollapsingHeader("Advanced Shadows Settings"u8, ImGuiTreeNodeFlags.None))
+        if(ImGui.CollapsingHeader("高级阴影设置"u8, ImGuiTreeNodeFlags.None))
         {
             LightEditor.DrawAdvancedShadows(lightRender);
         }
 
-        if(ImGui.CollapsingHeader("Advanced Settings"u8, ImGuiTreeNodeFlags.None))
+        if(ImGui.CollapsingHeader("高级设置"u8, ImGuiTreeNodeFlags.None))
         {
             LightEditor.DrawAdvancedSettings(lightRender);
         }

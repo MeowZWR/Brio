@@ -23,9 +23,9 @@ public class LightEntity(IGameLight gameLight, IServiceProvider provider) : Enti
             if(string.IsNullOrEmpty(RawName))
             {
                 if(GameLight.IsGPoseLight)
-                    return $"GPose Light ({indexName})";
+                    return $"GPose灯光 ({indexName})";
             
-                return $"Light ({indexName})";
+                return $"灯光 ({indexName})";
             }
 
             return $"{RawName} ({indexName})";
@@ -50,7 +50,7 @@ public class LightEntity(IGameLight gameLight, IServiceProvider provider) : Enti
     {
         using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor, GameLight.IsVisible))
         {
-            string toolTip = !GameLight.IsVisible ? $"Show {FriendlyName}" : $"Hide {FriendlyName}";
+            string toolTip = !GameLight.IsVisible ? $"显示 {FriendlyName}" : $"隐藏 {FriendlyName}";
             if(ImBrio.FontIconButtonRight($"###{Id}_hideLight", !GameLight.IsVisible ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, 1f, toolTip, bordered: false))
             {
                 GameLight.ToggleLight();
