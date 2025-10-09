@@ -4,6 +4,8 @@ using Brio.Game.Actor.Interop;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using System;
+using System.Numerics;
 
 namespace Brio.UI.Controls.Editors;
 
@@ -77,6 +79,7 @@ public class ModelShaderEditor()
         }
         ImGui.SameLine();
 
+        // This is still not working right (TODO FIX Ken)
         if(AppearanceEditorCommon.DrawExtendedColor(ref original.MouthColor, "mouthColor", "嘴唇颜色"))
         {
             apply.MouthColor = original.MouthColor;

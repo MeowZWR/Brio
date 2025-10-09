@@ -8,6 +8,7 @@ using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using System.IO;
 using System.Numerics;
@@ -23,12 +24,12 @@ public static class CameraEditor
         {
             using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
             {
-                if(ImGui.Button("新建 Brio 摄像机"))
+                if(ImGui.Button("新建 Brio 相机"u8, new(155 * ImGuiHelpers.GlobalScale, 0)))
                 {
-                    virtualCameraManager.CreateCamera(CameraType.Brio);
+                    virtualCameraManager.CreateCamera(CameraType.Game);
                 }
 
-                if(ImGui.Button("新建自由摄像机"))
+                if(ImGui.Button("新建自由相机"u8, new(155 * ImGuiHelpers.GlobalScale, 0)))
                 {
                     virtualCameraManager.CreateCamera(CameraType.Free);
                 }
@@ -121,7 +122,7 @@ public static class CameraEditor
 
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("resetPivotRotation", FontAwesomeIcon.Undo, 1f, "Reset Pivot", camera.PivotRotation != 0))
+                    if(ImBrio.FontIconButtonRight("resetPivotRotation", FontAwesomeIcon.Undo, 1f, "重置枢轴", camera.PivotRotation != 0))
                         camera.PivotRotation = 0;
                 }
 

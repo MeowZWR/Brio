@@ -238,7 +238,7 @@ public abstract class Entity : IDisposable
         return false;
     }
 
-    public static bool operator ==(Entity? a, Entity? b) => a?.Equals(b) ?? b is null;
+    public static bool operator ==(Entity? a, Entity? b) => a?.Equals(b) ?? (b is null);
     public static bool operator !=(Entity? a, Entity? b) => !(a == b);
 
     public override int GetHashCode()
@@ -253,6 +253,7 @@ public enum EntityFlags
     None,
     DefaultOpen = 1 << 0,
     HasContextButton = 1 << 1,
-    AllowOutSideGpose = 1 << 2,
-    AllowDoubleClick = 1 << 3,
+    AllowOutsideGpose = 1 << 2,
+    AllowDoubleClick = 1 << 4,
+    AllowMultiSelect = 1 << 8,
 }

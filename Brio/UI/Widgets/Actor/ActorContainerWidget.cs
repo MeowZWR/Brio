@@ -4,6 +4,7 @@ using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using System.Numerics;
 
@@ -84,7 +85,7 @@ public class ActorContainerWidget(ActorContainerCapability capability) : Widget<
 
     public override void DrawBody()
     {
-        if(ImGui.BeginListBox($"###actorcontainerwidget_{Capability.Entity.Id}_list", new Vector2(-1, 150)))
+        if(ImGui.BeginListBox($"###actorcontainerwidget_{Capability.Entity.Id}_list", new Vector2(-1, 150 * ImGuiHelpers.GlobalScale)))
         {
             foreach(var child in Capability.Entity.Children)
             {
@@ -104,19 +105,31 @@ public class ActorContainerWidget(ActorContainerCapability capability) : Widget<
 
     public override void DrawPopup()
     {
-        if(ImGui.MenuItem("生成###containerwidgetpopup_spawnbasic"))
+        if(ImGui.BeginMenu("新建...###containerwidgetpopup_new"))
         {
-            Capability.CreateCharacter(false, true, forceSpawnActorWithoutCompanion: true);
+            if(ImGui.MenuItem("生成###containerwidgetpopup_spawnbasic"))
+            {
+                Capability.CreateCharacter(false, true, forceSpawnActorWithoutCompanion: true);
+            }
+            if(ImGui.MenuItem("生成且带有宠物栏###containerwidgetpopup_spawncompanion"))
+            {
+                Capability.CreateCharacter(true, true);
+            }
+            if(ImGui.MenuItem("生成道具###containerwidgetpopup_spawnprop"))
+            {
+                Capability.CreateProp(true);
+            }
+
+            ImGui.EndMenu();
         }
 
-        if(ImGui.MenuItem("生成（带宠物）###containerwidgetpopup_spawncompanion"))
+        if(ImGui.BeginMenu("销毁全部角色###containerwidgetpopup_destroy"))
         {
-            Capability.CreateCharacter(true, true);
-        }
-
-        if(ImGui.MenuItem("全部销毁###containerwidgetpopup_destroyall"))
-        {
-            Capability.DestroyAll();
+            if(ImGui.MenuItem("确认销毁##containerwidgetpopup_destroyall"))
+            {
+                Capability.DestroyAll();
+            }
+            ImGui.EndMenu();
         }
     }
 }

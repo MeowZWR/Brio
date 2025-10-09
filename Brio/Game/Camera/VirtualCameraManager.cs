@@ -1,7 +1,10 @@
-﻿using Brio.Config;
+﻿using Brio.Capabilities.Camera;
+using Brio.Config;
 using Brio.Core;
 using Brio.Entities;
 using Brio.Entities.Camera;
+using Brio.Entities.Core;
+using Brio.Entities.World;
 using Brio.Game.GPose;
 using Brio.Game.Input;
 using Brio.Input;
@@ -15,7 +18,7 @@ namespace Brio.Game.Camera;
 
 public class VirtualCameraManager : IDisposable
 {
-    public const float DefaultMovementSpeed = 0.04f;
+    public const float DefaultMovementSpeed = 0.03f;
     public const float DefaultMouseSensitivity = 0.1f;
 
     public VirtualCamera? CurrentCamera { get; private set; }
@@ -26,6 +29,8 @@ public class VirtualCameraManager : IDisposable
     private readonly IServiceProvider _serviceProvider;
     private readonly GPoseService _gPoseService;
     private readonly EntityManager _entityManager;
+
+    private CameraEntity? DefaultCamera;
 
     public VirtualCameraManager(IServiceProvider serviceProvider, GPoseService gPoseService, EntityManager entityManager)
     {
@@ -42,7 +47,10 @@ public class VirtualCameraManager : IDisposable
     private readonly Dictionary<int, CameraEntity> _createdCameras = [];
 
     private float _moveSpeed = DefaultMovementSpeed;
-    //private float _mouseSensitivity = DefaultMouseSensitivity;
+
+    public List<CameraEntity> SpawnedCameraEntities => [.. _createdCameras.Values];
+   
+    public CameraEntity? SelectedCameraEntity;
 
     public (bool, int) CreateCamera(CameraType cameraType, bool selectCamera = true, bool targetNewInHierarch = true, VirtualCamera? virtualCamera = null)
     {
@@ -63,12 +71,12 @@ public class VirtualCameraManager : IDisposable
                         camEnt.VirtualCamera.FreeCamValues.MovementSpeed = DefaultMovementSpeed;
                         camEnt.VirtualCamera.FreeCamValues.MouseSensitivity = DefaultMouseSensitivity;
                         camEnt.VirtualCamera.IsFreeCamera = true;
-                        camEnt.VirtualCamera.ActivateCamera();
                         camEnt.VirtualCamera.ToFreeCam();
+                        camEnt.VirtualCamera.ActivateCamera();
                         camEnt.VirtualCamera.DeactivateCamera();
                         _createdCameras.Add(cameraId, camEnt);
                         break;
-                    case CameraType.Brio:
+                    case CameraType.Game:
                         camEnt.VirtualCamera.IsFreeCamera = false;
                         camEnt.VirtualCamera.ActivateCamera();
                         camEnt.VirtualCamera.DeactivateCamera();
@@ -131,7 +139,7 @@ public class VirtualCameraManager : IDisposable
                 if(oldCamEnt.CameraType == CameraType.Free)
                 {
                     newCam.VirtualCamera.Position = oldCam.Position;
-                    newCam.VirtualCamera.IsFreeCamera = true;
+                    newCam.VirtualCamera.ToFreeCam();
                 }
                 else
                 {
@@ -195,6 +203,19 @@ public class VirtualCameraManager : IDisposable
         return false;
     }
 
+    public CameraEntity? GetDefaultCamera()
+    {
+        if(DefaultCamera is not null)
+            return DefaultCamera;
+
+        if(!_entityManager.TryGetEntity<CameraEntity>(new CameraId(0), out var camEntity))
+        {
+            return null;
+        }
+
+        return DefaultCamera = camEntity;
+    }
+
     public void SelectCamera(VirtualCamera virtualCamera)
     {
         CurrentCamera?.DeactivateCamera();
@@ -206,7 +227,8 @@ public class VirtualCameraManager : IDisposable
 
     public void DestroyAll()
     {
-        CurrentCamera = null;
+        if(CurrentCamera?.CameraID != 0)
+            CurrentCamera = null;
         foreach(var item in _createdCameras.Values)
         {
             DestroyCamera(item.CameraID);

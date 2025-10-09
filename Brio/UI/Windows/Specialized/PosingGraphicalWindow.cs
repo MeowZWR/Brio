@@ -128,7 +128,7 @@ public class PosingGraphicalWindow : Window, IDisposable
         posing.Hover = new None();
         _closestHover = float.MaxValue;
 
-        WindowName = $"{Brio.Name} - Posing - {posing.Entity.FriendlyName}###brio_posing_graphical_window";
+        WindowName = $"{Brio.Name} - POSING - {posing.Entity.FriendlyName}###brio_posing_graphical_window";
 
         DrawGlobalButtons(posing);
 
@@ -192,7 +192,7 @@ public class PosingGraphicalWindow : Window, IDisposable
 
         if(_entityManager.TryGetCapabilityFromSelectedEntity<ActionTimelineCapability>(out var capability, considerParents: true))
         {
-            if(ImBrio.ToggelButton("冻结角色", new Vector2(110, 0), capability.SpeedMultiplier == 0, hoverText: capability.SpeedMultiplierOverride == 0 ? "解冻角色" : "冻结角色"))
+            if(ImBrio.ToggelButton("冻结角色", new Vector2(110, 0), capability.SpeedMultiplier == 0, hoverText: capability.SpeedMultiplierOverride == 0 ? "解冻角色" : "冻结角色") || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Freeze))
             {
                 if(capability.SpeedMultiplierOverride == 0)
                     capability.ResetOverallSpeedOverride();
@@ -203,7 +203,7 @@ public class PosingGraphicalWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        ImBrio.ToggleButtonStrip("posing_page_selector", new(ImBrio.GetRemainingWidth() - RightPanelWidth - 10, ImBrio.GetLineHeight()), ref _selectedPane, _bonePages);
+        ImBrio.ButtonSelectorStrip("posing_page_selector", new(ImBrio.GetRemainingWidth() - RightPanelWidth - 10, ImBrio.GetLineHeight()), ref _selectedPane, _bonePages);
 
         ImGui.SameLine();
 
@@ -340,33 +340,16 @@ public class PosingGraphicalWindow : Window, IDisposable
 
     private void DrawImportButtons(PosingCapability posing)
     {
-        float settingsSize = 28;
-        var buttonSize = new Vector2(((ImGui.GetContentRegionAvail().X - settingsSize) / 2.0f) - (ImGui.GetStyle().FramePadding.X * 2), 0);
+        var buttonSize = new Vector2((ImGui.GetContentRegionAvail().X / 2.0f) - (ImGui.GetStyle().FramePadding.X * 2), 0);
 
-        if(ImBrio.Button("导入##import_pose", FontAwesomeIcon.FileImport, buttonSize))
+        if(ImBrio.Button("导入##import_pose", FontAwesomeIcon.FileDownload, buttonSize))
             ImGui.OpenPopup("DrawImportPoseMenuPopup");
 
-        FileUIHelpers.DrawImportPoseMenuPopup(posing, false);
+        FileUIHelpers.DrawImportPoseMenuPopup("posingGraphicalWindow", posing, true);
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton(FontAwesomeIcon.Cog, new(settingsSize, 0)))
-            ImGui.OpenPopup("import_options_popup_posing_graphical");
-
-        ImGui.SameLine();
-
-        if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("导入选项");
-
-        using(var popup = ImRaii.Popup("import_options_popup_posing_graphical"))
-        {
-            if(popup.Success)
-            {
-                PosingEditorCommon.DrawImportOptionEditor(_posingService.DefaultImporterOptions);
-            }
-        }
-
-        if(ImBrio.Button("导出##export_pose", FontAwesomeIcon.FileExport, buttonSize))
+        if(ImBrio.Button("导出##export_pose", FontAwesomeIcon.Save, buttonSize))
             FileUIHelpers.ShowExportPoseModal(posing);
     }
 

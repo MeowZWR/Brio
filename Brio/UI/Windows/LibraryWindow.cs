@@ -465,7 +465,7 @@ public class LibraryWindow : Window
 
                     if(isPoseModal)
                     {
-                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), hoverText: "导入选项"))
+                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), tooltip: "导入选项"))
                         {
                             ImGui.OpenPopup("import_options_popup_lib");
                         }
@@ -474,7 +474,7 @@ public class LibraryWindow : Window
                         {
                             if(popup.Success)
                             {
-                                PosingEditorCommon.DrawImportOptionEditor(_posingService.DefaultImporterOptions);
+                                PosingEditorCommon.DrawImportOptionEditor(_posingService.DefaultImporterOptions, _posingService);
                             }
                         }
 
@@ -543,7 +543,7 @@ public class LibraryWindow : Window
             if(_modalFilter == _selectedFilter)
                 selected = 1;
 
-            if(ImBrio.ToggleButtonStrip("library_filters_selector", new(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, [.. ops]))
+            if(ImBrio.ButtonSelectorStrip("library_filters_selector", new(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, [.. ops]))
             {
                 if(selected == 0)
                 {
@@ -575,7 +575,7 @@ public class LibraryWindow : Window
                 selected = 2;
 
 
-            if(ImBrio.ToggleButtonStrip("library_filters_selector", new(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, [.. ops]))
+            if(ImBrio.ButtonSelectorStrip("library_filters_selector", new(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, [.. ops]))
             {
                 if(selected == 0)
                 {

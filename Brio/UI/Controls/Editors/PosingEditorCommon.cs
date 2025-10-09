@@ -47,9 +47,9 @@ public static class PosingEditorCommon
         }
     }
 
-    public static void DrawImportOptionEditor(PoseImporterOptions options, bool compact = false)
+    public static void DrawImportOptionEditor(PoseImporterOptions options, PosingService posingService, bool compact = false)
     {
-        DrawBoneFilterEditor(options.BoneFilter);
+        DrawBoneFilterEditor(options.BoneFilter, null);
 
         if(compact == false)
         {
@@ -92,52 +92,84 @@ public static class PosingEditorCommon
         }
     }
 
-    public static void DrawBoneFilterEditor(BoneFilter filter)
+    public static void DrawBoneFilterEditor(BoneFilter filter, PosingService? posingService)
     {
-        if(ImBrio.FontIconButton("select_all", Dalamud.Interface.FontAwesomeIcon.Check, "全选"))
+        if(ImBrio.FontIconButton("select_all", FontAwesomeIcon.Check, "全选"))
         {
             filter.EnableAll();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("select_none", Dalamud.Interface.FontAwesomeIcon.Minus, "不选择"))
+        if(ImBrio.FontIconButton("select_none", FontAwesomeIcon.Minus, "不选择"))
         {
             filter.DisableAll();
         }
 
-        ImGui.Separator();
+        ImGui.SameLine();
+
+        if(posingService is not null)
+        {
+            if(ImBrio.ToggelFontIconButton("keep_gizmo", FontAwesomeIcon.LocationCrosshairs, new(0), posingService.GizmoStaysWhenAllBonesAreDisabled, hoverText: "Keep gizmo active even when all items in the filter are disabled"))
+            {
+                posingService.GizmoStaysWhenAllBonesAreDisabled = !posingService.GizmoStaysWhenAllBonesAreDisabled;
+            }
+
+            ImGui.Separator();
+        }
 
         foreach(var category in filter.AllCategories)
         {
             var isEnabled = filter.IsCategoryEnabled(category);
+
+            if(category.Type is BoneCategories.BoneCategoryTypes.Category)
+            {
+                isEnabled = filter.IsSubCategoryEnabled(category.Id);
+                ImGui.Separator();
+            }
+
             if(ImGui.Checkbox(category.Name, ref isEnabled))
             {
-                if(isEnabled)
-                    filter.EnableCategory(category);
+                if(category.Type is BoneCategories.BoneCategoryTypes.Category)
+                {
+                    if(isEnabled)
+                        filter.EnableSubCategory(category.Id);
+                    else
+                        filter.DisableSubCategory(category.Id);
+                }
                 else
-                    filter.DisableCategory(category);
+                {
+                    if(isEnabled)
+                        filter.EnableCategory(category);
+                    else
+                        filter.DisableCategory(category);
+                }
             }
             if(ImGui.IsItemHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
             {
                 filter.EnableOnly(category);
             }
+        
+            if(category.Type is BoneCategories.BoneCategoryTypes.Category)
+            {
+                ImGui.Separator();
+            }
         }
     }
 
-    public static void DrawMirrorModeSelect(PosingCapability posing, Vector2 buttonSize)
+    public static void DrawMirrorModeSelect(PosingCapability? posing, Vector2 buttonSize)
     {
         using(ImRaii.PushFont(UiBuilder.IconFont))
         {
-            var hasMirror = posing.Selected.Match(
+            var hasMirror = posing?.Selected.Match(
                 boneSelect => posing.SkeletonPosing.GetBonePose(boneSelect).GetMirrorBone() != null,
                 _ => false,
                 _ => false
-            );
+            ) ?? false;
 
-            using(ImRaii.Disabled(posing.Selected.Value is None || !hasMirror))
+            using(ImRaii.Disabled(posing?.Selected.Value is None || !hasMirror))
             {
-                posing.Selected.Switch(
+                posing?.Selected.Switch(
                     boneSelect =>
                     {
                         var poseInfo = posing.SkeletonPosing.GetBonePose(boneSelect);
@@ -160,12 +192,19 @@ public static class PosingEditorCommon
                     _ => { ImGui.Button($"{FontAwesomeIcon.Unlink.ToIconString()}###mirror_mode", buttonSize); },
                     _ => { ImGui.Button($"{FontAwesomeIcon.Unlink.ToIconString()}###mirror_mode", buttonSize); }
                 );
+
+                if(posing is null)
+                {
+                    ImGui.BeginDisabled();
+                    ImGui.Button($"{FontAwesomeIcon.Unlink.ToIconString()}###mirror_mode", buttonSize);
+                    ImGui.EndDisabled();
+                }
             }
         }
 
         if(ImGui.IsItemHovered())
         {
-            if(posing.Selected.Value is BonePoseInfoId poseInfo)
+            if(posing?.Selected.Value is BonePoseInfoId poseInfo)
             {
                 switch(posing.SkeletonPosing.GetBonePose(poseInfo).MirrorMode)
                 {
@@ -187,6 +226,8 @@ public static class PosingEditorCommon
     {
         if(posing.Selected.Value is BonePoseInfoId boneId)
         {
+            bool enabled = false;
+
             var bone = posing.SkeletonPosing.GetBone(boneId);
             bool isValid = bone != null && bone.Skeleton.IsValid && bone.EligibleForIK;
 
@@ -195,16 +236,7 @@ public static class PosingEditorCommon
                 var bonePose = posing.SkeletonPosing.GetBonePose(boneId);
 
                 var ik = bonePose.DefaultIK;
-                bool enabled = ik.Enabled && BrioStyle.EnableStyle;
-
-                using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor, enabled))
-                {
-                    if(ImGui.Button("IK", buttonSize))
-                        ImGui.OpenPopup("transform_ik_popup");
-
-                    if(ImGui.IsItemHovered())
-                        ImGui.SetTooltip("反向运动（IK）");
-                }
+                enabled = ik.Enabled && BrioStyle.EnableStyle;
 
                 using var popup = ImRaii.Popup("transform_ik_popup");
                 {
@@ -213,13 +245,22 @@ public static class PosingEditorCommon
                         BoneIKEditor.Draw(bonePose, posing);
                     }
                 }
+            }
 
-                return;
+            using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor, enabled))
+            {
+                if(ImGui.Button("IK", buttonSize))
+                    ImGui.OpenPopup("transform_ik_popup");
+
+                ImBrio.AttachToolTip("反向运动（IK）");
             }
         }
-
-        ImGui.BeginDisabled();
-        ImGui.Button("IK", buttonSize);
-        ImGui.EndDisabled();
+        else
+        {
+            ImGui.BeginDisabled();
+            ImGui.Button("IK", buttonSize);
+            ImGui.EndDisabled();
+            ImBrio.AttachToolTip("反向运动（IK）");
+        }
     }
 }

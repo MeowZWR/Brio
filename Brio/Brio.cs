@@ -35,7 +35,7 @@ namespace Brio;
 
 public class Brio : IDalamudPlugin
 {
-    public const string Name = "BRIO DEV";
+    public const string Name = "BRIO";
 
     private static ServiceProvider? _services = null;
 
@@ -135,13 +135,16 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<TransientResourceService>();
         serviceCollection.AddSingleton<ActorLookAtService>();
         serviceCollection.AddSingleton<CharacterHandlerService>();
+        serviceCollection.AddSingleton<LightingService>();
 
         // IPC
         serviceCollection.AddSingleton<BrioIPCService>();
+        serviceCollection.AddSingleton<DynamisIPC>();
         serviceCollection.AddSingleton<PenumbraService>();
         serviceCollection.AddSingleton<GlamourerService>();
         serviceCollection.AddSingleton<CustomizePlusService>();
         serviceCollection.AddSingleton<MareService>();
+        serviceCollection.AddSingleton<KtisisIPC>();
 
         // Penumbra
         serviceCollection.AddSingleton<PenumbraManager>();
@@ -198,7 +201,6 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<UIManager>();
         serviceCollection.AddSingleton<MainWindow>();
         serviceCollection.AddSingleton<SettingsWindow>();
-        serviceCollection.AddSingleton<InfoWindow>();
         serviceCollection.AddSingleton<ProjectWindow>();
         serviceCollection.AddSingleton<UpdateWindow>();
         serviceCollection.AddSingleton<LibraryWindow>();
@@ -210,6 +212,7 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<PosingTransformWindow>();
         serviceCollection.AddSingleton<CameraWindow>();
         serviceCollection.AddSingleton<PosingGraphicalWindow>();
+        serviceCollection.AddSingleton<LightWindow>();
         serviceCollection.AddSingleton<ImBrioText>();
 
         return serviceCollection;
@@ -241,5 +244,7 @@ public class Brio : IDalamudPlugin
     public void Dispose()
     {
         _services?.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 }

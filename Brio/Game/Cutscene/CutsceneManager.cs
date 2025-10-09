@@ -60,21 +60,6 @@ public class CutsceneManager : IDisposable
 
         _gPoseService.OnGPoseStateChange += OnGPoseStateChange;
         _framework = framework;
-
-        _framework.Update += OnFrameworkUpdate;
-    }
-
-    private void OnFrameworkUpdate(IFramework framework)
-    {
-        if(_gPoseService.IsGPosing is false)
-            return;
-
-        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StopCutscene))
-            StopPlayback();
-        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StartAllActorsAnimations))
-            StartAllActors();
-        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StopAllActorsAnimations))
-            StopAllActors();
     }
 
     private void OnGPoseStateChange(bool newState)
@@ -159,6 +144,13 @@ public class CutsceneManager : IDisposable
     {
         if(IsRunning is false || CameraPath is null)
             return null;
+    
+        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StopCutscene))
+            StopPlayback();
+        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StartAllActorsAnimations))
+            StartAllActors();
+        if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StopAllActorsAnimations))
+            StopAllActors();
 
         if(DelayStart)
         {
@@ -317,7 +309,6 @@ public class CutsceneManager : IDisposable
     public void Dispose()
     {
         _gPoseService.OnGPoseStateChange -= OnGPoseStateChange;
-        _framework.Update -= OnFrameworkUpdate;
 
         if(IsRunning)
             StopPlayback();

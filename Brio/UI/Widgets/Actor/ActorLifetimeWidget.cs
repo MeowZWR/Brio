@@ -75,15 +75,15 @@ public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<Ac
 
         if(Capability.CanDestroy)
         {
-            if(ImGui.MenuItem("销毁###actorlifetime_destroy"))
+            if(ImGui.BeginMenu("销毁###actorlifetime_destroy"))
             {
-                Capability.Destroy();
-            }
-        }
+                if(ImGui.MenuItem("确认销毁###actorlifetime_destroy_confirm"))
+                {
+                    Capability.Destroy();
+                }
 
-        if(ImGui.MenuItem("选中###actorlifetime_target"))
-        {
-            Capability.Target();
+                ImGui.EndMenu();
+            }
         }
 
         if(ImGui.MenuItem($"重命名 {Capability.Actor.FriendlyName}###actorlifetime_rename"))
@@ -92,5 +92,11 @@ public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<Ac
 
             RenameActorModal.Open(Capability.Actor);
         }
+
+        if(ImGui.MenuItem("选中###actorlifetime_target"))
+        {
+            Capability.Target();
+        }
+
     }
 }

@@ -13,6 +13,7 @@ using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
 using System;
@@ -124,21 +125,11 @@ public class ActionTimelineEditor
 
         ImGui.SameLine();
 
-        ImBrio.RightAlign(97, 1);
+        ImBrio.RightAlign(100 * ImGuiHelpers.GlobalScale, 1);
 
-        if(ImGui.Button("角色     ", new Vector2(70, 25)))
+        if(ImGui.Button("角色  ▼", new Vector2(70, 25) * ImGuiHelpers.GlobalScale))
         {
             ImGui.OpenPopup("animation_control");
-        }
-
-        ImGui.SameLine();
-
-        using(ImRaii.PushColor(ImGuiCol.Button, 0))
-        {
-            var curPos = ImGui.GetCursorPos();
-            ImGui.SetCursorPos(new Vector2(curPos.X - 30, curPos.Y + 2));
-
-            ImGui.Button("▼###animation_control_drop");
         }
 
         ImGui.SameLine();
@@ -154,7 +145,9 @@ public class ActionTimelineEditor
         using var popup = ImRaii.Popup("animation_control");
         if(popup.Success)
         {
-            if(ImGui.Button("冻结所有角色", Vector2.Zero))
+            ImBrio.VerticalPadding(2);
+
+            if(ImGui.Button("冻结所有角色", new Vector2(150, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -171,7 +164,9 @@ public class ActionTimelineEditor
                 }
             }
 
-            if(ImGui.Button("取消冻结所有角色", Vector2.Zero))
+            ImBrio.VerticalPadding(2);
+
+            if(ImGui.Button("解冻所有角色", new Vector2(150, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -188,7 +183,9 @@ public class ActionTimelineEditor
                 }
             }
 
-            if(ImGui.Button("播放所有动画", Vector2.Zero))
+            ImBrio.VerticalPadding(2);
+
+            if(ImGui.Button("播放所有动画", new Vector2(150, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -202,7 +199,9 @@ public class ActionTimelineEditor
                 }
             }
 
-            if(ImGui.Button("停止所有动画", Vector2.Zero))
+            ImBrio.VerticalPadding(2);
+
+            if(ImGui.Button("停止所有动画", new Vector2(150, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -215,6 +214,9 @@ public class ActionTimelineEditor
                     }
                 }
             }
+
+            ImBrio.VerticalPadding(2);
+
         }
     }
 

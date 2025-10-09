@@ -4,7 +4,9 @@ using Brio.UI.Controls.Selectors;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -13,80 +15,138 @@ namespace Brio.UI.Controls.Editors;
 
 public static class AppearanceEditorCommon
 {
-    private const string _collectionLabel = "合集";
-    private const string _collectionLabelDesign = "设计";
-    private const string _collectionLabelProfile = "档案";
-    private static float _lableWidth { get; } = ImGui.CalcTextSize($"{_collectionLabel}  IIXXXXXXXX").X;
-    private static float _lableWidthDesign { get; } = ImGui.CalcTextSize($"{_collectionLabelDesign}  IIIXXXXXXXXXX").X;
-    private static float _lableWidthProfile { get; } = ImGui.CalcTextSize($"{_collectionLabelProfile}  IIIIIXXXXXXXXX").X;
+    // Helpers for color handling (Thank you Ny, from https://github.com/Ottermandias/Glamourer/blob/0a9693daea99f79c44b2a69e1bfb006573a721a0/Glamourer/Interop/Material/MaterialValueManager.cs#L43-L53)
+
+    // TODO Move this to MathHelpers or something (Ken)
+    private static Vector4 Square(Vector4 value) => new(Square(value.X), Square(value.Y), Square(value.Z), Square(value.W));
+    private static Vector3 Square(Vector3 value) => new(Square(value.X), Square(value.Y), Square(value.Z));
+    private static float Square(float value) => value < 0 ? -value * value : value * value;
+
+    private static Vector4 Root(Vector4 value) => new(Root(value.X), Root(value.Y), Root(value.Z), Root(value.W));
+    private static Vector3 Root(Vector3 value) => new(Root(value.X), Root(value.Y), Root(value.Z));
+    private static float Root(float value) => value < 0 ? MathF.Sqrt(-value) : MathF.Sqrt(value);
+
+    //
 
     private static readonly NpcSelector _globalNpcSelector = new("global_npc_selector");
+
+    private const string _collectionLabel = "合集";
+    private const string _collectionLabelDesign = "设计";
+    private const string _collectionLabelProfile = "配置";
+
+    private static float _lableWidth => ImGui.CalcTextSize(_collectionLabel).X - (44 * ImGuiHelpers.GlobalScale) + 125;
+
+    //
+
+    private static string _search = "";
+
+    private static bool _isCollectionsOpen = false;
+    private static bool _isDesignsOpen = false;
+    private static Dictionary<Guid, string>? _collections = [];
+    private static List<IPCProfileDataTuple> _profiles = [];
 
     public static void DrawPenumbraCollectionSwitcher(ActorAppearanceCapability capability)
     {
         if(!capability.HasPenumbraIntegration)
             return;
 
-        if(ImBrio.FontIconButton(FontAwesomeIcon.EarthOceania, new Vector2(25)))
+        ImBrio.VerticalPadding(1);
+
+        if(ImBrio.FontIconButton(FontAwesomeIcon.EarthOceania))
         {
             capability.PenumbraService.OpenPenumbra();
         }
 
-        if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("打开 Penumbra");
+        ImBrio.AttachToolTip("打开 Penumbra");
         ImGui.SameLine();
 
         var currentCollection = capability.CurrentCollection;
 
-        ImGui.SetNextItemWidth(_lableWidth);
+        ImGui.SetNextItemWidth(_lableWidth * ImGuiHelpers.GlobalScale);
 
         using(var combo = ImRaii.Combo(_collectionLabel, currentCollection))
         {
             if(combo.Success)
             {
-                var collections = capability.PenumbraService.GetCollections();
+                if(_isCollectionsOpen is false)
+                {
+                    _isCollectionsOpen = true;
+                    _collections = capability.PenumbraService.GetCollections();
+                }
 
-                foreach(var collection in from col in collections orderby col.Value ascending select col)
+                if(ImGui.InputTextWithHint($"###search", "Search", ref _search, 256))
+                {
+                    _collections = capability.PenumbraService.GetCollections();
+
+                    _collections = _collections
+                        ?.Where(collection => collection.Value.Contains(_search, StringComparison.OrdinalIgnoreCase))
+                        .ToDictionary(collection => collection.Key, collection => collection.Value);
+                }
+
+                foreach(var collection in from col in _collections orderby col.Value ascending select col)
                 {
                     bool isSelected = collection.Value.Equals(currentCollection);
                     if(ImGui.Selectable(collection.Value, isSelected))
                         capability.SetCollection(collection.Key);
                 }
             }
+            else if(_isCollectionsOpen)
+            {
+                _isCollectionsOpen = false;
+                _collections = [];
+                _search = "";
+            }
         }
+
+        ImBrio.AttachToolTip("Apply Penumbra Collection.");
 
         ImGui.SameLine();
 
         if(ImBrio.FontIconButtonRight("actorappearancewidget_reset", FontAwesomeIcon.Undo, 1, "重置合集", capability.IsCollectionOverridden))
             capability.ResetCollection();
     }
+
     public static void DrawGlamourerDesignSwitcher(ActorAppearanceCapability capability)
     {
         if(!capability.HasGlamourerIntegration)
             return;
+        ImBrio.VerticalPadding(1);
 
-        if(ImBrio.FontIconButton(FontAwesomeIcon.TheaterMasks, new Vector2(25)))
+        if(ImBrio.FontIconButton(FontAwesomeIcon.TheaterMasks))
         {
             capability.GlamourerService.OpenGlamourer();
         }
 
-        if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Glamourer 设计");
+        ImBrio.AttachToolTip("打开 Glamourer");
         ImGui.SameLine();
 
         var currentDesign = capability.CurrentDesign;
 
-        ImGui.SetNextItemWidth(_lableWidthDesign);
+        ImGui.SetNextItemWidth(_lableWidth * ImGuiHelpers.GlobalScale);
 
+        using(ImRaii.Disabled(capability.HasMCDF))
         using(var combo = ImRaii.Combo(_collectionLabelDesign, "应用设计"))
         {
             if(combo.Success)
             {
-                var collections = capability.GlamourerService.GetDesignList();
-
-                if(collections is not null)
+                if(_isDesignsOpen == false)
                 {
-                    foreach(var collection in from col in collections orderby col.Value ascending select col)
+                    _isDesignsOpen = true;
+                    _collections = capability.GlamourerService.GetDesignList();
+                }
+
+                if(ImGui.InputTextWithHint($"###search", "Search", ref _search, 256))
+                {
+                    _collections = capability.GlamourerService.GetDesignList();
+
+                    _collections = _collections
+                        ?.Where(collection => collection.Value.Contains(_search, StringComparison.OrdinalIgnoreCase))
+                        .ToDictionary(collection => collection.Key, collection => collection.Value);
+                }
+
+                if(_collections is not null)
+                {
+                    foreach(var collection in from col in _collections orderby col.Value ascending select col)
                     {
                         bool isSelected = collection.Value.Equals(currentDesign);
                         if(ImGui.Selectable(collection.Value, isSelected))
@@ -97,38 +157,51 @@ public static class AppearanceEditorCommon
                     }
                 }
             }
+            else if(_isDesignsOpen)
+            {
+                _isDesignsOpen = false;
+                _collections = [];
+                _search = "";
+            }
         }
+
+        if(capability.HasMCDF)
+            ImBrio.AttachToolTip("已应用 MCDF 时无法应用 Glamourer 设计！");
+        else
+            ImBrio.AttachToolTip("应用 Glamourer 设计。");
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight("actorappearancewidget_DesignReset", FontAwesomeIcon.Undo, 1, "重置设计"))
-            capability.ResetDesign();
+        using(ImRaii.Disabled(capability.HasMCDF))
+            if(ImBrio.FontIconButtonRight("actorappearancewidget_DesignReset", FontAwesomeIcon.Undo, 1, "重置设计"))
+                capability.ResetDesign();
 
     }
 
     private static bool _isProfileOpen = false;
-    private static IEnumerable<IPCProfileDataTuple> _profiles = [];
     public static void DrawCustomizePlusProfileSwitcher(ActorAppearanceCapability capability)
     {
         if(!capability.HasCustomizePlusIntegration)
             return;
 
-        if(ImGui.Button("C+", new Vector2(25)))
+        ImBrio.VerticalPadding(1);
+
+        if(ImGui.Button("C+", new Vector2(25 * ImGuiHelpers.GlobalScale)))
         {
             capability.CustomizePlusService.OpenCustomizePlus();
         }
 
-        if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Customize+ 档案");
+        ImBrio.AttachToolTip("打开 Customize+");
         ImGui.SameLine();
 
-        ImGui.SetNextItemWidth(_lableWidthProfile);
+        ImGui.SetNextItemWidth(_lableWidth * ImGuiHelpers.GlobalScale);
 
         if(capability.SelectedDesign.name is null)
         {
             capability.SetSelectedProfile();
         }
 
+        using(ImRaii.Disabled(capability.HasMCDF))
         using(var combo = ImRaii.Combo(_collectionLabelProfile, capability.SelectedDesign.name!))
         {
             if(combo.Success)
@@ -136,7 +209,20 @@ public static class AppearanceEditorCommon
                 if(_isProfileOpen == false)
                 {
                     _isProfileOpen = true;
-                    _profiles = capability.CustomizePlusService.GetProfiles();
+                    _profiles = [.. capability.CustomizePlusService.GetProfiles()];
+
+                    _profiles.Add(new IPCProfileDataTuple { Name = "无", UniqueId = Guid.Empty });
+
+                    if(capability.SelectedDesign.id is null)
+                        capability.SetSelectedProfile();
+                }
+
+                if(ImGui.InputTextWithHint($"###search", "搜索", ref _search, 256))
+                {
+                    _profiles = [.. capability.CustomizePlusService.GetProfiles()];
+                    _profiles.Add(new IPCProfileDataTuple { Name = "无", UniqueId = Guid.Empty });
+
+                    _profiles = [.. _profiles.Where(profile => profile.Name.Contains(_search, StringComparison.OrdinalIgnoreCase))];
 
                     if(capability.SelectedDesign.id is null)
                         capability.SetSelectedProfile();
@@ -144,14 +230,20 @@ public static class AppearanceEditorCommon
 
                 if(_profiles is not null)
                 {
-                    foreach(var collection in _profiles)
+                    foreach(IPCProfileDataTuple collection in from col in _profiles orderby col.Name ascending select col)
                     {
                         bool isSelected = collection.UniqueId.Equals(capability.CurrentProfile.id);
                         if(ImGui.Selectable(collection.Name, isSelected))
                         {
                             capability.ResetProfile();
                             var (_, data) = capability.CustomizePlusService.GetProfile(collection.UniqueId);
-                            if(string.IsNullOrEmpty(data) == false)
+
+                            if(collection.UniqueId == Guid.Empty)
+                            {
+                                capability.SelectedDesign = ("无", null);
+                                capability.SetProfileToNone(true);
+                            }
+                            else if(string.IsNullOrEmpty(data) == false)
                             {
                                 capability.SelectedDesign = (collection.Name, collection.UniqueId);
                                 capability.SetProfile(data);
@@ -164,16 +256,24 @@ public static class AppearanceEditorCommon
             {
                 _isProfileOpen = false;
                 _profiles = [];
+                _search = "";
             }
         }
 
+        if(capability.HasMCDF)
+            ImBrio.AttachToolTip("已应用MCDF，无法应用Customize+配置！");
+        else
+            ImBrio.AttachToolTip("应用Customize+配置。");
+
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight("actorappearancewidget_ProfileReset", FontAwesomeIcon.Undo, 1, "重置 C+ 档案"))
-        {
-            capability.ResetProfile();
-        }
+        using(ImRaii.Disabled(capability.HasMCDF))
+            if(ImBrio.FontIconButtonRight("actorappearancewidget_ProfileReset", FontAwesomeIcon.Undo, 1, "重置 C+ 配置"))
+                capability.ResetProfile();
     }
+
+    //
+    //
 
     public static void ResetNPCSelector()
     {
@@ -199,7 +299,7 @@ public static class AppearanceEditorCommon
         {
             bool didChange = false;
 
-            var tempColor = color;
+            var tempColor = Root(color);
             if(ImGui.ColorButton($"{label}###{id}", tempColor, ImGuiColorEditFlags.NoInputs | ImGuiColorEditFlags.NoLabel))
             {
                 ImGui.OpenPopup($"{id}_color_popup");
@@ -211,7 +311,7 @@ public static class AppearanceEditorCommon
                 {
                     if(ImGui.ColorPicker4("###color", ref tempColor))
                     {
-                        color = tempColor;
+                        color = Square(tempColor);
                         didChange = true;
                     }
                 }
@@ -227,7 +327,7 @@ public static class AppearanceEditorCommon
         {
             bool didChange = false;
 
-            var tempColor = color;
+            var tempColor = Root(color);
             var tempColor4 = new Vector4(tempColor, 0.0f);
             var flags = ImGuiColorEditFlags.NoInputs | ImGuiColorEditFlags.NoLabel | ImGuiColorEditFlags.NoAlpha;
             if(ImGui.ColorButton($"{label}###{id}", tempColor4, flags))
@@ -241,7 +341,7 @@ public static class AppearanceEditorCommon
                 {
                     if(ImGui.ColorPicker3("###color", ref tempColor))
                     {
-                        color = tempColor;
+                        color = Square(tempColor);
                         didChange = true;
                     }
                 }

@@ -1,11 +1,14 @@
 ﻿using Brio.Capabilities.Posing;
+using Brio.Capabilities.World;
 using Brio.Config;
 using Brio.Core;
 using Brio.Entities;
 using Brio.Entities.Core;
+using Brio.Entities.World;
 using Brio.Game.Camera;
 using Brio.Game.GPose;
 using Brio.Game.Posing;
+using Brio.Game.World;
 using Brio.Input;
 using Brio.UI.Controls.Editors;
 using Dalamud.Bindings.ImGui;
@@ -23,13 +26,14 @@ namespace Brio.UI.Windows.Specialized;
 
 public class PosingOverlayWindow : Window, IDisposable
 {
-
     private readonly EntityManager _entityManager;
     private readonly CameraService _cameraService;
     private readonly ConfigurationService _configurationService;
     private readonly PosingService _posingService;
     private readonly GPoseService _gPoseService;
     private readonly HistoryService _groupedUndoService;
+
+    private readonly LightingService _lightingService;
 
     private List<ClickableItem> _selectingFrom = [];
     private Transform? _trackingTransform;
@@ -39,7 +43,7 @@ public class PosingOverlayWindow : Window, IDisposable
     private const int _gizmoId = 142857;
     private const string _boneSelectPopupName = "brio_bone_select_popup";
 
-    public PosingOverlayWindow(EntityManager entityManager, CameraService cameraService, HistoryService groupedUndoService, ConfigurationService configService, PosingService posingService, GPoseService gPoseService)
+    public PosingOverlayWindow(EntityManager entityManager, CameraService cameraService, LightingService lightingService, HistoryService groupedUndoService, ConfigurationService configService, PosingService posingService, GPoseService gPoseService)
         : base("##brio_posing_overlay_window", ImGuiWindowFlags.AlwaysAutoResize, true)
     {
         Namespace = "brio_posing_overlay_namespace";
@@ -51,6 +55,7 @@ public class PosingOverlayWindow : Window, IDisposable
         _posingService = posingService;
         _gPoseService = gPoseService;
         _groupedUndoService = groupedUndoService;
+        _lightingService = lightingService;
 
         _gPoseService.OnGPoseStateChange += OnGPoseStateChanged;
     }
@@ -76,12 +81,28 @@ public class PosingOverlayWindow : Window, IDisposable
 
     public override void Draw()
     {
+        var overlayConfig = _configurationService.Configuration.Posing;
+        var uiState = new OverlayUIState(overlayConfig);
+
+        for(int i = 0; i < _lightingService.SpawnedLightEntities.Count; i++)
+        {
+            var lightEntity = _lightingService.SpawnedLightEntities[i];
+            if(lightEntity is not null)
+            {
+                if(lightEntity.TryGetCapability<LightTransformCapability>(out var lightCap))
+                {
+                    DrawLightContent(lightCap, overlayConfig, uiState);
+                    DrawLightGizmo(lightCap, uiState);
+                }
+            }
+        }
+
         if(!_entityManager.TryGetCapabilityFromSelectedEntity<PosingCapability>(out var posing))
         {
             return;
         }
 
-        DrawContent(posing);
+        DrawActorContent(posing, uiState, overlayConfig);
     }
 
     public override void PostDraw()
@@ -90,10 +111,89 @@ public class PosingOverlayWindow : Window, IDisposable
         base.PostDraw();
     }
 
-    private unsafe void DrawContent(PosingCapability posing)
+    private unsafe void DrawLightContent(LightTransformCapability lightCapability, PosingConfiguration config, OverlayUIState uiState)
     {
+        var camera = _cameraService.GetCurrentCamera();
+        if(camera == null)
+            return;
+
         var overlayConfig = _configurationService.Configuration.Posing;
-        var uiState = new OverlayUIState(overlayConfig);
+        var light = lightCapability.GameLight;
+        var clickables = new List<ClickableItem>();
+
+        if(camera->WorldToScreen(light.Position, out var modelScreen))
+        {
+            var lightClickable = new ClickableItem
+            {
+                Name = lightCapability.Entity.FriendlyName,
+                ScreenPosition = modelScreen,
+                Size = overlayConfig.BoneCircleSize,
+                CurrentlySelected = _lightingService.SelectedLightEntity?.GameLight.EntityIndex == light.EntityIndex
+            };
+            clickables.Add(lightClickable);
+        }
+
+        var clicked = new List<ClickableItem>();
+        var hovered = new List<ClickableItem>();
+
+        foreach(var clickable in clickables)
+        {
+            var start = new Vector2(clickable.ScreenPosition.X - clickable.Size, clickable.ScreenPosition.Y - clickable.Size);
+            var end = new Vector2(clickable.ScreenPosition.X + clickable.Size, clickable.ScreenPosition.Y + clickable.Size);
+
+            if(ImGui.IsMouseHoveringRect(start, end))
+            {
+                hovered.Add(clickable);
+
+                clickable.CurrentlyHovered = true;
+
+                ImGui.SetNextFrameWantCaptureMouse(true);
+
+                if(ImGui.IsMouseClicked(ImGuiMouseButton.Left))
+                {
+                    _lightingService.SelectedLightEntity = lightCapability.Entity as LightEntity;
+
+                    clicked.Add(clickable);
+                    clickable.WasClicked = true;
+                    uiState.AnyClickableClicked = true;
+                }
+            }
+
+            bool isFilled = clickable.CurrentlySelected || clickable.CurrentlyHovered;
+
+            var color = config.LightCircleHoveredColor;
+
+            if(clickable.CurrentlyHovered)
+                color = config.LightCircleHoveredColor;
+
+            if(clickable.CurrentlySelected)
+                color = config.LightCircleSelectedColor;
+
+            if(isFilled)
+                ImGui.GetWindowDrawList().AddCircleFilled(clickable.ScreenPosition, clickable.Size + 3, color, 8);
+            else
+                ImGui.GetWindowDrawList().AddCircle(clickable.ScreenPosition, clickable.Size, color, 8, 2);
+        }
+
+        if(hovered.Count != 0 && clicked.Count == 0)
+        {
+            ImGui.SetNextWindowPos(ImGui.GetMousePos() + new Vector2(15, 10), ImGuiCond.Always);
+            if(ImGui.Begin("gizmo_light_select_preview", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoMove))
+            {
+                foreach(var hover in hovered)
+                {
+                    ImGui.BeginDisabled();
+                    ImGui.Selectable($"{hover.Name}###selectable_{hover.GetHashCode()}", hover.CurrentlySelected);
+                    ImGui.EndDisabled();
+                }
+
+                ImGui.End();
+            }
+        }
+    }
+
+    private unsafe void DrawActorContent(PosingCapability posing, OverlayUIState uiState, PosingConfiguration overlayConfig)
+    {
         var clickables = new List<ClickableItem>();
 
         CalculateClickables(posing, uiState, overlayConfig, ref clickables);
@@ -114,17 +214,23 @@ public class PosingOverlayWindow : Window, IDisposable
         // Model Transform
         if(camera->WorldToScreen(posing.ModelPosing.Transform.Position, out var modelScreen))
         {
-            clickables.Add(new ClickableItem
+            var modelTransform = new ClickableItem
             {
                 Item = PosingSelectionType.ModelTransform,
                 ScreenPosition = modelScreen,
                 Size = config.BoneCircleSize,
-            });
+            };
+            clickables.Add(modelTransform);
+            modelTransform.CurrentlySelected = posing.Selected.Equals(modelTransform);
         }
 
         // Bone Transforms
         if(posing.Actor.IsProp == false)
         {
+            BonePoseInfoId? selectedBoneId = null;
+            if(posing.Selected.Value is BonePoseInfoId boneId)
+                selectedBoneId = boneId;
+
             foreach(var (skeleton, poseSlot) in posing.SkeletonPosing.Skeletons)
             {
                 if(!skeleton.IsValid)
@@ -141,22 +247,26 @@ public class PosingOverlayWindow : Window, IDisposable
                     Scale = (Vector3)charaBase->CharacterBase.DrawObject.Object.Scale * charaBase->ScaleFactor
                 }.ToMatrix();
 
-
                 foreach(var bone in skeleton.Bones)
                 {
-                    if(!_posingService.OverlayFilter.IsBoneValid(bone, poseSlot) || bone.Name == "n_throw")
+                    bool isSelectedBone = selectedBoneId != null && selectedBoneId.Value.Equals(posing.SkeletonPosing.GetBonePose(bone).Id);
+
+                    // Always show the selected bone, even if the overlay filter would hide it
+                    if((!_posingService.OverlayFilter.IsBoneValid(bone, poseSlot) || bone.Name == "n_throw") && !isSelectedBone)
                         continue;
 
                     var boneWorldPosition = Vector3.Transform(bone.LastTransform.Position, modelMatrix);
 
                     if(camera->WorldToScreen(boneWorldPosition, out var boneScreen))
                     {
-                        clickables.Add(new ClickableItem
+                        var clickItem = new ClickableItem
                         {
                             Item = posing.SkeletonPosing.GetBonePose(bone).Id,
                             ScreenPosition = boneScreen,
                             Size = config.BoneCircleSize,
-                        });
+                            CurrentlySelected = isSelectedBone
+                        };
+                        clickables.Add(clickItem);
 
                         if(bone.Parent != null)
                         {
@@ -168,21 +278,12 @@ public class PosingOverlayWindow : Window, IDisposable
                             {
                                 clickables.Last().ParentScreenPosition = parentScreen;
                             }
-
                         }
                     }
                 }
             }
         }
-
-        // Selection
-        foreach(var clickable in clickables)
-        {
-            if(posing.Selected.Equals(clickable.Item))
-                clickable.CurrentlySelected = true;
-        }
     }
-
     private void HandleSkeletonInput(PosingCapability posing, OverlayUIState uiState, List<ClickableItem> clickables)
     {
         if(!uiState.SkeletonInputEnabled)
@@ -254,46 +355,43 @@ public class PosingOverlayWindow : Window, IDisposable
         }
     }
 
-
     private void DrawPopup(PosingCapability posing)
     {
-        using(var popup = ImRaii.Popup(_boneSelectPopupName))
+        using var popup = ImRaii.Popup(_boneSelectPopupName);
+        if(popup.Success)
         {
-            if(popup.Success)
+            int selectedIndex = -1;
+            foreach(var click in _selectingFrom)
             {
-                int selectedIndex = -1;
-                foreach(var click in _selectingFrom)
-                {
-                    bool isSelected = posing.Selected == click.Item;
-                    if(isSelected)
-                        selectedIndex = _selectingFrom.IndexOf(click);
+                bool isSelected = posing.Selected == click.Item;
+                if(isSelected)
+                    selectedIndex = _selectingFrom.IndexOf(click);
 
-                    if(ImGui.Selectable($"{click.Item.DisplayName}###clickable_{click.GetHashCode()}", isSelected))
-                    {
-                        posing.Selected = click.Item;
-                        _selectingFrom = [];
-                        ImGui.CloseCurrentPopup();
-                    }
+                if(ImGui.Selectable($"{click.Item.DisplayName}###clickable_{click.GetHashCode()}", isSelected))
+                {
+                    posing.Selected = click.Item;
+                    _selectingFrom = [];
+                    ImGui.CloseCurrentPopup();
+                }
+            }
+
+            var wheel = ImGui.GetIO().MouseWheel;
+            if(wheel != 0)
+            {
+                if(wheel < 0)
+                {
+                    selectedIndex++;
+                    if(selectedIndex >= _selectingFrom.Count)
+                        selectedIndex = 0;
+                }
+                else
+                {
+                    selectedIndex--;
+                    if(selectedIndex < 0)
+                        selectedIndex = _selectingFrom.Count - 1;
                 }
 
-                var wheel = ImGui.GetIO().MouseWheel;
-                if(wheel != 0)
-                {
-                    if(wheel < 0)
-                    {
-                        selectedIndex++;
-                        if(selectedIndex >= _selectingFrom.Count)
-                            selectedIndex = 0;
-                    }
-                    else
-                    {
-                        selectedIndex--;
-                        if(selectedIndex < 0)
-                            selectedIndex = _selectingFrom.Count - 1;
-                    }
-
-                    posing.Selected = _selectingFrom[selectedIndex].Item;
-                }
+                posing.Selected = _selectingFrom[selectedIndex].Item;
             }
         }
     }
@@ -309,9 +407,27 @@ public class PosingOverlayWindow : Window, IDisposable
             {
                 float thickness = config.SkeletonLineThickness;
                 uint color = uiState.SkeletonLinesEnabled ? config.SkeletonLineActiveColor : config.SkeletonLineInactiveColor;
-                ImGui.GetWindowDrawList().AddLine(clickable.ParentScreenPosition.Value, clickable.ScreenPosition, color, thickness);
+
+                if(config.SkeletonLineToCircle)
+                {
+                    if(Vector2.DistanceSquared(clickable.ParentScreenPosition.Value, clickable.ScreenPosition) >= MathF.Pow(clickable.Size * 2, 2))
+                    {
+                        ImGui.GetWindowDrawList().AddLine(
+                            PointAlongLine(clickable.ParentScreenPosition.Value, clickable.ScreenPosition, clickable.Size - 1),
+                            PointAlongLine(clickable.ScreenPosition, clickable.ParentScreenPosition.Value, clickable.Size - 1),
+                            color, thickness
+                        );
+                    }
+                }
+                else
+                {
+                    ImGui.GetWindowDrawList().AddLine(clickable.ParentScreenPosition.Value, clickable.ScreenPosition, color, thickness);
+                }
             }
         }
+
+        static Vector2 PointAlongLine(Vector2 start, Vector2 end, float distance)
+            => start + (Vector2.Normalize(end - start) * distance);
     }
 
     private void DrawSkeletonDots(OverlayUIState uiState, PosingConfiguration config, List<ClickableItem> clickables)
@@ -347,6 +463,88 @@ public class PosingOverlayWindow : Window, IDisposable
         }
     }
 
+    private Transform? _lightTrackingTransform;
+    private unsafe void DrawLightGizmo(LightTransformCapability lightTransformCapability, OverlayUIState uiState)
+    {
+        if(!uiState.DrawGizmo || lightTransformCapability.GameLight.IsValid is false || lightTransformCapability.GameLight.IsVisible is false)
+            return;
+
+        if(_lightingService.SelectedLightEntity is not null && _lightingService.SelectedLightEntity == lightTransformCapability.Entity)
+        {
+            // Always draw if this is the selected light
+        }
+        else if(lightTransformCapability.IsGismoVisible is false)
+            return;
+
+        var camera = _cameraService.GetCurrentCamera();
+        if(camera == null)
+            return;
+
+        Matrix4x4 projectionMatrix = camera->GetProjectionMatrix();
+        Matrix4x4 worldViewMatrix = camera->GetViewMatrix();
+        worldViewMatrix.M44 = 1;
+
+        Transform currentTransform = lightTransformCapability.GameLight.GameLight->Transform;
+        Matrix4x4 modelMatrix = worldViewMatrix;
+
+        var lastObserved = _lightTrackingTransform ?? currentTransform;
+        var lastMatrix = lastObserved.ToMatrix();
+
+        ImGuizmo.SetID(_gizmoId + lightTransformCapability.GameLight.Index + 1);
+
+        ImGuizmo.BeginFrame();
+        var io = ImGui.GetIO();
+        ImGuizmo.SetRect(0, 0, io.DisplaySize.X, io.DisplaySize.Y);
+        ImGuizmo.SetOrthographic(false);
+        ImGuizmo.AllowAxisFlip(_configurationService.Configuration.Posing.AllowGizmoAxisFlip);
+        ImGuizmo.SetDrawlist();
+        ImGuizmo.Enable(uiState.GizmoEnabled);
+
+        Transform? newTransform = null;
+
+        if(ImGuizmoExtensions.MouseWheelManipulate(ref lastMatrix))
+        {
+            newTransform = lastMatrix.ToTransform();
+            _lightTrackingTransform = newTransform;
+        }
+
+        if(ImGuizmo.Manipulate(
+            ref worldViewMatrix.M11,
+            ref projectionMatrix.M11,
+            _lightingService.Operation.AsGizmoOperation(),
+            _lightingService.CoordinateMode.AsGizmoMode(),
+            ref lastMatrix.M11
+        ))
+        {
+            newTransform = lastMatrix.ToTransform();
+            _lightTrackingTransform = newTransform;
+        }
+
+        if(_lightTrackingTransform.HasValue && !ImGuizmo.IsUsing())
+        {
+            _lightTrackingTransform = null;
+
+            lightTransformCapability.Snapshot();
+        }
+
+        ImGuizmo.Enable(true);
+
+        if(newTransform != null)
+        {
+            var delta = newTransform.Value.CalculateDiff(lastObserved);
+
+            lightTransformCapability.Transform = lightTransformCapability.GameLight.GameLight->Transform += delta;
+
+            lightTransformCapability.rotation = lightTransformCapability.Transform.Rotation.EulerAngles;
+            lightTransformCapability.position = lightTransformCapability.Transform.Position;
+
+            if(ImGuizmo.IsUsing() is false)
+                lightTransformCapability.Snapshot();
+        }
+
+        ImGuizmo.SetID(_gizmoId);
+    }
+
     private unsafe void DrawGizmo(PosingCapability posing, OverlayUIState uiState)
     {
         if(!uiState.DrawGizmo)
@@ -377,7 +575,7 @@ public class PosingOverlayWindow : Window, IDisposable
                 if(bone == null)
                     return false;
 
-                if(!_posingService.OverlayFilter.IsBoneValid(bone, boneSelect.Slot))
+                if(!_posingService.OverlayFilter.IsBoneValid(bone, boneSelect.Slot) && _posingService.GizmoStaysWhenAllBonesAreDisabled is false)
                 {
                     return false;
                 }
@@ -444,11 +642,8 @@ public class PosingOverlayWindow : Window, IDisposable
         {
             if(!posing.ModelPosing.Freeze && !(selectedBone != null && selectedBone.Freeze))
             {
-                if(!posing.ModelPosing.Freeze && !(selectedBone != null && selectedBone.Freeze))
-                {
-                    newTransform = lastMatrix.ToTransform();
-                    _trackingTransform = newTransform;
-                }
+                newTransform = lastMatrix.ToTransform();
+                _trackingTransform = newTransform;
             }
         }
 
@@ -566,6 +761,8 @@ public class PosingOverlayWindow : Window, IDisposable
 
     public class ClickableItem
     {
+        public string Name = string.Empty; // It's just easier this way
+
         public PosingSelectionType Item = null!;
 
         public Vector2 ScreenPosition;

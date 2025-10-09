@@ -6,6 +6,11 @@ public class PosingConfiguration
     public bool OverlayDefaultsOn { get; set; } = false;
     public bool AllowGizmoAxisFlip { get; set; } = true;
     public float BoneCircleSize { get; set; } = 6.300f;
+
+    public uint LightCircleNormalColor { get; set; } = 0xFF00D9FC;
+    public uint LightCircleHoveredColor { get; set; } = 0xFF2CE2FF;
+    public uint LightCircleSelectedColor { get; set; } = 0xFF00D9FC;
+
     public uint BoneCircleNormalColor { get; set; } = 0xFFFFFFFF;
     public uint BoneCircleInactiveColor { get; set; } = 0x55555555;
     public uint BoneCircleHoveredColor { get; set; } = 0xFFFF0073;
@@ -14,6 +19,7 @@ public class PosingConfiguration
     public uint SkeletonLineActiveColor { get; set; } = 0xFFFFFFFF;
     public uint SkeletonLineInactiveColor { get; set; } = 0x55555555;
     public bool ShowSkeletonLines { get; set; } = true;
+    public bool SkeletonLineToCircle { get; set; } = true;
     public bool HideGizmoWhenAdvancedPosingOpen { get; set; } = false;
     public bool HideToolbarWhenAdvandedPosingOpen { get; set; } = false;
     public bool HideSkeletonWhenGizmoActive { get; set; } = false;
@@ -26,12 +32,12 @@ public class PosingConfiguration
     public bool ShowGenitaliaInAdvancedPoseWindow { get; set; } = false;
 
     // Hooks
-    public bool DisableGPoseMouseSelect { get; set; } = false;
+    public bool DisableGPoseMouseSelect { get; set; } = true;
     public bool HideNameOnGPoseSettingsWindow { get; set; } = true;
 
     // Targeting
     public bool GPoseTargetChangesWithBrio { get; set; } = false;
-    public bool BrioTargetChangesWithGPose { get; set; } = false;
+    public bool BrioTargetChangesWithGPose { get; set; } = true;
 
     // Undo / Redo
     public int UndoStackSize { get; set; } = 50;

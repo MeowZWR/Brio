@@ -25,6 +25,8 @@ public enum InputAction
     Posing_Scale,
     Posing_Universal,
     Posing_ToggleLink,
+    Posing_ToggleWorld,
+    Posing_Freeze,
 
     // Free Camera
     FreeCamera_Forward,
@@ -50,6 +52,4 @@ public enum InputOverlayAction
     Interface_IncrementSmallModifier,
     Interface_IncrementLargeModifier,
     Interface_StopCutscene,
-    Interface_StartAllActorsAnimations,
-    Interface_StopAllActorsAnimations
 }

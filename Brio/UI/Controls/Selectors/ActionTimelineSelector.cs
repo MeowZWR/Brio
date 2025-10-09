@@ -147,20 +147,21 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         ImGui.SetTooltip(tooltip);
     }
 
+
     protected override void DrawOptions()
     {
-        if(ImGui.Checkbox("情感动作", ref _showEmotes))
+        bool[] items = [_showEmotes, _showActions, _showRaw];
+
+        var changed =ImBrio.ToggleSelecterStrip("actiontimeline_filters_selector", Vector2.Zero, ref items, ["情感动作", "技能", "时间线"]);
+      
+        if(changed)
+        {
+            _showEmotes = items[0];
+            _showActions = items[1];
+            _showRaw = items[2];
+
             UpdateList();
-
-        ImGui.SameLine();
-
-        if(ImGui.Checkbox("技能", ref _showActions))
-            UpdateList();
-
-        ImGui.SameLine();
-
-        if(ImGui.Checkbox("时间线", ref _showRaw))
-            UpdateList();
+        }
     }
 
     protected override int Compare(ActionTimelineSelectorEntry itemA, ActionTimelineSelectorEntry itemB)

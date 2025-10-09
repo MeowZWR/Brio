@@ -6,6 +6,7 @@ using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using System.Numerics;
 
@@ -78,11 +79,46 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
         }
     }
 
+    public override void DrawPopup()
+    {
+        using(ImRaii.Disabled(Capability.IsAllowed == false))
+        {
+            if(ImGui.MenuItem("打开相机编辑器###containerwidgetpopup_OpenAdvance"))
+            {
+                Capability.OpenCameraWindow();
+            }
+
+            if(ImGui.BeginMenu("新建...###containerwidgetpopup_new"))
+            {
+                if(ImGui.MenuItem("新建相机###containerwidgetpopup_newcamera"))
+                {
+                    Capability.VirtualCameraManager.CreateCamera(CameraType.Game);
+                }
+                if(ImGui.MenuItem("新建自由相机###containerwidgetpopup_newfreecamera"))
+                {
+                    Capability.VirtualCameraManager.CreateCamera(CameraType.Free);
+                }
+
+                ImGui.EndMenu();
+            }
+        
+            if(ImGui.BeginMenu("销毁全部相机###containerwidgetpopup_destroyall"))
+            {
+                if(ImGui.MenuItem("确认销毁###containerwidgetpopup_destroyall_confirm"))
+                {
+                    Capability.VirtualCameraManager.DestroyAll();
+                }
+
+                ImGui.EndMenu();
+            }
+        }
+    }
+
     public unsafe override void DrawBody()
     {
         using(ImRaii.Disabled(Capability.IsAllowed == false))
         {
-            if(ImGui.BeginListBox($"###CameraContainerWidget_{Capability.Entity.Id}_list", new Vector2(-1, 150)))
+            if(ImGui.BeginListBox($"###CameraContainerWidget_{Capability.Entity.Id}_list", new Vector2(-1, 150 * ImGuiHelpers.GlobalScale)))
             {
                 foreach(var child in Capability.Entity.Children)
                 {
@@ -100,37 +136,4 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
             }
         }
     }
-}
-
-public class BrioCameraWidget(BrioCameraCapability capability) : Widget<BrioCameraCapability>(capability)
-{
-    public override string HeaderName => "相机编辑器";
-
-    public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.DefaultOpen | WidgetFlags.HasAdvanced;
-
-    private readonly ConfigurationService _configService = ConfigurationService.Instance;
-
-    public unsafe override void DrawBody()
-    {
-        _ = _configService;
-        if(Capability.CameraEntity.CameraType == CameraType.Free)
-        {
-            CameraEditor.DrawFreeCam("camera_widget_editor", Capability);
-        }
-        else if(Capability.CameraEntity.CameraType == CameraType.Cutscene)
-        {
-            if(ImGui.Button("打开相机窗口"))
-            {
-                Capability.ShowCameraWindow();
-            }
-            ImBrio.TextCentered("请打开相机窗口来编辑或播放过场动画", ImGui.GetWindowContentRegionMax().X);
-
-        }
-        else
-        {
-            CameraEditor.DrawBrioCam("camera_widget_editor", Capability);
-        }
-    }
-
-    public override void ToggleAdvancedWindow() => Capability.ShowCameraWindow();
 }
