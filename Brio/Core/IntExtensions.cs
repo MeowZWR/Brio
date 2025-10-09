@@ -30,8 +30,4 @@ public static class IntExtensions
     {
         return i.ToBrioName();
     }
-    public static string ToName(this ulong i)
-    {
-        return ToWords((int)i, " ");
-    }
 }

@@ -512,7 +512,7 @@ public class PosingOverlayToolbarWindow : Window
                 using(ImRaii.Disabled(parentBone == null))
                 {
                     if(ImGui.Button($"{FontAwesomeIcon.ArrowUp.ToIconString()}###select_parent", new Vector2(button4XSize)))
-                        posing?.Selected = new BonePoseInfoId(parentBone!.Name, parentBone!.PartialId, PoseInfoSlot.Character);
+                        posing!.Selected = new BonePoseInfoId(parentBone!.Name, parentBone!.PartialId, PoseInfoSlot.Character);
                 }
             }
             ImBrio.AttachToolTip("选择父级");
