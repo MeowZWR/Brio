@@ -32,7 +32,7 @@ public static partial class ImBrio
                     ImGui.SameLine();
 
                     using(ImRaii.Disabled(!selected))
-                        if(FontIconButton($"###{label}_lockButton", locked ? FontAwesomeIcon.Lock : FontAwesomeIcon.Unlock, locked ? "Unlock" : "Lock", bordered: false))
+                        if(FontIconButton($"###{label}_lockButton", locked ? FontAwesomeIcon.Lock : FontAwesomeIcon.Unlock, locked ? "解锁" : "锁定", bordered: false))
                         {
                             lockClick = true;
                             locked = !locked;

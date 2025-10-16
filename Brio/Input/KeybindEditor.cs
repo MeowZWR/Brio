@@ -107,7 +107,7 @@ public static class KeybindEditor
 
         // Reset to Default Button
         ImGui.SameLine();
-        if(ImGui.Button($"Reset##{label}"))
+        if(ImGui.Button($"重置##{label}"))
         {
             keyBind = config.GetDefaultKey(evt);
             changed = true;
@@ -115,7 +115,7 @@ public static class KeybindEditor
 
         if(ImGui.IsItemHovered())
         {
-            ImGui.SetTooltip("Reset Key to Default");
+            ImGui.SetTooltip("恢复为默认按键");
         }
 
         // Key
