@@ -106,9 +106,17 @@ public unsafe class CameraService : IDisposable
         if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StopCutscene))
             _cutsceneManager.StopPlayback();
         if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StartAllActorsAnimations))
+        {
             _cutsceneManager.StartAllActors();
+            if(_cutsceneManager.CameraPath is not null)
+                _cutsceneManager.StartPlayback();
+        }
         if(InputManagerService.ActionKeysPressedLastFrame(InputAction.Interface_StopAllActorsAnimations))
+        {
             _cutsceneManager.StopAllActors();
+            if(_cutsceneManager.IsRunning)
+                _cutsceneManager.StopPlayback();
+        }
 
         if(_virtualCameraService.CurrentCamera is not null && _virtualCameraService.CurrentCamera.IsFreeCamera)
         {

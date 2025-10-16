@@ -798,7 +798,7 @@ public class SettingsWindow : Window
                 DrawKeyBind(InputAction.Interface_IncrementSmallModifier);
             }
 
-            if(ImGui.CollapsingHeader("XAT 镜头播放"))
+            if(ImGui.CollapsingHeader("XAT 场景"))
             {
                 DrawKeyBind(InputAction.Interface_StopCutscene);
                 DrawKeyBind(InputAction.Interface_StartAllActorsAnimations);
