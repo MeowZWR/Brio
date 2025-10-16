@@ -139,12 +139,12 @@ public class Brio : IDalamudPlugin
 
         // IPC
         serviceCollection.AddSingleton<BrioIPCService>();
-        serviceCollection.AddSingleton<DynamisIPC>();
+        serviceCollection.AddSingleton<DynamisService>();
         serviceCollection.AddSingleton<PenumbraService>();
         serviceCollection.AddSingleton<GlamourerService>();
         serviceCollection.AddSingleton<CustomizePlusService>();
         serviceCollection.AddSingleton<MareService>();
-        serviceCollection.AddSingleton<KtisisIPC>();
+        serviceCollection.AddSingleton<KtisisService>();
 
         // Penumbra
         serviceCollection.AddSingleton<PenumbraManager>();

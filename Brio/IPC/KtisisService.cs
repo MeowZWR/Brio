@@ -1,12 +1,10 @@
 ﻿using Brio.Config;
-using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
-using System.Threading.Tasks;
 
 namespace Brio.IPC;
 
-public class KtisisIPC : BrioIPC
+public class KtisisService : BrioIPC
 {
     public override string Name => "Ktisis";
 
@@ -38,7 +36,7 @@ public class KtisisIPC : BrioIPC
     private readonly ICallGateSubscriber<bool>? _ktisisIsPosing;
 
 
-    public KtisisIPC(IDalamudPluginInterface pluginInterface, ConfigurationService configurationService)
+    public KtisisService(IDalamudPluginInterface pluginInterface, ConfigurationService configurationService)
     {
         _pluginInterface = pluginInterface;
         _configurationService = configurationService;
@@ -48,11 +46,11 @@ public class KtisisIPC : BrioIPC
         _ktisisIsPosing = _pluginInterface.GetIpcSubscriber<bool>("Ktisis.IsPosing");
     }
 
-    public bool IsPosing => _ktisisIsPosing?.InvokeFunc() ?? false;
+    public bool IsPosing => ((_ktisisIsPosing?.HasFunction ?? false) && (_ktisisIsPosing?.InvokeFunc() ?? false));
 
     public void RefreshActors()
     {
-        if (IsAvailable && !Disabled)
+        if(IsAvailable && !Disabled)
         {
             _ktisisRefreshActors?.InvokeFunc();
         }

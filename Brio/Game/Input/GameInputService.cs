@@ -8,6 +8,7 @@ using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System;
+using System.Collections.Generic;
 
 namespace Brio.Game.Input;
 
@@ -33,6 +34,12 @@ public class GameInputService : IDisposable
 
     int _undo = 0;
     int _redo = 0;
+
+    bool _requireAlt;
+    bool _requireCtrl;
+    bool _requireShift;
+
+    bool _requireMod => _requireAlt || _requireCtrl || _requireShift;
 
     //
 
@@ -71,15 +78,23 @@ public class GameInputService : IDisposable
 
         _undo = (int)keyBindings[InputAction.Posing_Undo].Key;
         _redo = (int)keyBindings[InputAction.Posing_Redo].Key;
+
+        _requireShift |= keyBindings[InputAction.Posing_Undo].RequireShift;
+        _requireCtrl |= keyBindings[InputAction.Posing_Undo].RequireCtrl;
+        _requireAlt |= keyBindings[InputAction.Posing_Undo].RequireAlt;
+
+        _requireShift |= keyBindings[InputAction.Posing_Redo].RequireShift;
+        _requireCtrl |= keyBindings[InputAction.Posing_Redo].RequireCtrl;
+        _requireAlt |= keyBindings[InputAction.Posing_Redo].RequireAlt;
     }
 
     public unsafe void HandleInputDetour(IntPtr arg1, IntPtr arg2, IntPtr arg3, MouseFrame* mouseFrame, KeyboardFrame* keyboardFrame)
-    {        
+    {
         // This is a hot path, all of the games input flows through here 
 
         _handleInputHook.Original(arg1, arg2, arg3, mouseFrame, keyboardFrame);
 
-        if(_gPoseService.IsGPosing == false)
+        if(_gPoseService.IsGPosing is false)
             return;
 
         if(RaptureAtkModule.Instance()->AtkModule.IsTextInputActive())
@@ -87,7 +102,7 @@ public class GameInputService : IDisposable
 
         if(_configurationService.Configuration.InputManager.EnableConsumeAllInput)
         {
-            if(_virtualCameraService.CurrentCamera?.IsFreeCamera == true)
+            if(_virtualCameraService.CurrentCamera?.IsFreeCamera is true)
                 _virtualCameraService.Update(mouseFrame);
 
             for(int i = 0; i < KeyboardFrame.KeyStateLength; i++)
@@ -100,17 +115,28 @@ public class GameInputService : IDisposable
                 keyboardFrame->KeyState[i] = 0;
             }
         }
-        else
+        else if (_configurationService.Configuration.InputManager.Enable)
         {
-            if(keyboardFrame->KeyState[16] == 1 ||  // SHIFT
-                keyboardFrame->KeyState[17] == 1 || // Ctrl
-                keyboardFrame->KeyState[18] == 1)   // Alt
-            {                                       
-                keyboardFrame->KeyState[_undo] = 0;
-                keyboardFrame->KeyState[_undo] = 0;
+            if(_requireMod)
+            {
+                if(_requireCtrl && keyboardFrame->KeyState[17] == 1)            // Ctrl 
+                {
+                    keyboardFrame->KeyState[_undo] = 0;
+                    keyboardFrame->KeyState[_redo] = 0;
+                }
+                else if(_requireShift && keyboardFrame->KeyState[16] == 1)      // SHIFT
+                {
+                    keyboardFrame->KeyState[_undo] = 0;
+                    keyboardFrame->KeyState[_redo] = 0;
+                }
+                else if(_requireAlt && keyboardFrame->KeyState[18] == 1)        // Alt
+                {
+                    keyboardFrame->KeyState[_undo] = 0;
+                    keyboardFrame->KeyState[_redo] = 0;
+                }
             }
 
-            if(_virtualCameraService.CurrentCamera?.IsFreeCamera == true)
+            if(_virtualCameraService.CurrentCamera?.IsFreeCamera is true)
             {
                 _virtualCameraService.Update(mouseFrame);
 
