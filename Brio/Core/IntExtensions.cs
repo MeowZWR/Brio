@@ -1,8 +1,21 @@
-﻿namespace Brio.Core;
+﻿using System.Text;
+using Dalamud.Plugin.Services;
+
+namespace Brio.Core;
 
 public static class IntExtensions
 {
-    public static string ToBrioName(this int i)
+    private static bool IsChineseSimplified()
+    {
+        if(global::Brio.Brio.TryGetService<IClientState>(out var clientState))
+        {
+            return clientState.ClientLanguage.ToString() == "ChineseSimplified";
+        }
+
+        return false;
+    }
+
+    private static string ToBrioNameChinese(int i)
     {
         if(i < 0 || i >= 260) return string.Empty;
 
@@ -26,8 +39,76 @@ public static class IntExtensions
         return name.Length > 6 ? name[..6] : name;
     }
 
+    private static string ToWordsInternational(int number, string separator = " ")
+    {
+        string[] ones = { "", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen" };
+        string[] tens = { "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety" };
+
+        StringBuilder result = new();
+
+        if(number < 100)
+        {
+            if(number < 20)
+            {
+                result.Append(ones[number]);
+            }
+            else
+            {
+                int tenPart = number / 10;
+                int onePart = number % 10;
+                result.Append(tens[tenPart]);
+
+                if(onePart > 0)
+                {
+                    result.Append(separator);
+                    result.Append(ones[onePart]);
+                }
+            }
+        }
+        else
+        {
+            result.Append(ones[number / 100]);
+
+            int remainder = number % 100;
+            if(remainder == 0)
+            {
+                result.Append(separator);
+                result.Append("Hundred");
+            }
+            else
+            {
+                result.Append(separator);
+                result.Append("Hundred");
+                result.Append(separator);
+                result.Append(ToWordsInternational(remainder, ""));
+            }
+        }
+
+        return result.ToString();
+    }
+
+    private static string ToBrioNameInternational(int i)
+    {
+        string result = ToWordsInternational(i, " ");
+
+        if(!result.Contains(' '))
+            return "Brio " + result;
+
+        return result;
+    }
+
+    public static string ToBrioName(this int i)
+    {
+        return IsChineseSimplified() ? ToBrioNameChinese(i) : ToBrioNameInternational(i);
+    }
+
     public static string ToName(this int i)
     {
-        return i.ToBrioName();
+        return IsChineseSimplified() ? ToBrioNameChinese(i) : ToWordsInternational(i, " ");
+    }
+
+    public static string ToName(this ulong i)
+    {
+        return ((int)i).ToName();
     }
 }
