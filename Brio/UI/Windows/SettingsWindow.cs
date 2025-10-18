@@ -134,21 +134,27 @@ public class SettingsWindow : Window
         if(ImGui.CollapsingHeader("资产库", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool useLibraryWhenImporting = _configurationService.Configuration.UseLibraryWhenImporting;
-            if(ImGui.Checkbox("导入文件时使用资产库", ref useLibraryWhenImporting))
+            const string label1 = "导入文件时使用资产库";
+            ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label1).X - 15);
+            if(ImGui.Checkbox(label1, ref useLibraryWhenImporting))
             {
                 _configurationService.Configuration.UseLibraryWhenImporting = useLibraryWhenImporting;
                 _configurationService.ApplyChange();
             }
 
             bool returnToLastLocation = _configurationService.Configuration.Library.ReturnLibraryToLastLocation;
-            if(ImGui.Checkbox("在我最后浏览的位置打开资产库", ref returnToLastLocation))
+            const string label2 = "在我最后浏览的位置打开资产库";
+            ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label2).X - 15);
+            if(ImGui.Checkbox(label2, ref returnToLastLocation))
             {
                 _configurationService.Configuration.Library.ReturnLibraryToLastLocation = returnToLastLocation;
                 _configurationService.ApplyChange();
             }
 
             bool useFilenameAsActorName = _configurationService.Configuration.Library.UseFilenameAsActorName;
-            if(ImGui.Checkbox("使用角色文件名作为参与者名称", ref useFilenameAsActorName))
+            const string label3 = "使用角色文件名作为参与者名称";
+            ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label3).X - 15);
+            if(ImGui.Checkbox(label3, ref useFilenameAsActorName))
             {
                 _configurationService.Configuration.Library.UseFilenameAsActorName = useFilenameAsActorName;
                 _configurationService.ApplyChange();
@@ -160,7 +166,7 @@ public class SettingsWindow : Window
             DrawDisplaySettings();
         }
 
-        if(ImGui.CollapsingHeader("Offset", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("Transform Slider Speed", ImGuiTreeNodeFlags.DefaultOpen))
         {
             DrawOffsetSection();
         }
@@ -644,28 +650,36 @@ public class SettingsWindow : Window
     private void DrawOffsetSection()
     {
         var defaultTransformMovementSpeed = _configurationService.Configuration.Interface.DefaultTransformMovementSpeed;
-        if(ImGui.DragFloat("Transform Movement Speed", ref defaultTransformMovementSpeed, 0.001f, 0.001f, 10f))
+        const string label1 = "Transform Movement Speed";
+        ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label1).X - 15);
+        if(ImGui.DragFloat(label1, ref defaultTransformMovementSpeed, 0.001f, 0.001f, 10f))
         {
             _configurationService.Configuration.Interface.DefaultTransformMovementSpeed = defaultTransformMovementSpeed;
             _configurationService.ApplyChange();
         }
 
         var defaultBoneTransformMovementSpeed = _configurationService.Configuration.Interface.DefaultBoneTransformMovementSpeed;
-        if(ImGui.DragFloat("Bone Transform Movement Speed", ref defaultBoneTransformMovementSpeed, 0.001f, 0.001f, 10f))
+        const string label2 = "Bone Transform Movement Speed";
+        ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label2).X - 15);
+        if(ImGui.DragFloat(label2, ref defaultBoneTransformMovementSpeed, 0.001f, 0.001f, 10f))
         {
             _configurationService.Configuration.Interface.DefaultBoneTransformMovementSpeed = defaultBoneTransformMovementSpeed;
             _configurationService.ApplyChange();
         }
 
         var defaultFreeCamMovementSpeed = _configurationService.Configuration.Interface.DefaultFreeCameraMovementSpeed;
-        if(ImGui.DragFloat("Free Camera Movement Speed", ref defaultFreeCamMovementSpeed, 0.001f, 0.005f, 0.3f))
+        const string label3 = "Free Camera Movement Speed";
+        ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label3).X - 15);
+        if(ImGui.DragFloat(label3, ref defaultFreeCamMovementSpeed, 0.001f, 0.005f, 0.3f))
         {
             _configurationService.Configuration.Interface.DefaultFreeCameraMovementSpeed = defaultFreeCamMovementSpeed;
             _configurationService.ApplyChange();
         }
 
         var defaultFreeCamMouseSensitivity = _configurationService.Configuration.Interface.DefaultFreeCameraMouseSensitivity;
-        if(ImGui.DragFloat("Free Camera Mouse Sensitivity", ref defaultFreeCamMouseSensitivity, 0.001f, 0.001f, 0.2f))
+        const string label4 = "Free Camera Mouse Sensitivity";
+        ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label4).X - 15);
+        if(ImGui.DragFloat(label4, ref defaultFreeCamMouseSensitivity, 0.001f, 0.001f, 0.2f))
         {
             _configurationService.Configuration.Interface.DefaultFreeCameraMouseSensitivity = defaultFreeCamMouseSensitivity;
             _configurationService.ApplyChange();

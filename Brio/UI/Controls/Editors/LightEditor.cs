@@ -28,7 +28,7 @@ public class LightEditor
                     lightingService.SpawnLight(LightType.SpotLight);
                 }
 
-                if(ImGui.Button("生成区域光"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
+                if(ImGui.Button("生成点光源"u8, new(125 * ImGuiHelpers.GlobalScale, 0)))
                 {
                     lightingService.SpawnLight(LightType.AreaLight);
                 }
@@ -142,7 +142,7 @@ public class LightEditor
             }
         }
 
-        if(ImBrio.ButtonSelectorStrip("light_type", Vector2.Zero, ref Capability.SelectedLightType, ["聚光", "区域", "平面", "世界"]))
+        if(ImBrio.ButtonSelectorStrip("light_type", Vector2.Zero, ref Capability.SelectedLightType, ["聚光灯", "点光源", "平面光", "环境光"]))
         {
             switch(Capability.SelectedLightType)
             {
@@ -286,7 +286,7 @@ public class LightEditor
         var light = Capability.GameLight.GameLight != null ? Capability.GameLight.GameLight->LightRenderObject : null;
         if(light == null) return;
 
-        using var child1 = ImRaii.Child("LightPropertiesChild", new Vector2(0, 70 * ImGuiHelpers.GlobalScale), true);
+        using var child1 = ImRaii.Child("LightPropertiesChild", new Vector2(0, (35 * 3) * ImGuiHelpers.GlobalScale), true);
         if(child1.Success)
         {
             bool didChange = false;
@@ -296,14 +296,18 @@ public class LightEditor
                 Capability.rotation = (Capability.Transform.Rotation = light->Transform->Rotation).EulerAngles;
             if(Capability.position == Vector3.Zero)
                 Capability.position = (Capability.Transform.Position = light->Transform->Position);
+            if(Capability.scale == Vector3.Zero)
+                Capability.scale = (Capability.Transform.Scale = light->Transform->Scale);
 
             ImBrio.VerticalPadding(2);
             (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transform_Light_Position_0", ref Capability.position, 0.1f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置", enableExpanded: false);
             ImBrio.VerticalPadding(2);
             (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transform_Light_Rotation_0", ref Capability.rotation, 1f * 10, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: false);
+            ImBrio.VerticalPadding(2);
+            (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transform_Light_Scale_0", ref Capability.scale, 1f, FontAwesomeIcon.ExpandAlt, "缩放", enableExpanded: false);
 
-            didChange |= pdidChange |= rdidChange;
-            anyActive |= panyActive |= ranyActive;
+            didChange |= pdidChange |= rdidChange |= sdidChange;
+            anyActive |= panyActive |= ranyActive |= sanyActive;
 
             if(anyActive)
             {
@@ -312,6 +316,7 @@ public class LightEditor
 
                 light->Transform->Position = Capability.Transform.Position = Capability.position;
                 light->Transform->Rotation = Capability.Transform.Rotation = Capability.rotation.ToEulerAngles();
+                light->Transform->Scale = Capability.Transform.Scale = Capability.scale;
             }
             else if(Capability.IsTransformDraggingActive && activeState)
             {
@@ -319,7 +324,8 @@ public class LightEditor
                 activeState = false;
 
                 Capability.Transform.Position = Capability.position;
-                Capability.Transform.Rotation = Capability.rotation.ToEulerAngles();  
+                Capability.Transform.Rotation = Capability.rotation.ToEulerAngles();
+                Capability.Transform.Scale = Capability.scale;
                 Capability.Snapshot();
             }
         }
