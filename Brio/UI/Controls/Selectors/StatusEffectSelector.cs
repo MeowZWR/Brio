@@ -37,7 +37,7 @@ public class StatusEffectSelector(string id) : Selector<StatusEffectSelectorHold
         if(ImGui.Checkbox("###status_vfx_filter", ref this._VFXLockEnabled))
             UpdateList();
         ImGui.SameLine();
-        ImGui.Text("Remove Status Effects that do not have a VFX.");
+        ImGui.Text("隐藏无特效的状态效果");
 
     }
 
