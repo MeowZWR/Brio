@@ -423,7 +423,7 @@
   },
     {
     "Id": 159,
-    "Name": "Moonfire Faire (2025)",
+    "Name": "红莲节 (2025)",
     "Unsafe": false,
     "AreaExclusion": {
       "Reason": "Interactive Area",
@@ -470,7 +470,7 @@
   },
   {
   "Id": 150,
-    "Name": "Moonfire Faire (2024)",
+    "Name": "红莲节 (2024)",
     "Unsafe": false,
     "AreaExclusion": {
       "Reason": "Interactive Area",
@@ -654,47 +654,47 @@
   },
   {
     "Id": 151,
-    "Name": "The Rising (2024)",
+    "Name": "新生庆典 (2024)",
     "Unsafe": false
   },
   {
     "Id": 152,
-    "Name": "All Saint's Wake (2024)",
+    "Name": "守护天节 (2024)",
     "Unsafe": false
   },
   {
     "Id": 153,
-    "Name": "All Saint's Wake (2024)",
+    "Name": "守护天节 (2024)",
     "Unsafe": false
   },
   {
     "Id": 154,
-    "Name": "Valentione's Day (2025)",
+    "Name": "恋人节 (2025)",
     "Unsafe": false
   },
   {
     "Id": 155,
-    "Name": "Little Ladies Day (2025)",
+    "Name": "女儿节 (2025)",
     "Unsafe": false
   },
   {
     "Id": 156,
-    "Name": "Hatching Tide (2025)",
+    "Name": "彩蛋狩猎 (2025)",
     "Unsafe": false
   },
   {
     "Id": 161,
-    "Name": "Make It Rain (2025)",
+    "Name": "金碟嘉年华 (2025)",
     "Unsafe": false
   },
   {
     "Id": 164,
-    "Name": "All Saint's Wake (2025)",
+    "Name": "守护天节 (2025)",
     "Unsafe": false
   },
   {
     "Id": 166,
-    "Name": "MONSTER HUNTER WILDS Collab",
+    "Name": "怪物猎人荒野联动",
     "Unsafe": false
-  },
+  }
 ]
