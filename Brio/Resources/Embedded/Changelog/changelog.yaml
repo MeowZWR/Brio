@@ -12,8 +12,8 @@ changelog:
       - number: "0.6.0.3"
         icon: ""
         items:
-          - "Fixed an issue where certain hotkey combinations would not function properly within Brio."
-          - "Fixed an issue with the Free camera bugging out in certain circumstances"
+          - "修复了某些快捷键组合在Brio中无法正常使用的问题。"
+          - "修复了在特定情况下自由相机会出现异常的问题"
 
       - number: "0.6.0.2"
         icon: ""
