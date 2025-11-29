@@ -262,7 +262,7 @@
     "iv_kyokin_phys_l": "IVCS物理乳房-左"
   },
 
-  "bone_categories": {
+  "bone_categories": {   
     "headCategory": "头部骨骼",
     "bodyCategory": "身体骨骼",
     "ivcsCategory": "IVCS骨骼",
@@ -290,7 +290,10 @@
     "weapon": "武器",
     "ex": "金曦之遗辉其他",
     "legacy": "旧版骨骼",
-    "other": "其他"
+    "other": "其他",
+    "prop": "表情道具",
+    "ornament": "时尚配饰"
+  }
   },
 
   "keys": {

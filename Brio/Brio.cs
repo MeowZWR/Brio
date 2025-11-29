@@ -213,7 +213,7 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<CameraWindow>();
         serviceCollection.AddSingleton<PosingGraphicalWindow>();
         serviceCollection.AddSingleton<LightWindow>();
-        serviceCollection.AddSingleton<ImBrioText>();
+        // serviceCollection.AddSingleton<ImBrioText>();
 
         return serviceCollection;
     }
