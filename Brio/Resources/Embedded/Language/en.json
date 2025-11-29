@@ -259,7 +259,17 @@
     "iv_asi_kusu_a_r": "IVCS次小趾A-右",
     "iv_asi_kusu_b_r": "IVCS次小趾B-右",
     "iv_kyokin_phys_r": "IVCS物理乳房-右",
-    "iv_kyokin_phys_l": "IVCS物理乳房-左"
+    "iv_kyokin_phys_l": "IVCS物理乳房-左",
+    "pifeng_a_l": "披风A-左",
+    "pifeng_b_l": "披风B-左",
+    "pifeng_c_l": "披风C-左",
+    "pifeng_d_l": "披风D-左",
+    "pifeng_e_l": "披风E-左",
+    "pifeng_a_r": "披风A-右",
+    "pifeng_b_r": "披风B-右",
+    "pifeng_c_r": "披风C-右",
+    "pifeng_d_r": "披风D-右",
+    "pifeng_e_r": "披风E-右"
   },
 
   "bone_categories": {   
@@ -290,6 +300,7 @@
     "weapon": "武器",
     "ex": "金曦之遗辉其他",
     "legacy": "旧版骨骼",
+    "meowz": "MeowZ",
     "other": "其他",
     "prop": "表情道具",
     "ornament": "时尚配饰"

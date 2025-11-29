@@ -9,7 +9,7 @@
         "eyes",
         "lips",
         "jaw",
-        "ears",
+        "ears"
       ]
     },
     "hair": {
@@ -142,7 +142,7 @@
         "j_kubi",
         "j_sebo_",
         "j_mune_",
-        "j_sako_",
+        "j_sako_"
       ]
     },
     "handsLeft": {
@@ -164,7 +164,7 @@
         "j_hand_r",
         "n_hte_r",
         "n_hkata_r",
-        "j_ude_a_r",
+        "j_ude_a_r"
       ]
     },
     "handsRight": {
@@ -186,7 +186,7 @@
         "j_hand_l",
         "n_hte_l",
         "n_hkata_l",
-        "j_ude_a_l",
+        "j_ude_a_l"
       ]
     },
     "legs": {
@@ -210,7 +210,7 @@
         "ivcsVagina",
         "ivcsAbdomen",
         "ivcsLegs",
-        "ivcsButt",
+        "ivcsButt"
       ]
     },
     "ivcsAbdomen": {
@@ -229,7 +229,7 @@
         "iv_kusu_c_r",
         "iv_naka_c_r",
         "iv_hito_c_r",
-        "iv_nitoukin_r",
+        "iv_nitoukin_r"
       ]
     },
     "ivcsHandsLeft": {
@@ -239,14 +239,14 @@
         "iv_kusu_c_l",
         "iv_naka_c_l",
         "iv_hito_c_l",
-        "iv_nitoukin_l",
+        "iv_nitoukin_l"
       ]
     },
     "ivcsLegs": {
       "Type": "Filter",
       "Bones": [
         "iv_daitai_phys_",
-        "iv_asi_",
+        "iv_asi_"
       ]
     },
     "ivcsButt": {
@@ -255,7 +255,7 @@
         "iv_koumon",
         "iv_koumon_",
         "iv_shiri_",
-        "ya_shiri_phys_",
+        "ya_shiri_phys_"
       ]
     },
     "ivcsPenis": {
@@ -314,6 +314,21 @@
     "ornament": {
       "Type": "Filter",
       "Bones": []
+    },
+    "meowz": {
+      "Type": "Filter",
+      "Bones": [
+        "pifeng_a_l",
+        "pifeng_b_l",
+        "pifeng_c_l",
+        "pifeng_d_l",
+        "pifeng_e_l",
+        "pifeng_a_r",
+        "pifeng_b_r",
+        "pifeng_c_r",
+        "pifeng_d_r",
+        "pifeng_e_r"
+      ]
     },
      "ex": {
       "Type": "Filter",
