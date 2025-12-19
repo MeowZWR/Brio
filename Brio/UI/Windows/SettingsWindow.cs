@@ -31,7 +31,8 @@ public class SettingsWindow : Window
         PenumbraService penumbraService,
         GlamourerService glamourerService,
         WebService webService,
-        CustomizePlusService customizePlusService) : base($"{Brio.Name} 设置###brio_settings_window", ImGuiWindowFlags.NoResize)
+        CustomizePlusService customizePlusService,
+        MareService mareService) : base($"{Brio.Name} 设置###brio_settings_window", ImGuiWindowFlags.NoResize)
     {
         Namespace = "brio_settings_namespace";
 
