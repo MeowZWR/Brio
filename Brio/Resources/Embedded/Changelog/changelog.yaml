@@ -1,18 +1,40 @@
-
-tagline: "Brio v0.6.1 新增功能"
-subline: "表情道具、骨骼与冻结乳房物理、MCDF、动态面部控制与灯光！"
+tagline: "Brio v0.6.2 新增功能"
+subline: "7.4支持与更多功能！"
 changelog:
 
-  - name: v0.6.1
-    tagline: 表情道具、骨骼与冻结乳房物理！
-    date: "2025年11月26日"
+  - name: v0.6.2
+    tagline: 7.4支持与更多功能！
+    date: "2025年12月20日"
     isCurrent: true
     versions:
       - number: "注意：本版本制作的项目将与下一个Brio版本不兼容！"
         icon: ""
         items:
-          - "开发者们，如果想对Brio API调整或反馈建议，请在7.4版本前联系我！"
-          - "如遇到任何问题，请在Discord或GitHub上反馈，谢谢配合！"
+          - "祝大家节日快乐！"
+          - "提醒：如遇到任何问题，请在Discord或GitHub上反馈"
+          - "（更多功能即将推出！）"
+
+      - number: "0.6.2.1"
+        icon: ""
+        items:
+          - "修复了Brio API的问题"
+
+      - number: "0.6.2"
+        icon: ""
+        items:
+          - "更新Brio以支持FFXIV 7.4"
+          - "动画搜索控件现在拥有更多筛选器，并可以作为窗口固定"
+          - "更新Brio的IPC至v3，如需更多信息请联系我（minmoose）"
+          - "修复了骨骼选择菜单的问题，类别按钮现在为三态"
+          - "添加了星芒节（2025）并修复了星芒节（2024）"
+          - "修复了相机值被错误复制的问题"
+          - "优化了一些系统"
+
+  - name: v0.6.1
+    tagline: 表情道具、骨骼与冻结乳房物理！
+    date: "2025年11月26日"
+    isCurrent: false
+    versions:
 
       - number: "0.6.1.1"
         icon: ""
@@ -44,7 +66,7 @@ changelog:
   - name: v0.6.0
     tagline: "MCDF、动态面部控制与灯光！"
     date: "2025年10月8日"
-    isCurrent: true
+    isCurrent: false
     versions:
       
       - number: "0.6.0.3"

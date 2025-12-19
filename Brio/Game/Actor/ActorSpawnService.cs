@@ -10,7 +10,6 @@ using Brio.Game.GPose;
 using Brio.Game.Posing;
 using Brio.Game.Types;
 using Brio.IPC;
-using Brio.IPC.API;
 using Brio.Resources;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
@@ -76,7 +75,7 @@ public class ActorSpawnService : IDisposable
     {
         outCharacter = null;
 
-        var localPlayer = _clientState.LocalPlayer;
+        var localPlayer = _objectTable.LocalPlayer;
         if(localPlayer != null)
         {
             if(CloneCharacter(localPlayer, out outCharacter, flags, disableSpawnCompanion: disableSpawnCompanion))
