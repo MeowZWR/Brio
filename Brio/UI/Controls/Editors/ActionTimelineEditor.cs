@@ -1,4 +1,4 @@
-﻿using Brio.Capabilities.Actor;
+using Brio.Capabilities.Actor;
 using Brio.Config;
 using Brio.Entities;
 using Brio.Files;
@@ -27,8 +27,8 @@ namespace Brio.UI.Controls.Editors;
 
 public class ActionTimelineEditor
 {
-    private static float MaxItemWidth => ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize("XXXXXXXXXXXXXXXXXX").X;
-    private static float LabelStart => MaxItemWidth + ImGui.GetCursorPosX() + (ImGui.GetStyle().FramePadding.X * 2f);
+    private static float MaxItemWidth => MathF.Max(0f, ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize("XXXXXXXXXXXXXXXXXX").X);
+    private static float LabelStart => ImGui.GetCursorPosX() + MaxItemWidth + (ImGui.GetStyle().FramePadding.X * 2f);
     private static readonly ActionTimelineSelector _globalTimelineSelector = new("global_timeline_selector");
     private static bool _startAnimationOnSelect = true;
     private static bool _isBaseMode = false;
@@ -331,9 +331,6 @@ public class ActionTimelineEditor
                 if(ImGui.IsItemHovered())
                     ImGui.SetTooltip("选择时启动动画");
 
-                        _globalTimelineSelector.Draw();
-        
-
                 _globalTimelineSelector.Draw();
             }
         }
@@ -618,11 +615,13 @@ private void DrawSlots()
 
     private void DrawCutscene()
     {
-        ImGui.Text("相机路径 ");
-
+        var regionWidth = ImGui.GetContentRegionAvail().X;
+        ImGui.Text("相机路径");
         ImGui.SameLine();
 
-        ImGui.InputText(string.Empty, ref _cameraPath, 260, ImGuiInputTextFlags.ReadOnly);
+        var inputWidth = MathF.Max(200f, regionWidth - 140f);
+        ImGui.SetNextItemWidth(inputWidth);
+        ImGui.InputText("###xcp_path", ref _cameraPath, 260, ImGuiInputTextFlags.ReadOnly);
 
         ImGui.SameLine();
 
@@ -739,7 +738,7 @@ private void DrawSlots()
             var isrunning = _cutsceneManager.IsRunning;
             using(ImRaii.Disabled(isrunning))
             {
-                if(ImBrio.Button("播放", FontAwesomeIcon.Play, new Vector2(-1, 30)))
+                if(ImBrio.Button("      播放", FontAwesomeIcon.Play, new Vector2(-1, 24)))
                 {
                     _cutsceneManager.StartPlayback();
                 }
@@ -749,7 +748,7 @@ private void DrawSlots()
 
             using(ImRaii.Disabled(!isrunning))
             {
-                if(ImBrio.Button("停止", FontAwesomeIcon.Stop, new Vector2(-1, 30)))
+                if(ImBrio.Button("      停止", FontAwesomeIcon.Stop, new Vector2(-1, 24)))
                 {
                     _cutsceneManager.StopPlayback();
                 }
