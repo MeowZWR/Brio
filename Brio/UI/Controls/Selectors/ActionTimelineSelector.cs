@@ -93,7 +93,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         var pinIcon = _isPinned ? FontAwesomeIcon.Thumbtack : FontAwesomeIcon.Thumbtack;
         var pinColor = _isPinned ? UIConstants.GizmoRed : UIConstants.ToggleButtonInactive;
 
-        var tooltip = _isPinned ? "Unpin (close window)" : "Pin to keep open";
+        var tooltip = _isPinned ? "取消固定 (关闭窗口)" : "固定以保持打开";
 
         if(ImBrio.FontIconButton($"pin_toggle_{_id}", pinIcon, tooltip, true, true, pinColor))
         {
@@ -107,7 +107,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
     {
         if(_isPinned)
         {
-            ImGui.TextDisabled("(Selector is pinned as separate window)");
+            ImGui.TextDisabled("(选择器固定为单独窗口)");
             return;
         }
 
@@ -311,7 +311,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
         if(_showBlendable)
         {
-            if(ImGui.Checkbox("Show Non-Blend Animations", ref _showNonBlendInBlendMode))
+            if(ImGui.Checkbox("显示非混合动画", ref _showNonBlendInBlendMode))
                 UpdateList();
 
             ImBrio.VerticalPadding(2);
@@ -319,12 +319,12 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
         if(!_showBlendable)
         {
-            ImGui.Text("Draws Weapon");
+            ImGui.Text("显示武器");
             ImBrio.VerticalPadding(1);
 
             int drawsWeaponSelection = !_filterByDrawsWeapon ? 0 : (_drawsWeaponValue ? 2 : 1);
 
-            if(ImBrio.ButtonSelectorStrip("draws_weapon_filter", Vector2.Zero, ref drawsWeaponSelection, ["All", "Sheathed", "Drawn"]))
+            if(ImBrio.ButtonSelectorStrip("draws_weapon_filter", Vector2.Zero, ref drawsWeaponSelection, ["全部", "收起", "拔出"]))
             {
                 switch(drawsWeaponSelection)
                 {
@@ -348,12 +348,12 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             ImBrio.VerticalPadding(4);
         }
 
-        ImGui.Text("Emote Category");
+        ImGui.Text("情感动作分类");
         ImBrio.VerticalPadding(1);
 
         int emoteCategorySelection = _emoteCategoryValue;
 
-        if(ImBrio.ButtonSelectorStrip("emote_category_filter", Vector2.Zero, ref emoteCategorySelection, ["All", "General", "Special", "Expressions"]))
+        if(ImBrio.ButtonSelectorStrip("emote_category_filter", Vector2.Zero, ref emoteCategorySelection, ["全部", "通常", "特别", "表情"]))
         {
             _emoteCategoryValue = emoteCategorySelection;
             _filterByEmoteCategory = _emoteCategoryValue != 0;
