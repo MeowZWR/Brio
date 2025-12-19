@@ -1,4 +1,4 @@
-﻿using Brio.Config;
+using Brio.Config;
 using Brio.Resources;
 using Brio.Resources.Sheets;
 using Brio.UI.Controls.Core;
@@ -476,6 +476,7 @@ public record class ActionTimelineSelectorEntry(
     bool DrawsWeapon,
     byte EmoteCategory)
 {
+    public string UniqueId => $"{TimelineType}-{SecondaryId}-{Purpose}-{TimelineId}";
 
     public enum AnimationPurpose
     {
