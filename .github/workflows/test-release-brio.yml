@@ -45,7 +45,7 @@ jobs:
 
       - name: Archive
         run: |
-          $buildPath = "Brio/bin/Debug"
+          $buildPath = "Brio/bin/x64/Debug"
           if (Test-Path $buildPath) {
             Write-Host "Found build output at: $buildPath"
             Compress-Archive -Path "$buildPath/*" -DestinationPath "Brio.zip" -Force
