@@ -1,4 +1,4 @@
-﻿using Brio.Config;
+using Brio.Config;
 using Brio.Core;
 using Brio.Entities;
 using Brio.Files;
@@ -136,6 +136,7 @@ public class Brio : IDalamudPlugin
         serviceCollection.AddSingleton<ActorLookAtService>();
         serviceCollection.AddSingleton<CharacterHandlerService>();
         serviceCollection.AddSingleton<LightingService>();
+        serviceCollection.AddSingleton<PenumbraManager>();
 
         // API & Web
         serviceCollection.AddSingleton<BrioAPIService>();
