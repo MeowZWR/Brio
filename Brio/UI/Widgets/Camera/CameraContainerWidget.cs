@@ -103,7 +103,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
 
                 ImGui.EndMenu();
             }
-        
+
             if(ImGui.BeginMenu("销毁全部相机###containerwidgetpopup_destroyall"))
             {
                 if(ImGui.MenuItem("确认销毁###containerwidgetpopup_destroyall_confirm"))

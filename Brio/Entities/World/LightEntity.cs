@@ -23,8 +23,8 @@ public class LightEntity(IGameLight gameLight, IServiceProvider provider) : Enti
             if(string.IsNullOrEmpty(RawName))
             {
                 if(GameLight.IsGPoseLight)
-                    return $"GPose灯光 ({indexName})";
-            
+                    return $"GPose 灯光 ({indexName})";
+
                 return $"灯光 ({indexName})";
             }
 

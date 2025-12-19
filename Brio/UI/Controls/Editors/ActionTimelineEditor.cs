@@ -31,6 +31,8 @@ public class ActionTimelineEditor
     private static float LabelStart => MaxItemWidth + ImGui.GetCursorPosX() + (ImGui.GetStyle().FramePadding.X * 2f);
     private static readonly ActionTimelineSelector _globalTimelineSelector = new("global_timeline_selector");
     private static bool _startAnimationOnSelect = true;
+    private static bool _isBaseMode = false;
+
     private string _cameraPath = string.Empty;
     private ActionTimelineCapability _capability = null!;
     private bool _delimitSpeed = false;
@@ -69,6 +71,40 @@ public class ActionTimelineEditor
         _cameraPath = selectedFile;
     }
 
+    private void HandleSelectorChanges()
+    {
+        if(_globalTimelineSelector.SoftSelectionChanged && _globalTimelineSelector.SoftSelected != null)
+        {
+            if(_isBaseMode)
+            {
+                _capability.SlotedBaseAnimation = _globalTimelineSelector.SoftSelected.TimelineId;
+            }
+            else
+            {
+                _capability.SlotedBlendAnimation = _globalTimelineSelector.SoftSelected.TimelineId;
+            }
+        }
+
+        if(_globalTimelineSelector.SelectionChanged && _globalTimelineSelector.Selected != null)
+        {
+            if(_isBaseMode)
+            {
+                _capability.SlotedBaseAnimation = _globalTimelineSelector.Selected.TimelineId;
+                if(_startAnimationOnSelect)
+                    ApplyBaseOverride(_capability, true);
+            }
+            else
+            {
+                _capability.SlotedBlendAnimation = _globalTimelineSelector.Selected.TimelineId;
+                ApplyBlend(_capability);
+            }
+
+            // Close popup if not pinned
+            if(!_globalTimelineSelector.IsPinned)
+                ImGui.CloseCurrentPopup();
+        }
+    }
+
     public void Draw(bool drawAdvanced, ActionTimelineCapability capability)
     {
         _capability = capability;
@@ -80,38 +116,57 @@ public class ActionTimelineEditor
             _lastBaseAnimationId = capability.SlotedBaseAnimation;
         }
 
+        _globalTimelineSelector.DrawAsWindow();
+
+        HandleSelectorChanges();
+
         DrawHeder();
 
         ImGui.Separator();
+        ImBrio.VerticalPadding(2);
 
         DrawBaseOverride();
+        ImBrio.VerticalPadding(2);
+
         DrawBlend();
+        ImBrio.VerticalPadding(2);
+
         DrawOverallSpeed(drawAdvanced);
 
         if(drawAdvanced == false)
         {
             ImGui.Separator();
+            ImBrio.VerticalPadding(2);
 
             DrawFirstScrub();
         }
 
         if(drawAdvanced)
         {
+            ImBrio.VerticalPadding(2);
             DrawLips();
+
+            ImBrio.VerticalPadding(4);
 
             if(ImGui.CollapsingHeader("进度"))
             {
+                ImBrio.VerticalPadding(2);
                 DrawScrub();
+                ImBrio.VerticalPadding(2);
             }
 
             if(ImGui.CollapsingHeader("栏位"))
             {
+                ImBrio.VerticalPadding(2);
                 DrawSlots();
+                ImBrio.VerticalPadding(2);
             }
 
             if(ImGui.CollapsingHeader("场景控制（XAT整合）"))
             {
+                ImBrio.VerticalPadding(2);
                 DrawCutscene();
+                ImBrio.VerticalPadding(2);
             }
         }
     }
@@ -124,6 +179,7 @@ public class ActionTimelineEditor
         }
 
         ImGui.SameLine();
+        ImBrio.HorizontalPadding(2);
 
         ImBrio.RightAlign(100 * ImGuiHelpers.GlobalScale, 1);
 
@@ -133,6 +189,7 @@ public class ActionTimelineEditor
         }
 
         ImGui.SameLine();
+        ImBrio.HorizontalPadding(2);
 
         if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置动画", _capability.HasOverride))
         {
@@ -145,9 +202,9 @@ public class ActionTimelineEditor
         using var popup = ImRaii.Popup("animation_control");
         if(popup.Success)
         {
-            ImBrio.VerticalPadding(2);
+            ImBrio.VerticalPadding(1);
 
-            if(ImGui.Button("冻结所有角色", new Vector2(150, 0)))
+            if(ImBrio.Button("冻结所有角色", FontAwesomeIcon.Snowflake, new Vector2(180, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -164,9 +221,9 @@ public class ActionTimelineEditor
                 }
             }
 
-            ImBrio.VerticalPadding(2);
+            ImBrio.VerticalPadding(1);
 
-            if(ImGui.Button("解冻所有角色", new Vector2(150, 0)))
+            if(ImBrio.Button("解冻所有角色", FontAwesomeIcon.Fire, new Vector2(180, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -183,9 +240,9 @@ public class ActionTimelineEditor
                 }
             }
 
-            ImBrio.VerticalPadding(2);
+            ImBrio.VerticalPadding(1);
 
-            if(ImGui.Button("播放所有动画", new Vector2(150, 0)))
+            if(ImBrio.Button("播放所有动画", FontAwesomeIcon.PlayCircle, new Vector2(180, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -199,9 +256,9 @@ public class ActionTimelineEditor
                 }
             }
 
-            ImBrio.VerticalPadding(2);
+            ImBrio.VerticalPadding(1);
 
-            if(ImGui.Button("停止所有动画", new Vector2(150, 0)))
+            if(ImBrio.Button("停止所有动画", FontAwesomeIcon.StopCircle, new Vector2(180, 0)))
             {
                 foreach(var actor in _entityManager.TryGetAllActors())
                 {
@@ -214,9 +271,6 @@ public class ActionTimelineEditor
                     }
                 }
             }
-
-            ImBrio.VerticalPadding(2);
-
         }
     }
 
@@ -240,6 +294,7 @@ public class ActionTimelineEditor
         ImGui.Text(baseLabel);
 
         ImGui.SameLine();
+        ImBrio.HorizontalPadding(4);
 
         if(ImBrio.FontIconButtonRight("base_play", FontAwesomeIcon.PlayCircle, 3, "播放", _capability.SlotedBaseAnimation != 0))
         {
@@ -262,10 +317,10 @@ public class ActionTimelineEditor
 
         if(ImBrio.FontIconButtonRight("base_search", FontAwesomeIcon.Search, 1, "搜索"))
         {
+            _isBaseMode = true;
             _globalTimelineSelector.Select(null, false);
             _globalTimelineSelector.AllowBlending = false;
             ImGui.OpenPopup("base_search_popup");
-
         }
 
         using(var popup = ImRaii.Popup("base_search_popup"))
@@ -279,21 +334,7 @@ public class ActionTimelineEditor
                         _globalTimelineSelector.Draw();
         
 
-
-                if(_globalTimelineSelector.SoftSelectionChanged && _globalTimelineSelector.SoftSelected != null)
-                {
-                    _capability.SlotedBaseAnimation = _globalTimelineSelector.SoftSelected.TimelineId;
-                }
-
-                if(_globalTimelineSelector.SelectionChanged && _globalTimelineSelector.Selected != null)
-                {
-                    _capability.SlotedBaseAnimation = _globalTimelineSelector.Selected.TimelineId;
-
-                    if(_startAnimationOnSelect)
-                        ApplyBaseOverride(_capability, true);
-
-                    ImGui.CloseCurrentPopup();
-                }
+                _globalTimelineSelector.Draw();
             }
         }
     }
@@ -315,6 +356,7 @@ public class ActionTimelineEditor
         ImGui.Text(blendLabel);
 
         ImGui.SameLine();
+        ImBrio.HorizontalPadding(4);
 
         if(ImBrio.FontIconButtonRight("blend_play", FontAwesomeIcon.PlayCircle, 2, "播放", _capability.SlotedBlendAnimation != 0))
             ApplyBlend(_capability);
@@ -323,11 +365,10 @@ public class ActionTimelineEditor
 
         if(ImBrio.FontIconButtonRight("blend_search", FontAwesomeIcon.Search, 1, "搜索"))
         {
+            _isBaseMode = false;
             _globalTimelineSelector.Select(null, false);
             _globalTimelineSelector.AllowBlending = true;
-
             ImGui.OpenPopup("blend_search_popup");
-
         }
 
         using(var popup = ImRaii.Popup("blend_search_popup"))
@@ -335,18 +376,6 @@ public class ActionTimelineEditor
             if(popup.Success)
             {
                 _globalTimelineSelector.Draw();
-
-                if(_globalTimelineSelector.SoftSelectionChanged && _globalTimelineSelector.SoftSelected != null)
-                {
-                    _capability.SlotedBlendAnimation = _globalTimelineSelector.SoftSelected.TimelineId;
-                }
-
-                if(_globalTimelineSelector.SelectionChanged && _globalTimelineSelector.Selected != null)
-                {
-                    _capability.SlotedBlendAnimation = _globalTimelineSelector.Selected.TimelineId;
-                    ApplyBlend(_capability);
-                    ImGui.CloseCurrentPopup();
-                }
             }
         }
     }
@@ -443,7 +472,6 @@ public class ActionTimelineEditor
 
     private unsafe void DrawFirstScrub()
     {
-
         var drawObj = _capability.Character.Native()->GameObject.DrawObject;
         if(drawObj == null)
             return;
@@ -499,7 +527,6 @@ public class ActionTimelineEditor
 
 private void DrawSlots()
     {
-
         var slots = Enum.GetValues<ActionTimelineSlots>();
 
         foreach(var slot in slots)
@@ -507,6 +534,7 @@ private void DrawSlots()
             using(ImRaii.PushId((int)slot))
             {
                 DrawSlot(slot);
+                ImBrio.VerticalPadding(2);
                 ImGui.Separator();
             }
         }
@@ -525,6 +553,8 @@ private void DrawSlots()
         {
             ImGui.Text(slotDescription);
 
+            ImBrio.VerticalPadding(2);
+
             float existingSpeed = _capability.GetSlotSpeed(slot);
             float newSpeed = existingSpeed;
             const string speedLabel = "栏位速度";
@@ -532,8 +562,8 @@ private void DrawSlots()
             if(ImGui.SliderFloat($"{speedLabel}", ref newSpeed, 0f, 5f))
                 _capability.SetSlotSpeedOverride(slot, newSpeed);
 
-
             ImGui.SameLine();
+            ImBrio.HorizontalPadding(4);
 
             if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置速度", _capability.HasSlotSpeedOverride(slot)))
                 _capability.ResetSlotSpeedOverride(slot);
@@ -573,6 +603,7 @@ private void DrawSlots()
         ImGui.Text(speedLabel);
 
         ImGui.SameLine();
+        ImBrio.HorizontalPadding(4);
 
         if(ImBrio.FontIconButtonRight("speed_reset", FontAwesomeIcon.Undo, 1, "重置速度", _capability.HasSpeedMultiplierOverride))
             _capability.ResetOverallSpeedOverride();
@@ -621,6 +652,7 @@ private void DrawSlots()
         _xcpUIManager.DrawPenumbraXcpControls(_cameraPath, (newPath) => _cameraPath = newPath);
 
         ImGui.Separator();
+        ImBrio.VerticalPadding(2);
 
         using(ImRaii.Disabled(string.IsNullOrEmpty(_cameraPath)))
         {
@@ -633,16 +665,24 @@ private void DrawSlots()
                 "禁用FOV会使相机的精度降低。\n但可以提供更简单的方式来支持更多的角色尺寸。\n这样就不需要修改相机的缩放值了！"
             );
 
+            ImBrio.VerticalPadding(4);
             ImGui.Separator();
+            ImBrio.VerticalPadding(2);
 
             ImGui.InputFloat3("相机缩放", ref _cutsceneManager.CameraSettings.Scale);
             ImGui.InputFloat3("相机偏移", ref _cutsceneManager.CameraSettings.Offset);
 
+            ImBrio.VerticalPadding(4);
             ImGui.Separator();
+            ImBrio.VerticalPadding(2);
 
             ImGui.Checkbox("循环", ref _cutsceneManager.CameraSettings.Loop);
 
             ImGui.Checkbox("播放时隐藏Brio（按下组合键[Shift+B]来停止播放场景）", ref _cutsceneManager.CloseWindowsOnPlay);
+
+            ImBrio.VerticalPadding(4);
+            ImGui.Separator();
+            ImBrio.VerticalPadding(2);
 
             ImGui.Checkbox("###delay_Start", ref _cutsceneManager.DelayStart);
             if(ImGui.IsItemHovered())
@@ -660,7 +700,10 @@ private void DrawSlots()
             ImGui.SetCursorPosX(LabelStart);
             ImGui.Text("启动延迟（毫秒）");
 
+            ImBrio.VerticalPadding(4);
             ImGui.Separator();
+            ImBrio.VerticalPadding(2);
+
             ImGui.Checkbox("在播放时启动所有角色的动画。", ref _cutsceneManager.StartAllActorAnimationsOnPlay);
 
             using(ImRaii.Disabled(_cutsceneManager.StartAllActorAnimationsOnPlay == false))
@@ -682,27 +725,31 @@ private void DrawSlots()
                 ImGui.Text("动画延迟（毫秒）");
             }
 
+            ImBrio.VerticalPadding(4);
             ImGui.Separator();
+            ImBrio.VerticalPadding(2);
 
-            ImGui.Text("延迟功能的时间刻度单位为毫秒！");
-            ImGui.Text("1000毫秒 = 1秒");
+            ImGui.TextWrapped("延迟功能的时间刻度单位为毫秒！");
+            ImGui.TextWrapped("1000毫秒 = 1秒");
 
+            ImBrio.VerticalPadding(4);
             ImGui.Separator();
+            ImBrio.VerticalPadding(2);
 
             var isrunning = _cutsceneManager.IsRunning;
             using(ImRaii.Disabled(isrunning))
             {
-                if(ImGui.Button("播放"))
+                if(ImBrio.Button("播放", FontAwesomeIcon.Play, new Vector2(-1, 30)))
                 {
                     _cutsceneManager.StartPlayback();
                 }
             }
 
-            ImGui.SameLine();
+            ImBrio.VerticalPadding(2);
 
             using(ImRaii.Disabled(!isrunning))
             {
-                if(ImGui.Button("停止"))
+                if(ImBrio.Button("停止", FontAwesomeIcon.Stop, new Vector2(-1, 30)))
                 {
                     _cutsceneManager.StopPlayback();
                 }

@@ -4,10 +4,8 @@ using Brio.Files;
 using Brio.Game.Actor.Extensions;
 using Brio.Game.Camera;
 using Brio.Game.GPose;
-using Brio.Input;
 using Brio.UI;
 using Brio.UI.Controls.Editors;
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Scene;
@@ -70,7 +68,8 @@ public class CutsceneManager : IDisposable
 
     public void StartAllActors()
     {
-        _framework.RunOnFrameworkThread(() => {
+        _framework.RunOnFrameworkThread(() =>
+        {
             foreach(var actor in _entityManager.TryGetAllActors())
             {
                 if(actor.TryGetCapability<ActionTimelineCapability>(out ActionTimelineCapability? atCap))
@@ -155,7 +154,7 @@ public class CutsceneManager : IDisposable
     {
         if(IsRunning is false || CameraPath is null)
             return null;
-    
+
         if(DelayStart)
         {
             if(Stopwatch.ElapsedMilliseconds > DelayTime)

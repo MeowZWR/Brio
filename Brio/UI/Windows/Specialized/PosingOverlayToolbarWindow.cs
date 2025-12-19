@@ -124,7 +124,7 @@ public class PosingOverlayToolbarWindow : Window
         else
         {
             ImGui.PushStyleColor(ImGuiCol.Button, UIConstants.Transparent);
-          
+
             using(ImRaii.PushColor(ImGuiCol.Text, _overlayTransformWindow.IsOpen ? UIConstants.ToggleButtonActive : UIConstants.ToggleButtonInactive))
             {
                 using(ImRaii.PushFont(UiBuilder.IconFont))
@@ -155,7 +155,7 @@ public class PosingOverlayToolbarWindow : Window
                     _overlayWindow.IsOpen = false;
             }
             ImBrio.AttachToolTip("关闭叠加层");
-         
+
             ImGui.PopStyleColor();
 
             ImGui.TextColored(ImGuiColors.DalamudRed, "注意！");
@@ -361,7 +361,7 @@ public class PosingOverlayToolbarWindow : Window
                 _posingService.CoordinateMode = _posingService.CoordinateMode == PosingCoordinateMode.Local ? PosingCoordinateMode.World : PosingCoordinateMode.Local;
         }
         ImBrio.AttachToolTip(_posingService.CoordinateMode == PosingCoordinateMode.Local ? "切换为世界坐标" : "切换为本地坐标");
-      
+
         ImGui.SameLine();
 
         using(ImRaii.PushColor(ImGuiCol.Text, _overlayTransformWindow.IsOpen ? UIConstants.ToggleButtonActive : UIConstants.ToggleButtonInactive))
@@ -373,7 +373,7 @@ public class PosingOverlayToolbarWindow : Window
             }
         }
         ImBrio.AttachToolTip("开关变换窗口");
-    
+
         ImGui.SameLine();
 
         using(ImRaii.PushColor(ImGuiCol.Text, _lightWindow.IsOpen ? UIConstants.ToggleButtonActive : UIConstants.ToggleButtonInactive))
