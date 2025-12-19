@@ -51,6 +51,9 @@ public class Configuration : IPluginConfiguration
     // AutoSave
     public AutoSaveConfiguration AutoSave { get; set; } = new AutoSaveConfiguration();
 
+    // Emote
+    public EmoteConfiguration Emote { get; set; } = new EmoteConfiguration();
+
     // Developer
     public bool ForceDebug { get; set; } = false;
 }
