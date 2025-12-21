@@ -13,6 +13,18 @@ changelog:
           - "祝大家节日快乐！"
           - "提醒：如遇到任何问题，请在Discord或GitHub上反馈"
           - "（更多功能即将推出！）"
+     
+      - number: "0.6.2.3"
+        icon: ""
+        items:
+          - "修复了节日系统"
+          - "节日现在最多有8个"
+
+      - number: "0.6.2.2"
+        icon: ""
+        items:
+          - "修复了文本中的一些拼写错误"
+          - "更新了Penumbra API"
 
       - number: "0.6.2.1"
         icon: ""
