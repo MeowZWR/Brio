@@ -163,7 +163,7 @@ public class SettingsWindow : Window
             DrawDisplaySettings();
         }
 
-        if(ImGui.CollapsingHeader("Transform Slider Speed", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("变换滑块速度", ImGuiTreeNodeFlags.DefaultOpen))
         {
             DrawOffsetSection();
         }
@@ -647,7 +647,7 @@ public class SettingsWindow : Window
     private void DrawOffsetSection()
     {
         var defaultTransformMovementSpeed = _configurationService.Configuration.Interface.DefaultTransformMovementSpeed;
-        const string label1 = "Transform Movement Speed";
+        const string label1 = "变换移动速度";
         ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label1).X - 15);
         if(ImGui.DragFloat(label1, ref defaultTransformMovementSpeed, 0.001f, 0.001f, 10f))
         {
@@ -656,7 +656,7 @@ public class SettingsWindow : Window
         }
 
         var defaultBoneTransformMovementSpeed = _configurationService.Configuration.Interface.DefaultBoneTransformMovementSpeed;
-        const string label2 = "Bone Transform Movement Speed";
+        const string label2 = "骨骼变换移动速度";
         ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label2).X - 15);
         if(ImGui.DragFloat(label2, ref defaultBoneTransformMovementSpeed, 0.001f, 0.001f, 10f))
         {
@@ -665,7 +665,7 @@ public class SettingsWindow : Window
         }
 
         var defaultFreeCamMovementSpeed = _configurationService.Configuration.Interface.DefaultFreeCameraMovementSpeed;
-        const string label3 = "Free Camera Movement Speed";
+        const string label3 = "自由相机移动速度";
         ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label3).X - 15);
         if(ImGui.DragFloat(label3, ref defaultFreeCamMovementSpeed, 0.001f, 0.005f, 0.3f))
         {
@@ -674,7 +674,7 @@ public class SettingsWindow : Window
         }
 
         var defaultFreeCamMouseSensitivity = _configurationService.Configuration.Interface.DefaultFreeCameraMouseSensitivity;
-        const string label4 = "Free Camera Mouse Sensitivity";
+        const string label4 = "自由相机鼠标灵敏度";
         ImGui.SetNextItemWidth(-ImGui.CalcTextSize(label4).X - 15);
         if(ImGui.DragFloat(label4, ref defaultFreeCamMouseSensitivity, 0.001f, 0.001f, 0.2f))
         {
