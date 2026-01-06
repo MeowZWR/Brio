@@ -269,7 +269,17 @@
     "pifeng_b_r": "披风B-右",
     "pifeng_c_r": "披风C-右",
     "pifeng_d_r": "披风D-右",
-    "pifeng_e_r": "披风E-右"
+    "pifeng_e_r": "披风E-右",
+    "j_toushi_a_l": "头饰A-左",
+    "j_toushi_b_l": "头饰B-左",
+    "j_toushi_c_l": "头饰C-左",
+    "j_toushi_d_l": "头饰D-左",
+    "j_toushi_e_l": "头饰E-左",
+    "j_toushi_a_r": "头饰A-右",
+    "j_toushi_b_r": "头饰B-右",
+    "j_toushi_c_r": "头饰C-右",
+    "j_toushi_d_r": "头饰D-右",
+    "j_toushi_e_r": "头饰E-右"
   },
 
   "bone_categories": {   
