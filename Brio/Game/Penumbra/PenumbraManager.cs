@@ -1,12 +1,13 @@
+using Brio.Core;
+using Brio.Services;
+using Dalamud.Plugin;
+using Penumbra.Api.Enums;
+using Penumbra.Api.Helpers;
+using Penumbra.Api.IpcSubscribers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Brio.Core;
-using Dalamud.Plugin;
-using Penumbra.Api.IpcSubscribers;
-using Penumbra.Api.Enums;
-using Penumbra.Api.Helpers;
 
 namespace Brio.Game.Penumbra
 {
@@ -41,7 +42,7 @@ namespace Brio.Game.Penumbra
         public bool HasModChangesSinceLastRefresh { get; private set; } = false;
         public bool HasEverRefreshed { get; private set; } = false;
 
-        public PenumbraManager(DalamudServices services)
+        public PenumbraManager(DalamudPluginService services)
         {
             try
             {
