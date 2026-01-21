@@ -88,7 +88,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("flipButton", FontAwesomeIcon.Repeat, "Mirror Pose"))
+        if(ImBrio.FontIconButton("flipButton", FontAwesomeIcon.Repeat, "镜像姿势"))
         {
             Capability.MirrorPose();
         }

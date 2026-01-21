@@ -136,7 +136,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight("reset_selected", FontAwesomeIcon.Undo, 1f, "Reset Selected Actor", Capability.IsSelectingActor))
+        if(ImBrio.FontIconButtonRight("reset_selected", FontAwesomeIcon.Undo, 1f, "重置选择的角色", Capability.IsSelectingActor))
         {
             Capability.SetMode(LookAtTargetMode.None);
 
@@ -145,7 +145,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
             Capability.SetActorTarget(false, LookAtTargetType.All, 0);
 
             Capability.IsSelectingActor = false;
-            Capability.SelectedActorName = "Select an actor to track";
+            Capability.SelectedActorName = "选择一个角色来追踪";
         }
     }
 

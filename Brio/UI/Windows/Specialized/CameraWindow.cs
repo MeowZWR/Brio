@@ -47,7 +47,7 @@ public class CameraWindow : Window, IDisposable
     {
         ImBrio.VerticalPadding(2);
 
-        ImGui.Text("Select Camera to Edit:");
+        ImGui.Text("选择相机进行编辑：");
         ImBrio.CenterNextElementWithPadding(15);
         using(ImRaii.Disabled(_virtualCameraService.CamerasCount == 0))
             if(ImGui.BeginCombo("###setCamera"u8, $"{_virtualCameraService.SelectedCameraEntity?.FriendlyName}"))
@@ -64,7 +64,7 @@ public class CameraWindow : Window, IDisposable
                 ImGui.EndCombo();
             }
 
-        ImBrio.AttachToolTip("Current Camera");
+        ImBrio.AttachToolTip("当前相机");
 
         ImGui.Separator();
 

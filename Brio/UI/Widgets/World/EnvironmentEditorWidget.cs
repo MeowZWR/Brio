@@ -13,7 +13,7 @@ namespace Brio.UI.Widgets.World;
 
 public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : Widget<EnvironmentEditorCapability>(capability)
 {
-    public override string HeaderName => "Environment";
+    public override string HeaderName => "环境";
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
 
     int selected = 0;
@@ -21,7 +21,7 @@ public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : W
 
     public unsafe override void DrawBody()
     {
-        ImBrio.ButtonSelectorStrip("environment_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["Particles", "Rain", "Wind", "Fog"]);
+        ImBrio.ButtonSelectorStrip("environment_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["粒子", "雨", "风", "雾"]);
 
         var env = BrioEnvManager.Instance();
         if(env == null) return;
@@ -35,13 +35,13 @@ public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : W
                 ImBrio.VerticalPadding(3);
 
                 unlockPos = ImGui.GetCursorPos();
-                ImGui.Text("Particle Texture:"u8);
+                ImGui.Text("粒子纹理："u8);
 
                 var isParticles = Capability.Environment.EnvironmentOverrideState.HasFlag(EnvironmentOverrideState.Particles);
 
                 preservedPOS = ImGui.GetCursorPos();
                 ImGui.SetCursorPos(unlockPos - new Vector2(0, 4));
-                if(ImBrio.FontIconButtonRight("###resetParticles", FontAwesomeIcon.Redo, 1, "Reset Particles", bordered: false, enabled: isParticles))
+                if(ImBrio.FontIconButtonRight("###resetParticles", FontAwesomeIcon.Redo, 1, "重置粒子", bordered: false, enabled: isParticles))
                     Capability.Environment.EnvironmentOverrideState &= ~EnvironmentOverrideState.Particles;
                 ImGui.SetCursorPos(preservedPOS);
 
@@ -51,7 +51,7 @@ public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : W
                     _textureSelector.Select(new TextureId(env->EnvState.Particles.TextureId));
                     ImGui.OpenPopup("particle_texture_selector"u8);
                 }
-                ImBrio.AttachToolTip("Click to open texture selector");
+                ImBrio.AttachToolTip("点击打开纹理选择器");
 
                 bool didParticlesChange = false;
 
@@ -77,45 +77,45 @@ public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : W
                 ImBrio.CenterNextElementWithPadding(10);
                 ImBrio.VerticalPadding(5);
                 didParticlesChange |= ImGui.InputUInt("###particleTexture"u8, ref env->EnvState.Particles.TextureId);
-                ImBrio.AttachToolTip("Particle Texture ID");
+                ImBrio.AttachToolTip("粒子纹理 ID");
 
                 ImBrio.VerticalPadding(5);
-                ImGui.Text("Particle Properties:"u8);
+                ImGui.Text("粒子属性："u8);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.SliderFloat("###particleIntensity"u8, ref env->EnvState.Particles.Intensity, 0.0f, 1.0f);
-                ImBrio.AttachToolTip("Particle Count");
+                ImBrio.AttachToolTip("粒子密度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.SliderFloat("###particleSize"u8, ref env->EnvState.Particles.Size, 0.0f, 20.0f);
-                ImBrio.AttachToolTip("Particle Size");
+                ImBrio.AttachToolTip("粒子大小");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.ColorEdit4("###particleColor"u8, ref env->EnvState.Particles.Color);
-                ImBrio.AttachToolTip("Particle Color");
+                ImBrio.AttachToolTip("粒子颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.SliderFloat("###particleGlow"u8, ref env->EnvState.Particles.Glow, 0.0f, 10.0f);
-                ImBrio.AttachToolTip("Particle Glow");
+                ImBrio.AttachToolTip("粒子发光度");
 
                 ImBrio.VerticalPadding(5);
-                ImGui.Text("Particle Sub-Properties:"u8);
+                ImGui.Text("粒子子属性："u8);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.SliderFloat("###particleSpread"u8, ref env->EnvState.Particles.Spread, 0.0f, 10.0f);
-                ImBrio.AttachToolTip("Particle Spread");
+                ImBrio.AttachToolTip("粒子扩散度/范围");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.SliderFloat("###particleWeight"u8, ref env->EnvState.Particles.Weight, 0.0f, 10.0f);
-                ImBrio.AttachToolTip("Particle Weight");
+                ImBrio.AttachToolTip("粒子重量");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.SliderFloat("###particleSpeed"u8, ref env->EnvState.Particles.Speed, 0.0f, 1.0f);
-                ImBrio.AttachToolTip("Particle Speed");
+                ImBrio.AttachToolTip("粒子运动速度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didParticlesChange |= ImGui.SliderFloat("###particleSpin"u8, ref env->EnvState.Particles.Spin, 0.05f, 5.0f);
-                ImBrio.AttachToolTip("Particle Spin");
+                ImBrio.AttachToolTip("粒子旋转速度");
 
                 ImBrio.VerticalPadding(3);
 
@@ -127,45 +127,45 @@ public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : W
                 ImBrio.VerticalPadding(3);
 
                 unlockPos = ImGui.GetCursorPos();
-                ImGui.Text("Rain Properties:"u8);
+                ImGui.Text("雨水属性："u8);
 
                 var isRain = Capability.Environment.EnvironmentOverrideState.HasFlag(EnvironmentOverrideState.Rain);
 
                 preservedPOS = ImGui.GetCursorPos();
                 ImGui.SetCursorPos(unlockPos - new Vector2(0, 4));
-                if(ImBrio.FontIconButtonRight("###resetRain", FontAwesomeIcon.Redo, 1, "Reset Rain", bordered: false, enabled: isRain))
+                if(ImBrio.FontIconButtonRight("###resetRain", FontAwesomeIcon.Redo, 1, "重置雨水", bordered: false, enabled: isRain))
                     Capability.Environment.EnvironmentOverrideState &= ~EnvironmentOverrideState.Rain;
                 ImGui.SetCursorPos(preservedPOS);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 var didRainChange = ImGui.SliderFloat("###rainIntensity"u8, ref env->EnvState.Rain.Intensity, 0.0f, 1.0f);
-                ImBrio.AttachToolTip("Rain Intensity");
+                ImBrio.AttachToolTip("雨量强度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didRainChange |= ImGui.SliderFloat("###rainThickness"u8, ref env->EnvState.Rain.Size, 0.0f, 1.0f);
-                ImBrio.AttachToolTip("Rain Line Thickness");
+                ImBrio.AttachToolTip("雨丝粗细");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didRainChange |= ImGui.SliderFloat("###rainWeight"u8, ref env->EnvState.Rain.Weight, 0.0f, 10.0f);
-                ImBrio.AttachToolTip("Rain Weight");
+                ImBrio.AttachToolTip("雨水重量");
 
                 ImBrio.VerticalPadding(5);
-                ImGui.Text("Color:"u8);
+                ImGui.Text("颜色："u8);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didRainChange |= ImGui.ColorEdit4("###rainColor"u8, ref env->EnvState.Rain.Color);
-                ImBrio.AttachToolTip("Rain Color");
+                ImBrio.AttachToolTip("雨水颜色");
 
                 ImBrio.VerticalPadding(5);
-                ImGui.Text("Advanced:"u8);
+                ImGui.Text("进阶设置："u8);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didRainChange |= ImGui.SliderFloat("###rainScattering"u8, ref env->EnvState.Rain.Scatter, 0.0f, 10.0f);
-                ImBrio.AttachToolTip("Rain Scattering");
+                ImBrio.AttachToolTip("雨水散射");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didRainChange |= ImGui.SliderFloat("###rainRaindrops"u8, ref env->EnvState.Rain.Raindrops, 0.0f, 1.0f);
-                ImBrio.AttachToolTip("Raindrops");
+                ImBrio.AttachToolTip("雨滴效果");
 
                 ImBrio.VerticalPadding(3);
 
@@ -177,27 +177,27 @@ public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : W
                 ImBrio.VerticalPadding(3);
 
                 unlockPos = ImGui.GetCursorPos();
-                ImGui.Text("Wind, Direction / Angle / Speed"u8);
+                ImGui.Text("风：方向 / 角度 / 速度"u8);
 
                 var isWind = Capability.Environment.EnvironmentOverrideState.HasFlag(EnvironmentOverrideState.Wind);
 
                 preservedPOS = ImGui.GetCursorPos();
                 ImGui.SetCursorPos(unlockPos - new Vector2(0, 4));
-                if(ImBrio.FontIconButtonRight("###resetWind", FontAwesomeIcon.Redo, 1, "Reset Wind", bordered: false, enabled: isWind))
+                if(ImBrio.FontIconButtonRight("###resetWind", FontAwesomeIcon.Redo, 1, "重置风", bordered: false, enabled: isWind))
                     Capability.Environment.EnvironmentOverrideState &= ~EnvironmentOverrideState.Wind;
                 ImGui.SetCursorPos(preservedPOS);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 var didWindChange = ImBrio.SliderAngle("###windDirectionu", ref env->EnvState.Wind.Direction, 0.0f, MathF.PI);
-                ImBrio.AttachToolTip("Wind Direction");
+                ImBrio.AttachToolTip("风向");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didWindChange |= ImBrio.SliderAngle("###windAngle", ref env->EnvState.Wind.Angle, 0.0f, 180.0f);
-                ImBrio.AttachToolTip("Wind Angle");
+                ImBrio.AttachToolTip("风力角度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didWindChange |= ImGui.SliderFloat("###windSpeed"u8, ref env->EnvState.Wind.Speed, -30.0f, 100f);
-                ImBrio.AttachToolTip("Wind Speed");
+                ImBrio.AttachToolTip("风速");
 
                 ImBrio.VerticalPadding(3);
 
@@ -209,42 +209,42 @@ public class EnvironmentEditorWidget(EnvironmentEditorCapability capability) : W
                 ImBrio.VerticalPadding(3);
 
                 unlockPos = ImGui.GetCursorPos();
-                ImGui.Text("Fog Properties:"u8);
+                ImGui.Text("雾气属性："u8);
 
                 var isFog = Capability.Environment.EnvironmentOverrideState.HasFlag(EnvironmentOverrideState.Fog);
 
                 preservedPOS = ImGui.GetCursorPos();
                 ImGui.SetCursorPos(unlockPos - new Vector2(0, 4));
-                if(ImBrio.FontIconButtonRight("###resetFog", FontAwesomeIcon.Redo, 1, "Reset Fog", bordered: false, enabled: isFog))
+                if(ImBrio.FontIconButtonRight("###resetFog", FontAwesomeIcon.Redo, 1, "重置雾气", bordered: false, enabled: isFog))
                     Capability.Environment.EnvironmentOverrideState &= ~EnvironmentOverrideState.Fog;
                 ImGui.SetCursorPos(preservedPOS);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 var didFogChange = ImGui.ColorEdit4("###fogColor"u8, ref env->EnvState.Fog.Color);
-                ImBrio.AttachToolTip("Fog Color");
+                ImBrio.AttachToolTip("雾气颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didFogChange |= ImGui.SliderFloat("###fogDistance"u8, ref env->EnvState.Fog.Distance, 0.0f, 1000f);
-                ImBrio.AttachToolTip("Fog Distance");
+                ImBrio.AttachToolTip("雾气起始距离");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didFogChange |= ImGui.SliderFloat("###fogThickness"u8, ref env->EnvState.Fog.Thickness, 0.0f, 50f);
-                ImBrio.AttachToolTip("Fog Thickness");
+                ImBrio.AttachToolTip("雾气厚度/浓度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didFogChange |= ImGui.SliderFloat("###fogOpacity"u8, ref env->EnvState.Fog.FogOpacity, 0.0f, 10f);
-                ImBrio.AttachToolTip("Fog Opacity");
+                ImBrio.AttachToolTip("雾气不透明度");
 
                 ImBrio.VerticalPadding(5);
-                ImGui.Text("Sky Opacity & Smoothness"u8);
+                ImGui.Text("天空不透明度与平滑度"u8);
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didFogChange |= ImGui.SliderFloat("###skyOpacity"u8, ref env->EnvState.Fog.SkyOpacity, 0.0f, 10f);
-                ImBrio.AttachToolTip("Sky Opacity");
+                ImBrio.AttachToolTip("天空不透明度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didFogChange |= ImGui.SliderFloat("###skySmoothness"u8, ref env->EnvState.Fog.SkySmoothness, 0.0f, 1000f);
-                ImBrio.AttachToolTip("Sky Smoothness");
+                ImBrio.AttachToolTip("天空平滑度");
 
                 ImBrio.VerticalPadding(3);
 

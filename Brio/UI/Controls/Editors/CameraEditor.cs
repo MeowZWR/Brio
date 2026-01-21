@@ -197,7 +197,7 @@ public static class CameraEditor
                         {
                             if(ImGui.Selectable($"[ {value.FriendlyName} ]"))
                             {
-                                capability.VirtualCamera.SelectedActorName = $"Selected: [ {value.FriendlyName} ]";
+                                capability.VirtualCamera.SelectedActorName = $"S已选择：[ {value.FriendlyName} ]";
                                 camera.TargetOffset = (value.GameObject.GetDrawObject<DrawObject>()->Object.Position - ((GameObject*)value.GameObject.Address)->Position);
                             }
                         }
@@ -206,10 +206,10 @@ public static class CameraEditor
 
                     ImGui.SameLine();
 
-                    if(ImBrio.FontIconButtonRight("reset_selected", FontAwesomeIcon.Undo, 1f, "Reset Selected Actor", camera.IsSelectingActor))
+                    if(ImBrio.FontIconButtonRight("reset_selected", FontAwesomeIcon.Undo, 1f, "重置选择的角色", camera.IsSelectingActor))
                     {
                         camera.TargetOffset = new Vector3(0);
-                        camera.SelectedActorName = "Select an actor to track";
+                        camera.SelectedActorName = "选择一个角色来追踪";
                     }
 
                     {

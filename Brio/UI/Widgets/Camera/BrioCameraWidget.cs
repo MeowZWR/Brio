@@ -9,7 +9,7 @@ namespace Brio.UI.Widgets.Camera;
 
 public class BrioCameraWidget(BrioCameraCapability capability) : Widget<BrioCameraCapability>(capability)
 {
-    public override string HeaderName => "Camera Editor";
+    public override string HeaderName => "相机编辑器";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.DefaultOpen | WidgetFlags.HasAdvanced;
 
@@ -21,11 +21,11 @@ public class BrioCameraWidget(BrioCameraCapability capability) : Widget<BrioCame
         }
         else if(Capability.CameraEntity.CameraType == CameraType.Cutscene)
         {
-            if(ImGui.Button("Open Camera Window"))
+            if(ImGui.Button("打开相机窗口"))
             {
                 Capability.ShowCameraWindow();
             }
-            ImBrio.TextCentered("Open the Camera Window to edit play a Cutscene ", ImGui.GetWindowContentRegionMax().X);
+            ImBrio.TextCentered("打开相机窗口以编辑或播放场景", ImGui.GetWindowContentRegionMax().X);
 
         }
         else

@@ -737,7 +737,7 @@ public class PosingOverlayToolbarWindow : Window
                     posing?.MirrorPose();
             }
         }
-        ImBrio.AttachToolTip("Mirror Pose");
+        ImBrio.AttachToolTip("镜像姿势");
 
         //
 
@@ -756,7 +756,7 @@ public class PosingOverlayToolbarWindow : Window
             }
         }
 
-        ImBrio.AttachToolTip("Reset Body");
+        ImBrio.AttachToolTip("重置身体");
 
         ImGui.SameLine();
 
@@ -782,7 +782,7 @@ public class PosingOverlayToolbarWindow : Window
             }
         }
 
-        ImBrio.AttachToolTip("Reset Face");
+        ImBrio.AttachToolTip("重置脸部");
 
         ImGui.SameLine();
 

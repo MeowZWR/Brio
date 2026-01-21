@@ -23,7 +23,7 @@ public class ActorDynamicPoseCapability : ActorCharacterCapability
     public VirtualCamera? Camera => _virtualCameraManager.CurrentCamera;
     public bool IsEnabled { get; set; }
 
-    public string SelectedActorName = "Select an actor to track";
+    public string SelectedActorName = "选择一个角色来追踪";
     public bool IsSelectingActor;
 
     public EntityManager EntityManager => _entityManager;

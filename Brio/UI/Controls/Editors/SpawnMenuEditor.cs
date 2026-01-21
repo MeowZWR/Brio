@@ -32,22 +32,22 @@ public static class SpawnMenuEditor
             // Actor spawn
             if(actorSpawnService != null)
             {
-                ImGui.Text("Actors");
+                ImGui.Text("角色");
                 ImGui.Separator();
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.User, "Spawn New Actor", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.User, "生成新角色", buttonSize))
                 {
                     actorSpawnService.CreateCharacter(out _, SpawnFlags.Default, true);
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.PlusSquare, "Spawn with Companion Slot", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.PlusSquare, "生成带有宠物栏的角色", buttonSize))
                 {
                     actorSpawnService.CreateCharacter(out _, SpawnFlags.ReserveCompanionSlot, false);
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Cubes, "Spawn Prop", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Cubes, "生成道具", buttonSize))
                 {
                     actorSpawnService.SpawnNewProp(out _);
                     ImGui.CloseCurrentPopup();
@@ -60,16 +60,16 @@ public static class SpawnMenuEditor
                 if(actorSpawnService != null)
                     ImGui.Spacing();
 
-                ImGui.Text("Cameras");
+                ImGui.Text("相机");
                 ImGui.Separator();
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Camera, "New Brio Camera", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Camera, "新Brio相机", buttonSize))
                 {
                     cameraManager.CreateCamera(CameraType.Game);
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Video, "New Free-Cam", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Video, "新自由相机", buttonSize))
                 {
                     cameraManager.CreateCamera(CameraType.Free);
                     ImGui.CloseCurrentPopup();
@@ -82,22 +82,22 @@ public static class SpawnMenuEditor
                 if(actorSpawnService != null || cameraManager != null)
                     ImGui.Spacing();
 
-                ImGui.Text("Lights");
+                ImGui.Text("灯光");
                 ImGui.Separator();
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Lightbulb, "Spawn Spot Light", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Lightbulb, "生成聚光灯", buttonSize))
                 {
                     lightingService.SpawnLight(LightType.SpotLight);
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Circle, "Spawn Area Light", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Circle, "生成区域光", buttonSize))
                 {
                     lightingService.SpawnLight(LightType.AreaLight);
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Square, "Spawn Flat Light", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Square, "生成平面光", buttonSize))
                 {
                     lightingService.SpawnLight(LightType.FlatLight);
                     ImGui.CloseCurrentPopup();

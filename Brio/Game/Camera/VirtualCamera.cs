@@ -43,7 +43,7 @@ public unsafe partial class VirtualCamera
     public Vector3 Rotation = Vector3.Zero;
 
     public bool IsSelectingActor  => TargetOffset != Vector3.Zero;
-    public string SelectedActorName = "Select an actor to track";
+    public string SelectedActorName = "选择一个角色来追踪";
 
     public float PivotRotation
     {
@@ -165,7 +165,7 @@ public unsafe partial class VirtualCamera
         Angle = Vector2.Zero;
         Pan = Vector2.Zero;
 
-        SelectedActorName = "Select an actor to track";
+        SelectedActorName = "选择一个角色来追踪";
         TargetOffset = Vector3.Zero;
     }
 
