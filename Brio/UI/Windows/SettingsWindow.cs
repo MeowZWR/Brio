@@ -11,8 +11,12 @@ using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
+using Dalamud.Utility;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Numerics;
+using System.Text;
 
 namespace Brio.UI.Windows;
 
@@ -686,7 +690,30 @@ public class SettingsWindow : Window
     bool resetSettings = false;
     private void DrawAdvancedTab()
     {
-        if(ImGui.CollapsingHeader("高级", ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.Button("复制支持信息到剪贴板"))
+        {
+            ImGui.SetClipboardText(Brio.GetDebugInfo());
+        }
+
+        ImGui.SameLine();
+
+        if(ImGui.Button("复制日志到剪贴板"))
+        {
+            var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Brio.GetDebugInfo())));
+            Brio.Log.Warning("BRIOSUPPORT:" + base64);
+
+            var logPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "XIVLauncher", "dalamud.log");
+
+            using(var fs = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using(var sr = new StreamReader(fs, Encoding.UTF8))
+            {
+                var log = sr.ReadToEnd();
+                ImGui.SetClipboardText(log);
+            }
+        }
+
+        if(ImGui.CollapsingHeader("场景管理器", ImGuiTreeNodeFlags.DefaultOpen))
         {
             DrawOpenBrioSetting();
             DrawHideSettings();
@@ -733,6 +760,13 @@ public class SettingsWindow : Window
             if(ImGui.Checkbox("退出集体动作时重置水体", ref resetWaterOnGPoseExit))
             {
                 _configurationService.Configuration.Environment.ResetWaterOnGPoseExit = resetWaterOnGPoseExit;
+                _configurationService.ApplyChange();
+            }
+
+            var resetAdvancedOnGPoseExit = _configurationService.Configuration.Environment.ResetAdvancedOnGPoseExit;
+            if(ImGui.Checkbox("退出 GPose 时重置高级环境参数", ref resetAdvancedOnGPoseExit))
+            {
+                _configurationService.Configuration.Environment.ResetAdvancedOnGPoseExit = resetAdvancedOnGPoseExit;
                 _configurationService.ApplyChange();
             }
         }

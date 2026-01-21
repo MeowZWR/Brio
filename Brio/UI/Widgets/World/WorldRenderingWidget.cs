@@ -6,8 +6,8 @@ namespace Brio.UI.Widgets.World;
 
 public class WorldRenderingWidget(WorldRenderingCapability worldRenderingCapability) : Widget<WorldRenderingCapability>(worldRenderingCapability)
 {
-    public override string HeaderName => "渲染";
-    public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
+    public override string HeaderName => "高级";
+    public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
     public override void DrawBody()
     {

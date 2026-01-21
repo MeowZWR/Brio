@@ -1,6 +1,7 @@
 ﻿using Brio.Capabilities.Actor;
 using Brio.Capabilities.Posing;
 using Brio.Input;
+using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
@@ -87,6 +88,13 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 
         ImGui.SameLine();
 
+        if(ImBrio.FontIconButton("flipButton", FontAwesomeIcon.Repeat, "Mirror Pose"))
+        {
+            Capability.MirrorPose();
+        }
+
+        ImGui.SameLine();
+
         if(Capability.Actor.IsProp == false)
         {
             if(ImBrio.ToggelFontIconButton("freezeActor", FontAwesomeIcon.Snowflake, new Vector2(0), timelineCapability.SpeedMultiplier == 0, hoverText: timelineCapability.SpeedMultiplierOverride == 0 ? "解冻角色" : "冻结角色") || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Freeze))
@@ -99,9 +107,17 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
             ImGui.SameLine();
         }
 
-        if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置姿势", Capability.HasOverride))
+        if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置姿势", Capability.HasOverride()))
         {
-            Capability.Reset(false, false, true);
+            ImGui.OpenPopup("widget_reset_pose_popup");
+        }
+
+        using(var popup = ImRaii.Popup("widget_reset_pose_popup", ImGuiWindowFlags.AlwaysAutoResize))
+        {
+            if(popup.Success)
+            {
+                DrawResetMenu();
+            }
         }
 
         using(var popup = ImRaii.Popup("widget_bone_search_popup", ImGuiWindowFlags.AlwaysAutoResize))
@@ -118,6 +134,41 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
         PosingEditorCommon.DrawSelectionName(Capability);
 
         _posingTransformEditor.Draw("posing_widget_transform", Capability, true);
+    }
+
+    private void DrawResetMenu()
+    {
+        using(ImRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f)))
+        using(ImRaii.PushColor(ImGuiCol.Button, UIConstants.Transparent))
+        {
+            {
+                var buttonSize = new Vector2(155 * ImGuiHelpers.GlobalScale, 0);
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Undo, "重置姿势", buttonSize))
+                {
+                    Capability.Reset(false, false);
+                    ImGui.CloseCurrentPopup();
+                }
+
+                using(ImRaii.Disabled(!Capability.HasOverride(Capability.SkeletonPosing.FilterNonFaceBones)))
+                {
+                    if(ImBrio.DrawIconButton(FontAwesomeIcon.ChildReaching, "重置身体", buttonSize))
+                    {
+                        Capability.Snapshot(false, reconcile: false);
+                        Capability.SkeletonPosing.PoseInfo.Clear(Capability.SkeletonPosing.FilterNonFaceBones);
+                        ImGui.CloseCurrentPopup();
+                    }
+                }
+
+                using(ImRaii.Disabled(!Capability.HasOverride(Capability.SkeletonPosing.FilterFaceBones)))
+                {
+                    if(ImBrio.DrawIconButton(FontAwesomeIcon.Smile, "重置脸部", buttonSize))
+                    {
+                        Capability.SkeletonPosing.PoseInfo.Clear(Capability.SkeletonPosing.FilterFaceBones);
+                        ImGui.CloseCurrentPopup();
+                    }
+                }
+            }
+        }
     }
 
     public override void ToggleAdvancedWindow()

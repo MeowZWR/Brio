@@ -58,10 +58,12 @@ public class FileUIHelpers
                     if(ImGui.Button("导出场景"))
                     {
                         ShowExportSceneModal(entityManager, sceneService);
+                        ImBrio.AttachToolTip("Export Scene Comming soon");
                     }
                     if(ImGui.Button("导入场景"))
                     {
                         ShowImportSceneModal(sceneService);
+                        ImBrio.AttachToolTip("Import Scene Comming soon");
                     }
                 }
             }

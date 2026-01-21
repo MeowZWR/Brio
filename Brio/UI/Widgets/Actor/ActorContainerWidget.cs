@@ -48,6 +48,13 @@ public class ActorContainerWidget(ActorContainerCapability capability) : Widget<
 
             ImGui.SameLine();
 
+            if(ImBrio.FontIconButton("lifetimewidget_spawn_prop", FontAwesomeIcon.Cubes, "生成道具"))
+            {
+                Capability.SpawnNewProp(true);
+            }
+
+            ImGui.SameLine();
+
             if(ImBrio.FontIconButton("containerwidget_clone", FontAwesomeIcon.Clone, "克隆", hasSelection))
             {
                 Capability.CloneActor(_selectedActor!, false);

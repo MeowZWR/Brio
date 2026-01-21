@@ -8,6 +8,7 @@ using Brio.Game.Input;
 using Brio.Game.Posing;
 using Brio.Game.Posing.Skeletons;
 using Brio.Resources;
+using Brio.Services;
 using Brio.UI.Widgets.Posing;
 using Brio.UI.Windows.Specialized;
 using Dalamud.Plugin.Services;
@@ -15,6 +16,8 @@ using OneOf;
 using OneOf.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 
 namespace Brio.Capabilities.Posing;
 
@@ -24,27 +27,26 @@ public class PosingCapability : ActorCharacterCapability
     public PosingSelectionType Hover { get; set; } = new None();
     public PosingSelectionType LastHover { get; set; } = new None();
 
+    public List<BonePoseInfoId> SelectedBones { get; set; } = [];
+    public bool IsMultiSelecting => SelectedBones.Count > 1;
+
     public SkeletonPosingCapability SkeletonPosing => Entity.GetCapability<SkeletonPosingCapability>();
     public ModelPosingCapability ModelPosing => Entity.GetCapability<ModelPosingCapability>();
 
     public PosingService PosingService => _posingService;
-
     public ConfigurationService ConfigurationService => _configurationService;
 
-    public bool HasOverride
+    public bool HasOverride(Predicate<BonePoseInfoId>? predicate = null)
     {
-        get
-        {
-            if(Entity.TryGetCapability<SkeletonPosingCapability>(out var skeletonPosing))
-                if(skeletonPosing.PoseInfo.IsOverridden)
-                    return true;
+        if(Entity.TryGetCapability<SkeletonPosingCapability>(out var skeletonPosing))
+            if(skeletonPosing.PoseInfo.IsOverridden(predicate))
+                return true;
 
-            if(Entity.TryGetCapability<ModelPosingCapability>(out var modelPosing))
-                if(modelPosing.HasOverride)
-                    return true;
+        if(Entity.TryGetCapability<ModelPosingCapability>(out var modelPosing))
+            if(modelPosing.HasOverride)
+                return true;
 
-            return false;
-        }
+        return false;
     }
 
     public bool CanResetBone(Bone? bone) => ModelPosing.HasOverride == false || !(bone is not null && !SkeletonPosing.PoseInfo.GetPoseInfo(bone).HasStacks);
@@ -105,8 +107,6 @@ public class PosingCapability : ActorCharacterCapability
         _groupedUndoService = groupedUndoService;
         _gameInputService = gameInputService;
     }
-
-    public void ClearSelection() => Selected = PosingSelectionType.None;
 
     public void LoadResourcesPose(string resourcesPath, bool freezeOnLoad = false, bool asBody = false)
     {
@@ -280,18 +280,34 @@ public class PosingCapability : ActorCharacterCapability
         _undoStack.Push(new PoseStack(SkeletonPosing.PoseInfo.Clone(), ModelPosing.Transform));
         _undoStack = _undoStack.Trim(undoStackSize + 1);
 
-        //var bone = SkeletonPosing.GetBone("j_kao", PoseInfoSlot.Character);
-        //if(bone != null)
-        //{
-        //    var face = SkeletonPosing.PoseInfo.GetPoseInfo(bone);
-        //    var parent = face.Parent;
-        //    if(parent.IsOverridden)
-        //    {
-        //        face.Apply(bone.LastTransform, bone.LastRawTransform, TransformComponents.All, TransformComponents.Rotation, BoneIKInfo.Disabled, PoseMirrorMode.None, true);
-        //        face.ClearStacks();
-        //        Reconcile(false);
-        //    }
-        //}
+
+        // Holy hell, This took me so long to fix and it stil breaks IK
+        var bone = SkeletonPosing.GetBone("j_kao", PoseInfoSlot.Character);
+        if(bone != null)
+        {
+            var face = SkeletonPosing.PoseInfo.GetPoseInfo(bone);
+
+            // Check if j_kao or any of its parent bones are overridden
+            bool hasOverriddenParent = false;
+            var currentBone = bone.Parent;
+            while(currentBone != null)
+            {
+                var parentPoseInfo = SkeletonPosing.PoseInfo.GetPoseInfo(currentBone);
+                if(parentPoseInfo.HasStacks)
+                {
+                    hasOverriddenParent = true;
+                    break;
+                }
+                currentBone = currentBone.Parent;
+            }
+
+            if(face.HasStacks || hasOverriddenParent)
+            {
+                // Reconcile ONLY j_kao and its descendants to fix gizmo without affecting limbs
+                ReconcileChildren(bone);
+                return;
+            }
+        }
 
         if(reconcile)
             Reconcile(reset);
@@ -342,6 +358,38 @@ public class PosingCapability : ActorCharacterCapability
 
         if(generateSnapshot)
             Snapshot(reset);
+    }
+
+    public void ReconcileChildren(Bone bone)
+    {
+        // We create a partial pose so we can properly reconcile,
+        // This was designed to work with j_kao and descendant, but it might work with other bones too
+        var partialPoseFile = new PoseFile();
+
+        ExportFaceBone(bone);
+        ClearFaceStacks(bone);
+
+        var options = new PoseImporterOptions(new BoneFilter(_posingService), TransformComponents.All, true);
+        SkeletonPosing.ImportSkeletonPose(partialPoseFile, options, false);
+
+        void ExportFaceBone(Bone bone)
+        {
+            partialPoseFile.Bones[bone.Name] = bone.LastRawTransform;
+            foreach(var child in bone.Children)
+            {
+                ExportFaceBone(child);
+            }
+        }
+
+        void ClearFaceStacks(Bone bone)
+        {
+            var poseInfo = SkeletonPosing.PoseInfo.GetPoseInfo(bone);
+            poseInfo.ClearStacks();
+            foreach(var child in bone.Children)
+            {
+                ClearFaceStacks(child);
+            }
+        }
     }
 
     private void Reconcile(bool reset = true, bool generateSnapshot = true)
@@ -397,7 +445,137 @@ public class PosingCapability : ActorCharacterCapability
         poseInfo.Apply(newBoneTransform, bone.LastRawTransform, TransformComponents.All, TransformComponents.All, poseInfo.DefaultIK, poseInfo.MirrorMode, true);
     }
 
-    public void FlipBoneModel()
+    // you can blame the chons for me getting off my ass and making this work
+    public void MirrorPose()
+    {
+        // Mirrors the entire pose, Left/right bone pairs (_l/_r) are swapped with mirrored transforms.
+        // Center bones are mirrored in place. Weapons are swapped between hands.
+        // Should work with all bones. Has some drifting if you use it like 70 times, but, who is going to do that?!?!?!
+
+
+        var skeleton = SkeletonPosing.CharacterSkeleton;
+        if(skeleton == null || skeleton.Bones.Count == 0)
+            return;
+
+        var currentPose = GeneratePoseFile();
+        var mirroredPose = new PoseFile();
+
+        var processedBones = new HashSet<string>(); // We need to track processed bones to avoid double-processing left/right pairs in some instances 
+
+        foreach(var (boneName, transform) in currentPose.Bones)
+        {
+            if(processedBones.Contains(boneName))
+                continue;
+
+            var bone = skeleton.GetFirstVisibleBone(boneName);
+
+            // Skip j_ex bones (PartialId 4) &
+            // Skip partial root bones & skeleton root
+            if(bone == null || (bone.IsPartialRoot && !bone.IsSkeletonRoot) || bone.PartialId == 4)
+            {
+                mirroredPose.Bones[boneName] = transform;
+                continue;
+            }
+
+            // Check for left or right bone pair
+            string? oppositeBoneName = null;
+            if(boneName.EndsWith("_l"))
+            {
+                oppositeBoneName = boneName[..^1] + "r";
+                if(skeleton.GetFirstVisibleBone(oppositeBoneName) == null)
+                    oppositeBoneName = null;
+            }
+            else if(boneName.EndsWith("_r"))
+            {
+                oppositeBoneName = boneName[..^1] + "l";
+                if(skeleton.GetFirstVisibleBone(oppositeBoneName) == null)
+                    oppositeBoneName = null;
+            }
+
+            if(oppositeBoneName != null && currentPose.Bones.TryGetValue(oppositeBoneName, out var oppositeTransform))
+            {
+                // Swap left to right pair with mirrored transforms
+                mirroredPose.Bones[boneName] = MirrorBoneTransform(oppositeTransform);
+                mirroredPose.Bones[oppositeBoneName] = MirrorBoneTransform(transform);
+
+                processedBones.Add(boneName);
+                processedBones.Add(oppositeBoneName);
+            }
+            else
+            {
+                // Center bone to mirror in place
+                mirroredPose.Bones[boneName] = MirrorBoneTransform(transform);
+                processedBones.Add(boneName);
+            }
+        }
+
+        // Swap and mirror weapon bones between main hand and off hand, maybe we should something with props/ornament too, but I would have to do more clever things
+        foreach(var (boneName, boneTransform) in currentPose.MainHand)
+        {
+            mirroredPose.OffHand[boneName] = MirrorBoneTransform(boneTransform);
+        }
+        foreach(var (boneName, boneTransform) in currentPose.OffHand)
+        {
+            mirroredPose.MainHand[boneName] = MirrorBoneTransform(boneTransform);
+        }
+
+        //This doesn't really work right, I need to do the same thing as the normal skeleton mirroring above to make this work properly, I can do that later
+        //foreach(var (boneName, boneTransform) in currentPose.Ornament)
+        //{
+        //    mirroredPose.MainHand[boneName] = MirrorBoneTransform(boneTransform);
+        //}
+
+        // This one will need something clever
+        //foreach(var (boneName, boneTransform) in currentPose.Prop)
+        //{
+        //    mirroredPose.MainHand[boneName] = MirrorBoneTransform(boneTransform);
+        //}
+
+
+        mirroredPose.ModelDifference = MirrorModelTransform(currentPose.ModelDifference);
+        mirroredPose.ModelAbsoluteValues = MirrorModelTransform(currentPose.ModelAbsoluteValues);
+
+        var options = new PoseImporterOptions(new BoneFilter(_posingService), TransformComponents.All, true);
+        ImportPose_Internal(mirroredPose, options: options, generateSnapshot: true, reset: true, reconcile: true);
+    }
+
+    private static Transform MirrorBoneTransform(Transform transform)
+    {
+        var euler = transform.Rotation.ToEuler();
+        euler.X = 180 - euler.X;
+        euler.Y = -euler.Y;
+        var mirroredRotation = euler.ToQuaternion();
+
+        var mirroredPosition = new Vector3(-transform.Position.X, transform.Position.Y, transform.Position.Z);
+
+        return new Transform
+        {
+            Position = mirroredPosition,
+            Rotation = mirroredRotation,
+            Scale = transform.Scale
+        };
+    }
+
+    private static Transform MirrorModelTransform(Transform transform)
+    {
+        // Mirrors a model transform across the YZ plane.
+        // Uses simple rotation mirroring (only negates Y rotation).
+
+        var mirroredPosition = new Vector3(-transform.Position.X, transform.Position.Y, transform.Position.Z);
+
+        var euler = transform.Rotation.ToEuler();
+        euler.Y = -euler.Y;
+        var mirroredRotation = euler.ToQuaternion();
+
+        return new Transform
+        {
+            Position = mirroredPosition,
+            Rotation = mirroredRotation,
+            Scale = transform.Scale
+        };
+    }
+
+    public void FlipBone()
     {
         BonePoseInfoId? selectedIsBone = IsSelectedBone();
         // Bone Flip
@@ -413,10 +591,6 @@ public class PosingCapability : ActorCharacterCapability
                 // record change for undo
                 Snapshot(reset: false);
             }
-        }
-        else
-        {
-            // Model Flip (TODO: Implement)
         }
     }
 
@@ -454,6 +628,53 @@ public class PosingCapability : ActorCharacterCapability
     {
         ModelPosing.ResetTransform();
         Snapshot(reset: false);
+    }
+
+    public void ClearSelection()
+    {
+        Selected = PosingSelectionType.None;
+        SelectedBones.Clear();
+    }
+
+    public void ToggleBoneSelection(BonePoseInfoId boneId)
+    {
+        var existingBone = SelectedBones.FirstOrDefault(b => b.Equals(boneId));
+        if(!existingBone.Equals(default(BonePoseInfoId)))
+        {
+            SelectedBones.Remove(existingBone);
+            if(SelectedBones.Count == 0)
+            {
+                Selected = PosingSelectionType.None;
+            }
+            else if(Selected.Value is BonePoseInfoId selectedBone && selectedBone.Equals(boneId))
+            {
+                Selected = SelectedBones[0];
+            }
+        }
+        else
+        {
+            SelectedBones.Add(boneId);
+            Selected = boneId;
+        }
+    }
+
+    public void SetBoneSelection(BonePoseInfoId boneId, bool multiSelect)
+    {
+        if(multiSelect)
+        {
+            ToggleBoneSelection(boneId);
+        }
+        else
+        {
+            SelectedBones.Clear();
+            SelectedBones.Add(boneId);
+            Selected = boneId;
+        }
+    }
+
+    public bool IsBoneSelected(BonePoseInfoId boneId)
+    {
+        return SelectedBones.Any(b => b.Equals(boneId));
     }
 
     public record struct PoseStack(PoseInfo Info, Transform ModelTransform);

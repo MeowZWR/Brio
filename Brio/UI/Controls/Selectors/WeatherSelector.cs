@@ -36,7 +36,7 @@ public class WeatherSelector(string id) : Selector<WeatherUnion>(id)
 
     protected override void DrawItem(WeatherUnion union, bool isHovered)
     {
-        ImBrio.BorderedGameIcon("icon", union, flags: ImGuiButtonFlags.None, size: IconSize);
+        ImBrio.BorderedWeatherGameIcon("icon", union, flags: ImGuiButtonFlags.None, size: IconSize);
     }
 
     protected override void DrawOptions()

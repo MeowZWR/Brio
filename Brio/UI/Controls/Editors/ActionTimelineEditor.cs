@@ -664,14 +664,12 @@ private void DrawSlots()
                 "禁用FOV会使相机的精度降低。\n但可以提供更简单的方式来支持更多的角色尺寸。\n这样就不需要修改相机的缩放值了！"
             );
 
-            ImBrio.VerticalPadding(4);
             ImGui.Separator();
             ImBrio.VerticalPadding(2);
 
             ImGui.InputFloat3("相机缩放", ref _cutsceneManager.CameraSettings.Scale);
             ImGui.InputFloat3("相机偏移", ref _cutsceneManager.CameraSettings.Offset);
 
-            ImBrio.VerticalPadding(4);
             ImGui.Separator();
             ImBrio.VerticalPadding(2);
 
@@ -679,7 +677,6 @@ private void DrawSlots()
 
             ImGui.Checkbox("播放时隐藏Brio（按下组合键[Shift+B]来停止播放场景）", ref _cutsceneManager.CloseWindowsOnPlay);
 
-            ImBrio.VerticalPadding(4);
             ImGui.Separator();
             ImBrio.VerticalPadding(2);
 
@@ -699,7 +696,6 @@ private void DrawSlots()
             ImGui.SetCursorPosX(LabelStart);
             ImGui.Text("启动延迟（毫秒）");
 
-            ImBrio.VerticalPadding(4);
             ImGui.Separator();
             ImBrio.VerticalPadding(2);
 
@@ -724,21 +720,19 @@ private void DrawSlots()
                 ImGui.Text("动画延迟（毫秒）");
             }
 
-            ImBrio.VerticalPadding(4);
             ImGui.Separator();
             ImBrio.VerticalPadding(2);
 
             ImGui.TextWrapped("延迟功能的时间刻度单位为毫秒！");
             ImGui.TextWrapped("1000毫秒 = 1秒");
 
-            ImBrio.VerticalPadding(4);
             ImGui.Separator();
             ImBrio.VerticalPadding(2);
 
             var isrunning = _cutsceneManager.IsRunning;
             using(ImRaii.Disabled(isrunning))
             {
-                if(ImBrio.Button("      播放", FontAwesomeIcon.Play, new Vector2(-1, 24)))
+                if(ImBrio.Button("播放", FontAwesomeIcon.Play, new Vector2(-1, 30), centerTest: true))
                 {
                     _cutsceneManager.StartPlayback();
                 }
@@ -748,7 +742,7 @@ private void DrawSlots()
 
             using(ImRaii.Disabled(!isrunning))
             {
-                if(ImBrio.Button("      停止", FontAwesomeIcon.Stop, new Vector2(-1, 24)))
+                if(ImBrio.Button("停止", FontAwesomeIcon.Stop, new Vector2(-1, 30), centerTest: true))
                 {
                     _cutsceneManager.StopPlayback();
                 }

@@ -2,9 +2,9 @@
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 
-namespace Brio.Core;
+namespace Brio.Services;
 
-public class DalamudServices
+public class DalamudPluginService
 {
     [PluginService] public IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] public IFramework Framework { get; private set; } = null!;
@@ -21,11 +21,11 @@ public class DalamudServices
     [PluginService] public IChatGui ChatGui { get; private set; } = null!;
     [PluginService] public IKeyState KeyState { get; private set; } = null!;
     [PluginService] public ICondition Conditions { get; private set; } = null!;
+    [PluginService] public IGameGui GameGui { get; private set; } = null!;
     [PluginService] public IGameConfig GameConfig { get; private set; } = null!;
     [PluginService] public INotificationManager NotificationManager { get; private set; } = null!;
 
-
-    public DalamudServices(IDalamudPluginInterface pluginInterface)
+    public DalamudPluginService(IDalamudPluginInterface pluginInterface)
     {
         pluginInterface.Inject(this);
     }
