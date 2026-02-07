@@ -328,6 +328,14 @@
         "pifeng_c_r",
         "pifeng_d_r",
         "pifeng_e_r",
+        "j_ex_pf_a_l",
+        "j_ex_pf_b_l",
+        "j_ex_pf_c_l",
+        "j_ex_pf_d_l",
+        "j_ex_pf_a_r",
+        "j_ex_pf_b_r",
+        "j_ex_pf_c_r",
+        "j_ex_pf_d_r",
         "j_toushi_a_l",
         "j_toushi_b_l",
         "j_toushi_c_l",
@@ -337,7 +345,15 @@
         "j_toushi_b_r",
         "j_toushi_c_r",
         "j_toushi_d_r",
-        "j_toushi_e_r"
+        "j_toushi_e_r",
+        "Bone_Piao001",
+        "Bone_Piao002",
+        "Bone_Piao003",
+        "Bone_Piao004",
+        "Bone_Piao005",
+        "Bone_Piao006",
+        "Bone_Piao007",
+        "Bone_Piao008"
       ]
     },
      "ex": {
