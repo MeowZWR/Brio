@@ -1,6 +1,6 @@
 ﻿using Brio.Files;
 using Brio.Game.GPose;
-using Brio.Game.Scene;
+using Brio.Services;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using MessagePack;

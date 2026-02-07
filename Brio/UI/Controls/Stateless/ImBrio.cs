@@ -328,7 +328,7 @@ public static partial class ImBrio
 
         if(iconTex is not null)
             return BorderedGameIcon(id, iconTex, description, flags, size);
-       
+
         return false;
     }
 

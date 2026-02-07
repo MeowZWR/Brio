@@ -163,7 +163,7 @@ public class ActorAppearanceCapability : ActorCharacterCapability
         }
     }
 
-    public void SetCollection(Guid collection)
+    public async void SetCollection(Guid collection)
     {
         if(IsCollectionOverridden && collection.ToString().Equals(_oldCollection))
         {
@@ -177,14 +177,20 @@ public class ActorAppearanceCapability : ActorCharacterCapability
             _oldCollection = old.ToString();
 
         _ = _actorAppearanceService.Redraw(Character, HasMCDF);
+
+        if(Actor.IsProp)
+            await Redraw();
     }
-    public void ResetCollection()
+    public async void ResetCollection()
     {
         if(IsCollectionOverridden)
         {
             _penumbraService.SetCollectionForObject(Character, Guid.Parse(_oldCollection!));
             _oldCollection = null;
             _ = _actorAppearanceService.Redraw(Character, HasMCDF);
+
+            if(Actor.IsProp)
+                await Redraw();
         }
     }
 
@@ -396,11 +402,8 @@ public class ActorAppearanceCapability : ActorCharacterCapability
 
         ApplyShaderOverride();
 
-        if(Entity is ActorEntity actor && actor.IsProp == true)
-            await _framework.RunOnTick(() =>
-            {
-                AttachWeapon();
-            }, delayTicks: 5);
+        if(Actor.IsProp)
+            AttachWeapon();
 
         return;
     }
@@ -430,7 +433,10 @@ public class ActorAppearanceCapability : ActorCharacterCapability
 
     public unsafe void AttachWeapon()
     {
-        Character.Native()->Timeline.TimelineSequencer.PlayTimeline(5616);
+        _framework.RunOnTick(() =>
+        {
+            Character.Native()->Timeline.TimelineSequencer.PlayTimeline(5616);
+        }, delayTicks: 5);
     }
 
     public Task SetProp(WeaponModelId modelId)

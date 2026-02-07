@@ -5,7 +5,6 @@ using Brio.Game.World;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
-using Brio.UI.Widgets.World;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;

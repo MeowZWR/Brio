@@ -189,7 +189,7 @@ public class PosingTransformEditor
             if(didChange && bone is not null && bonePose is not null)
             {
                 if(posingCapability.IsMultiSelecting)
-                {    
+                {
                     var delta = realTransform.CalculateDiff(beforeMods);
                     foreach(var selectedBoneId in posingCapability.SelectedBones)
                     {
@@ -239,10 +239,10 @@ public class PosingTransformEditor
         }
 
         var selectedActors = new List<(ActorEntity actor, PosingCapability capability, Transform transform)>();
-        
+
         foreach(var entityId in entityManager.SelectedEntityIds)
         {
-            if(entityManager.TryGetEntity(entityId, out var entity) && 
+            if(entityManager.TryGetEntity(entityId, out var entity) &&
                entity is ActorEntity actorEntity &&
                actorEntity.TryGetCapability<PosingCapability>(out var cap))
             {

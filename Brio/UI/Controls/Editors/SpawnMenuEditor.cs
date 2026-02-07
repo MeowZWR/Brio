@@ -43,7 +43,7 @@ public static class SpawnMenuEditor
 
                 if(ImBrio.DrawIconButton(FontAwesomeIcon.PlusSquare, "生成带有宠物栏的角色", buttonSize))
                 {
-                    actorSpawnService.CreateCharacter(out _, SpawnFlags.ReserveCompanionSlot, false);
+                    actorSpawnService.CreateCharacter(out _, SpawnFlags.WithCompanionSlot, false);
                     ImGui.CloseCurrentPopup();
                 }
 
@@ -91,7 +91,7 @@ public static class SpawnMenuEditor
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Circle, "生成区域光", buttonSize))
+                if(ImBrio.DrawIconButton(FontAwesomeIcon.Circle, "生成点光源", buttonSize))
                 {
                     lightingService.SpawnLight(LightType.AreaLight);
                     ImGui.CloseCurrentPopup();

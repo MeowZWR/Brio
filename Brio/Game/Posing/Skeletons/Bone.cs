@@ -66,7 +66,7 @@ public class Bone(int index, Skeleton skeleton, PartialSkeleton partial)
     }
 
     public unsafe bool EligibleForIK => Parent != null && !Parent.IsHidden;
- 
+
     private bool? isFaceBone;
     public bool IsFaceBone
     {

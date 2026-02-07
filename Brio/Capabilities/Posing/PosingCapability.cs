@@ -392,6 +392,20 @@ public class PosingCapability : ActorCharacterCapability
         }
     }
 
+    public void ClearStacks(Predicate<BonePoseInfoId>? predicate = null)
+    {
+        SkeletonPosing.PoseInfo.Clear(predicate);
+
+        var facebone = SkeletonPosing.GetBone("j_kao", PoseInfoSlot.Character);
+        if(facebone != null)
+        {
+            _framework.RunOnTick(() =>
+            {
+                ReconcileChildren(facebone);
+            }, delayTicks: 2);
+        }
+    }
+
     private void Reconcile(bool reset = true, bool generateSnapshot = true)
     {
         _framework.RunOnTick(() =>
@@ -471,7 +485,15 @@ public class PosingCapability : ActorCharacterCapability
 
             // Skip j_ex bones (PartialId 4) &
             // Skip partial root bones & skeleton root
-            if(bone == null || (bone.IsPartialRoot && !bone.IsSkeletonRoot) || bone.PartialId == 4)
+
+            if(bone == null) continue;
+
+            if(bone.Name.Contains("iv_shiri") || bone.Name.Contains("iv_kougan") || bone.Name.Contains("j_ex"))
+            {
+                continue;
+            }
+
+            if(bone.IsPartialRoot && !bone.IsSkeletonRoot)
             {
                 mirroredPose.Bones[boneName] = transform;
                 continue;
@@ -541,6 +563,7 @@ public class PosingCapability : ActorCharacterCapability
 
     private static Transform MirrorBoneTransform(Transform transform)
     {
+        // This creates generation loss over multiple uses, as floating point precision errors accumulate.
         var euler = transform.Rotation.ToEuler();
         euler.X = 180 - euler.X;
         euler.Y = -euler.Y;
@@ -619,7 +642,19 @@ public class PosingCapability : ActorCharacterCapability
             if(poseInfo.HasStacks)
             {
                 poseInfo.ClearStacks();
-                Snapshot(reset: false);
+
+                var facebone = SkeletonPosing.GetBone("j_kao", PoseInfoSlot.Character);
+                if(facebone != null)
+                {
+                    _framework.RunOnTick(() =>
+                    {
+                        ReconcileChildren(bone);
+                    }, delayTicks: 2);
+                }
+                else
+                {
+                    Snapshot(reset: false);
+                }
             }
         }
     }

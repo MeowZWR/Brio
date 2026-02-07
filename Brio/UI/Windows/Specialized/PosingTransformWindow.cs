@@ -133,10 +133,10 @@ public class PosingTransformWindow : Window
 
         // Check for multi-actor selection
         var selectedActors = new List<(ActorEntity actor, PosingCapability capability, Transform transform)>();
-        
+
         foreach(var entityId in _entityManager.SelectedEntityIds)
         {
-            if(_entityManager.TryGetEntity(entityId, out var entity) && 
+            if(_entityManager.TryGetEntity(entityId, out var entity) &&
                entity is ActorEntity actorEntity &&
                actorEntity.TryGetCapability<PosingCapability>(out var cap))
             {
@@ -184,17 +184,17 @@ public class PosingTransformWindow : Window
                     Scale = (Vector3)charaBase->CharacterBase.DrawObject.Object.Scale * charaBase->ScaleFactor
                 }.ToMatrix();
             },
-            _ => isMultiActorSelection ? 
+            _ => isMultiActorSelection ?
                 new Transform { Position = multiActorCentroid!.Value, Rotation = Quaternion.Identity, Scale = Vector3.One }.ToMatrix() :
                 posing.ModelPosing.Transform.ToMatrix(),
-            _ => isMultiActorSelection ? 
+            _ => isMultiActorSelection ?
                 new Transform { Position = multiActorCentroid!.Value, Rotation = Quaternion.Identity, Scale = Vector3.One }.ToMatrix() :
                 posing.ModelPosing.Transform.ToMatrix()
         );
 
         if(targetMatrix == null)
             return;
-            
+
         var matrix = _trackingMatrix ?? targetMatrix.Value;
         var originalMatrix = matrix;
 
@@ -216,7 +216,7 @@ public class PosingTransformWindow : Window
         if(ImBrioGizmo.DrawRotation(ref matrix, gizmoSize, _posingService.CoordinateMode == PosingCoordinateMode.World))
         {
             bool canEdit = !posing.ModelPosing.Freeze && !(selectedBone != null && selectedBone.Freeze);
-            
+
             if(isMultiActorSelection)
             {
                 canEdit = selectedActors.Any(a => !a.capability.ModelPosing.Freeze);
@@ -311,7 +311,7 @@ public class PosingTransformWindow : Window
 
                 cap.Snapshot(false, false);
             }
-            
+
             _trackingMatrix = null;
         }
     }

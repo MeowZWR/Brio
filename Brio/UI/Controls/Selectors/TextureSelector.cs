@@ -26,7 +26,7 @@ public class TextureSelector : Selector<TextureId>
     private readonly TextureType _textureType;
     private readonly uint _maxId;
 
-    protected override Vector2 MinimumListSize { get; } = new( 200, 400);
+    protected override Vector2 MinimumListSize { get; } = new(200, 400);
 
     protected override float EntrySize => ImGui.GetTextLineHeight() * 3.2f;
     protected virtual Vector2 IconSize => new(ImGui.GetTextLineHeight() * 3f);
@@ -52,7 +52,7 @@ public class TextureSelector : Selector<TextureId>
         var path = GetTexturePath(textureId.Id);
 
         ImBrio.BorderedGameTex($"##texture_{textureId.Id}", path, fallback: "Images.UnknownIcon.png", flags: ImGuiButtonFlags.None, size: IconSize);
-        
+
         ImGui.SameLine();
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + (IconSize.Y / 2) - (ImGui.GetTextLineHeight() / 2));
         ImGui.Text($"ID: {textureId.Id}");

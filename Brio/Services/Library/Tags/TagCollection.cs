@@ -3,15 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text;
+using YamlDotNet.Core.Tokens;
 
 namespace Brio.Library.Tags;
 
 [MessagePackObject(keyAsPropertyName: true)]
-public class TagCollection : IEnumerable<Tag>, INotifyCollectionChanged
+public class TagCollection : ICollection<Tag>, INotifyCollectionChanged
 {
-    public static readonly TagCollection Empty = new();
+    public static readonly TagCollection Empty = [];
 
-    private readonly HashSet<Tag> tags = new();
+    private HashSet<Tag> tags { get; set; } = [];
 
     private bool supressChangedEvents = false;
 
@@ -19,8 +20,7 @@ public class TagCollection : IEnumerable<Tag>, INotifyCollectionChanged
     {
     }
 
-    public TagCollection(TagCollection other)
-        : this()
+    public TagCollection(TagCollection other) : this()
     {
         this.AddRange(other);
     }
@@ -28,6 +28,8 @@ public class TagCollection : IEnumerable<Tag>, INotifyCollectionChanged
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     public int Count => this.tags.Count;
+
+    public bool IsReadOnly => false;
 
     public Tag Add(string name)
     {
@@ -109,6 +111,18 @@ public class TagCollection : IEnumerable<Tag>, INotifyCollectionChanged
         this.CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Add, tags));
     }
 
+    bool ICollection<Tag>.Remove(Tag tag)
+    {
+        bool removed = this.tags.Remove(tag);
+
+        if(removed && !this.supressChangedEvents)
+        {
+            this.CollectionChanged?.Invoke(this, new(NotifyCollectionChangedAction.Remove, tag));
+        }
+
+        return removed;
+    }
+
     public void Clear()
     {
         this.tags.Clear();
@@ -147,5 +161,10 @@ public class TagCollection : IEnumerable<Tag>, INotifyCollectionChanged
         }
 
         return builder.ToString();
+    }
+
+    public void CopyTo(Tag[] array, int arrayIndex)
+    {
+        this.tags.CopyTo(array, arrayIndex);
     }
 }

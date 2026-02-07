@@ -45,7 +45,7 @@ public class EntityHierarchyView(EntityManager entityManager, GPoseService gPose
                 }
             }
         }
-        
+
         using(ImRaii.PushId($"entity_hierarchy_{root.Id}"))
         {
             foreach(var item in root.Children)

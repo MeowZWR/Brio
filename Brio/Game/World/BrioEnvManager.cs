@@ -62,7 +62,7 @@ public struct EnvFog
 {
     [FieldOffset(0x00)] public Vector4 Color;
     [FieldOffset(0x10)] public float Distance;
-    [FieldOffset(0x14)] public float Thickness; 
+    [FieldOffset(0x14)] public float Thickness;
     [FieldOffset(0x18)] public float SkySmoothness;         // SkyOpacity Smoothness, These two values are probably actually near and far sky depth values, but this is what I will name them
     [FieldOffset(0x1C)] public float SkyOpacity;            // This is fog Opacity 0 - 10
     [FieldOffset(0x20)] public float FogOpacity;

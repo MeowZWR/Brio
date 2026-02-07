@@ -42,7 +42,7 @@ public class PoseInfo
     }
 
     public unsafe BonePoseInfo GetPoseInfo(Bone bone, PoseInfoSlot slot = PoseInfoSlot.Character) => GetPoseInfo(new BonePoseInfoId(bone.Name, bone.PartialId, slot));
-    
+
     public void Clear(Predicate<BonePoseInfoId>? predicate = null)
     {
         foreach(var pose in _poses)

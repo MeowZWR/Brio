@@ -164,26 +164,22 @@ public class ActorSpawnService : MediatorSubscriberBase
                 if(entity is not null)
                 {
                     entity.GetCapability<ActionTimelineCapability>().SetOverallSpeedOverride(0);
-
-                    var acf = JsonSerializer.Deserialize<AnamnesisCharaFile>(ResourceProvider.Instance.GetRawResourceString("Data.BrioPropChar.chara"));
-                    if(acf.Race == 0 && acf.ModelType == 0)
-                    {
-                        Brio.Log.Fatal("BrioPropChar was Invalid!!");
-                    }
-                    else
-                    {
-                        entity.GetCapability<ActorAppearanceCapability>().SetAppearanceAsTask(acf, AppearanceImportOptions.Default);
-                    }
-
+                  
                     _framework.RunOnTick(() =>
                     {
-                        entity.GetCapability<PosingCapability>().LoadResourcesPose("Data.BrioPropPose.pose");
-
+                        var acf = JsonSerializer.Deserialize<AnamnesisCharaFile>(ResourceProvider.Instance.GetRawResourceString("Data.BrioPropChar.chara"));
+                        entity.GetCapability<ActorAppearanceCapability>().SetAppearanceAsTask(acf, AppearanceImportOptions.Default);
+                       
                         _framework.RunOnTick(() =>
                         {
-                            entity.GetCapability<ActorAppearanceCapability>().AttachWeapon();
-                        }, delayTicks: 5);
-                    }, delayTicks: 5);
+                            entity.GetCapability<PosingCapability>().LoadResourcesPose("Data.BrioPropPose.pose");
+
+                            _framework.RunOnTick(() =>
+                            {
+                                entity.GetCapability<ActorAppearanceCapability>().AttachWeapon();
+                            }, delayTicks: 10);
+                        }, delayTicks: 10);
+                    }, delayTicks: 10);
                 }
             },
                 100,
@@ -422,6 +418,7 @@ public enum SpawnFlags
     IsEffect = 1 << 8,
     SetDefaultAppearance = 1 << 16,
 
+    WithCompanionSlot = ReserveCompanionSlot | CopyPosition,
     Prop = IsProp | SetDefaultAppearance | CopyPosition,
     Effect = IsEffect | SetDefaultAppearance | CopyPosition,
     Default = CopyPosition,

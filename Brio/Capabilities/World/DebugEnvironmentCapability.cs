@@ -21,7 +21,7 @@ public class DebugEnvironmentCapability : Capability
     public DebugEnvironmentCapability(Entity parent, EnvironmentService environmentService, DynamisService dynamisIPC, ConfigurationService configService) : base(parent)
     {
         _environmentService = environmentService;
-      
+
         _configService = configService;
         _dynamisIPC = dynamisIPC;
 

@@ -115,9 +115,9 @@ public class PosingOverlayWindow : Window, IDisposable
         }
 
         DrawActorSelectionDots(overlayConfig, uiState);
-        
+
         DrawActorContent(posing, uiState, overlayConfig);
-     
+
         //var pos = ImGui.GetMousePos();
         //if(_gameGui.ScreenToWorld(pos, out var res))
         //{

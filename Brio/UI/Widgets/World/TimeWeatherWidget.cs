@@ -91,7 +91,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
             none => ImGui.Text("未知天气"u8)
         );
         ImBrio.VerticalPadding(5);
-       
+
         var preservePos = ImGui.GetCursorPos();
 
         ImGui.SetCursorPos(unlockPos);
@@ -107,7 +107,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
             ImGui.OpenPopup("weather_selector"u8);
         }
 
-        var startAt = ImGui.GetCursorPos();       
+        var startAt = ImGui.GetCursorPos();
 
         ImGui.SameLine();
 
@@ -115,7 +115,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
         ImBrio.VerticalPadding(5);
         ImGui.InputInt("###current_weather_input"u8, ref currentWeather, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue);
         ImBrio.AttachToolTip("天气 ID");
-      
+
         using(var popup = ImRaii.Popup("weather_selector"u8))
         {
             if(popup.Success)

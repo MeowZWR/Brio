@@ -75,7 +75,7 @@ public class IPCProviders : MediatorSubscriberBase
 
         ActorDespawned.Dispose();
         ActorSpawned.Dispose();
-       
+
         base.Dispose();
     }
 }

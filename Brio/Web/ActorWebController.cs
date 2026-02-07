@@ -158,7 +158,7 @@ public class ActorWebController(IFramework framework, PosingAPI posingAPI, Skele
                 Scale = kvp.Value.Scale?.ToVector3() ?? default
             };
 
-            Brio.Log.Debug($"Bone: {kvp.Key}, Pos: {boneTransforms[kvp.Key].Position}, Rot: {boneTransforms[kvp.Key].Rotation}, Scale: {boneTransforms[kvp.Key].Scale}");   
+            Brio.Log.Debug($"Bone: {kvp.Key}, Pos: {boneTransforms[kvp.Key].Position}, Rot: {boneTransforms[kvp.Key].Rotation}, Scale: {boneTransforms[kvp.Key].Scale}");
         }
 
         success = skeletonService.SetBoneTransforms(objectId, boneTransforms);

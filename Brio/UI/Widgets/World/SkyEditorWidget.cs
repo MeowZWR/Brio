@@ -13,7 +13,7 @@ namespace Brio.UI.Widgets.World;
 public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<SkyEditorCapability>(skyEditorCapability)
 {
     public override string HeaderName => "Sky";
-    public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
+    public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
     int selected = 0;
     private readonly TextureSelector _skyTextureSelector = new("sky_texture_selector", TextureType.Sky);
@@ -134,7 +134,7 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                 ImBrio.VerticalPadding(5);
                 didSkyChange |= ImGui.InputUInt("###SkyTextureID"u8, ref env->EnvState.SkyTextureID);
                 ImBrio.AttachToolTip("天空纹理 ID");
-               
+
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange |= ImGui.SliderFloat("###fogSunVisibility"u8, ref env->EnvState.Fog.SunVisibility, 0.0f, 1f);
                 ImBrio.AttachToolTip("太阳可见度");
@@ -211,7 +211,7 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                     ImGui.OpenPopup("cloud_texture_selector"u8);
                 }
                 ImBrio.AttachToolTip("点击选择云层纹理");
-               
+
                 var didSkyChange4 = false;
 
                 using(var popup = ImRaii.Popup("cloud_texture_selector"u8))

@@ -430,7 +430,7 @@ public class PosingGraphicalWindow : Window, IDisposable
             var delta = _trackingMatrix.Value.ToTransform().CalculateDiff(originalMatrix.ToTransform());
 
             selected.Switch(
-                boneSelect => 
+                boneSelect =>
                 {
                     if(posing.IsMultiSelecting)
                     {
@@ -892,7 +892,7 @@ public class PosingGraphicalWindow : Window, IDisposable
                 if(ImGui.IsMouseClicked(ImGuiMouseButton.Left))
                 {
                     bool isMultiSelectModifier = ImGui.GetIO().KeyCtrl || ImGui.GetIO().KeyShift;
-                    
+
                     if(entry.Id.Value is BonePoseInfoId boneId)
                     {
                         posing.SetBoneSelection(boneId, isMultiSelectModifier);

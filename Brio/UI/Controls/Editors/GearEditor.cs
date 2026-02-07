@@ -567,7 +567,6 @@ public class GearEditor()
                     if(ImBrio.FontIconButton("attachweapon", FontAwesomeIcon.FistRaised, "附加武器", bordered: false))
                     {
                         _capability.AttachWeapon();
-                        didChange |= true;
                     }
 
                     using(var gearPopup = ImRaii.Popup("gear_popup"))

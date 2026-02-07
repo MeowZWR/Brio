@@ -23,6 +23,7 @@ public static class JsonSerializer
         _serializeOptions.Converters.Add(new Vector3Converter());
         _serializeOptions.Converters.Add(new Vector4Converter());
         _serializeOptions.Converters.Add(new QuaternionConverter());
+        _serializeOptions.Converters.Add(new TagCollectionConverter());
 
         _legacySerializeOptions = new()
         {
@@ -36,6 +37,7 @@ public static class JsonSerializer
         _legacySerializeOptions.Converters.Add(new Vector4Converter());
         _legacySerializeOptions.Converters.Add(new QuaternionConverter());
         _legacySerializeOptions.Converters.Add(new LegacyGlassesSaveConverter());
+        _legacySerializeOptions.Converters.Add(new TagCollectionConverter());
     }
 
     public static T Deserialize<T>(string json)

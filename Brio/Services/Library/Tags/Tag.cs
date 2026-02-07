@@ -8,7 +8,7 @@ public class Tag : IEquatable<Tag?>
     private static readonly Dictionary<string, Tag> TagCache = new();
 
     private readonly string name;
-    private readonly HashSet<string> aliases = new();
+    private HashSet<string> aliases = [];
 
     private Tag(string name)
     {

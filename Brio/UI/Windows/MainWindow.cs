@@ -3,7 +3,6 @@ using Brio.Entities;
 using Brio.Entities.Core;
 using Brio.Game.Core;
 using Brio.Game.GPose;
-using Brio.Game.Scene;
 using Brio.MCDF.Game.Services;
 using Brio.Services;
 using Brio.UI.Controls.Core;
@@ -110,7 +109,7 @@ public class MainWindow : Window, IDisposable
             using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
                 ImGui.Text("进入集体动作再使用 Brio！");
         }
-      
+
         var rootEntity = _entityManager.RootEntity;
         if(rootEntity is null)
             return;

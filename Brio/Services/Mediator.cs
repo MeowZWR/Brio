@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 namespace Brio.Services;
 
 public class Mediator() : IDisposable
-{  
+{
     private readonly Lock _addRemoveLock = new();
-    
+
     private readonly CancellationTokenSource _loopCts = new();
     private readonly ConcurrentDictionary<object, DateTime> _lastErrorTime = [];
 
     private readonly ConcurrentQueue<MessageBase> _messageQueue = new();
     private readonly ConcurrentDictionary<Type, MethodInfo?> _genericExecuteMethods = new();
     private readonly ConcurrentDictionary<Type, HashSet<SubscriberAction>> _subscriberDict = [];
-        
+
     public void PrintSubscriberInfo()
     {
         Brio.Log.Info("=== Mediator Subscriber Info ===");
@@ -27,7 +27,7 @@ public class Mediator() : IDisposable
             .DistinctBy(p => p).OrderBy(p => p.GetType().FullName, StringComparer.Ordinal).ToList())
         {
             Brio.Log.Info("Subscriber {type}: {sub}", subscriber.GetType().Name, subscriber?.ToString() ?? "Unknown Subscriber");
-         
+
             StringBuilder sb = new();
             sb.Append("=> ");
 
@@ -36,7 +36,7 @@ public class Mediator() : IDisposable
                 sb.Append(list[i].Key.Name).Append(", ");
 
             if(!string.Equals(sb.ToString(), "=> ", StringComparison.Ordinal))
-                Brio.Log.Info("{sb}", sb.ToString().TrimEnd(' ', ',')); 
+                Brio.Log.Info("{sb}", sb.ToString().TrimEnd(' ', ','));
 
             Brio.Log.Info("---");
         }

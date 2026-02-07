@@ -9,7 +9,6 @@ using Brio.Game.GPose;
 using Brio.MCDF.Game.Services;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Plugin.Services;
-using System.Linq;
 
 namespace Brio.IPC.API;
 

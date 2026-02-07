@@ -9,8 +9,8 @@ using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 using OneOf.Types;
-using System.Numerics;
 using System.Linq;
+using System.Numerics;
 
 namespace Brio.UI.Controls.Editors;
 
@@ -125,9 +125,9 @@ public static class PosingEditorCommon
             if(category.Type is BoneCategories.BoneCategoryTypes.Category)
             {
                 ImGui.Separator();
-                
+
                 var childCategories = filter.AllCategories
-                    .Where(c => c.Type is BoneCategories.BoneCategoryTypes.Filter && 
+                    .Where(c => c.Type is BoneCategories.BoneCategoryTypes.Filter &&
                                category.Bones.Contains(c.Id))
                     .ToList();
 
@@ -145,12 +145,12 @@ public static class PosingEditorCommon
                     else
                         filter.EnableSubCategory(category.Id);
                 }
-                
+
                 if(ImGui.IsItemHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
                 {
                     filter.EnableOnly(category);
                 }
-                
+
                 ImGui.Separator();
             }
             else
@@ -166,7 +166,7 @@ public static class PosingEditorCommon
 
                     UpdateParentCategoryState(filter, category);
                 }
-                
+
                 if(ImGui.IsItemHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
                 {
                     filter.EnableOnly(category);
@@ -177,14 +177,14 @@ public static class PosingEditorCommon
 
     private static void UpdateParentCategoryState(BoneFilter filter, BoneCategories.BoneCategory childCategory)
     {
-        var parentCategory = filter.AllCategories.FirstOrDefault(c => 
-            c.Type is BoneCategories.BoneCategoryTypes.Category && 
+        var parentCategory = filter.AllCategories.FirstOrDefault(c =>
+            c.Type is BoneCategories.BoneCategoryTypes.Category &&
             c.Bones.Contains(childCategory.Id));
 
         if(parentCategory != null)
         {
             var childCategories = filter.AllCategories
-                .Where(c => c.Type is BoneCategories.BoneCategoryTypes.Filter && 
+                .Where(c => c.Type is BoneCategories.BoneCategoryTypes.Filter &&
                            parentCategory.Bones.Contains(c.Id))
                 .ToList();
 

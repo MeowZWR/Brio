@@ -19,7 +19,7 @@ public class DebugEnvironmentWidget(DebugEnvironmentCapability capability) : Wid
 
         if(ImBrio.ToggelButton("IsEnvironmentOverride", Capability.Environment.IsEnvironmentOverride))
             Capability.Environment.IsEnvironmentOverride = !Capability.Environment.IsEnvironmentOverride;
-       
+
         if(ImBrio.ToggelButton("customParticlesEnabled", Capability.Environment.customParticlesEnabled))
             Capability.Environment.customParticlesEnabled = !Capability.Environment.customParticlesEnabled;
 
@@ -45,7 +45,7 @@ public class DebugEnvironmentWidget(DebugEnvironmentCapability capability) : Wid
         ImBrio.AttachToolTip("Rain.Unknown2");
         ImGui.SliderFloat("###33"u8, ref env->EnvState.Rain.Unknown3, 0.0f, 100f);
         ImBrio.AttachToolTip("Rain.LightDistance");
-      
+
         ImBrio.VerticalPadding(3);
 
         ImGui.SliderFloat("###14"u8, ref env->EnvState.Particles.Unknown1, 0.0f, 100f);

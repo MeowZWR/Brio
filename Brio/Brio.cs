@@ -11,7 +11,6 @@ using Brio.Game.GPose;
 using Brio.Game.Input;
 using Brio.Game.Penumbra;
 using Brio.Game.Posing;
-using Brio.Game.Scene;
 using Brio.Game.World;
 using Brio.Input;
 using Brio.IPC;

@@ -216,7 +216,7 @@ public class EnvironmentService : MediatorSubscriberBase
                 a1->Rain = state.Value.Rain;
                 a1->Particles = state.Value.Particles;
                 a1->Wind = state.Value.Wind;
-              
+
                 return original;
             }
 
@@ -234,7 +234,7 @@ public class EnvironmentService : MediatorSubscriberBase
                 a1->Particles = state.Value.Particles;
             if(EnvironmentOverrideState.HasFlag(EnvironmentOverrideState.Wind))
                 a1->Wind = state.Value.Wind;
-       
+
             if(EnvironmentOverrideState.HasFlag(EnvironmentOverrideState.Sky))
             {
                 a1->SkyTextureID = state.Value.SkyTextureID;
