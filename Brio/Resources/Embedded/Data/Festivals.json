@@ -565,7 +565,7 @@
   },
   {
     "Id": 150,
-    "Name": "Moonfire Faire (2024)",
+    "Name": "红莲节 (2024)",
     "Unsafe": false,
     "AreaExclusion": {
       "Reason": "Interactive Area",
@@ -642,12 +642,12 @@
   },
   {
     "Id": 157,
-    "Name": "Heavensturn (2025)",
+    "Name": "降神节 (2025)",
     "Unsafe": false
   },
   {
     "Id": 159,
-    "Name": "Moonfire Faire (2025)",
+    "Name": "红莲节 (2025)",
     "Unsafe": false,
     "AreaExclusion": {
       "Reason": "Interactive Area",
@@ -699,12 +699,12 @@
   },
   {
     "Id": 162,
-    "Name": "The Rising (2025)",
+    "Name": "新生庆典 (2025)",
     "Unsafe": false
   },
   {
     "Id": 163,
-    "Name": "Valentione's Day (2026)",
+    "Name": "恋人节 (2026)",
     "Unsafe": false
   },
   {
@@ -724,27 +724,27 @@
   },
   {
     "Id": 167,
-    "Name": "Heavensturn (2026)",
+    "Name": "降神节 (2026)",
     "Unsafe": false
   },
   {
     "Id": 169,
-    "Name": "Little Ladies Day (2026)",
+    "Name": "女儿节 (2026)",
     "Unsafe": false
   },
   {
     "Id": 172,
-    "Name": "Hatching Tide (2026)",
+    "Name": "彩蛋狩猎 (2026)",
     "Unsafe": false
   },
   {
     "Id": 173,
-    "Name": "Make It Rain (2026)",
+    "Name": "金碟嘉年华 (2026)",
     "Unsafe": false
   },
   {
     "Id": 174,
-    "Name": "Moonfire Faire (2026)",
+    "Name": "红莲节 (2026)",
     "Unsafe": true,
     "AreaExclusion": {
       "Reason": "Interactive Area",
@@ -791,7 +791,7 @@
   },
   {
     "Id": 175,
-    "Name": "The Rising (2026)",
+    "Name": "新生庆典 (2026)",
     "Unsafe": false
   }
 ]
