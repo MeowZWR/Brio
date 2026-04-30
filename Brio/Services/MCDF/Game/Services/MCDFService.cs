@@ -14,6 +14,8 @@ using FFXIVClientStructs.Havok.Animation;
 using FFXIVClientStructs.Havok.Common.Base.Types;
 using FFXIVClientStructs.Havok.Common.Serialize.Util;
 using K4os.Compression.LZ4.Legacy;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -23,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static FFXIVClientStructs.FFXIV.Common.Component.BGCollision.MeshPCB;
 
 namespace Brio.MCDF.Game.Services;
 
@@ -98,7 +101,7 @@ public class MCDFService : IDisposable
             }
             catch(Exception ex)
             {
-                Brio.Log.Verbose(ex, "Exception while trying to stop the application process of a MCDF on GPose exit");
+                Brio.Log.Error(ex, "Exception while trying to stop the application process of a MCDF on GPose exit");
             }
         }
     }
@@ -124,9 +127,10 @@ public class MCDFService : IDisposable
 
     // Load
 
+    private static readonly ILogger logger = Log.Logger.ForContext(typeof(MCDFService));
     public async Task ApplyMCDF(IGameObject gameObject)
     {
-        if(gameObject.Address == IntPtr.Zero || gameObject.ObjectKind != ObjectKind.Player)
+        if(gameObject.Address == IntPtr.Zero || gameObject.ObjectKind != ObjectKind.Pc)
             return;
 
         var name = gameObject.Name.TextValue;
@@ -137,26 +141,40 @@ public class MCDFService : IDisposable
         {
             List<string> actuallyExtractedFiles = [];
 
-            Brio.Log.Info("Extracting MCDF");
+            logger.Information("Extracting MCDF");
 
             try
             {
                 Guid applicationId = Guid.NewGuid();
 
-                if(LoadedMcdfHeader == null || !LoadedMcdfHeader.IsCompletedSuccessfully) return;
+                if(LoadedMcdfHeader == null)
+                {
+                    logger.Warning("MCDF header not loaded; aborting ApplyMCDF.");
+                    return;
+                }
+
+                if(!LoadedMcdfHeader.IsCompletedSuccessfully)
+                {
+                    logger.Warning("MCDF header task not completed successfully (Status: {Status}); aborting ApplyMCDF.", LoadedMcdfHeader.Status);
+                    return;
+                }
 
                 var playerChar = await _dalamudService.GetPlayerCharacterAsync().ConfigureAwait(false);
                 bool isSelf = playerChar is not null && string.Equals(playerChar.Name.TextValue, name, StringComparison.Ordinal);
 
-                if(isSelf) return;
+                if(isSelf)
+                {
+                    logger.Information("Skipping MCDF apply because target is self.");
+                    return;
+                }
 
                 long expectedExtractedSize = LoadedMcdfHeader.Result.ExpectedLength;
                 var charaFile = LoadedMcdfHeader.Result.LoadedFile;
 
                 DataApplicationProgress = "Extracting MCDF data";
-                Brio.Log.Debug($"{DataApplicationProgress}");
+                logger.Information("Extracting MCDF data");
 
-                var extractedFiles = McdfExtractFiles(charaFile, expectedExtractedSize, actuallyExtractedFiles);
+                var extractedFiles = McdfExtractFiles(charaFile, expectedExtractedSize, actuallyExtractedFiles, logger);
 
                 foreach(var entry in charaFile.CharaFileData.FileSwaps.SelectMany(k => k.GamePaths, (k, p) => new KeyValuePair<string, string>(p, k.FileSwapPath)))
                 {
@@ -164,16 +182,15 @@ public class MCDFService : IDisposable
                 }
 
                 DataApplicationProgress = "Applying MCDF data";
-                Brio.Log.Debug($"{DataApplicationProgress}");
+                logger.Information("Applying MCDF data");
 
                 await ApplyDataAsync(applicationId, (name, gameObject), isSelf, charaFile.FilePath,
                     extractedFiles, charaFile.CharaFileData.ManipulationData, charaFile.CharaFileData.GlamourerData,
-                    charaFile.CharaFileData.CustomizePlusData, CancellationToken.None).ConfigureAwait(false);
+                    charaFile.CharaFileData.CustomizePlusData, CancellationToken.None, logger).ConfigureAwait(false);
             }
             catch(Exception ex)
             {
-                Brio.Log.Warning(ex, "Failed to extract MCDF");
-                throw;
+                logger.Error(ex, "Failed to extract MCDF");
             }
             finally
             {
@@ -221,14 +238,18 @@ public class MCDFService : IDisposable
         }
     }
 
-    public Dictionary<string, string> McdfExtractFiles(MareCharaFileHeader? charaFileHeader, long expectedLength, List<string> extractedFiles)
+    public Dictionary<string, string> McdfExtractFiles(MareCharaFileHeader? charaFileHeader, long expectedLength, List<string> extractedFiles, ILogger logger)
     {
         if(charaFileHeader == null)
             return [];
 
+        logger.Debug("Starting extraction of MCDF file {FileName}, expected size after extraction is {ExpectedLength}", charaFileHeader.FilePath, expectedLength.ToByteString());
+
         using var lz4Stream = new LZ4Stream(File.OpenRead(charaFileHeader.FilePath), LZ4StreamMode.Decompress, LZ4StreamFlags.HighCompression);
         using var reader = new BinaryReader(lz4Stream);
         MareCharaFileHeader.AdvanceReaderToData(reader);
+     
+        logger.Debug("Finished Advancing MCDF header, starting to read file data");
 
         long totalRead = 0;
         Dictionary<string, string> gamePathToFilePath = new(StringComparer.Ordinal);
@@ -240,7 +261,7 @@ public class MCDFService : IDisposable
             var bufferSize = length;
             using var fs = File.OpenWrite(fileName);
             using var wr = new BinaryWriter(fs);
-            Brio.Log.Debug("Reading {length} of {fileName}", length.ToByteString(), fileName);
+            logger.Debug("Reading {Length} of {FileName}", length.ToByteString(), fileName);
             var buffer = reader.ReadBytes(bufferSize);
             wr.Write(buffer);
             wr.Flush();
@@ -249,17 +270,17 @@ public class MCDFService : IDisposable
             foreach(var path in fileData.GamePaths)
             {
                 gamePathToFilePath[path] = fileName;
-                Brio.Log.Debug("{path} => {fileName} [{hash}]", path, fileName, fileData.Hash);
+                logger.Debug("{Path} => {FileName} [{FileHash}]", path, fileName, fileData.Hash);
             }
             totalRead += length;
-            Brio.Log.Debug("Read {read}/{expected} bytes", totalRead.ToByteString(), expectedLength.ToByteString());
+            logger.Debug("Read {TotalRead}/{ExpectedLength} bytes", totalRead.ToByteString(), expectedLength.ToByteString());
         }
 
         return gamePathToFilePath;
     }
 
     private async Task ApplyDataAsync(Guid applicationId, (string Name, IGameObject GameObject) tempHandler, bool isSelf, string UID,
-        Dictionary<string, string> modPaths, string? manipData, string? glamourerData, string? customizeData, CancellationToken token)
+        Dictionary<string, string> modPaths, string? manipData, string? glamourerData, string? customizeData, CancellationToken token, ILogger logger)
     {
         Guid? cPlusId = null;
         Guid penumbraCollection;
@@ -281,7 +302,7 @@ public class MCDFService : IDisposable
             DataApplicationProgress = "Applying Penumbra information";
 
             var idx = await _framework.RunOnFrameworkThread(() => tempHandler.GameObject?.ObjectIndex).ConfigureAwait(false) ?? 0;
-            Brio.Log.Debug($"{DataApplicationProgress} idx:{idx}");
+            logger.Debug("{Progress} idx:{Idx}", DataApplicationProgress, idx);
 
             penumbraCollection = await _penumbraService.CreateTemporaryCollectionAsync($"Brio_{idx}").ConfigureAwait(false);
 
@@ -290,7 +311,7 @@ public class MCDFService : IDisposable
             await _penumbraService.SetManipulationDataAsync(applicationId, penumbraCollection, manipData ?? string.Empty).ConfigureAwait(false);
 
             DataApplicationProgress = "Applying Glamourer and redrawing Character";
-            Brio.Log.Debug($"{DataApplicationProgress}");
+            logger.Debug("{Progress}", DataApplicationProgress);
 
             _glamourerService.ApplyAllAsync(tempHandler.GameObject, glamourerData, applicationId);
 
@@ -302,16 +323,21 @@ public class MCDFService : IDisposable
 
             if(!string.IsNullOrEmpty(customizeData))
             {
-                Brio.Log.Debug($"{DataApplicationProgress}");
+                logger.Debug("{Progress}", DataApplicationProgress);
                 cPlusId = await _customizePlusService.SetBodyScaleAsync(tempHandler.GameObject, customizeData).ConfigureAwait(false);
             }
             else
             {
-                Brio.Log.Debug($"{DataApplicationProgress} IsNullOrEmpty");
+                logger.Debug("{Progress} IsNullOrEmpty", DataApplicationProgress);
                 cPlusId = await _customizePlusService.SetBodyScaleAsync(tempHandler.GameObject, Convert.ToBase64String(Encoding.UTF8.GetBytes("{}"))).ConfigureAwait(false);
             }
 
             _characterHandlerService.CharacterHandler.Add(new CharacterHolder(tempHandler.GameObject, cPlusId, tempHandler.Name));
+        }
+        catch(Exception ex)
+        {
+            logger.Error(ex, "Failed to apply MCDF data");
+            throw;
         }
         finally
         {
@@ -496,7 +522,7 @@ public class MCDFService : IDisposable
     private async Task<CharacterDataFragment> CreateCharacterData(IGameObject playerRelatedObject, CancellationToken ct)
     {
         var objectKind = playerRelatedObject.ObjectKind;
-        CharacterDataFragment fragment = objectKind == ObjectKind.Player ? new CharacterDataFragmentPlayer() : new();
+        CharacterDataFragment fragment = objectKind == ObjectKind.Pc ? new CharacterDataFragmentPlayer() : new();
 
         Brio.Log.Verbose("Building character data for {obj}", playerRelatedObject);
 
@@ -522,7 +548,7 @@ public class MCDFService : IDisposable
         ct.ThrowIfCancellationRequested();
 
         Dictionary<string, List<ushort>>? boneIndices =
-            objectKind != ObjectKind.Player
+            objectKind != ObjectKind.Pc
             ? null
             : await _framework.RunOnFrameworkThread(() => GetSkeletonBoneIndices(playerRelatedObject)).ConfigureAwait(false);
 
@@ -589,7 +615,7 @@ public class MCDFService : IDisposable
         fragment.CustomizePlusScale = await getCustomizeData.ConfigureAwait(false) ?? string.Empty;
         Brio.Log.Verbose("Customize is now: {data}", fragment.CustomizePlusScale);
 
-        if(objectKind == ObjectKind.Player)
+        if(objectKind == ObjectKind.Pc)
         {
             var playerFragment = (fragment as CharacterDataFragmentPlayer)!;
             playerFragment.ManipulationString = _penumbraService.GetMetaManipulations();
@@ -626,7 +652,7 @@ public class MCDFService : IDisposable
 
         ct.ThrowIfCancellationRequested();
 
-        if(objectKind == ObjectKind.Player)
+        if(objectKind == ObjectKind.Pc)
         {
             try
             {

@@ -18,6 +18,7 @@ using Dalamud.Bindings.ImGuizmo;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Plugin.Services;
 using OneOf.Types;
 using System;
@@ -47,7 +48,7 @@ public class PosingOverlayWindow : Window, IDisposable
     private List<ClickableItem> _selectingFrom = [];
     private Transform? _trackingTransform;
     private readonly PosingTransformEditor _posingTransformEditor = new();
-    private List<(EntityId id, PoseInfo info, Transform model)>? _groupedPendingSnapshot = null;
+    private List<(EntityId id, PosingCapability info, Transform model)>? _groupedPendingSnapshot = null;
 
     private const int _gizmoId = 142857;
     private const string _boneSelectPopupName = "brio_bone_select_popup";
@@ -85,16 +86,16 @@ public class PosingOverlayWindow : Window, IDisposable
 
         ImGuizmo.SetID(_gizmoId);
 
-        //if(_trackingTransform.HasValue)
-        //{
-        //    Flags &= ~ImGuiWindowFlags.NoInputs;
-        //}
+        if(_trackingTransform.HasValue)
+        {
+            Flags &= ~ImGuiWindowFlags.NoInputs;
+        }
     }
 
     public override void Draw()
     {
         var overlayConfig = _configurationService.Configuration.Posing;
-        var uiState = new OverlayUIState(overlayConfig);
+        var uiState = new OverlayUIState(overlayConfig, _trackingTransform.HasValue || _lightTrackingTransform.HasValue);
 
         for(int i = 0; i < _lightingService.SpawnedLightEntities.Count; i++)
         {
@@ -118,14 +119,17 @@ public class PosingOverlayWindow : Window, IDisposable
 
         DrawActorContent(posing, uiState, overlayConfig);
 
-        //var pos = ImGui.GetMousePos();
-        //if(_gameGui.ScreenToWorld(pos, out var res))
+        //if(InputManagerService.Instance.IsKeyDown(VirtualKey.TAB))
         //{
-        //    var col = Get(EColor.RedBright, EColor.YellowBright);
-        //    DrawRingWorld(res, 0.5f, col.ToUint(), 1f);
-        //    var l = MathF.Sqrt(1f) / 2f * 0.5f;
-        //    DrawLineWorld(res + new Vector3(-l, 0, -l), res + new Vector3(l, 0, l), col.ToUint(), 2f);
-        //    DrawLineWorld(res + new Vector3(l, 0, -l), res + new Vector3(-l, 0, l), col.ToUint(), 2f);
+        //    var pos = ImGui.GetMousePos();
+        //    if(_gameGui.ScreenToWorld(pos, out var res))
+        //    {
+        //        var col = Get(EColor.RedBright, EColor.YellowBright);
+        //        DrawRingWorld(res, 0.5f, col.ToUint(), 1f);
+        //        var l = MathF.Sqrt(1f) / 2f * 0.5f;
+        //        DrawLineWorld(res + new Vector3(-l, 0, -l), res + new Vector3(l, 0, l), col.ToUint(), 2f);
+        //        DrawLineWorld(res + new Vector3(l, 0, -l), res + new Vector3(-l, 0, l), col.ToUint(), 2f);
+        //    }
         //}
     }
 
@@ -747,7 +751,7 @@ public class PosingOverlayWindow : Window, IDisposable
             _lightTrackingTransform = newTransform;
         }
 
-        if(_lightTrackingTransform.HasValue && !ImGuizmo.IsUsing())
+        if(_lightTrackingTransform.HasValue && (!ImGuizmo.IsUsing() || !ImGui.IsMouseDown(ImGuiMouseButton.Left)))
         {
             _lightTrackingTransform = null;
 
@@ -767,6 +771,29 @@ public class PosingOverlayWindow : Window, IDisposable
 
             if(ImGuizmo.IsUsing() is false)
                 lightTransformCapability.Snapshot();
+        }
+
+        // Draw yellow directional line when light is selected
+        if(_lightingService.SelectedLightEntity is not null && _lightingService.SelectedLightEntity == lightTransformCapability.Entity)
+        {
+            var gameLight = lightTransformCapability.GameLight.GameLight;
+            if(gameLight->LightRenderObject != null)
+            {
+                var render = gameLight->LightRenderObject;
+
+                // Only show directional line for spot or flat lights
+                if(render->EmissionType == LightType.SpotLight || render->EmissionType == LightType.FlatLight)
+                {
+                    var range = render->Range;
+                    var position = lightTransformCapability.GameLight.Position;
+                    var rotation = lightTransformCapability.GameLight.Rotation;
+
+                    var forward = Vector3.Transform(new Vector3(0, 0, 1), rotation);
+                    var endPosition = position + (forward * range);
+
+                    DrawLineWorld(position, endPosition, 0xFF00FFFF, 2f);
+                }
+            }
         }
 
         ImGuizmo.SetID(_gizmoId);
@@ -920,7 +947,7 @@ public class PosingOverlayWindow : Window, IDisposable
             }
         }
 
-        if(_trackingTransform.HasValue && !ImGuizmo.IsUsing())
+        if(_trackingTransform.HasValue && (!ImGuizmo.IsUsing() || !ImGui.IsMouseDown(ImGuiMouseButton.Left)))
         {
             if(_groupedPendingSnapshot != null && _groupedPendingSnapshot.Count > 0)
             {
@@ -953,10 +980,10 @@ public class PosingOverlayWindow : Window, IDisposable
                 // Multi-actor model transform
                 if(_groupedPendingSnapshot == null && ImGuizmo.IsUsing())
                 {
-                    var list = new List<(EntityId, PoseInfo, Transform)>();
+                    var list = new List<(EntityId, PosingCapability, Transform)>();
                     foreach(var (actor, capability, _) in selectedActors)
                     {
-                        list.Add((actor.Id, capability.SkeletonPosing.PoseInfo.Clone(), capability.ModelPosing.Transform));
+                        list.Add((actor.Id, capability, capability.ModelPosing.Transform));
                     }
                     _groupedPendingSnapshot = list;
                 }
@@ -1028,7 +1055,7 @@ public class PosingOverlayWindow : Window, IDisposable
                     {
                         if(_groupedPendingSnapshot == null && ImGuizmo.IsUsing())
                         {
-                            var list = new List<(EntityId, PoseInfo, Transform)>();
+                            var list = new List<(EntityId, PosingCapability, Transform)>();
                             foreach(var id in _entityManager.SelectedEntityIds)
                             {
                                 if(!_entityManager.TryGetEntity(id, out var ent))
@@ -1037,7 +1064,7 @@ public class PosingOverlayWindow : Window, IDisposable
                                 if(!ent.TryGetCapability<PosingCapability>(out var cap))
                                     continue;
 
-                                list.Add((id, cap.SkeletonPosing.PoseInfo.Clone(), cap.ModelPosing.Transform));
+                                list.Add((id, cap, cap.ModelPosing.Transform));
                             }
                             _groupedPendingSnapshot = list;
                         }
@@ -1067,7 +1094,12 @@ public class PosingOverlayWindow : Window, IDisposable
         if(newState)
             IsOpen = _configurationService.Configuration.Posing.OverlayDefaultsOn;
         else
+        {
             IsOpen = false;
+            _trackingTransform = null;
+            _lightTrackingTransform = null;
+            _groupedPendingSnapshot = null;
+        }
     }
 
     public void Dispose()
@@ -1083,7 +1115,7 @@ public class PosingOverlayWindow : Window, IDisposable
         var result = GetAdjustedLine(a, b);
         if(result.posA == null) return;
         ImGui.GetWindowDrawList().PathLineTo(new Vector2(result.posA.Value.X, result.posA.Value.Y));
-        ImGui.GetWindowDrawList().PathLineTo(new Vector2(result.posB.Value.X, result.posB.Value.Y));
+        ImGui.GetWindowDrawList().PathLineTo(new Vector2(result.posB!.Value.X, result.posB.Value.Y));
         ImGui.GetWindowDrawList().PathStroke(color, ImDrawFlags.None, thickness);
     }
 
@@ -1132,10 +1164,10 @@ public class PosingOverlayWindow : Window, IDisposable
         }
     }
 
-    private class OverlayUIState(PosingConfiguration configuration)
+    private class OverlayUIState(PosingConfiguration configuration, bool isTrackingGizmo = false)
     {
         public bool PopupOpen = ImGui.IsPopupOpen(_boneSelectPopupName);
-        public bool UsingGizmo = ImGuizmo.IsUsing();
+        public bool UsingGizmo = ImGuizmo.IsUsing() && isTrackingGizmo;
         public bool HoveringGizmo = ImGuizmo.IsOver();
         public bool AnyActive = ImGui.IsAnyItemActive();
         public bool AnyWindowHovered = ImGui.IsWindowHovered(ImGuiHoveredFlags.AnyWindow);

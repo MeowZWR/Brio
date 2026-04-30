@@ -5,7 +5,7 @@ namespace Brio.Config;
 public class Configuration : IPluginConfiguration
 {
     public const int CurrentVersion = 4;
-    public const int CurrentPopupKey = 22;
+    public const int CurrentPopupKey = 2232;
 
     public int Version { get; set; } = CurrentVersion;
 
@@ -38,6 +38,7 @@ public class Configuration : IPluginConfiguration
     public string LastMCDFPath { get; set; } = string.Empty;
     public string LastExportPath { get; set; } = string.Empty;
     public string LastXATPath { get; set; } = string.Empty;
+    public string LastPreviewImagePath { get; set; } = string.Empty;
 
     public string LastScenePath { get; set; } = string.Empty;
 

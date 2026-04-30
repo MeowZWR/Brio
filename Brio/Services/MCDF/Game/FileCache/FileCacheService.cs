@@ -152,7 +152,7 @@ public class FileCacheService : IDisposable
             File.AppendAllLines(_csvPath, [entity.CsvEntry]);
         }
         var result = GetFileCacheByPath(fileInfo.FullName);
-        //Brio.Log.Verbose("Creating cache entity for {name} success: {success}", fileInfo.FullName, (result != null));
+        Brio.Log.Error("Creating cache entity for {name} success: {success}", fileInfo.FullName, (result != null));
         return result;
     }
 

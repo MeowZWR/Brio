@@ -37,6 +37,13 @@ public class LightLifetimeWidget : Widget<LightLifetimeCapability>
 
         ImGui.SameLine();
 
+        if(ImBrio.FontIconButton("lifetimewidget_move_to_camera", FontAwesomeIcon.Thumbtack, "移动到相机"))
+        {
+            Capability.MoveToCamera();
+        }
+
+        ImGui.SameLine();
+
         if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "克隆灯光", Capability.CanClone))
         {
             Capability.Clone();
@@ -58,7 +65,7 @@ public class LightLifetimeWidget : Widget<LightLifetimeCapability>
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight($"lifetimewidget_openAdvaned", FontAwesomeIcon.SquareArrowUpRight, 1, Capability.IsLightWindowOpen ? "关闭灯光窗口" : "打开灯光窗口"))
+        if(ImBrio.FontIconButtonRight($"lifetimewidget_openAdvaned", FontAwesomeIcon.SquareArrowUpRight, 1, Capability.IsLightWindowOpen ? "关闭灯光编辑器" : "打开灯光编辑器"))
         {
             Capability.ToggleLightWindow();
         }
@@ -66,6 +73,11 @@ public class LightLifetimeWidget : Widget<LightLifetimeCapability>
 
     public override void DrawPopup()
     {
+        if(ImGui.MenuItem("Move to Camera###actorlifetime_move_to_camera"))
+        {
+            Capability.MoveToCamera();
+        }
+
         if(Capability.CanClone)
         {
             if(ImGui.MenuItem("克隆###actorlifetime_clone"))
@@ -89,7 +101,7 @@ public class LightLifetimeWidget : Widget<LightLifetimeCapability>
             RenameActorModal.Open(Capability.Entity);
         }
 
-        if(ImGui.MenuItem("打开灯光窗口###actorlifetime_lightwindow"))
+        if(ImGui.MenuItem("打开灯光编辑器###actorlifetime_lightwindow"))
         {
             Capability.OpenLightWindow();
         }

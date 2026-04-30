@@ -120,7 +120,6 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
 
             using(var group = ImRaii.Group())
             {
-                if(group.Success)
                 {
                     string description = $"{model?.Name ?? "未知"}";
 
@@ -185,7 +184,7 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
         ImGui.SameLine();
 
         if(ImBrio.FontIconButton("import_charafile", FontAwesomeIcon.FileDownload, "导入角色"))
-            FileUIHelpers.ShowImportCharacterModal(Capability, AppearanceImportOptions.Default);
+            FileUIHelpers.ShowImportCharacterModal(Capability, AppearanceImportOptions.All);
 
         ImGui.SameLine();
 

@@ -15,6 +15,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using static Brio.Game.Actor.ActorRedrawService;
+using static FFXIVClientStructs.FFXIV.Client.Graphics.Scene.Human;
 using DrawDataContainer = FFXIVClientStructs.FFXIV.Client.Game.Character.DrawDataContainer;
 
 namespace Brio.Game.Actor;
@@ -154,7 +155,6 @@ public class ActorAppearanceService : IDisposable
                         var human = character.GetHuman();
                         if(human != null)
                         {
-
                             byte[] data = new byte[108];
                             fixed(byte* ptr = data)
                             {
@@ -175,8 +175,8 @@ public class ActorAppearanceService : IDisposable
                                 {
                                     Buffer.MemoryCopy(existingAppearance.Equipment.Data, ptr + 32, 80, 80);
                                 }
-
-                                var didUpdate = human->Human.UpdateDrawData(ptr, false);
+                               
+                                var didUpdate = human->Human.UpdateDrawData((DrawData*)ptr, false);
                                 needsRedraw |= !didUpdate;
                             }
                         }
@@ -200,19 +200,10 @@ public class ActorAppearanceService : IDisposable
                         }
                     }
                 }
-
+              
                 // Facewear
-                if(existingAppearance.Facewear != appearance.Facewear)
-                {
-                    if(needsRedraw)
-                    {
-                        appearance.Facewear = native->DrawData.GlassesIds[0];
-                    }
-                    else
-                    {
-                        _setFacewear(&native->DrawData, 0, appearance.Facewear);
-                    }
-                }
+                _setFacewear(&native->DrawData, 0, 0);
+                _setFacewear(&native->DrawData, 0, appearance.Facewear);
             }
 
             if(options.HasFlag(AppearanceImportOptions.Weapon))
@@ -220,12 +211,11 @@ public class ActorAppearanceService : IDisposable
                 // Weapons
                 if(!needsRedraw)
                 {
-
                     if(!existingAppearance.Weapons.MainHand.Equals(appearance.Weapons.MainHand))
-                        native->DrawData.LoadWeapon(DrawDataContainer.WeaponSlot.MainHand, appearance.Weapons.MainHand, 0, 0, 0, 0);
+                        native->DrawData.LoadWeapon(DrawDataContainer.WeaponSlot.MainHand, appearance.Weapons.MainHand, 0, 0, 0, 0, false);
 
                     if(!existingAppearance.Weapons.OffHand.Equals(appearance.Weapons.OffHand))
-                        native->DrawData.LoadWeapon(DrawDataContainer.WeaponSlot.OffHand, appearance.Weapons.OffHand, 0, 0, 0, 0);
+                        native->DrawData.LoadWeapon(DrawDataContainer.WeaponSlot.OffHand, appearance.Weapons.OffHand, 0, 0, 0, 0, false);
                 }
 
                 native->DrawData.Weapon(DrawDataContainer.WeaponSlot.MainHand).ModelId = appearance.Weapons.MainHand;
@@ -242,7 +232,6 @@ public class ActorAppearanceService : IDisposable
                     character.GetWeaponDrawObjectData(ActorEquipSlot.Prop)->IsHidden = appearance.Runtime.IsPropHandHidden;
             }
         }
-
 
         if(glamourerUnlocked)
         {
@@ -261,7 +250,6 @@ public class ActorAppearanceService : IDisposable
 
         unsafe
         {
-
             var native = character.Native();
 
             existingAppearance = GetActorAppearance(character);
@@ -281,7 +269,6 @@ public class ActorAppearanceService : IDisposable
                     native->DrawData.SetVisor(appearance.Runtime.IsVisorToggled);
                     native->DrawData.IsVisorToggled = appearance.Runtime.IsVisorToggled;
                 }
-
                 // Viera Ears
                 if(existingAppearance.Runtime.IsVieraEarsHidden != appearance.Runtime.IsVieraEarsHidden || forceHeadToggles)
                 {
@@ -332,7 +319,8 @@ public class ActorAppearanceService : IDisposable
         return redrawResult;
     }
 
-    public ActorAppearance GetActorAppearance(ICharacter character) => ActorAppearance.FromCharacter(character);
+    public ActorAppearance GetActorAppearance(ICharacter character)
+        => ActorAppearance.FromCharacter(character);
 
     private byte EnforceKindRestrictionsDetour(nint a1, nint a2)
     {

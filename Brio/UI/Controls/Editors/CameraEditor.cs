@@ -1,5 +1,6 @@
 ﻿using Brio.Capabilities.Camera;
 using Brio.Config;
+using Brio.Entities.Actor;
 using Brio.Entities.Camera;
 using Brio.Files;
 using Brio.Game.Actor.Extensions;
@@ -190,7 +191,21 @@ public static class CameraEditor
                     ImGui.Separator();
                     //
 
-                    ImBrio.CenterNextElementWithPadding(75);
+                    using(ImRaii.Disabled(capability._entityManager.SelectedEntity is not ActorEntity))
+                        if(ImBrio.FontIconButton("recenter_on_selected", FontAwesomeIcon.Bullseye, "Recenter on Selected Actor"))
+                        {
+                            var entity = capability._entityManager.SelectedEntity;
+                            if(entity is ActorEntity actor)
+                            {
+                                capability.VirtualCamera.SelectedActorName = $"Selected: [ {actor.FriendlyName} ]";
+                                camera.TargetOffset = (actor.GameObject.GetDrawObject<DrawObject>()->Object.Position - ((GameObject*)actor.GameObject.Address)->Position);
+                            }
+                        }
+
+                    ImGui.SameLine();
+
+                    ImBrio.CenterNextElementWithPadding(40);
+
                     if(ImGui.BeginCombo($"###CameraContainerActorsWidget_{capability.Entity.Id}_list", capability.VirtualCamera.SelectedActorName))
                     {
                         foreach(var value in capability._entityManager.TryGetAllActors())

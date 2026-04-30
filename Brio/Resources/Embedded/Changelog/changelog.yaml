@@ -1,12 +1,35 @@
 
-tagline: "Brio 0.7.1，Brio 三周年！（现已支持姿势镜像！）"
-subline: "多骨骼/角色选择、高级环境设置！"
+tagline: "Brio 0.7.2 — 适配 7.5"
+subline: "附言：我病了，谁给我寄点 Nyquil"
 changelog:
+
+  - name: v0.7.2
+    tagline: 7.5 支持！
+    date: "2026年4月29日"
+    isCurrent: true
+    versions:
+      - number: "【重要】Square Enix 已从游戏中移除 `SkinGloss` 与 `HairGloss`，二者在 Brio 中不再可用！"
+        icon: ""
+        items:
+          - "再次提醒：如遇问题请到 Discord 或 GitHub 反馈"
+          - "（这次是真的，更多功能很快就来，我保证！）"
+          - "附言：我病了，谁给我寄点 Nyquil"
+     
+      - number: "0.7.2"
+        icon: ""
+        items:
+          - "更新 Brio 以支持《最终幻想 XIV》7.5"
+          - "已移除 `SkinGloss` 与 `HairGloss`（感谢 SE）"
+          - "渲染 Brio 角色的速度明显提升（人多场景下部分情况可达约 10 倍性能）"
+          - "面部配饰现已正常工作"
+          - "相机控件新增「锁定相机」按钮。\n\t欢迎反馈使用感受（感谢 SolarisFFXIV）"
+          - "部分光源类型会延伸出一条黄色指示线（感谢 SolarisFFXIV）"
+          - "Brio 各处还有一些小改动，等 0.8.0 发布时再一并说明"
 
   - name: v0.7.1
     tagline: 姿势镜像！
     date: "2026年1月20日"
-    isCurrent: true
+    isCurrent: false
     versions:
       - number: "温馨提示：如遇到任何问题，请在 Discord 或 GitHub 上反馈"
         icon: ""
@@ -63,7 +86,7 @@ changelog:
   - name: v0.7.0
     tagline: 多骨骼/多角色选择、高级环境设置 & Brio 三周年！
     date: "2026年1月16日"
-    isCurrent: true
+    isCurrent: false
     versions:
       
       - number: "0.7.0.1 (我们确实没办法在整版本号上待满 24 小时对吧？:p )"

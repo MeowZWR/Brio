@@ -1,5 +1,6 @@
 ﻿using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using MessagePack;
+using System;
 using System.Numerics;
 
 namespace Brio.Game.Camera;
@@ -112,6 +113,9 @@ public unsafe partial class VirtualCamera
     }
 
     public Vector3 RotationAsVector3 => BrioCamera->RotationAsVector3;
+
+    public Quaternion FreeCameraRotationAsQuaternion
+        => Quaternion.CreateFromYawPitchRoll(Rotation.X + MathF.PI - Pan.X, Rotation.Y + Pan.Y, PivotRotation);
 
     private void DelimitCameraStop()
     {

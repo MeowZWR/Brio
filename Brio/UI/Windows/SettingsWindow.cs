@@ -378,7 +378,7 @@ public class SettingsWindow : Window
                 }
 
                 var maxSaves = _configurationService.Configuration.AutoSave.MaxAutoSaves;
-                if(ImGui.SliderInt("最大自动保存次数", ref maxSaves, 3, 30))
+                if(ImGui.SliderInt("最大自动保存次数", ref maxSaves, 3, 80))
                 {
                     _configurationService.Configuration.AutoSave.MaxAutoSaves = maxSaves;
                     _configurationService.ApplyChange();
@@ -470,6 +470,13 @@ public class SettingsWindow : Window
             if(ImGui.Checkbox("集体动作目标随Brio目标切换", ref enableGPoseTargetChange))
             {
                 _configurationService.Configuration.Posing.GPoseTargetChangesWithBrio = enableGPoseTargetChange;
+                _configurationService.ApplyChange();
+            }
+
+            bool autoSelectModelTransform = _configurationService.Configuration.Posing.AutoSelectTransformOnEntitySelect;
+            if(ImGui.Checkbox("Select Model Transform Bone/Origin on Entity Select", ref autoSelectModelTransform))
+            {
+                _configurationService.Configuration.Posing.AutoSelectTransformOnEntitySelect = autoSelectModelTransform;
                 _configurationService.ApplyChange();
             }
         }
@@ -815,6 +822,13 @@ public class SettingsWindow : Window
         if(ImGui.Checkbox("翻转自由相机按键绑定，超过-90/90度", ref flipKeybindsPastNinety))
         {
             _configurationService.Configuration.InputManager.FlipKeyBindsPastNinety = flipKeybindsPastNinety;
+            _configurationService.ApplyChange();
+        }
+
+        bool disableScrollOnInputs = _configurationService.Configuration.InputManager.DisableScrollWheelOnInputs;
+        if(ImGui.Checkbox("在输入框和操作柄上禁用鼠标滚轮", ref disableScrollOnInputs))
+        {
+            _configurationService.Configuration.InputManager.DisableScrollWheelOnInputs = disableScrollOnInputs;
             _configurationService.ApplyChange();
         }
 
