@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Emote = Lumina.Excel.Sheets.Emote;
 
 namespace Brio.Game.Penumbra
 {
@@ -270,12 +271,13 @@ namespace Brio.Game.Penumbra
 
             // 处理情感动作名称
             var changes = GetChangedItemsForMod(mod.Key, mod.Value);
-            if (changes?.Any(c => c.Key.StartsWith("Emote:")) == true)
+            if (changes != null)
             {
-                foreach (var emoteChange in changes.Where(c => c.Key.StartsWith("Emote:")))
+                foreach (var emoteChange in changes)
                 {
-                    var emoteName = System.Text.RegularExpressions.Regex
-                        .Replace(emoteChange.Key.Replace("Emote:", "").Trim(), @"\s*\(\d+\)$", "").Trim();
+                    if (!TryGetChangedEmoteName(emoteChange, out var emoteName))
+                        continue;
+
                     if (!modInfo.EmoteNames.Contains(emoteName))
                         modInfo.EmoteNames.Add(emoteName);
                 }
@@ -297,6 +299,31 @@ namespace Brio.Game.Penumbra
                     modInfo.XcpFiles.AddRange(Directory.GetFiles(xcpFolderPath, "*.xcp"));
             }
             catch { /* 忽略文件系统错误 */ }
+        }
+
+        private static bool TryGetChangedEmoteName(KeyValuePair<string, object?> changedItem, out string emoteName)
+        {
+            emoteName = string.Empty;
+
+            if (changedItem.Value is Emote emote)
+            {
+                emoteName = emote.Name.ToString().Trim();
+            }
+            else if (changedItem.Key.StartsWith("Emote:"))
+            {
+                emoteName = changedItem.Key["Emote:".Length..].Trim();
+            }
+            else if (changedItem.Key.StartsWith("情感动作："))
+            {
+                emoteName = changedItem.Key["情感动作：".Length..].Trim();
+            }
+            else
+            {
+                return false;
+            }
+
+            emoteName = System.Text.RegularExpressions.Regex.Replace(emoteName, @"\s*\(\d+\)$", "").Trim();
+            return !string.IsNullOrEmpty(emoteName);
         }
 
         private Dictionary<string, (bool, int)>? GetAllModSettings(Guid currentCollectionId)
