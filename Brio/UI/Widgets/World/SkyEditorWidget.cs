@@ -12,7 +12,7 @@ namespace Brio.UI.Widgets.World;
 
 public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<SkyEditorCapability>(skyEditorCapability)
 {
-    public override string HeaderName => "Sky";
+    public override string HeaderName => "天空";
     public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
     int selected = 0;

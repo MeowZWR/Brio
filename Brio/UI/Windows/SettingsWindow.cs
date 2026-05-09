@@ -474,7 +474,7 @@ public class SettingsWindow : Window
             }
 
             bool autoSelectModelTransform = _configurationService.Configuration.Posing.AutoSelectTransformOnEntitySelect;
-            if(ImGui.Checkbox("Select Model Transform Bone/Origin on Entity Select", ref autoSelectModelTransform))
+            if(ImGui.Checkbox("选中实体时自动选择模型变换骨骼或原点", ref autoSelectModelTransform))
             {
                 _configurationService.Configuration.Posing.AutoSelectTransformOnEntitySelect = autoSelectModelTransform;
                 _configurationService.ApplyChange();
