@@ -7,6 +7,7 @@ using Brio.Entities.Camera;
 using Brio.Entities.Core;
 using Brio.Entities.Debug;
 using Brio.Entities.World;
+using Brio.IPC.API;
 using Dalamud.Game.ClientState.Objects.Types;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -213,18 +214,9 @@ public unsafe partial class EntityManager(IServiceProvider serviceProvider, Conf
             if(!TryGetEntity(id, out var entity))
                 continue;
 
-            if(!entity.IsAttached)
-                continue;
-
-            if(entity.TryGetCapabilities<PosingCapability>(out var capabilities, true, true))
+            if(entity.TryGetCapability<PosingCapability>(out var posingCap, false, true))
             {
-                foreach(var cap in capabilities)
-                {
-                    if(cap is PosingCapability posingCap && posingCap.Actor != null)
-                    {
-                        result.Add((posingCap.Actor, posingCap, posingCap.ModelPosing.Transform));
-                    }
-                }
+                result.Add((posingCap.Actor, posingCap, posingCap.ModelPosing.Transform));
             }
         }
         return result;

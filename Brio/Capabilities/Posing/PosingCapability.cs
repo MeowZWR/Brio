@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using static FFXIVClientStructs.FFXIV.Client.UI.RaptureAtkHistory.Delegates;
 
 namespace Brio.Capabilities.Posing;
 
@@ -297,38 +296,35 @@ public class PosingCapability : ActorCharacterCapability
             Reconcile(reset);
     }
 
-    public void ReconcileHead()
+    private void ReconcileHead()
     {
-        _framework.RunOnTick(() =>
+        // Holy hell, This took me so long to fix and it stil breaks IK
+        var bone = SkeletonPosing.GetBone("j_kao", PoseInfoSlot.Character);
+        if(bone != null)
         {
-            // Holy hell, This took me so long to fix and it stil breaks IK
-            var bone = SkeletonPosing.GetBone("j_kao", PoseInfoSlot.Character);
-            if(bone != null)
+            var face = SkeletonPosing.PoseInfo.GetPoseInfo(bone);
+
+            // Check if j_kao or any of its parent bones are overridden
+            bool hasOverriddenParent = false;
+            var currentBone = bone.Parent;
+            while(currentBone != null)
             {
-                var face = SkeletonPosing.PoseInfo.GetPoseInfo(bone);
-
-                // Check if j_kao or any of its parent bones are overridden
-                bool hasOverriddenParent = false;
-                var currentBone = bone.Parent;
-                while(currentBone != null)
+                var parentPoseInfo = SkeletonPosing.PoseInfo.GetPoseInfo(currentBone);
+                if(parentPoseInfo.HasStacks)
                 {
-                    var parentPoseInfo = SkeletonPosing.PoseInfo.GetPoseInfo(currentBone);
-                    if(parentPoseInfo.HasStacks)
-                    {
-                        hasOverriddenParent = true;
-                        break;
-                    }
-                    currentBone = currentBone.Parent;
+                    hasOverriddenParent = true;
+                    break;
                 }
-
-                if(face.HasStacks || hasOverriddenParent)
-                {
-                    // Reconcile ONLY j_kao and its descendants to fix gizmo without affecting limbs
-                    ReconcileChildren(bone);
-                    return;
-                }
+                currentBone = currentBone.Parent;
             }
-        });
+
+            if(face.HasStacks || hasOverriddenParent)
+            {
+                // Reconcile ONLY j_kao and its descendants to fix gizmo without affecting limbs
+                ReconcileChildren(bone, false);
+                return;
+            }
+        }
     }
 
     public void Redo()
@@ -378,14 +374,15 @@ public class PosingCapability : ActorCharacterCapability
             Snapshot(reset);
     }
 
-    public void ReconcileChildren(Bone bone)
+    public void ReconcileChildren(Bone bone, bool clearFaceStacks)
     {
         // We create a partial pose so we can properly reconcile,
         // This was designed to work with j_kao and descendant, but it might work with other bones too
         var partialPoseFile = new PoseFile();
 
         ExportFaceBone(bone);
-        ClearFaceStacks(bone);
+        if(clearFaceStacks)
+            ClearFaceStacks(bone);
 
         var options = new PoseImporterOptions(new BoneFilter(_posingService), TransformComponents.All, true);
         SkeletonPosing.ImportSkeletonPose(partialPoseFile, options, false);
@@ -419,7 +416,7 @@ public class PosingCapability : ActorCharacterCapability
         {
             _framework.RunOnTick(() =>
             {
-                ReconcileChildren(facebone);
+                ReconcileChildren(facebone, true);
             }, delayTicks: 2);
         }
     }
@@ -500,9 +497,6 @@ public class PosingCapability : ActorCharacterCapability
                 continue;
 
             var bone = skeleton.GetFirstVisibleBone(boneName);
-
-            // Skip j_ex bones (PartialId 4) &
-            // Skip partial root bones & skeleton root
 
             if(bone == null) continue;
 
@@ -666,7 +660,7 @@ public class PosingCapability : ActorCharacterCapability
                 {
                     _framework.RunOnTick(() =>
                     {
-                        ReconcileChildren(bone);
+                        ReconcileChildren(bone, true);
                     }, delayTicks: 2);
                 }
                 else
