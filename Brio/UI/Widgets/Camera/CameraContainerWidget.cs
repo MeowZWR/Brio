@@ -8,7 +8,7 @@ namespace Brio.UI.Widgets.Camera;
 
 public class CameraContainerWidget(CameraContainerCapability capability) : Widget<CameraContainerCapability>(capability)
 {
-    public override string HeaderName => "Cameras";
+    public override string HeaderName => "相机";
 
     public override WidgetFlags Flags => WidgetFlags.DrawPopup;
 
@@ -16,20 +16,20 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
     {
         using(ImRaii.Disabled(Capability.IsAllowed == false))
         {
-            if(ImGui.MenuItem("Open Camera Editor###containerwidgetpopup_OpenAdvance"))
+            if(ImGui.MenuItem("打开相机编辑器###containerwidgetpopup_OpenAdvance"))
             {
                 Capability.OpenCameraWindow();
             }
 
-            if(ImGui.BeginMenu("New...###containerwidgetpopup_new"))
+            if(ImGui.BeginMenu("新建...###containerwidgetpopup_new"))
             {
                 ImGui.Separator();
 
-                if(ImGui.MenuItem("Camera###containerwidgetpopup_newcamera"))
+                if(ImGui.MenuItem("相机###containerwidgetpopup_newcamera"))
                 {
                     Capability.VirtualCameraManager.CreateCamera(CameraType.Game);
                 }
-                if(ImGui.MenuItem("Free-Cam###containerwidgetpopup_newfreecamera"))
+                if(ImGui.MenuItem("自由摄像机###containerwidgetpopup_newfreecamera"))
                 {
                     Capability.VirtualCameraManager.CreateCamera(CameraType.Free);
                 }
@@ -37,7 +37,7 @@ public class CameraContainerWidget(CameraContainerCapability capability) : Widge
                 ImGui.EndMenu();
             }
 
-            if(ImGui.BeginMenu("Destroy All...###containerwidgetpopup_destroy"))
+            if(ImGui.BeginMenu("全部销毁...###containerwidgetpopup_destroy"))
             {
                 if(ImGui.BeginMenu("新建...###containerwidgetpopup_new"))
                 {

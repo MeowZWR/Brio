@@ -236,7 +236,7 @@ public static partial class ImBrio
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
 //
-//       "Object" form shall mean any form resulting from mechanical
+//       "物体" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.

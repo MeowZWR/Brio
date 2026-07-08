@@ -98,7 +98,7 @@ public class LightWindow : Window, IDisposable
         //
         // Hedder
 
-        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "Spawn New..."))
+        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "生成新灯光..."))
         {
             SpawnMenu.OpenUnifiedSpawnMenu();
         }
@@ -114,28 +114,28 @@ public class LightWindow : Window, IDisposable
 
         using(ImRaii.Disabled(_lightingService!.SelectedLightEntity is null))
         {
-            if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "Clone Light", light?.CanClone ?? false))
+            if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "克隆灯光", light?.CanClone ?? false))
             {
                 light!.Clone();
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("lifetimewidget_move", FontAwesomeIcon.ArrowUp, "Move to Camera"))
+            if(ImBrio.FontIconButton("lifetimewidget_move", FontAwesomeIcon.ArrowUp, "移动到相机"))
             {
                 light!.MoveToCamera();
             }
 
             ImBrio.VerticalSeparator(25);
 
-            if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "Destroy Light", light?.CanDestroy ?? false))
+            if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "销毁灯光", light?.CanDestroy ?? false))
             {
                 light!.Destroy();
             }
 
             ImBrio.VerticalSeparator(25);
 
-            if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "Rename Light"))
+            if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "重命名灯光"))
             {
                 ModalManager.Instance.OpenRenameModal(light!.Entity);
             }
@@ -159,7 +159,7 @@ public class LightWindow : Window, IDisposable
         //
         // Body
 
-        if(ImGui.CollapsingHeader("Light Transform"u8, ImGuiTreeNodeFlags.DefaultOpen))
+        if(ImGui.CollapsingHeader("灯光变换"u8, ImGuiTreeNodeFlags.DefaultOpen))
         {
             LightEditor.DrawLightTransformHeader(lightGizmo);
             _lightTransformEditor.Draw($"light_transform_{lightGizmo.Entity.Id}", lightGizmo.Light, 0.1f);

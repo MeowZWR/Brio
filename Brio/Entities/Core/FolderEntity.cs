@@ -43,7 +43,7 @@ public class FolderEntity : Entity
 
         using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor, AreChildrenHidden))
         {
-            string toolTip = AreChildrenHidden ? "Show All Children" : "Hide All Children";
+            string toolTip = AreChildrenHidden ? "显示所有子项" : "隐藏所有子项";
             if(ImBrio.FontIconButtonRight($"###{Id}_hideChildren", AreChildrenHidden ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, 1f, toolTip, bordered: false))
             {
                 cap.ToggleChildrenVisibility();

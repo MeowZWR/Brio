@@ -37,14 +37,14 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
 
         var dateTime = new DateTime().AddMinutes(minuteOfDay);
 
-        if(ImBrio.SeparatorTextButton("Time of Day", isTimeFrozen ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, isTimeFrozen ? "Unlock Time" : "Lock Time"))
+        if(ImBrio.SeparatorTextButton("时间", isTimeFrozen ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, isTimeFrozen ? "Unlock Time" : "Lock Time"))
         {
             isTimeFrozen = !isTimeFrozen;
         }
 
         ImBrio.CenterNextElementWithPadding(15);
         var realTime = ImGui.SliderInt("##time_real"u8, ref minuteOfDay, 0, DayTime - 1, dateTime.ToShortTimeString(), ImGuiSliderFlags.NoInput);
-        ImBrio.AttachToolTip("Time of Day");
+        ImBrio.AttachToolTip("时间");
 
         var time = false;
         var dragday = false;
@@ -56,7 +56,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
             ImGui.SameLine();
 
             dragday = ImGui.SliderInt("##day_set"u8, ref dayOfMonth, 1, 31);
-            ImBrio.AttachToolTip("Day of Month");
+            ImBrio.AttachToolTip("日期");
         }
 
         if(realTime || time || dragday)
@@ -99,7 +99,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
         ImBrio.CenterNextElementWithPadding(10);
         ImBrio.VerticalPadding(5);
         ImGui.InputInt("###current_weather_input"u8, ref currentWeather, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue);
-        ImBrio.AttachToolTip("Weather ID");
+        ImBrio.AttachToolTip("天气 ID");
 
         using(var popup = ImRaii.Popup("weather_selector"u8))
         {

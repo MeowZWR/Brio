@@ -53,7 +53,7 @@ namespace Brio.Files.Converters
             { "PoleynRight", "n_hizasoubi_r" },
             { "FootLeft", "j_asi_d_l" },
             { "FootRight", "j_asi_d_r" },
-            { "Head", "j_kao" },
+            { "头部", "j_kao" },
             { "ArmLeft", "j_ude_a_l" },
             { "ArmRight", "j_ude_a_r" },
             { "PauldronLeft", "n_kataarmor_l" },

@@ -348,7 +348,7 @@ public class LibraryWindow : Window, IDisposable
                     DoBrowse();
 
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Browse for a file");
+                    ImGui.SetTooltip("浏览文件");
             }
 
             ImGui.SameLine();
@@ -468,7 +468,7 @@ public class LibraryWindow : Window, IDisposable
 
                     if(isPoseModal)
                     {
-                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), tooltip: "Import Options"))
+                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), tooltip: "导入选项"))
                         {
                             ImGui.OpenPopup("import_options_popup_lib");
                         }
@@ -488,7 +488,7 @@ public class LibraryWindow : Window, IDisposable
                     if(doDisable)
                         ImGui.BeginDisabled();
 
-                    if(ImBrio.Button("Import", FontAwesomeIcon.Check, new Vector2(100, 0)))
+                    if(ImBrio.Button("导入", FontAwesomeIcon.Check, new Vector2(100, 0)))
                     {
                         if(_selected != null)
                         {
@@ -937,7 +937,7 @@ public class LibraryWindow : Window, IDisposable
 
                     if(!hasContent)
                     {
-                        ImBrio.Text($"Start typing to search...", 0x88FFFFFF);
+                        ImBrio.Text($"开始输入以搜索...", 0x88FFFFFF);
                     }
                 }
 
@@ -1059,7 +1059,7 @@ public class LibraryWindow : Window, IDisposable
 
     private void DrawFooter()
     {
-        if(ImBrio.Button("Add new source", FontAwesomeIcon.Plus, new Vector2(0, 0), centerTest: true))
+        if(ImBrio.Button("添加新来源", FontAwesomeIcon.Plus, new Vector2(0, 0), centerTest: true))
         {
             if(_isModal)
             {

@@ -153,13 +153,13 @@ public abstract class ItemEntryBase : EntryBase
 
         if(_contextSource != null && ImGui.BeginPopup("tag_context_menu"))
         {
-            if(ImGui.MenuItem("Rename"))
+            if(ImGui.MenuItem("重命名"))
             {
                 _tagName = _contextSource.Name;
                 _tagAction = TagAction.Rename;
                 openTagNamePopup = true;
             }
-            if(ImGui.MenuItem("Delete"))
+            if(ImGui.MenuItem("删除"))
             {
                 RemoveTag(_contextSource.Name);
             }
@@ -230,7 +230,7 @@ public abstract class ItemEntryBase : EntryBase
             OpenEditDetails();
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Edit Properties");
+            ImGui.SetTooltip("编辑属性");
 
         ImGui.SameLine();
     }

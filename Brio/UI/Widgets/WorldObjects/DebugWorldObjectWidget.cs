@@ -6,7 +6,7 @@ namespace Brio.UI.Widgets.WorldObjects;
 
 public class DebugWorldObjectWidget(DebugWorldObjectCapability objectCapability) : Widget<DebugWorldObjectCapability>(objectCapability)
 {
-    public override string HeaderName => "Debug";
+    public override string HeaderName => "调试";
     public override WidgetFlags Flags => Capability.IsDebug ? WidgetFlags.DrawBody : WidgetFlags.None;
 
     public unsafe override void DrawBody()

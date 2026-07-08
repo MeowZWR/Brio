@@ -28,7 +28,7 @@ public class FacewearSelector(string id) : Selector<FacewearUnion>(id)
     {
         var (facewearId, facewearName, facewearIcon) = union.Match(
           glasses => ((byte)glasses.RowId, glasses.Name, (uint)glasses.Icon),
-          none => ((byte)0, "None", (uint)0x0)
+          none => ((byte)0, "无", (uint)0x0)
       );
 
         ImBrio.BorderedGameIcon("icon", facewearIcon, "Images.Facewear.png", description: $"{facewearName}\n{facewearId}", flags: ImGuiButtonFlags.None, size: IconSize);

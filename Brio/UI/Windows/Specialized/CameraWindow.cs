@@ -78,7 +78,7 @@ public class CameraWindow : Window, IDisposable
                 : null;
         }
 
-        ImBrio.SeparatorText($"Camera - [{_virtualCameraService.SelectedCameraEntity?.FriendlyName}]");
+        ImBrio.SeparatorText($"相机 - [{_virtualCameraService.SelectedCameraEntity?.FriendlyName}]");
 
         //
         // Hedder

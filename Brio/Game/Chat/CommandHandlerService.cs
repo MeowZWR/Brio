@@ -36,7 +36,7 @@ public class CommandHandlerService : IDisposable
         });
         _commandManager.AddHandler(MCDFCommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Toggles Brio's MCDF window.",
+            HelpMessage = "开关 Brio 的 MCDF 窗口。",
             ShowInHelp = false,
         });
     }
@@ -90,12 +90,12 @@ public class CommandHandlerService : IDisposable
 
     private void PrintHelp()
     {
-        _chatGui.Print("Valid Brio Commands Are:");
-        _chatGui.Print("<none> - Toggle main Brio window");
-        _chatGui.Print("window - Toggle main Brio window");
-        _chatGui.Print("settings - Toggle Brio settings window");
-        _chatGui.Print("about - Toggle Brio info window");
-        _chatGui.Print("help - Print this help prompt");
+        _chatGui.Print("有效的 Brio 命令：");
+        _chatGui.Print("<无参数> - 开关主 Brio 窗口");
+        _chatGui.Print("window - 开关主 Brio 窗口");
+        _chatGui.Print("settings - 开关 Brio 设置窗口");
+        _chatGui.Print("about - 开关 Brio 信息窗口");
+        _chatGui.Print("help - 显示此帮助");
     }
 
     public void Dispose()

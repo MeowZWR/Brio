@@ -63,7 +63,7 @@ public class PresetSystem
     }
 
     private string PresetSaveFolder(PresetType type)
-        => Path.Combine(_pluginInterface.GetPluginConfigDirectory(), "Data", "Presets", type.ToString());
+        => Path.Combine(_pluginInterface.GetPluginConfigDirectory(), "Data", "预设", type.ToString());
     private string BrioDataPath(PresetType type)
         => Path.Combine(PresetSaveFolder(type), "brio.data");
 

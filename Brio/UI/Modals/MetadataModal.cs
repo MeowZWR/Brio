@@ -33,7 +33,7 @@ public class MetadataModal : Modal
 
     private bool _pickingImage;
 
-    public MetadataModal() : base("Export Pose###brio_export_pose_metadata_modal", new(450, 600), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize)
+    public MetadataModal() : base("导出姿势###brio_export_pose_metadata_modal", new(450, 600), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize)
     {
     }
 
@@ -88,11 +88,11 @@ public class MetadataModal : Modal
         bool editing = _fileEntry != null;
 
         if(editing)
-            ImBrio.SeparatorText($"Editing Metadata [{_fileEntry!.Name}]");
+            ImBrio.SeparatorText($"编辑元数据 [{_fileEntry!.Name}]");
         else
-            ImBrio.SeparatorText($"Saving Pose with Metadata [{_capability?.Actor.FriendlyName} -> {Path.GetFileNameWithoutExtension(_path)}.pose]");
+            ImBrio.SeparatorText($"保存姿势并附带元数据 [{_capability?.Actor.FriendlyName} -> {Path.GetFileNameWithoutExtension(_path)}.pose]");
 
-        float labelColumnWidth = ImGui.CalcTextSize("Description:").X + ImGui.GetStyle().ItemSpacing.X;
+        float labelColumnWidth = ImGui.CalcTextSize("描述：").X + ImGui.GetStyle().ItemSpacing.X;
 
         // I hate this. I hate imgui, I hate imgui, I hate imgui - darkarchon
         using(ImRaii.Table("##export_pose_fields", 2, ImGuiTableFlags.None))
@@ -100,14 +100,14 @@ public class MetadataModal : Modal
             ImGui.TableSetupColumn("##label", ImGuiTableColumnFlags.WidthFixed, labelColumnWidth);
             ImGui.TableSetupColumn("##input", ImGuiTableColumnFlags.WidthStretch);
 
-            Row("Author:", () => ImGui.InputText("###export_pose_author", ref _author, 100));
-            Row("Version:", () => ImGui.InputText("###export_pose_version", ref _version, 32));
-            Row("Tags:", () =>
+            Row("作者：", () => ImGui.InputText("###export_pose_author", ref _author, 100));
+            Row("版本：", () => ImGui.InputText("###export_pose_version", ref _version, 32));
+            Row("标签：", () =>
             {
                 ImGui.InputText("###export_pose_tags", ref _tags, 250);
-                ImBrio.AttachToolTip("Comma separated list of tags");
+                ImBrio.AttachToolTip("以逗号分隔的标签列表");
             });
-            Row("Description:", () => ImGui.InputTextMultiline("###xport_pose_description", ref _description, 1024, new Vector2(-1, 5 * ImGui.GetTextLineHeight())));
+            Row("描述：", () => ImGui.InputTextMultiline("###xport_pose_description", ref _description, 1024, new Vector2(-1, 5 * ImGui.GetTextLineHeight())));
 
             static void Row(string label, Action input)
             {
@@ -121,9 +121,9 @@ public class MetadataModal : Modal
             }
         }
 
-        ImBrio.SeparatorText("Preview Image");
+        ImBrio.SeparatorText("预览图");
 
-        if(ImGui.Button(_previewImage == null ? "Add##export_pose_preview" : "Replace##export_pose_preview"))
+        if(ImGui.Button(_previewImage == null ? "添加##export_pose_preview" : "替换##export_pose_preview"))
         {
             _pickingImage = true;
             Close();
@@ -146,7 +146,7 @@ public class MetadataModal : Modal
         if(_previewImage != null)
         {
             ImGui.SameLine();
-            if(ImGui.Button("Remove##export_pose_remove_preview"))
+            if(ImGui.Button("移除##export_pose_remove_preview"))
             {
                 _previewImage?.Dispose();
                 _previewImage = null;
@@ -179,16 +179,16 @@ public class MetadataModal : Modal
 
         if(editing)
         {
-            if(ImGui.Button("Save", new(buttonW, 0)))
+            if(ImGui.Button("保存", new(buttonW, 0)))
             {
                 _fileEntry!.SaveMetadata(_author, _version, _description, _tags, _base64Image);
                 Close();
             }
-            ImBrio.AttachToolTip("Save the metadata to the file");
+            ImBrio.AttachToolTip("将元数据保存到文件");
         }
         else
         {
-            if(ImGui.Button("Export", new(buttonW, 0)))
+            if(ImGui.Button("导出", new(buttonW, 0)))
             {
                 if(_capability is not null)
                 {
@@ -221,12 +221,12 @@ public class MetadataModal : Modal
 
                 Close();
             }
-            ImBrio.AttachToolTip("Export the current pose to a file with the specified metadata");
+            ImBrio.AttachToolTip("将当前姿势导出为文件并附带指定元数据");
         }
 
         ImGui.SameLine();
 
-        if(ImGui.Button("Cancel", new(buttonW, 0)))
+        if(ImGui.Button("取消", new(buttonW, 0)))
             Close();
     }
 }

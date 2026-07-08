@@ -8,33 +8,33 @@ namespace Brio.UI.Widgets.WorldObjects;
 
 public class WorldObjectLifetimeWidget(WorldObjectLifetimeCapability capability) : Widget<WorldObjectLifetimeCapability>(capability)
 {
-    public override string HeaderName => "Lifetime";
+    public override string HeaderName => "生命周期";
     public override WidgetFlags Flags => WidgetFlags.DrawPopup | WidgetFlags.DrawQuickIcons;
 
     public override void DrawQuickIcons()
     {
-        if(ImBrio.FontIconButton("bglifetime_clone", FontAwesomeIcon.Clone, "Clone", Capability.CanClone))
+        if(ImBrio.FontIconButton("bglifetime_clone", FontAwesomeIcon.Clone, "克隆", Capability.CanClone))
         {
             Capability.Clone();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("bglifetime_movetocamera", FontAwesomeIcon.CaretSquareDown, "Move to Camera"))
+        if(ImBrio.FontIconButton("bglifetime_movetocamera", FontAwesomeIcon.CaretSquareDown, "移动到相机"))
         {
             Capability.MoveToCamera();
         }
 
         ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.HoldButton("bglifetime_destroy", "", FontAwesomeIcon.Trash, 1f, new(40, 0), centerTest: true, tooltip: "[HOLD TO DESTROY]", onlyIcon: true))
+        if(ImBrio.HoldButton("bglifetime_destroy", "", FontAwesomeIcon.Trash, 1f, new(40, 0), centerTest: true, tooltip: "[长按销毁]", onlyIcon: true))
         {
             Capability.Destroy();
         }
 
         ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.FontIconButton("bglifetime_rename", FontAwesomeIcon.Signature, "Rename"))
+        if(ImBrio.FontIconButton("bglifetime_rename", FontAwesomeIcon.Signature, "重命名"))
         {
             ModalManager.Instance.OpenRenameModal(Capability.Entity);
         }
@@ -42,26 +42,26 @@ public class WorldObjectLifetimeWidget(WorldObjectLifetimeCapability capability)
 
     public override void DrawPopup()
     {
-        if(ImGui.MenuItem($"Rename {Capability.Entity.FriendlyName}###bglifetime_popup_rename"))
+        if(ImGui.MenuItem($"重命名 {Capability.Entity.FriendlyName}###bglifetime_popup_rename"))
         {
             ImGui.CloseCurrentPopup();
 
             ModalManager.Instance.OpenRenameModal(Capability.Entity);
         }
 
-        if(Capability.CanClone && ImGui.MenuItem("Clone###bglifetime_popup_clone"))
+        if(Capability.CanClone && ImGui.MenuItem("克隆###bglifetime_popup_clone"))
             Capability.Clone();
 
-        if(ImGui.MenuItem("Move to Camera###bglifetime_popup_move"))
+        if(ImGui.MenuItem("移动到相机###bglifetime_popup_move"))
             Capability.MoveToCamera();
 
         if(Capability.CanDestroy)
         {
             ImGui.Separator();
 
-            if(ImGui.BeginMenu("Destroy###bglifetime_popup_destroy"))
+            if(ImGui.BeginMenu("销毁###bglifetime_popup_destroy"))
             {
-                if(ImGui.MenuItem("Confirm Destruction###bglifetime_popup_destroy_confirm"))
+                if(ImGui.MenuItem("确认销毁###bglifetime_popup_destroy_confirm"))
                     Capability.Destroy();
 
                 ImGui.EndMenu();

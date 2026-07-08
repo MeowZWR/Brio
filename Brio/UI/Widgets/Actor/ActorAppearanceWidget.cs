@@ -13,7 +13,7 @@ namespace Brio.UI.Widgets.Actor;
 
 public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widget<ActorAppearanceCapability>(capability)
 {
-    public override string HeaderName => "Appearance";
+    public override string HeaderName => "外观";
 
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody | WidgetFlags.DrawQuickIcons | WidgetFlags.HasAdvanced;
 
@@ -49,7 +49,7 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
 
     private void DrawLoadAppearance()
     {
-        if(ImBrio.FontIconButton("load_npc", FontAwesomeIcon.PersonArrowDownToLine, "Load NPC Appearance"))
+        if(ImBrio.FontIconButton("load_npc", FontAwesomeIcon.PersonArrowDownToLine, "加载 NPC 外观"))
         {
             AppearanceEditorCommon.ResetNPCSelector();
             ImGui.OpenPopup("widget_npc_selector");
@@ -57,12 +57,12 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
 
         ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.FontIconButton("import_charafile", FontAwesomeIcon.FileDownload, "Import Character"))
+        if(ImBrio.FontIconButton("import_charafile", FontAwesomeIcon.FileDownload, "导入角色"))
             FileUIHelpers.ShowImportCharacterModal(Capability, AppearanceImportOptions.All);
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("export_charafile", FontAwesomeIcon.Save, "Save Character File"))
+        if(ImBrio.FontIconButton("export_charafile", FontAwesomeIcon.Save, "保存角色文件"))
             FileUIHelpers.ShowExportCharacterModal(Capability);
 
         ImBrio.VerticalSeparator(24, 1);
@@ -71,20 +71,20 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
         {
             using(ImRaii.Disabled(Capability.IsSelf || Capability.IsAnyMCDFLoading))
             {
-                if(ImBrio.FontIconButton("load_mcdf", FontAwesomeIcon.CloudDownloadAlt, "Load MCDF"))
+                if(ImBrio.FontIconButton("load_mcdf", FontAwesomeIcon.CloudDownloadAlt, "加载 MCDF"))
                 {
                     FileUIHelpers.ShowImportMCDFModal(Capability);
                 }
                 ImGui.SameLine();
             }
             if(Capability.IsSelf)
-                ImBrio.AttachToolTip("Can not load a MCDF on your Player Character. Spawn an Actor to load a MCDF.");
+                ImBrio.AttachToolTip("无法对玩家角色加载 MCDF。请先生成一个角色再加载 MCDF。");
             if(Capability.IsAnyMCDFLoading)
-                ImBrio.AttachToolTip("Another MCDF is loading, Please wait for it to finish.");
+                ImBrio.AttachToolTip("正在加载另一个 MCDF，请等待完成。");
 
             using(ImRaii.Disabled(Capability.HasMCDF))
             {
-                if(ImBrio.FontIconButton("save_mcdf", FontAwesomeIcon.CloudUploadAlt, "Save MCDF"))
+                if(ImBrio.FontIconButton("save_mcdf", FontAwesomeIcon.CloudUploadAlt, "保存 MCDF"))
                 {
                     FileUIHelpers.ShowExportMCDFModal(Capability);
                 }
@@ -95,12 +95,12 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
 
         ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.FontIconButton("advanced_appearance", FontAwesomeIcon.UserEdit, "Advanced"))
+        if(ImBrio.FontIconButton("advanced_appearance", FontAwesomeIcon.UserEdit, "高级"))
             ToggleAdvancedWindow();
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButtonRight("reset_appearance", FontAwesomeIcon.Undo, 1, "Reset", Capability.IsAppearanceOverridden))
+        if(ImBrio.FontIconButtonRight("reset_appearance", FontAwesomeIcon.Undo, 1, "重置", Capability.IsAppearanceOverridden))
             _ = Capability.ResetAppearance();
 
         using(var popup = ImRaii.Popup("widget_npc_selector"))
@@ -115,7 +115,7 @@ public class ActorAppearanceWidget(ActorAppearanceCapability capability) : Widge
 
     public override void DrawQuickIcons()
     {
-        if(ImBrio.FontIconButton("redrawwidget_redraw", FontAwesomeIcon.PaintBrush, "Redraw"))
+        if(ImBrio.FontIconButton("redrawwidget_redraw", FontAwesomeIcon.PaintBrush, "重绘"))
         {
             _ = Capability.Redraw();
         }

@@ -22,7 +22,7 @@ namespace Brio.UI.Widgets.WorldObjects;
 
 public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget<WorldObjectTransformCapability>(worldcap)
 {
-    public override string HeaderName => "Object Editor";
+    public override string HeaderName => "物体编辑";
     public override WidgetFlags Flags => WidgetFlags.DrawBody | WidgetFlags.DefaultOpen | WidgetFlags.CanHide | WidgetFlags.HasAdvanced;
 
     private readonly ITransformableEditor _transformableEditor = new();
@@ -39,21 +39,21 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
         // Hedder Buttons
 
         var overlayOpen = Capability.OverlayOpen;
-        if(ImBrio.FontIconButton($"overlay_{Capability.Entity.Id}", overlayOpen ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, overlayOpen ? "Close Overlay" : "Open Overlay"))
+        if(ImBrio.FontIconButton($"overlay_{Capability.Entity.Id}", overlayOpen ? FontAwesomeIcon.EyeSlash : FontAwesomeIcon.Eye, overlayOpen ? "关闭叠加层" : "打开叠加层"))
         {
             Capability.OverlayOpen = !overlayOpen;
         }
 
         ImBrio.VerticalSeparator(24);
 
-        if(ImBrio.FontIconButton($"undo_{Capability.Entity.Id}", FontAwesomeIcon.Reply, "Undo", Capability.CanUndo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Undo) && Capability.CanUndo))
+        if(ImBrio.FontIconButton($"undo_{Capability.Entity.Id}", FontAwesomeIcon.Reply, "撤销", Capability.CanUndo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Undo) && Capability.CanUndo))
         {
             Capability.Undo();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton($"redo_{Capability.Entity.Id}", FontAwesomeIcon.Share, "Redo", Capability.CanRedo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Redo) && Capability.CanRedo))
+        if(ImBrio.FontIconButton($"redo_{Capability.Entity.Id}", FontAwesomeIcon.Share, "重做", Capability.CanRedo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Redo) && Capability.CanRedo))
         {
             Capability.Redo();
         }
@@ -63,7 +63,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
             ImBrio.VerticalSeparator(24);
 
             var speed = staticVfxObject.Speed;
-            if(ImBrio.ToggelFontIconButton($"vfx_play_pause_{Capability.Entity.Id}", speed == 0 ? FontAwesomeIcon.Play : FontAwesomeIcon.Pause, Vector2.Zero, speed == 0, tooltip: speed == 0 ? "Resume" : "Pause"))
+            if(ImBrio.ToggelFontIconButton($"vfx_play_pause_{Capability.Entity.Id}", speed == 0 ? FontAwesomeIcon.Play : FontAwesomeIcon.Pause, Vector2.Zero, speed == 0, tooltip: speed == 0 ? "继续" : "暂停"))
             {
                 if(speed == 0)
                 {
@@ -79,57 +79,57 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
             ImBrio.VerticalSeparator(24);
 
-            if(ImBrio.ToggelFontIconButton($"vfx_should_resume_{Capability.Entity.Id}", FontAwesomeIcon.LocationPinLock, Vector2.Zero, staticVfxObject.ShouldResume, tooltip: staticVfxObject.ShouldResume ? "Should-Update: ON" : "Should-Update: OFF"))
+            if(ImBrio.ToggelFontIconButton($"vfx_should_resume_{Capability.Entity.Id}", FontAwesomeIcon.LocationPinLock, Vector2.Zero, staticVfxObject.ShouldResume, tooltip: staticVfxObject.ShouldResume ? "应更新：开" : "应更新：关"))
             {
                 staticVfxObject.ShouldResume = !staticVfxObject.ShouldResume;
             }
             ImBrio.AttachToolTip("""
                 
-                Some VFX do not move without this enabled! 
-                But it can cause flickering as the VFX is restared with it enabled.
+                部分特效需要启用此项才会运行！
+                但启用后可能导致特效闪烁，因为会重新启动。
 
-                If you disable this, the VFX MAY not move when you update the position.
-                If this happens, you can click the "Update" button to fix it.
+                若禁用此项，更新位置时特效可能不会运行。
+                若出现此情况，可点击「更新」按钮修复。
                 """);
 
             ImGui.SameLine();
 
-            if(ImBrio.ToggelFontIconButton($"vfx_should_start_without_speed_{Capability.Entity.Id}", FontAwesomeIcon.Gauge, Vector2.Zero, staticVfxObject.ShouldStartWithoutSpeed, tooltip: staticVfxObject.ShouldStartWithoutSpeed ? "Start Without Speed: ON" : "Start Without Speed: OFF"))
+            if(ImBrio.ToggelFontIconButton($"vfx_should_start_without_speed_{Capability.Entity.Id}", FontAwesomeIcon.Gauge, Vector2.Zero, staticVfxObject.ShouldStartWithoutSpeed, tooltip: staticVfxObject.ShouldStartWithoutSpeed ? "无速度启动：开" : "无速度启动：关"))
             {
                 staticVfxObject.ShouldStartWithoutSpeed = !staticVfxObject.ShouldStartWithoutSpeed;
             }
             ImBrio.AttachToolTip("""
                 
-                With this enabled the VFX will start without any speed! 
-                You can click the "Update" button to replay the VFX.
+                启用后特效将以零速度启动！
+                可点击「更新」按钮重新播放特效。
                 """);
 
             ImGui.SameLine();
 
-            if(ImBrio.ToggelFontIconButton($"vfx_looping_{Capability.Entity.Id}", FontAwesomeIcon.Repeat, Vector2.Zero, staticVfxObject.IsLooping, tooltip: staticVfxObject.IsLooping ? "Looping: ON" : "Looping: OFF"))
+            if(ImBrio.ToggelFontIconButton($"vfx_looping_{Capability.Entity.Id}", FontAwesomeIcon.Repeat, Vector2.Zero, staticVfxObject.IsLooping, tooltip: staticVfxObject.IsLooping ? "循环：开" : "循环：关"))
             {
                 staticVfxObject.Expires = DateTime.Now.AddSeconds(staticVfxObject.VfxRefreshIntervalSeconds);
                 staticVfxObject.IsLooping = !staticVfxObject.IsLooping;
             }
             ImBrio.AttachToolTip("""
                 
-                With this enabled the VFX will restart after a given time period!
+                启用后特效将在指定时间后重新启动！
                 """);
 
 
         }
 
-        ImBrio.SeparatorText("Transform");
+        ImBrio.SeparatorText("变换");
 
         _transformableEditor.Draw($"light_transform_{Capability.Entity.Id}", Capability.BgObjectEntity, 0.1f);
 
         if(Capability.GameBgObject is BrioPropObject propObject)
         {
             ImBrio.VerticalPadding(5);
-            ImBrio.SeparatorText("Prop Properties");
+            ImBrio.SeparatorText("道具属性");
             ImBrio.VerticalPadding(5);
 
-            ImBrio.ButtonSelectorStrip("importTypeStrip", new(ImBrio.GetRemainingWidth(), 25), ref _selector, ["Prop", "Weapon"]);
+            ImBrio.ButtonSelectorStrip("importTypeStrip", new(ImBrio.GetRemainingWidth(), 25), ref _selector, ["道具", "武器"]);
 
             var equip = new WeaponModelId { Id = propObject.ModelSetId, Type = propObject.SecondaryId, Variant = propObject.Variant, Stain0 = propObject.PrimaryDye, Stain1 = propObject.SecondaryDye };
 
@@ -171,7 +171,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
         if(Capability.GameBgObject is BGOObject bgoObject)
         {
             ImBrio.VerticalPadding(5);
-            ImBrio.SeparatorText("World Object Properties");
+            ImBrio.SeparatorText("世界物体属性");
             ImBrio.VerticalPadding(5);
 
             DrawWorldObjectSelector(bgoObject);
@@ -180,10 +180,10 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
         if(Capability.GameBgObject is StaticVfxObject staticVfx)
         {
             ImBrio.VerticalPadding(5);
-            ImBrio.SeparatorText("VFX Properties");
+            ImBrio.SeparatorText("特效属性");
             ImBrio.VerticalPadding(5);
 
-            if(ImGui.Button($"Update", new Vector2(-1, 24 * ImGuiHelpers.GlobalScale)))
+            if(ImGui.Button($"更新", new Vector2(-1, 24 * ImGuiHelpers.GlobalScale)))
             {
                 staticVfx.Resume();
             }
@@ -193,7 +193,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
             using(ImRaii.Disabled(staticVfx.IsLooping == false))
             {
                 ImGui.AlignTextToFramePadding();
-                ImGui.TextDisabled("Refresh Interval:");
+                ImGui.TextDisabled("刷新间隔：");
 
                 ImBrio.CenterNextElementWithPadding(5);
                 var refreshInterval = staticVfx.VfxRefreshIntervalSeconds;
@@ -202,11 +202,11 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
                     staticVfx.VfxRefreshIntervalSeconds = refreshInterval;
                     staticVfx.Expires = DateTime.Now.AddSeconds(staticVfx.VfxRefreshIntervalSeconds);
                 }
-                ImBrio.AttachToolTip("The interval in seconds at which the VFX will be refreshed.");
+                ImBrio.AttachToolTip("特效刷新间隔（秒）。");
             }
 
             var speed = staticVfx.Speed;
-            if(ImBrio.SeparatorTextButton("Speed", FontAwesomeIcon.Undo, enabled: speed != 1f, tooltip: "Reset Speed"))
+            if(ImBrio.SeparatorTextButton("速度", FontAwesomeIcon.Undo, enabled: speed != 1f, tooltip: "重置速度"))
             {
                 staticVfx.SetSpeed(1f);
                 staticVfx.Resume();
@@ -218,7 +218,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
                 staticVfx.SetSpeed(speed);
             }
 
-            if(ImBrio.SeparatorTextButton("Intensity", FontAwesomeIcon.Undo, enabled: staticVfx.Intensity != Vector3.One, tooltip: "Reset Intensity"))
+            if(ImBrio.SeparatorTextButton("强度", FontAwesomeIcon.Undo, enabled: staticVfx.Intensity != Vector3.One, tooltip: "重置强度"))
                 staticVfx.SetIntensity(Vector3.One);
 
             ImGui.SetNextItemWidth(-1);
@@ -264,7 +264,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
         using(ImRaii.PushId("DrawPropSlot"))
         {
-            ImGui.Text($"{model?.Name ?? "Unknown"}");
+            ImGui.Text($"{model?.Name ?? "未知"}");
 
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
@@ -320,7 +320,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
         }
 
-        return (didChange, model?.Name ?? "Unknown");
+        return (didChange, model?.Name ?? "未知");
     }
 
     private (bool didChange, string name) DrawWeaponSlot(ref WeaponModelId equip, ActorEquipSlot slot)
@@ -338,19 +338,19 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
         var (dye0Id, dye0Name, dye0Color) = dye0Union.Match(
             dye => ((byte)dye.RowId, dye.Name.ToString(), ImBrio.ARGBToABGR(dye.Color)),
-            none => ((byte)0, "None", (uint)0x0)
+            none => ((byte)0, "无", (uint)0x0)
         );
 
         var (dye1Id, dye1Name, dye1Color) = dye1Union.Match(
             dye => ((byte)dye.RowId, dye.Name.ToString(), ImBrio.ARGBToABGR(dye.Color)),
-            none => ((byte)0, "None", (uint)0x0)
+            none => ((byte)0, "无", (uint)0x0)
         );
 
         var model = GameDataProvider.Instance.ModelDatabase.GetModelById(equip, _weaponSlots);
 
         using(ImRaii.PushId(slot.ToString()))
         {
-            ImGui.Text($"{model?.Name ?? "Unknown"}");
+            ImGui.Text($"{model?.Name ?? "未知"}");
 
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
@@ -438,7 +438,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
                         {
                             ImBrio.VerticalPadding(3);
 
-                            if(ImBrio.FontIconButton("erase_equipment_popup", FontAwesomeIcon.Eraser, "Remove Equipment"))
+                            if(ImBrio.FontIconButton("erase_equipment_popup", FontAwesomeIcon.Eraser, "移除装备"))
                             {
                                 if(slot == ActorEquipSlot.MainHand)
                                 {
@@ -474,7 +474,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
         }
 
-        return (didChange, model?.Name ?? "Unknown");
+        return (didChange, model?.Name ?? "未知");
     }
 
     //
@@ -549,7 +549,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
             ImBrio.VerticalPadding(2);
 
             var color = (Vector4)staticVfx.VFX->Color;
-            if(ImBrio.SeparatorTextButton(name, FontAwesomeIcon.Undo, enabled: color != Vector4.One, tooltip: "Reset Color"))
+            if(ImBrio.SeparatorTextButton(name, FontAwesomeIcon.Undo, enabled: color != Vector4.One, tooltip: "重置颜色"))
                 staticVfx.VFX->Color = Vector4.One;
 
             ImBrio.CenterNextElementWithPadding(5);
@@ -584,7 +584,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
     private static void DrawFurnitureControls(FurnitureObject furniture)
     {
-        if(ImBrio.SeparatorTextButton("Furniture Properties", FontAwesomeIcon.Undo, enabled: furniture.IsCustomColor || furniture.StainID != 0 || furniture.Transparency != 0f))
+        if(ImBrio.SeparatorTextButton("家具属性", FontAwesomeIcon.Undo, enabled: furniture.IsCustomColor || furniture.StainID != 0 || furniture.Transparency != 0f))
         {
             if(furniture.IsCustomColor || furniture.StainID != 0)
                 furniture.ClearColor();
@@ -596,7 +596,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
         var furnitureInfo = GameDataProvider.Instance.FurnitureDatabase.GetByPath(furniture.Path);
 
-        var clicked = DrawFurnitureIcon("###furniture_tile", furniture, furnitureInfo?.IconId ?? 0, furnitureInfo?.Name ?? "Unknown", 64);
+        var clicked = DrawFurnitureIcon("###furniture_tile", furniture, furnitureInfo?.IconId ?? 0, furnitureInfo?.Name ?? "未知", 64);
 
         if(clicked)
         {
@@ -607,7 +607,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
         if(string.IsNullOrEmpty(furniture.FriendlyName))
         {
             if(string.IsNullOrEmpty(furnitureInfo?.Name))
-                furniture.SetName("Unknown Furniture");
+                furniture.SetName("未知家具");
             else
                 furniture.SetName(furnitureInfo.Name);
         }
@@ -630,7 +630,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
         }
 
         var useCustomColor = furniture.IsCustomColor;
-        if(ImGui.Checkbox("Use Custom Color###furniture_use_custom_color", ref useCustomColor))
+        if(ImGui.Checkbox("使用自定义颜色###furniture_use_custom_color", ref useCustomColor))
         {
             if(useCustomColor)
             {
@@ -651,10 +651,10 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
             }
 
             ImGui.SameLine();
-            ImGui.Text("Custom Color");
+            ImGui.Text("自定义颜色");
         }
 
-        ImBrio.SeparatorText("Transparency");
+        ImBrio.SeparatorText("透明度");
 
         ImBrio.CenterNextElementWithPadding(5);
         var transparency = 1f - furniture.Transparency;
@@ -662,7 +662,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
         {
             furniture.SetTransparency(1f - transparency);
         }
-        ImBrio.AttachToolTip("Transparency");
+        ImBrio.AttachToolTip("透明度");
     }
 
     private static bool DrawFurnitureIcon(string key, FurnitureObject furniture, uint iconId, string name, float iconSize)
@@ -671,7 +671,7 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
         var (dye0Id, dye0Name, dye0Color) = dye0Union.Match(
             dye => ((byte)dye.RowId, dye.Name.ToString(), ImBrio.ARGBToABGR(dye.Color)),
-            none => ((byte)0, "None", (uint)0x0)
+            none => ((byte)0, "无", (uint)0x0)
         );
 
         bool clicked = ImBrio.BorderedGameIcon(key, iconId, "Images.UnknownIcon.png", size: new Vector2(iconSize));

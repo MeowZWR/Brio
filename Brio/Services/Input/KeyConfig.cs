@@ -26,7 +26,7 @@ public struct KeyConfig(VirtualKey key, bool requireShift = false, bool requireC
         }
 
         var fancy = Key.GetFancyName();
-        if(fancy == "Control")
+        if(fancy == "Ctrl")
         {
             result += "Ctrl";
         }

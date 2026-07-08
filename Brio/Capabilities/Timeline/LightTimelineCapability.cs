@@ -33,9 +33,9 @@ public unsafe class LightTimelineCapability : LightCapability, ITimelineHost
 
         CaptureChannels =
         [
-            new("Position", "Capture position", f => CaptureKeyframe(f, LightComponents.Position)),
-            new("Rendering", "Capture color, intensity, range and falloff", f => CaptureKeyframe(f, LightComponents.Rendering)),
-            new("All", "Capture position and rendering", f => CaptureKeyframe(f, LightComponents.All)),
+            new("位置", "Capture position", f => CaptureKeyframe(f, LightComponents.Position)),
+            new("渲染", "Capture color, intensity, range and falloff", f => CaptureKeyframe(f, LightComponents.Rendering)),
+            new("全部", "Capture position and rendering", f => CaptureKeyframe(f, LightComponents.All)),
             new("Auto", "Capture only the components that changed", CaptureAuto)
         ];
 

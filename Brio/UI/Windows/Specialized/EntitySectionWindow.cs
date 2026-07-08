@@ -14,7 +14,7 @@ public class EntitySectionWindow : Window, IDisposable
     private readonly EntityManager _entityManager;
     private readonly GPoseService _gPoseService;
 
-    public EntitySectionWindow(EntityManager entityManager, GPoseService gPoseService) : base($"{Brio.Name} - ENTITY###brio_entity_section_window")
+    public EntitySectionWindow(EntityManager entityManager, GPoseService gPoseService) : base($"{Brio.Name} - 实体###brio_entity_section_window")
     {
         Namespace = "brio_entity_section_namespace";
 
@@ -43,7 +43,7 @@ public class EntitySectionWindow : Window, IDisposable
             ? $"{Brio.Name} - [Multiple Selected]###brio_entity_section_window"
             : selected is not null
                 ? $"{Brio.Name} - [{selected.FriendlyName}]###brio_entity_section_window"
-                : $"{Brio.Name} - ENTITY###brio_entity_section_window";
+                : $"{Brio.Name} - 实体###brio_entity_section_window";
 
         using(ImRaii.PushId("###brio_entity_section_window"))
             EntityHelpers.DrawEntitySection(sectionEntity, drawChild: true);

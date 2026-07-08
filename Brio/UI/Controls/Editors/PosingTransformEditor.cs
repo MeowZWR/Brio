@@ -53,7 +53,7 @@ public class PosingTransformEditor
 
             using(ImRaii.Disabled(isBone == false))
             {
-                if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "Propagate", realBone?.EligibleForIK == true))
+                if(ImBrio.FontIconButton("propagate", FontAwesomeIcon.Compress, "传播", realBone?.EligibleForIK == true))
                     ImGui.OpenPopup("transform_propagate_popup");
 
                 if(compactMode)
@@ -68,7 +68,7 @@ public class PosingTransformEditor
             {
                 ImBrio.VerticalSeparator(24, 1);
 
-                if(ImBrio.FontIconButton("bone_search", FontAwesomeIcon.Search, "Bone Search"))
+                if(ImBrio.FontIconButton("bone_search", FontAwesomeIcon.Search, "骨骼搜索"))
                 {
                     ImGui.OpenPopup("widget_bone_search_popup");
                 }
@@ -77,7 +77,7 @@ public class PosingTransformEditor
 
                 using(ImRaii.Disabled(posingCapability.Selected.Value is None))
                 {
-                    if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "Clear Selection"))
+                    if(ImBrio.FontIconButton("clear_selection", FontAwesomeIcon.MinusSquare, "清除选择"))
                         posingCapability.ClearSelection();
                 }
 
@@ -95,13 +95,13 @@ public class PosingTransformEditor
                     if(ImBrio.FontIconButton(FontAwesomeIcon.LevelUpAlt))
                         posingCapability.SetBoneSelection(new BonePoseInfoId(parentBone!.Name, parentBone!.PartialId, PoseInfoSlot.Character), false);
                 }
-                ImBrio.AttachToolTip("Select Parent");
+                ImBrio.AttachToolTip("选择父级");
             }
 
             ImBrio.VerticalSeparator(24, 1);
 
             using(ImRaii.Disabled(selectedIsBone.HasValue)) // This is borken to all hell
-                if(ImBrio.FontIconButton("copypaste", FontAwesomeIcon.Clipboard, "Copy & Paste Transform"))
+                if(ImBrio.FontIconButton("copypaste", FontAwesomeIcon.Clipboard, "复制并粘贴变换"))
                     ImGui.OpenPopup("CopyPastePopup");
             if(selectedIsBone.HasValue)
                 ImBrio.AttachToolTip("调整变换控制的速度");
@@ -110,7 +110,7 @@ public class PosingTransformEditor
 
             using(ImRaii.Disabled(!posingCapability.CanResetBone(realBone)))
             {
-                if(ImBrio.FontIconButtonRight("resetTransform", FontAwesomeIcon.Retweet, 1, tooltip: "Reset Bone"))
+                if(ImBrio.FontIconButtonRight("resetTransform", FontAwesomeIcon.Retweet, 1, tooltip: "重置骨骼"))
                 {
                     posingCapability.ResetSelectedBone();
                 }
@@ -158,11 +158,11 @@ public class PosingTransformEditor
                 }
             }
 
-            (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_0", ref realTransform.Position, offset, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position", enableExpanded: compactMode);
+            (var pdidChange, var panyActive) = ImBrio.DragFloat3($"###_transformPosition_0", ref realTransform.Position, offset, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置", enableExpanded: compactMode);
             ImBrio.VerticalPadding(2);
-            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, offset * 100, FontAwesomeIcon.ArrowsSpin, "Rotation", enableExpanded: compactMode);
+            (var rdidChange, var ranyActive) = ImBrio.DragFloat3($"###_transformRotation_0", ref realEuler, offset * 100, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compactMode);
             ImBrio.VerticalPadding(2);
-            (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transformScale_0", ref realTransform.Scale, offset, FontAwesomeIcon.ExpandAlt, "Scale", enableExpanded: compactMode);
+            (var sdidChange, var sanyActive) = ImBrio.DragFloat3($"###_transformScale_0", ref realTransform.Scale, offset, FontAwesomeIcon.ExpandAlt, "缩放", enableExpanded: compactMode);
             ImBrio.VerticalPadding(2);
 
             didChange |= pdidChange |= rdidChange |= sdidChange;
@@ -314,7 +314,7 @@ public class PosingTransformEditor
             propagate = propBool ? propagate | TransformComponents.Rotation : propagate & ~TransformComponents.Rotation;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Propagate Rotations");
+            ImGui.SetTooltip("传播旋转");
 
         ImGui.SameLine();
 
@@ -325,7 +325,7 @@ public class PosingTransformEditor
             propagate = propBool ? propagate | TransformComponents.Scale : propagate & ~TransformComponents.Scale;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Propagate Scales");
+            ImGui.SetTooltip("传播缩放");
 
         return didChange;
     }

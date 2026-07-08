@@ -12,7 +12,7 @@ namespace Brio.UI.Widgets.World;
 
 public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<SkyEditorCapability>(skyEditorCapability)
 {
-    public override string HeaderName => "Ambient";
+    public override string HeaderName => "环境光";
     public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
     int selected = 0;
@@ -42,37 +42,37 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
 
                 ImBrio.CenterNextElementWithPadding(15);
                 var didSkyChange2 = ImGui.SliderFloat("###starcount"u8, ref env->EnvState.Stars.StarCount, 0.0f, 20.0f);
-                ImBrio.AttachToolTip("Star Count");
+                ImBrio.AttachToolTip("星星数量");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange2 |= ImGui.SliderFloat("###starcountIntensity"u8, ref env->EnvState.Stars.StarIntensity, 0.0f, 2.5f);
-                ImBrio.AttachToolTip("Star Intensity");
+                ImBrio.AttachToolTip("星星亮度");
 
                 ImBrio.VerticalPadding(5);
-                ImBrio.SeparatorText("Moon Color and Moon Brightness");
+                ImBrio.SeparatorText("月亮颜色与亮度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange2 |= ImGui.ColorEdit4("###moonColor"u8, ref env->EnvState.Stars.MoonColor);
-                ImBrio.AttachToolTip("Moon Color");
+                ImBrio.AttachToolTip("月亮颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange2 |= ImGui.SliderFloat("###MoonBrightness"u8, ref env->EnvState.Stars.MoonBrightness, 0.0f, 1.0f);
-                ImBrio.AttachToolTip("Moon Brightness");
+                ImBrio.AttachToolTip("月亮亮度");
 
                 ImBrio.VerticalPadding(5);
-                ImBrio.SeparatorText("Constellation Properties");
+                ImBrio.SeparatorText("星座属性");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange2 |= ImGui.SliderFloat("###constellationCount"u8, ref env->EnvState.Stars.ConstellationCount, 0.0f, 10.0f);
-                ImBrio.AttachToolTip("Constellation Count");
+                ImBrio.AttachToolTip("星座数量");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange2 |= ImGui.SliderFloat("###constellationsIntensity"u8, ref env->EnvState.Stars.ConstellationIntensity, 0.0f, 2.5f);
-                ImBrio.AttachToolTip("Constellations Intensity");
+                ImBrio.AttachToolTip("星座亮度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange2 |= ImGui.SliderFloat("###galaxyIntensity"u8, ref env->EnvState.Stars.GalaxyIntensity, 0.0f, 10.0f);
-                ImBrio.AttachToolTip("Galaxy Intensity");
+                ImBrio.AttachToolTip("银河亮度");
 
                 ImBrio.VerticalPadding(3);
 
@@ -94,7 +94,7 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                     _skyTextureSelector.Select(new TextureId(env->EnvState.SkyTextureID));
                     ImGui.OpenPopup("sky_texture_selector"u8);
                 }
-                ImBrio.AttachToolTip("Click to open texture selector");
+                ImBrio.AttachToolTip("点击打开纹理选择器");
 
                 var didSkyChange = false;
 
@@ -120,11 +120,11 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                 ImBrio.CenterNextElementWithPadding(10);
                 ImBrio.VerticalPadding(5);
                 didSkyChange |= ImGui.InputUInt("###SkyTextureID"u8, ref env->EnvState.SkyTextureID);
-                ImBrio.AttachToolTip("Sky Texture ID");
+                ImBrio.AttachToolTip("天空纹理 ID");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange |= ImGui.SliderFloat("###fogSunVisibility"u8, ref env->EnvState.Fog.SunVisibility, 0.0f, 1f);
-                ImBrio.AttachToolTip("Sun Visibility");
+                ImBrio.AttachToolTip("太阳可见度");
 
                 if(didSkyChange)
                     Capability.Environment.EnvironmentOverrideState |= EnvironmentOverrideState.Sky;
@@ -138,33 +138,33 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                 }
 
                 ImBrio.VerticalPadding(2);
-                ImBrio.SeparatorText("Temperature & Saturation");
+                ImBrio.SeparatorText("色温与饱和度");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 var didSkyChange3 = ImGui.SliderFloat("###temperatureColor"u8, ref env->EnvState.EnvironmentLighting.AmbientTemperature, -2.5f, 2.5f);
-                ImBrio.AttachToolTip("Ambient Temperature Color");
+                ImBrio.AttachToolTip("环境光色温");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange3 |= ImGui.SliderFloat("###saturationColor"u8, ref env->EnvState.EnvironmentLighting.AmbientSaturation, 0.0f, 5.0f);
-                ImBrio.AttachToolTip("Ambient Saturation Color");
+                ImBrio.AttachToolTip("环境光饱和度");
 
                 ImBrio.VerticalPadding(5);
-                ImBrio.SeparatorText("Ambient Color");
+                ImBrio.SeparatorText("环境光颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange3 |= ImGui.ColorEdit3("##ambientColor"u8, ref env->EnvState.EnvironmentLighting.AmbientColor);
-                ImBrio.AttachToolTip("Ambient Color");
+                ImBrio.AttachToolTip("环境光颜色");
 
                 ImBrio.VerticalPadding(5);
-                ImBrio.SeparatorText("Sunlight & Moonlight Color");
+                ImBrio.SeparatorText("日光与月光颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange3 |= ImGui.ColorEdit3("###sunlightColor"u8, ref env->EnvState.EnvironmentLighting.SunlightColor);
-                ImBrio.AttachToolTip("Sunlight Color");
+                ImBrio.AttachToolTip("日光颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange3 |= ImGui.ColorEdit3("###moonlightColor"u8, ref env->EnvState.EnvironmentLighting.MoonlightColor);
-                ImBrio.AttachToolTip("Moonlight Color");
+                ImBrio.AttachToolTip("月光颜色");
 
                 ImBrio.VerticalPadding(3);
 
@@ -187,7 +187,7 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                     _cloudTextureSelector.Select(new TextureId(env->EnvState.Clouds.CloudTexture));
                     ImGui.OpenPopup("cloud_texture_selector"u8);
                 }
-                ImBrio.AttachToolTip("Click to change Cloud Texture");
+                ImBrio.AttachToolTip("点击更改云层纹理");
 
                 var didSkyChange4 = false;
 
@@ -213,14 +213,14 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                 ImBrio.CenterNextElementWithPadding(10);
                 ImBrio.VerticalPadding(5);
                 didSkyChange4 |= ImGui.InputUInt("###CloudTexture"u8, ref env->EnvState.Clouds.CloudTexture);
-                ImBrio.AttachToolTip("Cloud Texture ID");
+                ImBrio.AttachToolTip("云层纹理 ID");
 
                 if(ImBrio.BorderedGameTex("##cloudSideTexturePreview", _cloudSideTextureSelector.GetTexturePath(env->EnvState.Clouds.CloudSideTexture)))
                 {
                     _cloudSideTextureSelector.Select(new TextureId(env->EnvState.Clouds.CloudSideTexture));
                     ImGui.OpenPopup("cloud_side_texture_selector"u8);
                 }
-                ImBrio.AttachToolTip("Click to change Cloud Side Texture");
+                ImBrio.AttachToolTip("点击更改云层侧面纹理");
 
                 using(var popup = ImRaii.Popup("cloud_side_texture_selector"u8))
                 {
@@ -244,28 +244,28 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                 ImBrio.CenterNextElementWithPadding(10);
                 ImBrio.VerticalPadding(5);
                 didSkyChange4 |= ImGui.InputUInt("###CloudSideTexture"u8, ref env->EnvState.Clouds.CloudSideTexture);
-                ImBrio.AttachToolTip("Cloud Side Texture ID");
+                ImBrio.AttachToolTip("云层侧面纹理 ID");
 
-                ImBrio.SeparatorText("Cloud Color");
+                ImBrio.SeparatorText("云层颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange4 |= ImGui.ColorEdit3("###leftCloudColor", ref env->EnvState.Clouds.CloudColor1);
-                ImBrio.AttachToolTip("Cloud Color");
+                ImBrio.AttachToolTip("云层颜色");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange4 |= ImGui.ColorEdit3("###rightcloudColor", ref env->EnvState.Clouds.CloudColor2);
-                ImBrio.AttachToolTip("Cloud Side Color");
+                ImBrio.AttachToolTip("云层侧面颜色");
 
                 ImBrio.VerticalPadding(5);
-                ImBrio.SeparatorText("Cloud Other");
+                ImBrio.SeparatorText("云层其他");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange4 |= ImGui.SliderFloat("###gradientStop", ref env->EnvState.Clouds.ShadowStop, 0.0f, 2.0f);
-                ImBrio.AttachToolTip("Shadow Stop");
+                ImBrio.AttachToolTip("阴影截止");
 
                 ImBrio.CenterNextElementWithPadding(15);
                 didSkyChange4 |= ImGui.SliderFloat("###cloudHeight", ref env->EnvState.Clouds.CloudHeight, 0.0f, 2.0f);
-                ImBrio.AttachToolTip("Cloud Height");
+                ImBrio.AttachToolTip("云层高度");
 
                 ImBrio.VerticalPadding(3);
 
@@ -291,9 +291,9 @@ public class SkyEditorWidget(SkyEditorCapability skyEditorCapability) : Widget<S
                         Capability.IndoorLight = currentLight;
                     }
                 if(Capability.IsInside == false)
-                    ImBrio.AttachToolTip("You must be inside housing to adjust interior brightness.");
+                    ImBrio.AttachToolTip("必须在房屋内才能调节室内亮度。");
                 else
-                    ImBrio.AttachToolTip("Adjust the brightness of the interior lighting.");
+                    ImBrio.AttachToolTip("调节室内光照亮度。");
 
                 ImBrio.VerticalPadding(3);
 

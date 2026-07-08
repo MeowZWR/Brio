@@ -43,37 +43,37 @@ public class FileUIHelpers
 
     private static readonly (SceneImportOptions Flag, string Label)[] _importCategories =
         [
-            (SceneImportOptions.Actors,         "Actors"),
-            (SceneImportOptions.Cameras,        "Cameras"),
-            (SceneImportOptions.Lights,         "Lights"),
-            (SceneImportOptions.WorldObjects,   "World Objects"),
-            (SceneImportOptions.Environment,    "Environment"),
-            (SceneImportOptions.Folders,        "Folders"),
+            (SceneImportOptions.Actors,         "角色"),
+            (SceneImportOptions.Cameras,        "相机"),
+            (SceneImportOptions.Lights,         "灯光"),
+            (SceneImportOptions.WorldObjects,   "世界物体"),
+            (SceneImportOptions.Environment,    "环境"),
+            (SceneImportOptions.Folders,        "文件夹"),
         ];
     private static readonly SceneImportOptions _allCategories = _importCategories.Aggregate(default(SceneImportOptions), (a, c) => a | c.Flag);
 
     public static void DrawImportSettingsPopup(ref SceneImportOptions options, ref bool overrideCurrentScene, ref bool relativeLightPositions, ref bool relativeObjectPositions)
     {
-        if(ImBrio.FontIconButton("scene_import_settings", FontAwesomeIcon.Cog, "Import Options"))
+        if(ImBrio.FontIconButton("scene_import_settings", FontAwesomeIcon.Cog, "导入选项"))
             ImGui.OpenPopup("##scene_import_settings");
 
         using var popup = ImRaii.Popup("##scene_import_settings");
         if(!popup)
             return;
 
-        ImBrio.SeparatorText("Scene");
+        ImBrio.SeparatorText("场景");
 
-        ImGui.Checkbox("Override Current Scene###opt_override", ref overrideCurrentScene);
+        ImGui.Checkbox("覆盖当前场景###opt_override", ref overrideCurrentScene);
 
-        ImBrio.SeparatorText("Positions");
+        ImBrio.SeparatorText("位置");
 
-        ImGui.Checkbox("Relative Light Positions###opt_rel_light", ref relativeLightPositions);
-        ImGui.Checkbox("Relative Object Positions###opt_rel_obj", ref relativeObjectPositions);
+        ImGui.Checkbox("相对灯光位置###opt_rel_light", ref relativeLightPositions);
+        ImGui.Checkbox("相对物体位置###opt_rel_obj", ref relativeObjectPositions);
 
-        ImBrio.SeparatorText("Categories");
+        ImBrio.SeparatorText("分类");
 
         bool all = (options & _allCategories) == _allCategories;
-        if(ImGui.Checkbox("All###cat_all", ref all))
+        if(ImGui.Checkbox("全部###cat_all", ref all))
             options = all ? options | _allCategories : options & ~_allCategories;
 
         foreach(var (flag, label) in _importCategories)
@@ -95,65 +95,65 @@ public class FileUIHelpers
             var buttonSize = new Vector2(MenuWidth * ImGuiHelpers.GlobalScale, 0);
 
             using(ImRaii.Disabled(projectSystem.CurrentProject is null))
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Save, "Save Scene", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Save, "保存场景", buttonSize))
                 {
                     projectSystem.SaveProject(projectSystem.CurrentProject!);
                     Brio.NotifyInfo("Scene saved.");
                     ImGui.CloseCurrentPopup();
                 }
             if(projectSystem.CurrentProject is null)
-                ImBrio.AttachToolTip("No project loaded to save to");
+                ImBrio.AttachToolTip("未加载项目，无法保存");
             if(ImGui.IsItemHovered())
                 ImGui.SetTooltip("保存或加载此场景");
 
-            if(ImBrio.IconButtonWithText(FontAwesomeIcon.FileCirclePlus, "Save as new...", buttonSize))
+            if(ImBrio.IconButtonWithText(FontAwesomeIcon.FileCirclePlus, "另存为新项目...", buttonSize))
             {
                 ModalManager.Instance.OpenSaveProjectModal();
                 ImGui.CloseCurrentPopup();
             }
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Save this Scene as a new Project");
+                ImGui.SetTooltip("将场景保存为新项目");
 
-            if(ImBrio.IconButtonWithText(FontAwesomeIcon.FileImport, "Load Scene", buttonSize))
+            if(ImBrio.IconButtonWithText(FontAwesomeIcon.FileImport, "加载场景", buttonSize))
             {
                 projectWindow.IsOpen = true;
             }
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Load on to this Scene");
+                ImGui.SetTooltip("加载到此场景");
 
             ImGui.Spacing();
             ImGui.Separator();
 
-            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Clock, "Load Auto-Saves", buttonSize))
+            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Clock, "加载自动保存", buttonSize))
             {
                 UIManager.Instance.ToggleAutoSaveWindow();
             }
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Load an Auto-Saves on this scene");
+                ImGui.SetTooltip("在此场景加载自动保存");
 
-            ImBrio.SeparatorText("Export");
+            ImBrio.SeparatorText("导出");
 
             //using(ImRaii.Disabled(projectSystem.CurrentProject is null))
             using(ImRaii.Group())
             using(ImRaii.Disabled(true))
             {
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Upload, "Export Scene", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Upload, "导出场景", buttonSize))
                 {
                     ModalManager.Instance.OpenExportSceneModal();
                     ImGui.CloseCurrentPopup();
                 }
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Export this Scene to a file");
+                    ImGui.SetTooltip("将场景导出为文件");
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Download, "Import Scene", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Download, "导入场景", buttonSize))
                 {
                     ModalManager.Instance.OpenImportSceneModal();
                     ImGui.CloseCurrentPopup();
                 }
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Import a Scene from a file");
+                    ImGui.SetTooltip("从文件导入场景");
             }
-            ImBrio.AttachToolTip("Importing/Exporting disabled until 0.8.1");
+            ImBrio.AttachToolTip("导入/导出功能将在 0.8.1 版本启用");
         }
     }
 
@@ -186,9 +186,9 @@ public class FileUIHelpers
 
         var buttonSize = new Vector2(MenuWidth * ImGuiHelpers.GlobalScale, 0);
 
-        ImBrio.SeparatorText($"Presets - [{entity.FriendlyName}]");
+        ImBrio.SeparatorText($"预设 - [{entity.FriendlyName}]");
 
-        ImBrio.ButtonSelectorStrip($"preset_mode", new Vector2(buttonSize.X, ImBrio.GetLineHeight()), ref state.Mode, ["Save", "Load"]);
+        ImBrio.ButtonSelectorStrip($"preset_mode", new Vector2(buttonSize.X, ImBrio.GetLineHeight()), ref state.Mode, ["保存", "加载"]);
 
         if(state.Mode == 0)
         {
@@ -211,13 +211,13 @@ public class FileUIHelpers
                 }
             }
 
-            ImBrio.SeparatorText($"Name");
+            ImBrio.SeparatorText($"名称");
             ImGui.SetNextItemWidth(buttonSize.X);
             ImGui.InputText($"###preset_name", ref state.Name, 64);
 
             using(ImRaii.Disabled(string.IsNullOrEmpty(state.Name) || !state.Selection.Values.Any(v => v)))
             {
-                if(ImBrio.Button("Save as Preset", FontAwesomeIcon.Save, buttonSize, centerTest: true))
+                if(ImBrio.Button("保存为预设", FontAwesomeIcon.Save, buttonSize, centerTest: true))
                 {
                     if(kind == PresetType.Light)
                     {
@@ -252,12 +252,12 @@ public class FileUIHelpers
             }
 
             if(state.Selected is not null && state.Selected.EntryCount > 1)
-                ImGui.Checkbox($"Group into a new folder", ref state.GroupInFolder);
+                ImGui.Checkbox($"归入新文件夹", ref state.GroupInFolder);
 
             var size = new Vector2(buttonSize.X / 2, 0);
             using(ImRaii.Disabled(state.Selected is null))
             {
-                if(state.Mode != 0 && ImBrio.Button("Load", FontAwesomeIcon.FileImport, size, centerTest: true))
+                if(state.Mode != 0 && ImBrio.Button("加载", FontAwesomeIcon.FileImport, size, centerTest: true))
                 {
                     if(kind == PresetType.Light)
                     {
@@ -318,7 +318,7 @@ public class FileUIHelpers
                 }
                 ImGui.SameLine();
 
-                if(ImBrio.HoldButton($"preset_delete", "Delete", FontAwesomeIcon.Trash, 1.1f, size, centerTest: true, tooltip: "[HOLD]\nDelete Preset"))
+                if(ImBrio.HoldButton($"preset_delete", "删除", FontAwesomeIcon.Trash, 1.1f, size, centerTest: true, tooltip: "[长按]\n删除预设"))
                 {
                     presetSystem.DeletePreset(state.Selected!);
                     state.Selected = null;
@@ -473,10 +473,10 @@ public class FileUIHelpers
 
             var buttonSize = new Vector2(buttonwidth, butonHeight);
 
-            ImBrio.SeparatorText($"Import Pose [{capability.Entity.FriendlyName}]");
+            ImBrio.SeparatorText($"导入姿势 [{capability.Entity.FriendlyName}]");
 
             ImGui.Checkbox("导入时冻结角色", ref freezeOnLoad);
-            ImBrio.AttachToolTip("Freeze the actor on import");
+            ImBrio.AttachToolTip("导入时冻结角色");
 
             ImGui.Checkbox("智能导入", ref smartDefaults);
             ImBrio.AttachToolTip("""
@@ -489,11 +489,11 @@ public class FileUIHelpers
                 - If trying to load the pose as an expression, will automatically determine if the pose was made after Dawntrail and adapt the import process accordingly.
                 """);
 
-            ImBrio.SeparatorText("Import Type");
+            ImBrio.SeparatorText("导入类型");
 
             _importType[0] = doBody;
             _importType[1] = doExpression;
-            if(ImBrio.ToggleSelecterStrip("importTypeStrip", new(width, height), ref _importType, ["Body", "Expression"], "Import"))
+            if(ImBrio.ToggleSelecterStrip("importTypeStrip", new(width, height), ref _importType, ["身体", "表情"], "导入"))
             {
                 doBody = _importType[0];
                 doExpression = _importType[1];
@@ -503,11 +503,11 @@ public class FileUIHelpers
 
             using(ImRaii.Disabled(doExpression || doBody))
             {
-                if(ImBrio.Button("Custom Import Options", FontAwesomeIcon.Cog, new(width, height), centerTest: true, tooltip: "Custom Bone Import Options"))
+                if(ImBrio.Button("自定义导入选项", FontAwesomeIcon.Cog, new(width, height), centerTest: true, tooltip: "自定义骨骼导入选项"))
                     ImGui.OpenPopup($"import_{tag}_optionsImportPoseMenuPopup");
             }
 
-            ImBrio.SeparatorText("Transform Options");
+            ImBrio.SeparatorText("变换选项");
 
             transformComponents ??= capability.PosingService.DefaultImporterOptions.TransformComponents;
 
@@ -515,7 +515,7 @@ public class FileUIHelpers
             {
                 using(ImRaii.Disabled(doExpression))
                 {
-                    if(ImBrio.ToggelFontIconButton("ImportPosition", FontAwesomeIcon.ArrowsUpDownLeftRight, buttonSize, transformComponents.Value.HasFlag(TransformComponents.Position), tooltip: "Import Position"))
+                    if(ImBrio.ToggelFontIconButton("ImportPosition", FontAwesomeIcon.ArrowsUpDownLeftRight, buttonSize, transformComponents.Value.HasFlag(TransformComponents.Position), tooltip: "导入位置"))
                     {
                         if(transformComponents.Value.HasFlag(TransformComponents.Position))
                             transformComponents &= ~TransformComponents.Position;
@@ -523,7 +523,7 @@ public class FileUIHelpers
                             transformComponents |= TransformComponents.Position;
                     }
                     ImGui.SameLine();
-                    if(ImBrio.ToggelFontIconButton("ImportRotation", FontAwesomeIcon.ArrowsSpin, buttonSize, transformComponents.Value.HasFlag(TransformComponents.Rotation), tooltip: "Import Rotation"))
+                    if(ImBrio.ToggelFontIconButton("ImportRotation", FontAwesomeIcon.ArrowsSpin, buttonSize, transformComponents.Value.HasFlag(TransformComponents.Rotation), tooltip: "导入旋转"))
                     {
                         if(transformComponents.Value.HasFlag(TransformComponents.Rotation))
                             transformComponents &= ~TransformComponents.Rotation;
@@ -531,7 +531,7 @@ public class FileUIHelpers
                             transformComponents |= TransformComponents.Rotation;
                     }
                     ImGui.SameLine();
-                    if(ImBrio.ToggelFontIconButton("ImportScale", FontAwesomeIcon.ExpandAlt, buttonSize, transformComponents.Value.HasFlag(TransformComponents.Scale), tooltip: "Import Scale"))
+                    if(ImBrio.ToggelFontIconButton("ImportScale", FontAwesomeIcon.ExpandAlt, buttonSize, transformComponents.Value.HasFlag(TransformComponents.Scale), tooltip: "导入缩放"))
                     {
                         if(transformComponents.Value.HasFlag(TransformComponents.Scale))
                             transformComponents &= ~TransformComponents.Scale;
@@ -541,7 +541,7 @@ public class FileUIHelpers
                 }
 
                 ImGui.SameLine();
-                if(ImBrio.ToggelFontIconButton("ImportTransform", FontAwesomeIcon.ArrowsToCircle, buttonSize, doTransform, tooltip: "Import Model Transform"))
+                if(ImBrio.ToggelFontIconButton("ImportTransform", FontAwesomeIcon.ArrowsToCircle, buttonSize, doTransform, tooltip: "导入模型变换"))
                 {
                     doTransform = !doTransform;
                 }
@@ -552,11 +552,11 @@ public class FileUIHelpers
                 }
             }
 
-            ImBrio.SeparatorText("Import");
+            ImBrio.SeparatorText("导入");
 
             if(importPose is not null)
             {
-                if(ImBrio.Button("Apply This Pose", FontAwesomeIcon.PersonRays, new(width, height), centerTest: true, tooltip: "Apply the Selected Pose"))
+                if(ImBrio.Button("应用此姿势", FontAwesomeIcon.PersonRays, new(width, height), centerTest: true, tooltip: "应用所选姿势"))
                 {
                     isCMP = importPose.Value.IsT1;
                     _ = ImportPose(capability, importPose.Value, transformComponents: transformComponents, applyModelTransformOverride: doTransform);
@@ -565,13 +565,13 @@ public class FileUIHelpers
             }
             else
             {
-                if(ImBrio.Button("From File...", FontAwesomeIcon.FileDownload, new(width, height), centerTest: true, tooltip: "Import Pose from File"))
+                if(ImBrio.Button("从文件...", FontAwesomeIcon.FileDownload, new(width, height), centerTest: true, tooltip: "从文件导入姿势"))
                 {
                     ShowImportPoseModal(capability, transformComponents: transformComponents, applyModelTransformOverride: doTransform);
                 }
 
                 using(ImRaii.Disabled(false))
-                    if(ImBrio.Button("From Clipboard", FontAwesomeIcon.Paste, new(width, height), centerTest: true, tooltip: "Import Pose from Clipboard"))
+                    if(ImBrio.Button("从剪贴板", FontAwesomeIcon.Paste, new(width, height), centerTest: true, tooltip: "从剪贴板导入姿势"))
                     {
                         var data = ImGui.GetClipboardText();
                         Clipboard.FromCompressedBase64<PoseFile>(data, out var pose);
@@ -595,26 +595,26 @@ public class FileUIHelpers
                     }
 
                 using(ImRaii.Disabled(_lastused is null))
-                    if(ImBrio.Button("Reapply Last Pose", FontAwesomeIcon.PersonWalkingArrowLoopLeft, new(width, height), centerTest: true, tooltip: "Reapply Last Imported Pose"))
+                    if(ImBrio.Button("重新应用上次姿势", FontAwesomeIcon.PersonWalkingArrowLoopLeft, new(width, height), centerTest: true, tooltip: "重新应用上次导入的姿势"))
                     {
                         _ = ImportPose(capability, _lastused!.Value, transformComponents: transformComponents, applyModelTransformOverride: doTransform);
                     }
 
                 using(ImRaii.Disabled(_stash is null))
-                    if(ImBrio.Button("Load From Stash", FontAwesomeIcon.Archive, new(width, height), centerTest: true, tooltip: "Load from the Pose Stash"))
+                    if(ImBrio.Button("从暂存区加载", FontAwesomeIcon.Archive, new(width, height), centerTest: true, tooltip: "从姿势暂存区加载"))
                     {
                         _ = ImportPose(capability, _stash!.Value, transformComponents: transformComponents, applyModelTransformOverride: doTransform);
                     }
 
-                ImBrio.SeparatorText("Presets");
+                ImBrio.SeparatorText("预设");
 
-                if(ImGui.Button("Import A-Pose", new(width, height)))
+                if(ImGui.Button("导入 A 姿势", new(width, height)))
                 {
                     capability.LoadResourcesPose("Data.BrioAPose.pose", freezeOnLoad: freezeOnLoad, asBody: true);
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImGui.Button("Import T-Pose", new(width, height)))
+                if(ImGui.Button("导入 T 姿势", new(width, height)))
                 {
                     capability.LoadResourcesPose("Data.BrioTPose.pose", freezeOnLoad: freezeOnLoad, asBody: true);
                     ImGui.CloseCurrentPopup();
@@ -719,7 +719,7 @@ public class FileUIHelpers
 
     public static void ShowExportPoseModal(PosingCapability? capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Pose###export_pose", "Pose File (*.pose){.pose}", "brio", ".pose",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出姿势###export_pose", "姿势文件 (*.pose){.pose}", "brio", ".pose",
                 (success, path) =>
                 {
                     if(success)
@@ -763,25 +763,25 @@ public class FileUIHelpers
         {
             var buttonSize = new Vector2(MenuWidth * ImGuiHelpers.GlobalScale, 0);
 
-            ImBrio.SeparatorText($"Export Pose [{capability.Entity.FriendlyName}]");
+            ImBrio.SeparatorText($"导出姿势 [{capability.Entity.FriendlyName}]");
 
-            if(ImBrio.Button("Export", FontAwesomeIcon.Save, buttonSize, centerTest: true, tooltip: "Export Pose"))
+            if(ImBrio.Button("导出", FontAwesomeIcon.Save, buttonSize, centerTest: true, tooltip: "导出姿势"))
             {
                 ShowExportPoseModal(capability);
                 ImGui.CloseCurrentPopup();
             }
 
-            if(ImBrio.Button("With Metadata...", FontAwesomeIcon.FileExport, buttonSize, centerTest: true, tooltip: "Export Pose with Metadata"))
+            if(ImBrio.Button("附带元数据...", FontAwesomeIcon.FileExport, buttonSize, centerTest: true, tooltip: "导出姿势并附带元数据"))
             {
                 ShowExportPoseMetadataModal(capability);
                 ImGui.CloseCurrentPopup();
             }
 
             ImBrio.VerticalPadding(1);
-            ImBrio.SeparatorText("Copy");
+            ImBrio.SeparatorText("复制");
             ImBrio.VerticalPadding(1);
 
-            if(ImBrio.Button("To Clipboard", FontAwesomeIcon.Copy, buttonSize, centerTest: true, tooltip: "Copy Pose to Clipboard"))
+            if(ImBrio.Button("到剪贴板", FontAwesomeIcon.Copy, buttonSize, centerTest: true, tooltip: "复制姿势到剪贴板"))
             {
                 try
                 {
@@ -800,7 +800,7 @@ public class FileUIHelpers
                 ImGui.CloseCurrentPopup();
             }
 
-            if(ImBrio.Button("To Stash", FontAwesomeIcon.Archive, buttonSize, centerTest: true, tooltip: "Copy Pose to Stash"))
+            if(ImBrio.Button("到暂存区", FontAwesomeIcon.Archive, buttonSize, centerTest: true, tooltip: "复制姿势到暂存区"))
             {
                 _stash = capability.ExportPoseAsFileData();
             }
@@ -809,7 +809,7 @@ public class FileUIHelpers
 
     public static void ShowExportPoseMetadataModal(PosingCapability? capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Pose###export_pose_metadata", "Pose File (*.pose){.pose}", "brio", ".pose",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出姿势###export_pose_metadata", "姿势文件 (*.pose){.pose}", "brio", ".pose",
                 (success, path) =>
                 {
                     if(success)
@@ -842,7 +842,7 @@ public class FileUIHelpers
         if(capability.CanMCDF)
             types.Add(typeof(MareCharacterDataFile));
 
-        TypeFilter filter = new TypeFilter("Characters", [.. types]);
+        TypeFilter filter = new TypeFilter("角色", [.. types]);
 
         if(ConfigurationService.Instance.Configuration.UseLibraryWhenImporting)
         {
@@ -895,7 +895,7 @@ public class FileUIHelpers
 
     public static void ShowExportCharacterModal(ActorAppearanceCapability capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Character File###export_character_window", "Character File (*.chara){.chara}", "brio", "{.chara}",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出角色文件###export_character_window", "角色文件 (*.chara){.chara}", "brio", "{.chara}",
                 (success, path) =>
                 {
                     if(success)
@@ -937,7 +937,7 @@ public class FileUIHelpers
 
     public static void ShowExportMCDFModal(ActorAppearanceCapability capability)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export MCDF File###export_mcdf_window", "月海角色数据文件(*.mcdf){.mcdf}", "mcdf", "{.mcdf}",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出 MCDF 文件###export_mcdf_window", "月海角色数据文件(*.mcdf){.mcdf}", "mcdf", "{.mcdf}",
                  (success, path) =>
                  {
                      if(success && !path.IsNullOrEmpty())
@@ -960,7 +960,7 @@ public class FileUIHelpers
 
     public static void ShowExportSceneModal(SceneService sceneService, string? author, string? description)
     {
-        UIManager.Instance.FileDialogManager.SaveFileDialog("Export Scene File###export_scene_window", "Brio Scene File (*.brioscn){.brioscn}", "brioscn", "{.brioscn}",
+        UIManager.Instance.FileDialogManager.SaveFileDialog("导出场景文件###export_scene_window", "Brio 场景文件 (*.brioscn){.brioscn}", "brioscn", "{.brioscn}",
             (success, path) =>
             {
                 if(success)
@@ -991,7 +991,7 @@ public class FileUIHelpers
     public static void ShowImportSceneModal(SceneService sceneService, bool destroyAll, bool useRelativeLightPositions, bool useRelativeWorldObjectPositions, SceneImportOptions importOptions)
     {
         List<Type> types = [typeof(SceneFile)];
-        TypeFilter filter = new("Scenes", [.. types]);
+        TypeFilter filter = new("场景", [.. types]);
 
         LibraryManager.GetWithFilePicker(filter, r =>
         {

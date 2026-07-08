@@ -63,7 +63,7 @@ public class FileSource : SourceBase
     {
         // All file sources share the same public Id, as the files themselves are unique on the
         // file system.
-        return $"File";
+        return $"文件";
     }
 
     public override void Scan()

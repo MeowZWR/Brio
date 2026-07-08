@@ -32,7 +32,7 @@ public static class PosingEditorCommon
                 Game.Posing.Skeletons.Bone? bone = posing.SkeletonPosing.GetBone(selectedIsBone.Value);
                 if(bone != null && bone.Skeleton.IsValid && bone.Freeze)
                 {
-                    ImGui.Text("This bone's transform values are frozen.");
+                    ImGui.Text("此骨骼的变换值已冻结。");
                 }
             }
             else
@@ -54,7 +54,7 @@ public static class PosingEditorCommon
             ImGui.Separator();
 
             var selected = options.TransformComponents.HasFlag(TransformComponents.Position);
-            if(ImGui.Checkbox("Position", ref selected))
+            if(ImGui.Checkbox("位置", ref selected))
             {
                 if(selected)
                     options.TransformComponents |= TransformComponents.Position;
@@ -63,7 +63,7 @@ public static class PosingEditorCommon
             }
 
             selected = options.TransformComponents.HasFlag(TransformComponents.Rotation);
-            if(ImGui.Checkbox("Rotation", ref selected))
+            if(ImGui.Checkbox("旋转", ref selected))
             {
                 if(selected)
                     options.TransformComponents |= TransformComponents.Rotation;
@@ -72,7 +72,7 @@ public static class PosingEditorCommon
             }
 
             selected = options.TransformComponents.HasFlag(TransformComponents.Scale);
-            if(ImGui.Checkbox("Scale", ref selected))
+            if(ImGui.Checkbox("缩放", ref selected))
             {
                 if(selected)
                     options.TransformComponents |= TransformComponents.Scale;
@@ -92,14 +92,14 @@ public static class PosingEditorCommon
 
     public static void DrawBoneFilterEditor(BoneFilter filter, PosingService? posingService)
     {
-        if(ImBrio.FontIconButton("select_all", FontAwesomeIcon.Check, "Select All"))
+        if(ImBrio.FontIconButton("select_all", FontAwesomeIcon.Check, "全选"))
         {
             filter.EnableAll();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("select_none", FontAwesomeIcon.Minus, "Select None"))
+        if(ImBrio.FontIconButton("select_none", FontAwesomeIcon.Minus, "全不选"))
         {
             filter.DisableAll();
         }
@@ -109,7 +109,7 @@ public static class PosingEditorCommon
         {
             ImGui.SameLine();
 
-            if(ImBrio.ToggelFontIconButton("keep_gizmo", FontAwesomeIcon.LocationCrosshairs, new(0), posingService.GizmoStaysWhenAllBonesAreDisabled, tooltip: "Keep gizmo active even when all items in the filter are disabled"))
+            if(ImBrio.ToggelFontIconButton("keep_gizmo", FontAwesomeIcon.LocationCrosshairs, new(0), posingService.GizmoStaysWhenAllBonesAreDisabled, tooltip: "即使筛选中所有项已禁用也保持变换器激活"))
             {
                 posingService.GizmoStaysWhenAllBonesAreDisabled = !posingService.GizmoStaysWhenAllBonesAreDisabled;
             }
@@ -248,7 +248,7 @@ public static class PosingEditorCommon
             boneSelect => $"Mirror Mode: {posing.SkeletonPosing.GetBonePose(boneSelect).MirrorMode}",
             _ => "Mirror Mode: None",
             _ => "Mirror Mode: None"
-        ) ?? "Mirror Mode";
+        ) ?? "镜像模式";
 
         ImBrio.AttachToolTip(tooltip);
     }

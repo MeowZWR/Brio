@@ -36,10 +36,10 @@ public class CameraEntity(IServiceProvider provider, int cameraID, CameraType ca
             {
                 if(CameraID == 0)
                 {
-                    return $"Default Camera";
+                    return $"默认相机";
                 }
 
-                return $"默认相机";
+                return $"相机 {CameraID.ToName()}";
             }
 
             return $"{RawName} ({CameraID})";
@@ -118,7 +118,7 @@ public class CameraEntity(IServiceProvider provider, int cameraID, CameraType ca
             var lockIcon = IsLocked ? FontAwesomeIcon.Lock : FontAwesomeIcon.Unlock;
             using(ImRaii.PushColor(ImGuiCol.Button, 0))
             {
-                if(ImBrio.ToggelFontIconButtonRight($"###{Id}_camera_Lock", lockIcon, 2f, IsLocked, tooltip: IsLocked ? "Locked" : "Unlocked"))
+                if(ImBrio.ToggelFontIconButtonRight($"###{Id}_camera_Lock", lockIcon, 2f, IsLocked, tooltip: IsLocked ? "已锁定" : "未锁定"))
                 {
                     IsLocked = !IsLocked;
                 }
@@ -126,7 +126,7 @@ public class CameraEntity(IServiceProvider provider, int cameraID, CameraType ca
 
             ImGui.SameLine();
 
-            string toolTip = "Set as Active Camera";
+            string toolTip = "设为活动相机";
             using(ImRaii.PushColor(ImGuiCol.Text, ThemeManager.CurrentTheme.Accent.AccentColor, VirtualCamera.IsActiveCamera))
             {
                 if(ImBrio.FontIconButtonRight($"###{Id}_camera_contextButton", FontAwesomeIcon.LocationCrosshairs, 1f, toolTip, bordered: false))

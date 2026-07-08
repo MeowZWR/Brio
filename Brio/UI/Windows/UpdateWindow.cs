@@ -149,7 +149,7 @@ public class UpdateWindow : Window
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 5);
 
         using(ImRaii.PushColor(ImGuiCol.Button, new Vector4(0, 224, 148, 200) / 255))
-            if(ImGui.Button("Support on KoFi", buttonSize))
+            if(ImGui.Button("在 Ko-Fi 支持", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://ko-fi.com/minmoosexiv", UseShellExecute = true });
         ImGui.SameLine();
 
@@ -164,7 +164,7 @@ public class UpdateWindow : Window
         ImGui.SameLine();
 
         using(ImRaii.PushColor(ImGuiCol.Button, new Vector4(29, 161, 242, 200) / 255))
-            if(ImGui.Button("More Links", buttonSize))
+            if(ImGui.Button("更多链接", buttonSize))
                 Process.Start(new ProcessStartInfo { FileName = "https://etheirystools.carrd.co", UseShellExecute = true });
 
         ImBrio.VerticalPadding(10);
@@ -209,7 +209,7 @@ public class UpdateWindow : Window
         }
 
         ImGui.SetCursorPosX((ImGui.GetWindowSize().Y - CloseButtonWidth) / 2);
-        if(ImBrio.HoldButton("updateWindowClose", "Close", FontAwesomeIcon.SquareXmark, 0.7f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "[HOLD TO CLOSE]\nTo open this window again click the `Information` button on the Brio Scene Manager!"))
+        if(ImBrio.HoldButton("updateWindowClose", "关闭", FontAwesomeIcon.SquareXmark, 0.7f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "[长按关闭]\n点击 Brio 场景管理器上的 `信息` 按钮以再次打开此窗口！"))
         {
             IsOpen = false;
         }
@@ -261,8 +261,8 @@ public class UpdateWindow : Window
         {
             if(leftGearGroup.Success)
             {
-                ImGui.Text("An enormous thank you to the following,");
-                ImGui.Text("people for their support on KoFi / Patreon!");
+                ImGui.Text("衷心感谢以下");
+                ImGui.Text("位在 Ko-Fi / Patreon 上支持我们的朋友！");
 
                 ImBrio.VerticalPadding(5);
 
@@ -279,8 +279,8 @@ public class UpdateWindow : Window
         {
             if(rightGearGroup.Success)
             {
-                ImGui.Text("And another enormous thank you to the following,");
-                ImGui.Text("people for their contributions to Brio!");
+                ImGui.Text("还要衷心感谢以下");
+                ImGui.Text("位对 Brio 做出贡献的朋友！");
 
                 ImBrio.VerticalPadding(5);
 

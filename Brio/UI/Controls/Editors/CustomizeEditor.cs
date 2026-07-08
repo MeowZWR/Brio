@@ -34,7 +34,7 @@ public class CustomizeEditor()
         {
             if(customizeGroup.Success)
             {
-                ImBrio.SeparatorText("Model");
+                ImBrio.SeparatorText("模型");
 
                 ImBrio.VerticalPadding(5);
 
@@ -45,7 +45,7 @@ public class CustomizeEditor()
 
                 if(_capability.IsHuman)
                 {
-                    ImBrio.SeparatorText("Race");
+                    ImBrio.SeparatorText("种族");
 
                     didChange |= DrawRaceSelector(ref currentAppearance.Customize);
 
@@ -54,7 +54,7 @@ public class CustomizeEditor()
                 }
                 else
                 {
-                    if(ImGui.Button("Make Human"))
+                    if(ImGui.Button("设为人类"))
                         _ = _capability.MakeHuman();
                 }
 
@@ -103,7 +103,7 @@ public class CustomizeEditor()
                     break;
 
                 case CustomizeIndex.EyeShape:
-                    ImBrio.SeparatorText("Eyes");
+                    ImBrio.SeparatorText("眼睛");
                     didChange |= DrawEyeSelector(ref appearance.Customize);
                     break;
 
@@ -113,7 +113,7 @@ public class CustomizeEditor()
                     break;
 
                 case CustomizeIndex.HairStyle:
-                    ImBrio.SeparatorText("Hair Style");
+                    ImBrio.SeparatorText("发型");
                     didChange |= DrawHairSelect(ref appearance.Customize, menu, menu.Title);
                     break;
 
@@ -123,7 +123,7 @@ public class CustomizeEditor()
                     break;
 
                 case CustomizeIndex.LipStyle:
-                    ImBrio.SeparatorText("Mouth");
+                    ImBrio.SeparatorText("嘴巴");
                     didChange |= DrawMouth(ref appearance.Customize, menu.Title, hasLipColor);
                     break;
 
@@ -135,7 +135,7 @@ public class CustomizeEditor()
                     break;
 
                 case CustomizeIndex.Facepaint:
-                    ImBrio.SeparatorText("Face Paint");
+                    ImBrio.SeparatorText("彩绘");
                     didChange |= DrawFacePaintSelect(ref appearance.Customize, menu, menu.Title);
                     break;
 
@@ -149,7 +149,7 @@ public class CustomizeEditor()
                     {
                         if(colorMenu != null)
                         {
-                            ImBrio.SeparatorText("Features");
+                            ImBrio.SeparatorText("特征");
                             didChange |= DrawFeatureSelect(ref appearance.Customize, menu, colorMenu);
                             featuresDone = true;
                         }
@@ -360,7 +360,7 @@ public class CustomizeEditor()
             madeChange |= true;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Eye Shape");
+            ImGui.SetTooltip("眼型");
 
         ImGui.SameLine();
 
@@ -379,7 +379,7 @@ public class CustomizeEditor()
             madeChange |= true;
         }
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Small Iris");
+            ImGui.SetTooltip("小瞳孔");
 
         return madeChange;
     }
@@ -417,7 +417,7 @@ public class CustomizeEditor()
             }
 
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Enable 唇色");
+                ImGui.SetTooltip("启用唇色");
 
             ImGui.SameLine();
 
@@ -473,7 +473,7 @@ public class CustomizeEditor()
                     customize.RealFacepaint = (byte)currentFacepaintIdx;
                 }
 
-                madeChange |= DrawColorSelector(ref customize, CustomizeIndex.FacepaintColor, "Color");
+                madeChange |= DrawColorSelector(ref customize, CustomizeIndex.FacepaintColor, "颜色");
 
                 ImGui.SameLine();
 
@@ -483,7 +483,7 @@ public class CustomizeEditor()
                     madeChange |= true;
                 }
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Flipped");
+                    ImGui.SetTooltip("翻转");
             }
         }
 

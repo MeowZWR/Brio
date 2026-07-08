@@ -74,7 +74,7 @@ public class BoneSearchControl
 
                             if(posing.SkeletonPosing.PropSkeleton != null)
                             {
-                                using(var skeleton = ImRaii.TreeNode("Prop", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
+                                using(var skeleton = ImRaii.TreeNode("道具", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.OpenOnDoubleClick))
                                 {
                                     if(skeleton.Success)
                                     {

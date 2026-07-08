@@ -42,7 +42,7 @@ public static class CameraEditor
 
                 ImBrio.VerticalSeparator(24);
 
-                if(ImBrio.ToggelFontIconButton("save", FontAwesomeIcon.BookBookmark, new Vector2(25, 0), false, tooltip: "Camera Presets"))
+                if(ImBrio.ToggelFontIconButton("save", FontAwesomeIcon.BookBookmark, new Vector2(25, 0), false, tooltip: "相机预设"))
                 {
                     ImGui.OpenPopup($"DrawPresetPopup");
                 }
@@ -75,7 +75,7 @@ public static class CameraEditor
 
                 using(ImRaii.Disabled(camera.FreeCamValues.IsMovementEnabled == false))
                 {
-                    if(ImBrio.ToggelFontIconButton("LateralMovement", FontAwesomeIcon.SolarPanel, new Vector2(25, 0), camera.FreeCamValues.Move2D, tooltip: "Lateral Movement"))
+                    if(ImBrio.ToggelFontIconButton("LateralMovement", FontAwesomeIcon.SolarPanel, new Vector2(25, 0), camera.FreeCamValues.Move2D, tooltip: "横向移动"))
                     {
                         camera.FreeCamValues.Move2D = !camera.FreeCamValues.Move2D;
                         capability.Snapshot();
@@ -85,7 +85,7 @@ public static class CameraEditor
                 //
 
                 using(ImRaii.Disabled(camera.Position == camera.SpawnPosition))
-                    if(ImBrio.SeparatorTextButton("Transform", FontAwesomeIcon.Undo, "重置变换"))
+                    if(ImBrio.SeparatorTextButton("变换", FontAwesomeIcon.Undo, "重置变换"))
                     {
                         camera.Position = camera.SpawnPosition;
                         capability.Snapshot();
@@ -94,7 +94,7 @@ public static class CameraEditor
                 ImBrio.VerticalPadding(2);
 
                 Vector3 pos = camera.Position;
-                (var panyActive1, var pdidChange1) = ImBrio.DragFloat3($"###_transformPosition_2", ref pos, 0.001f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position Offset", enableExpanded: false);
+                (var panyActive1, var pdidChange1) = ImBrio.DragFloat3($"###_transformPosition_2", ref pos, 0.001f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置偏移", enableExpanded: false);
                 if(pdidChange1)
                     camera.Position = pos;
                 anyActiveThisFrame |= panyActive1;
@@ -106,7 +106,7 @@ public static class CameraEditor
                 ImGui.SetNextItemWidth(width);
 
                 var rotation = camera.Rotation;
-                (var panyActive2, var pdidChange2) = ImBrio.DragFloat2V3("###Pan", ref rotation, -360, 360, false, 0.001f, Vector2.Zero, "Pan");
+                (var panyActive2, var pdidChange2) = ImBrio.DragFloat2V3("###Pan", ref rotation, -360, 360, false, 0.001f, Vector2.Zero, "摇摄");
                 if(pdidChange2)
                     camera.Rotation = rotation;
                 anyActiveThisFrame |= panyActive2;
@@ -118,7 +118,7 @@ public static class CameraEditor
                 //
 
                 using(ImRaii.Disabled(!camera.IsOverridden))
-                    if(ImBrio.SeparatorTextButton("Properties", FontAwesomeIcon.Undo, "重置为默认"))
+                    if(ImBrio.SeparatorTextButton("属性", FontAwesomeIcon.Undo, "重置为默认"))
                     {
                         camera.FoV = 0f;
                         camera.PivotRotation = 0;
@@ -131,11 +131,11 @@ public static class CameraEditor
 
                 ImBrio.Icon(FontAwesomeIcon.Panorama);
                 ImGui.SameLine();
-                ImBrio.AttachToolTip("FOV");
+                ImBrio.AttachToolTip("视场");
 
                 float fov = camera.FoV;
                 ImBrio.CenterNextElementWithPadding(5);
-                (var fovDidChange, var fovAnyActive) = ImBrio.SliderAngle("###fov", ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "FOV");
+                (var fovDidChange, var fovAnyActive) = ImBrio.SliderAngle("###fov", ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "视场");
                 if(fovDidChange)
                     camera.FoV = fov;
                 anyActiveThisFrame |= fovAnyActive;
@@ -152,12 +152,12 @@ public static class CameraEditor
 
                 ImBrio.Icon(FontAwesomeIcon.CameraRotate);
                 ImGui.SameLine();
-                ImBrio.AttachToolTip("Pivot");
+                ImBrio.AttachToolTip("枢轴");
 
                 ImBrio.CenterNextElementWithPadding(5);
 
                 float pivoRotation = camera.PivotRotation;
-                (var pivotDidChange, var pivotAnyActive) = ImBrio.SliderAngle("###rotation", ref pivoRotation, -180, 180, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "Pivot");
+                (var pivotDidChange, var pivotAnyActive) = ImBrio.SliderAngle("###rotation", ref pivoRotation, -180, 180, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "枢轴");
                 if(pivotDidChange)
                     camera.PivotRotation = pivoRotation;
                 anyActiveThisFrame |= pivotAnyActive;
@@ -174,12 +174,12 @@ public static class CameraEditor
 
                 ImBrio.Icon(FontAwesomeIcon.Walking);
                 ImGui.SameLine();
-                ImBrio.AttachToolTip("Movement Speed");
+                ImBrio.AttachToolTip("移动速度");
 
                 ImBrio.CenterNextElementWithPadding(5);
 
                 float moveSpeed = camera.FreeCamValues.MovementSpeed;
-                (var moveSpeedDidChange, var moveSpeedAnyActive) = ImBrio.SliderFloat("##MovementSpeed", ref moveSpeed, 0.005f, 0.3f, "%.4f", ImGuiSliderFlags.AlwaysClamp, step: 0.001f, toolTip: "Movement Speed");
+                (var moveSpeedDidChange, var moveSpeedAnyActive) = ImBrio.SliderFloat("##MovementSpeed", ref moveSpeed, 0.005f, 0.3f, "%.4f", ImGuiSliderFlags.AlwaysClamp, step: 0.001f, toolTip: "移动速度");
                 if(moveSpeedDidChange)
                     camera.FreeCamValues.MovementSpeed = moveSpeed;
                 anyActiveThisFrame |= moveSpeedAnyActive;
@@ -196,12 +196,12 @@ public static class CameraEditor
 
                 ImBrio.Icon(FontAwesomeIcon.Mouse);
                 ImGui.SameLine();
-                ImBrio.AttachToolTip("Mouse Sensitivity");
+                ImBrio.AttachToolTip("鼠标灵敏度");
 
                 ImBrio.CenterNextElementWithPadding(5);
 
                 float mouseSpeed = camera.FreeCamValues.MouseSensitivity;
-                (var mouseSpeedDidChange, var mouseSpeedAnyActive) = ImBrio.SliderFloat("##MouseSensitivity", ref mouseSpeed, 0.001f, 0.2f, "%.4f", ImGuiSliderFlags.AlwaysClamp, step: 0.001f, toolTip: "Mouse Sensitivity");
+                (var mouseSpeedDidChange, var mouseSpeedAnyActive) = ImBrio.SliderFloat("##MouseSensitivity", ref mouseSpeed, 0.001f, 0.2f, "%.4f", ImGuiSliderFlags.AlwaysClamp, step: 0.001f, toolTip: "鼠标灵敏度");
                 if(mouseSpeedDidChange)
                     camera.FreeCamValues.MouseSensitivity = mouseSpeed;
                 anyActiveThisFrame |= mouseSpeedAnyActive;
@@ -249,7 +249,7 @@ public static class CameraEditor
 
                     ImBrio.VerticalSeparator(24);
 
-                    if(ImBrio.ToggelFontIconButton("save", FontAwesomeIcon.BookBookmark, new Vector2(25, 0), camera.FreeCamValues.Move2D, tooltip: "Presets"))
+                    if(ImBrio.ToggelFontIconButton("save", FontAwesomeIcon.BookBookmark, new Vector2(25, 0), camera.FreeCamValues.Move2D, tooltip: "预设"))
                     {
                         ImGui.OpenPopup("DrawPresetPopup");
                     }
@@ -273,7 +273,7 @@ public static class CameraEditor
                     //
 
                     using(ImRaii.Disabled(camera.PositionOffset == Vector3.Zero))
-                        if(ImBrio.SeparatorTextButton("Transform", FontAwesomeIcon.Undo, "重置变换"))
+                        if(ImBrio.SeparatorTextButton("变换", FontAwesomeIcon.Undo, "重置变换"))
                         {
                             camera.PositionOffset = Vector3.Zero;
                             capability.Snapshot();
@@ -284,14 +284,14 @@ public static class CameraEditor
                     using(ImRaii.Disabled(true))
                     {
                         var position = camera.RealPosition;
-                        (var panyActive, var pdidChange) = ImBrio.DragFloat3($"###_transformPosition_1", ref position, 0.01f, FontAwesomeIcon.ArrowsToCircle, "Absolute Position", enableExpanded: false);
+                        (var panyActive, var pdidChange) = ImBrio.DragFloat3($"###_transformPosition_1", ref position, 0.01f, FontAwesomeIcon.ArrowsToCircle, "绝对位置", enableExpanded: false);
                     }
 
                     ImBrio.VerticalPadding(2);
 
                     {
                         Vector3 pos = camera.PositionOffset;
-                        (var panyActive, var pdidChange) = ImBrio.DragFloat3($"###_transformPosition_2", ref pos, 0.001f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position Offset", enableExpanded: false);
+                        (var panyActive, var pdidChange) = ImBrio.DragFloat3($"###_transformPosition_2", ref pos, 0.001f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置偏移", enableExpanded: false);
 
                         if(pdidChange)
                         {
@@ -307,7 +307,7 @@ public static class CameraEditor
                     //
 
                     using(ImRaii.Disabled(!camera.IsOverridden))
-                        if(ImBrio.SeparatorTextButton("Properties", FontAwesomeIcon.Undo, "重置为默认"))
+                        if(ImBrio.SeparatorTextButton("属性", FontAwesomeIcon.Undo, "重置为默认"))
                         {
                             camera.Zoom = 2.5f;
                             camera.FoV = 0f;
@@ -319,11 +319,11 @@ public static class CameraEditor
 
                     ImBrio.Icon(FontAwesomeIcon.ArrowsUpDownLeftRight);
                     ImGui.SameLine();
-                    ImBrio.AttachToolTip("Zoom");
+                    ImBrio.AttachToolTip("缩放");
 
                     float zoom = camera.Zoom;
                     ImBrio.CenterNextElementWithPadding(5);
-                    (var zoomDidChange, var zoomAnyActive) = ImBrio.SliderFloat("###zoom", ref zoom, camera.BrioCamera->Camera.MaxDistance, camera.BrioCamera->Camera.MinDistance, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "Zoom");
+                    (var zoomDidChange, var zoomAnyActive) = ImBrio.SliderFloat("###zoom", ref zoom, camera.BrioCamera->Camera.MaxDistance, camera.BrioCamera->Camera.MinDistance, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "缩放");
                     if(zoomDidChange)
                         camera.Zoom = zoom;
                     anyActiveThisFrame |= zoomAnyActive;
@@ -340,11 +340,11 @@ public static class CameraEditor
 
                     ImBrio.Icon(FontAwesomeIcon.Panorama);
                     ImGui.SameLine();
-                    ImBrio.AttachToolTip("FOV");
+                    ImBrio.AttachToolTip("视场");
 
                     float fov = camera.FoV;
                     ImBrio.CenterNextElementWithPadding(5);
-                    (var fovDidChange, var fovAnyActive) = ImBrio.SliderAngle("###fov", ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "FOV");
+                    (var fovDidChange, var fovAnyActive) = ImBrio.SliderAngle("###fov", ref fov, -44, 120, "%.2f", ImGuiSliderFlags.AlwaysClamp, toolTip: "视场");
                     if(fovDidChange)
                         camera.FoV = fov;
                     anyActiveThisFrame |= fovAnyActive;
@@ -361,12 +361,12 @@ public static class CameraEditor
 
                     ImBrio.Icon(FontAwesomeIcon.CameraRotate);
                     ImGui.SameLine();
-                    ImBrio.AttachToolTip("Pivot");
+                    ImBrio.AttachToolTip("枢轴");
 
                     ImBrio.CenterNextElementWithPadding(5);
 
                     float pivotRotation = camera.PivotRotation;
-                    (var pivotDidChange, var pivotAnyActive) = ImBrio.SliderAngle("###rotation", ref pivotRotation, -180, 180, "%.2f", toolTip: "Pivot");
+                    (var pivotDidChange, var pivotAnyActive) = ImBrio.SliderAngle("###rotation", ref pivotRotation, -180, 180, "%.2f", toolTip: "枢轴");
                     if(pivotDidChange)
                         camera.PivotRotation = pivotRotation;
                     anyActiveThisFrame |= pivotAnyActive;
@@ -387,27 +387,27 @@ public static class CameraEditor
 
                     ImBrio.Icon(FontAwesomeIcon.UsersViewfinder);
                     ImGui.SameLine();
-                    ImBrio.AttachToolTip("Pan");
+                    ImBrio.AttachToolTip("摇摄");
 
                     Vector2 pan = camera.Pan;
                     ImBrio.CenterNextElementWithPadding(5);
                     if(ImGui.DragFloat2("###pan", ref pan, 0.001f))
                         camera.Pan = pan;
                     anyActiveThisFrame |= ImGui.IsItemActive();
-                    ImBrio.AttachToolTip("Pan");
+                    ImBrio.AttachToolTip("摇摄");
 
                     //
 
                     ImBrio.Icon(FontAwesomeIcon.ArrowsSpin);
                     ImGui.SameLine();
-                    ImBrio.AttachToolTip("Angle");
+                    ImBrio.AttachToolTip("角度");
 
                     Vector2 angle = camera.Angle;
                     ImBrio.CenterNextElementWithPadding(5);
                     if(ImGui.DragFloat2("###angle", ref angle, 0.001f))
                         camera.Angle = angle;
                     anyActiveThisFrame |= ImGui.IsItemActive();
-                    ImBrio.AttachToolTip("Angle");
+                    ImBrio.AttachToolTip("角度");
 
                     //
 
@@ -439,7 +439,7 @@ public static class CameraEditor
         var camera = capability.VirtualCamera;
 
         using(ImRaii.Disabled(camera.IsSelectingActor))
-            if(ImBrio.SeparatorTextButton("Target Entity", FontAwesomeIcon.Undo, "Target Entity"))
+            if(ImBrio.SeparatorTextButton("目标实体", FontAwesomeIcon.Undo, "目标实体"))
             {
                 camera.TargetOffset = new Vector3(0);
                 camera.SelectedActorName = "选择一个角色来追踪";
@@ -447,7 +447,7 @@ public static class CameraEditor
             }
 
         using(ImRaii.Disabled(capability._entityManager.SelectedEntity is not ActorEntity))
-            if(ImBrio.FontIconButton("recenter_on_selected", FontAwesomeIcon.Bullseye, "Recenter on Selected Actor"))
+            if(ImBrio.FontIconButton("recenter_on_selected", FontAwesomeIcon.Bullseye, "重新居中到所选角色"))
             {
                 var entity = capability._entityManager.SelectedEntity;
                 if(entity is ActorEntity actor)
@@ -508,7 +508,7 @@ public static class CameraEditor
     {
         var cameraValues = _cameraCapability.CameraEntity.VirtualCamera.CutsceneCamValues;
 
-        ImGui.Text("Camera Path ");
+        ImGui.Text("相机路径 ");
 
         ImGui.InputText(string.Empty, ref cameraValues.CameraPath, 0, ImGuiInputTextFlags.ReadOnly);
 
@@ -544,13 +544,13 @@ public static class CameraEditor
 
         using(ImRaii.Disabled(string.IsNullOrEmpty(cameraValues.CameraPath)))
         {
-            ImGui.Checkbox("Enable FOV", ref _cutsceneManager.CameraSettings.EnableFOV);
+            ImGui.Checkbox("启用 FOV", ref _cutsceneManager.CameraSettings.EnableFOV);
 
             ImGui.Separator();
 
-            ImGui.Text("Disabling FOV will make for a less accurate Camera, but might");
-            ImGui.Text("provide for an easer way to support more character sizes without");
-            ImGui.Text("changing the Camera's Scale & Offset!");
+            ImGui.Text("禁用 FOV 会降低相机精度，但可能");
+            ImGui.Text("提供更简单的方式以支持更多体型，而无需");
+            ImGui.Text("修改相机的缩放与偏移！");
 
             ImGui.Separator();
 
@@ -559,13 +559,13 @@ public static class CameraEditor
 
             ImGui.Separator();
 
-            ImGui.Checkbox("Loop", ref _cutsceneManager.CameraSettings.Loop);
+            ImGui.Checkbox("循环", ref _cutsceneManager.CameraSettings.Loop);
 
-            ImGui.Checkbox("Hide Brio On Play  (Press 'Shift + B' to Stop Cutscene)", ref _cutsceneManager.CloseWindowsOnPlay);
+            ImGui.Checkbox("播放时隐藏 Brio（按 Shift+B 停止过场）", ref _cutsceneManager.CloseWindowsOnPlay);
 
             ImGui.Checkbox("###delay_Start", ref _cutsceneManager.DelayStart);
             if(ImGui.IsItemHovered())
-                ImGui.SetTooltip("Start Delay");
+                ImGui.SetTooltip("开始延迟");
 
             ImGui.SameLine();
             ImGui.SetNextItemWidth(MaxItemWidth);
@@ -577,17 +577,17 @@ public static class CameraEditor
 
             ImGui.SameLine();
             ImGui.SetCursorPosX(LabelStart);
-            ImGui.Text("Start Delay");
+            ImGui.Text("开始延迟");
 
             ImGui.Separator();
 
-            ImGui.Checkbox("Start All Actors Animations On Play", ref _cutsceneManager.StartAllActorAnimationsOnPlay);
+            ImGui.Checkbox("播放时启动所有角色动画", ref _cutsceneManager.StartAllActorAnimationsOnPlay);
 
             using(ImRaii.Disabled(_cutsceneManager.StartAllActorAnimationsOnPlay == false))
             {
                 ImGui.Checkbox("###animation_delay_Start", ref _cutsceneManager.DelayAnimationStart);
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Animation Start Delay");
+                    ImGui.SetTooltip("动画开始延迟");
 
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(MaxItemWidth);
@@ -599,20 +599,20 @@ public static class CameraEditor
 
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(LabelStart);
-                ImGui.Text("Animation Delay");
+                ImGui.Text("动画延迟");
             }
 
             ImGui.Separator();
 
-            ImGui.Text("The time-scale for the delay functions are in Milliseconds!");
-            ImGui.Text("1000 Milliseconds = 1 Second");
+            ImGui.Text("延迟功能的时间单位为毫秒！");
+            ImGui.Text("1000 毫秒 = 1 秒");
 
             ImGui.Separator();
 
             var isrunning = _cutsceneManager.IsRunning;
             using(ImRaii.Disabled(isrunning))
             {
-                if(ImGui.Button("Play"))
+                if(ImGui.Button("播放"))
                 {
                     _cutsceneManager.StartPlayback();
                 }
@@ -622,7 +622,7 @@ public static class CameraEditor
 
             using(ImRaii.Disabled(!isrunning))
             {
-                if(ImGui.Button("Stop"))
+                if(ImGui.Button("停止"))
                 {
                     _cutsceneManager.StopPlayback();
                 }

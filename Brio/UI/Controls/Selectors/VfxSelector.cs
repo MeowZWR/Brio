@@ -41,12 +41,12 @@ public class VfxSelector(string id) : GamePathSelector(id)
 
         float half = (ImGui.GetContentRegionAvail().X - ImGui.GetStyle().ItemSpacing.X) / 2f;
 
-        if(ImBrio.MultiComboBox("###vfx_selector_exp", _expansionOptions, ref _selectedExpansions, half, "All Expansions"))
+        if(ImBrio.MultiComboBox("###vfx_selector_exp", _expansionOptions, ref _selectedExpansions, half, "全部资料片"))
             UpdateList();
 
         ImGui.SameLine();
 
-        if(ImBrio.MultiComboBox("###vfx_selector_asset", _assetOptions, ref _selectedAssets, half, "All Asset Types"))
+        if(ImBrio.MultiComboBox("###vfx_selector_asset", _assetOptions, ref _selectedAssets, half, "全部资产类型"))
             UpdateList();
     }
 }

@@ -29,7 +29,7 @@ public class ActorAppearanceWindow : Window, IDisposable
     private ActorAppearanceCapability _capability = null!;
     private AppearanceImportOptions _importOptions = AppearanceImportOptions.All;
 
-    public ActorAppearanceWindow(EntityManager entityManager, GPoseService gPoseService, MCDFService mCDFService) : base($"{Brio.Name} - APPEARANCE###brio_character_editor_window")
+    public ActorAppearanceWindow(EntityManager entityManager, GPoseService gPoseService, MCDFService mCDFService) : base($"{Brio.Name} - 外观###brio_character_editor_window")
     {
         Namespace = "brio_character_editor_namespace";
 
@@ -98,7 +98,7 @@ public class ActorAppearanceWindow : Window, IDisposable
 
         bool shouldSetAppearance = false;
 
-        ImBrio.ButtonSelectorStrip("appearance_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["Equipment", "Customize"]);
+        ImBrio.ButtonSelectorStrip("appearance_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["装备", "自定义"]);
 
         if(selected == 1)
         {

@@ -5,7 +5,7 @@ namespace Brio.UI.Widgets.World;
 
 public class EnvLifetimeWidget(EnvironmentLifetimeCapability environmentLifetimeCapability) : Widget<EnvironmentLifetimeCapability>(environmentLifetimeCapability)
 {
-    public override string HeaderName => "Lifetime";
+    public override string HeaderName => "生命周期";
 
     public override WidgetFlags Flags => WidgetFlags.DrawQuickIcons;
 

@@ -13,7 +13,7 @@ public unsafe class BGOObject : WorldObject
     public BrioBgObjectEx* BgObject;
 
     public override WorldObjectType ObjectType => WorldObjectType.BgObject;
-    public override string FriendlyName { get; protected set; } = "World Object";
+    public override string FriendlyName { get; protected set; } = "世界物体";
     public override string FriendlyPath
     {
         get

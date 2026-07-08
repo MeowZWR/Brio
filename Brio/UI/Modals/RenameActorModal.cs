@@ -13,7 +13,7 @@ public class RenameActorModal : Modal
     private Entity? _currentActorEntity;
     private string _currentActorName = string.Empty;
 
-    public RenameActorModal() : base("Rename##renamemodal_popup", new(400, 95), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
+    public RenameActorModal() : base("重命名##renamemodal_popup", new(400, 95), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
     {
     }
 
@@ -38,7 +38,7 @@ public class RenameActorModal : Modal
     {
         if(_currentActorEntity is not null && _currentActorEntity.IsAttached)
         {
-            ImBrio.SeparatorText($"Renaming:  [ {_currentActorEntity.FriendlyName} ]");
+            ImBrio.SeparatorText($"重命名：[ {_currentActorEntity.FriendlyName} ]");
 
             ImBrio.VerticalPadding(5);
 
@@ -48,7 +48,7 @@ public class RenameActorModal : Modal
                 ImGui.SetKeyboardFocusHere();
                 _focusInput = false;
             }
-            ImGui.InputTextWithHint("##renamemodal_popup_name", $"Enter new name for: {_currentActorEntity.FriendlyName}...", ref _currentActorName, 20);
+            ImGui.InputTextWithHint("##renamemodal_popup_name", $"输入新名称：{_currentActorEntity.FriendlyName}...", ref _currentActorName, 20);
 
             ImBrio.VerticalPadding(8);
 
@@ -56,7 +56,7 @@ public class RenameActorModal : Modal
 
             using(ImRaii.Disabled(string.IsNullOrEmpty(_currentActorName)))
             {
-                if(ImGui.Button("Save", new(buttonW, 0)))
+                if(ImGui.Button("保存", new(buttonW, 0)))
                 {
                     if(_currentActorEntity.IsAttached)
                     {
@@ -70,7 +70,7 @@ public class RenameActorModal : Modal
 
             ImGui.SameLine();
 
-            if(ImGui.Button("Reset Name", new(buttonW, 0)))
+            if(ImGui.Button("重置名称", new(buttonW, 0)))
             {
                 if(_currentActorEntity.IsAttached)
                 {
@@ -82,7 +82,7 @@ public class RenameActorModal : Modal
 
             ImGui.SameLine();
 
-            if(ImGui.Button("Cancel", new(buttonW, 0)))
+            if(ImGui.Button("取消", new(buttonW, 0)))
             {
                 Close();
             }

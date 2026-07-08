@@ -57,7 +57,7 @@ public class GearEditor()
         }
 
         ImGui.SameLine();
-        if(ImBrio.FontIconButton("apply_invisibleclothes", FontAwesomeIcon.LowVision, "Equip Invisible Clothes"))
+        if(ImBrio.FontIconButton("apply_invisibleclothes", FontAwesomeIcon.LowVision, "装备隐形服装"))
         {
             _capability.ApplyInvisibleClothes();
         }
@@ -70,7 +70,7 @@ public class GearEditor()
         {
             if(leftGearGroup.Success)
             {
-                if(ImGui.Checkbox("Replaces Main Hand with a Prop###weaponsprops", ref _mainProp))
+                if(ImGui.Checkbox("将主手替换为道具###weaponsprops", ref _mainProp))
                 {
                     if(_mainProp == false)
                         currentAppearance.Weapons.MainHand = originalAppearance.Weapons.MainHand;
@@ -79,7 +79,7 @@ public class GearEditor()
                     didChange |= true;
                 }
                 if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Replace main weapon with a prop.");
+                    ImGui.SetTooltip("将主武器替换为道具。");
 
                 ImGui.Spacing();
 
@@ -175,7 +175,7 @@ public class GearEditor()
 
         using(ImRaii.PushId(slot.ToString()))
         {
-            ImGui.Text($"{slot}: {model?.Name ?? "Unknown"}");
+            ImGui.Text($"{slot}: {model?.Name ?? "未知"}");
 
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
@@ -241,7 +241,7 @@ public class GearEditor()
 
                         // Icon choice inspired by anamnesis
                         bool IsEars = appearance.Runtime.IsVieraEarsHidden;
-                        if(ImBrio.FontIconButton("ears", FontAwesomeIcon.Deaf, "Viera Ears Hidden", bordered: false, textColor: IsEars ? 0xFF555555 : null))
+                        if(ImBrio.FontIconButton("ears", FontAwesomeIcon.Deaf, "隐藏维埃拉耳朵", bordered: false, textColor: IsEars ? 0xFF555555 : null))
                         {
                             appearance.Runtime.IsVieraEarsHidden = !IsEars;
                             didChange |= true;
@@ -284,7 +284,7 @@ public class GearEditor()
                         {
                             ImBrio.VerticalPadding(3);
 
-                            if(ImBrio.FontIconButton("erase_equipment_popup", FontAwesomeIcon.Eraser, "Remove Equipment"))
+                            if(ImBrio.FontIconButton("erase_equipment_popup", FontAwesomeIcon.Eraser, "移除装备"))
                             {
                                 equip = SpecialAppearances.None;
                                 didChange |= true;
@@ -292,7 +292,7 @@ public class GearEditor()
                             }
 
                             ImGui.SameLine();
-                            if(ImBrio.FontIconButton("apply_smallclothes_popup", FontAwesomeIcon.UserShield, "Equip NPC Smallclothes"))
+                            if(ImBrio.FontIconButton("apply_smallclothes_popup", FontAwesomeIcon.UserShield, "装备 NPC 小型服装"))
                             {
                                 equip = SpecialAppearances.Smallclothes;
                                 didChange |= true;
@@ -355,7 +355,7 @@ public class GearEditor()
 
         using(ImRaii.PushId(slot.ToString()))
         {
-            ImGui.Text($"{slot}: {model?.Name ?? "Unknown"}");
+            ImGui.Text($"{slot}: {model?.Name ?? "未知"}");
 
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
@@ -468,7 +468,7 @@ public class GearEditor()
                         {
                             ImBrio.VerticalPadding(3);
 
-                            if(ImBrio.FontIconButton("erase_equipment_popup", FontAwesomeIcon.Eraser, "Remove Equipment"))
+                            if(ImBrio.FontIconButton("erase_equipment_popup", FontAwesomeIcon.Eraser, "移除装备"))
                             {
                                 if(slot == ActorEquipSlot.MainHand)
                                 {
@@ -521,7 +521,7 @@ public class GearEditor()
 
         using(ImRaii.PushId(slot.ToString()))
         {
-            ImGui.Text($"{slot}: {model?.Name ?? "Unknown"}");
+            ImGui.Text($"{slot}: {model?.Name ?? "未知"}");
 
             if(ImBrio.BorderedGameIcon("##icon", model?.Icon ?? 0, fallback, size: IconSize))
             {
@@ -598,7 +598,7 @@ public class GearEditor()
         FacewearUnion facewearUnion = new FacewearId(appearance.Facewear);
         var (facewearId, facewearName, facewearIcon) = facewearUnion.Match(
            glasses => ((ushort)glasses.RowId, glasses.Name, (uint)glasses.Icon),
-           none => ((ushort)0, "None", (uint)0x0)
+           none => ((ushort)0, "无", (uint)0x0)
        );
 
         using(ImRaii.PushId("facewear"))

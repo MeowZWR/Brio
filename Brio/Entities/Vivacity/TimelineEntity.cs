@@ -9,7 +9,7 @@ public class TimelineEntity(IServiceProvider provider) : Entity(FixedId, provide
 {
     public const string FixedId = "timeline_entity";
 
-    public override string FriendlyName => "Vivacity Timeline";
+    public override string FriendlyName => "灵动时间轴";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.Timeline;
 
     public override EntityFlags Flags => EntityFlags.DisableSelection;

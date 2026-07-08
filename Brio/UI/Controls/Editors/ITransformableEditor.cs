@@ -20,11 +20,11 @@ public class ITransformableEditor
             var realTransform = _trackingTransform ?? before;
             var realEuler = _trackingEuler ?? before.Rotation.ToEuler();
 
-            (var pdidChange, var panyActive) = ImBrio.DragFloat3("###_itransform_position", ref realTransform.Position, offset, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position", enableExpanded: compact);
+            (var pdidChange, var panyActive) = ImBrio.DragFloat3("###_itransform_position", ref realTransform.Position, offset, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置", enableExpanded: compact);
             ImBrio.VerticalPadding(2);
-            (var rdidChange, var ranyActive) = ImBrio.DragFloat3("###_itransform_rotation", ref realEuler, offset * 100f, FontAwesomeIcon.ArrowsSpin, "Rotation", enableExpanded: compact);
+            (var rdidChange, var ranyActive) = ImBrio.DragFloat3("###_itransform_rotation", ref realEuler, offset * 100f, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compact);
             ImBrio.VerticalPadding(2);
-            (var sdidChange, var sanyActive) = ImBrio.DragFloat3("###_itransform_scale", ref realTransform.Scale, offset, FontAwesomeIcon.ExpandAlt, "Scale", enableExpanded: compact);
+            (var sdidChange, var sanyActive) = ImBrio.DragFloat3("###_itransform_scale", ref realTransform.Scale, offset, FontAwesomeIcon.ExpandAlt, "缩放", enableExpanded: compact);
             ImBrio.VerticalPadding(2);
 
             bool didChange = pdidChange | rdidChange | sdidChange;

@@ -81,19 +81,19 @@ public class SpawnMenu
         {
             if(_actorSpawnService != null)
             {
-                ImBrio.SeparatorText("Actors");
+                ImBrio.SeparatorText("角色");
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.User, "Actor", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.User, "角色", buttonSize))
                 {
                     _actorSpawnService.CreateCharacter(out _, SpawnFlags.Default, true);
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.PlusSquare, "Actor with Companion", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.PlusSquare, "带同伴的角色", buttonSize))
                 {
                     _actorSpawnService.CreateCharacter(out _, SpawnFlags.WithCompanionSlot, false);
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Globe, "Actor from World...", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Globe, "从世界选择角色...", buttonSize))
                 {
                     ImGui.OpenPopup("FromWorldPopup");
                 }
@@ -106,7 +106,7 @@ public class SpawnMenu
 
                     if(!overworldActors.Any())
                     {
-                        ImGui.TextDisabled("No world actors found");
+                        ImGui.TextDisabled("未找到世界中的角色");
                     }
 
                     foreach(var actor in overworldActors)
@@ -128,15 +128,15 @@ public class SpawnMenu
             if(_worldObjectService != null)
             {
                 ImGui.Spacing();
-                ImBrio.SeparatorText("Objects");
+                ImBrio.SeparatorText("物体");
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Couch, "Open Object Catalog", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Couch, "打开物体目录", buttonSize))
                 {
                     UIManager.Instance.ToggleCatalogWindow();
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Cubes, "Prop", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Cubes, "道具", buttonSize))
                 {
                     _worldObjectService.SpawnProp(new FFXIVClientStructs.FFXIV.Client.Graphics.Scene.WeaponCreateInfo
                     {
@@ -153,17 +153,17 @@ public class SpawnMenu
                     });
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Chair, "Furniture Item", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Chair, "家具物品", buttonSize))
                 {
                     _worldObjectService.SpawnFurniture("bgcommon/hou/outdoor/general/0332/asset/gar_b0_m0332.sgb");
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Boxes, "World Object", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Boxes, "世界物体", buttonSize))
                 {
                     _worldObjectService.SpawnBgObject("bg/ffxiv/fst_f1/twn/common/bgparts/f1t0_a0_taru1.mdl");
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Burst, "VFX", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Burst, "特效", buttonSize))
                 {
                     _worldObjectService.SpawnStaticVfx("bgcommon/world/common/vfx_for_bg/eff/val_obj001_o.avfx");
                 }
@@ -172,24 +172,24 @@ public class SpawnMenu
             if(_lightingService != null)
             {
                 ImGui.Spacing();
-                ImBrio.SeparatorText("Lights");
+                ImBrio.SeparatorText("灯光");
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Lightbulb, "Spot Light", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Lightbulb, "聚光灯", buttonSize))
                 {
                     _lightingService.SpawnLight(LightType.SpotLight);
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Lightbulb, "Point Light", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Lightbulb, "点光源", buttonSize))
                 {
                     _lightingService.SpawnLight(LightType.PointLight);
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Lightbulb, "Flat Light", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Lightbulb, "平面光", buttonSize))
                 {
                     _lightingService.SpawnLight(LightType.FlatLight);
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Globe, "Light from World...", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Globe, "从世界选择灯光...", buttonSize))
                 {
                     ImGui.OpenPopup("FromWorldLightPopup");
                 }
@@ -210,11 +210,11 @@ public class SpawnMenu
 
                         if(worldLights.Count == 0)
                         {
-                            ImGui.TextDisabled("No world lights found");
+                            ImGui.TextDisabled("未找到世界中的灯光");
                         }
                         else
                         {
-                            if(ImGui.MenuItem($"Add All ({worldLights.Count})###containerwidgetpopup_addAllWorldLights"))
+                            if(ImGui.MenuItem($"全部添加 ({worldLights.Count})###containerwidgetpopup_addAllWorldLights"))
                             {
                                 if(worldLights.Count == 0)
                                     return;
@@ -234,7 +234,7 @@ public class SpawnMenu
                             ImGui.Separator();
                             foreach(var (light, distance) in worldLights)
                             {
-                                if(ImGui.MenuItem($"Light: {distance:F1}y##worldlight_{light}"))
+                                if(ImGui.MenuItem($"灯光：{distance:F1}y##worldlight_{light}"))
                                 {
                                     _lightingService.AddWorldLight((BrioLight*)light);
                                 }
@@ -247,15 +247,15 @@ public class SpawnMenu
             if(_cameraManager != null)
             {
                 ImGui.Spacing();
-                ImBrio.SeparatorText("Cameras");
+                ImBrio.SeparatorText("相机");
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Camera, "Brio Camera", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Camera, "Brio 相机", buttonSize))
                 {
                     _cameraManager.CreateCamera(CameraType.Game);
                     ImGui.CloseCurrentPopup();
                 }
 
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Video, "Free-Cam", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Video, "自由摄像机", buttonSize))
                 {
                     _cameraManager.CreateCamera(CameraType.Free);
                     ImGui.CloseCurrentPopup();
@@ -263,9 +263,9 @@ public class SpawnMenu
             }
 
             ImGui.Spacing();
-            ImBrio.SeparatorText("Other");
+            ImBrio.SeparatorText("其他");
 
-            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Image, "Reference Image", buttonSize))
+            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Image, "参考图", buttonSize))
             {
                 ImGui.CloseCurrentPopup();
 
@@ -279,9 +279,9 @@ public class SpawnMenu
                     });
             }
 
-            if(ImBrio.IconButtonWithText(FontAwesomeIcon.FolderPlus, "Folder", buttonSize))
+            if(ImBrio.IconButtonWithText(FontAwesomeIcon.FolderPlus, "文件夹", buttonSize))
             {
-                _entityManager.CreateEntityOnEntityContainer<FolderEntity>($"Folder");
+                _entityManager.CreateEntityOnEntityContainer<FolderEntity>($"文件夹");
             }
         }
     }

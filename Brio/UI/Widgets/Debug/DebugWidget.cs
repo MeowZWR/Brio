@@ -21,31 +21,31 @@ public class DebugWidget(DebugCapability capability, IClientState _clientState, 
         {
             if(bar.Success)
             {
-                using(var item = ImRaii.TabItem("GPose"))
+                using(var item = ImRaii.TabItem("集体动作"))
                 {
                     if(item.Success)
                         DrawGPose();
                 }
 
-                using(var item = ImRaii.TabItem("Addresses"))
+                using(var item = ImRaii.TabItem("地址"))
                 {
                     if(item.Success)
                         DrawAddresses();
                 }
 
-                using(var item = ImRaii.TabItem("Misc"))
+                using(var item = ImRaii.TabItem("杂项"))
                 {
                     if(item.Success)
                         DrawMisc();
                 }
 
-                using(var item = ImRaii.TabItem("Objects"))
+                using(var item = ImRaii.TabItem("物体"))
                 {
                     if(item.Success)
                         DrawObjects();
                 }
 
-                using(var item = ImRaii.TabItem("World"))
+                using(var item = ImRaii.TabItem("世界"))
                 {
                     if(item.Success)
                     {
@@ -64,19 +64,19 @@ public class DebugWidget(DebugCapability capability, IClientState _clientState, 
     private void DrawGPose()
     {
         bool fakeGPose = Capability.FakeGPose;
-        if(ImGui.Checkbox("Fake GPose", ref fakeGPose))
+        if(ImGui.Checkbox("模拟集体动作", ref fakeGPose))
         {
             Capability.FakeGPose = fakeGPose;
         }
 
-        if(ImGui.Button("Enter GPose"))
+        if(ImGui.Button("进入集体动作"))
         {
             Capability.EnterGPose();
         }
 
         ImGui.SameLine();
 
-        if(ImGui.Button("Exit GPose"))
+        if(ImGui.Button("退出集体动作"))
         {
             Capability.ExitGPose();
         }

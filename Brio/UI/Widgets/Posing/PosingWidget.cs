@@ -135,7 +135,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
         {
             {
                 var buttonSize = new Vector2(155 * ImGuiHelpers.GlobalScale, 0);
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Undo, "Reset Pose", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Undo, "重置姿势", buttonSize))
                 {
                     Capability.Reset(false, false);
                     ImGui.CloseCurrentPopup();
@@ -143,7 +143,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 
                 using(ImRaii.Disabled(!Capability.HasOverride(Capability.SkeletonPosing.FilterNonFaceBones)))
                 {
-                    if(ImBrio.IconButtonWithText(FontAwesomeIcon.ChildReaching, "Reset Body", buttonSize))
+                    if(ImBrio.IconButtonWithText(FontAwesomeIcon.ChildReaching, "重置身体", buttonSize))
                     {
                         Capability.Snapshot(false, reconcile: false);
                         Capability.SkeletonPosing.PoseInfo.Clear(Capability.SkeletonPosing.FilterNonFaceBones);
@@ -153,7 +153,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 
                 using(ImRaii.Disabled(!Capability.HasOverride(Capability.SkeletonPosing.FilterFaceBones)))
                 {
-                    if(ImBrio.IconButtonWithText(FontAwesomeIcon.Smile, "Reset Face", buttonSize))
+                    if(ImBrio.IconButtonWithText(FontAwesomeIcon.Smile, "重置面部", buttonSize))
                     {
                         Capability.SkeletonPosing.PoseInfo.Clear(Capability.SkeletonPosing.FilterFaceBones);
                         ImGui.CloseCurrentPopup();

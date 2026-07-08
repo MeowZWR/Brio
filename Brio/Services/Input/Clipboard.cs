@@ -79,7 +79,7 @@ public static class Clipboard
         if(popup.Success)
         {
             ImBrio.VerticalPadding(1);
-            if(ImGui.Button("Copy", new Vector2(85, 0)))
+            if(ImGui.Button("复制", new Vector2(85, 0)))
             {
                 var baseData = ToCompressedBase64(data, version);
 
@@ -135,7 +135,7 @@ public static class Clipboard
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
 // 
-//       "Object" form shall mean any form resulting from mechanical
+//       "物体" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.

@@ -54,7 +54,7 @@ public class ExtendedAppearanceEditor
         }
         ImGui.SameLine();
         ImGui.SetCursorPosX(LabelStart);
-        ImGui.Text("Alpha");
+        ImGui.Text("透明度");
 
         return didChange;
     }

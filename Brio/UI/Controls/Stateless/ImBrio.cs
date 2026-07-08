@@ -691,7 +691,7 @@ public static partial class ImBrio
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static bool MultiComboBox<T>(string id, IReadOnlyList<T> options, ref HashSet<T> selected, float width, string allPreviewText = "All")
+    public static bool MultiComboBox<T>(string id, IReadOnlyList<T> options, ref HashSet<T> selected, float width, string allPreviewText = "全部")
     {
         bool changed = false;
         string preview = selected.Count switch
@@ -705,7 +705,7 @@ public static partial class ImBrio
         using var combo = ImRaii.Combo(id, preview, ImGuiComboFlags.HeightLarge);
         if(combo.Success)
         {
-            if(selected.Count > 0 && ImGui.Selectable("Clear###clear_all", false, ImGuiSelectableFlags.DontClosePopups))
+            if(selected.Count > 0 && ImGui.Selectable("清除###clear_all", false, ImGuiSelectableFlags.DontClosePopups))
             {
                 selected.Clear();
                 changed = true;

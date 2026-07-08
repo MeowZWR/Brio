@@ -158,7 +158,7 @@ public class Mediator() : IDisposable
 
         foreach(var subscriber in subs)
         {
-            Brio.Log.Info("Subscriber {type}: {sub}", subscriber.GetType().Name, subscriber.ToString() ?? "Unknown");
+            Brio.Log.Info("Subscriber {type}: {sub}", subscriber.GetType().Name, subscriber.ToString() ?? "未知");
 
             var sb = new StringBuilder("=> ");
             foreach(var kv in _subscribers)

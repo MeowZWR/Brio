@@ -25,7 +25,7 @@ public class PosingTransformWindow : Window
 
     private Matrix4x4? _trackingMatrix;
 
-    public PosingTransformWindow(EntityManager entityManager, CameraService cameraService, PosingService posingService) : base($"{Brio.Name} - TRANSFORM###brio_transform_window", ImGuiWindowFlags.AlwaysVerticalScrollbar)
+    public PosingTransformWindow(EntityManager entityManager, CameraService cameraService, PosingService posingService) : base($"{Brio.Name} - 变换###brio_transform_window", ImGuiWindowFlags.AlwaysVerticalScrollbar)
     {
         Namespace = "brio_transform_namespace";
 
@@ -59,7 +59,7 @@ public class PosingTransformWindow : Window
 
         if(_entityManager.TryGetCapabilityFromSelectedEntity<PosingCapability>(out var posing))
         {
-            WindowName = $"TRANSFORM - {posing.Entity.FriendlyName}###brio_transform_window";
+            WindowName = $"变换 - {posing.Entity.FriendlyName}###brio_transform_window";
 
             PosingEditorCommon.DrawSelectionName(posing);
 
@@ -96,7 +96,7 @@ public class PosingTransformWindow : Window
             if(ImBrio.FontIconButton(FontAwesomeIcon.MinusSquare, new Vector2(buttonWidth, 0)))
                 posing.ClearSelection();
         }
-        ImBrio.AttachToolTip("Clear Selection");
+        ImBrio.AttachToolTip("清除选择");
 
         // Select Parent
         ImGui.SameLine();
@@ -111,7 +111,7 @@ public class PosingTransformWindow : Window
             if(ImBrio.FontIconButton(FontAwesomeIcon.LevelUpAlt, new Vector2(buttonWidth, 0)))
                 posing.SetBoneSelection(new BonePoseInfoId(parentBone!.Name, parentBone!.PartialId, PoseInfoSlot.Character), false);
         }
-        ImBrio.AttachToolTip("Select Parent");
+        ImBrio.AttachToolTip("选择父级");
 
         ImGui.SameLine();
         // Mirror mode

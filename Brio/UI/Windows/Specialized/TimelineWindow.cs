@@ -22,7 +22,7 @@ public class TimelineWindow : Window, IDisposable
     private readonly TimelineService _timelineService;
     private readonly TimelineSequencerEditor _editor;
 
-    public TimelineWindow(GPoseService gPoseService, ConfigurationService configurationService, TimelineService timelineService) : base($"{Brio.Name} - VIVACITY TIMELINE BETA ###brio_timeline_window")
+    public TimelineWindow(GPoseService gPoseService, ConfigurationService configurationService, TimelineService timelineService) : base($"{Brio.Name} - 灵动时间轴（测试版）###brio_timeline_window")
     {
         Namespace = "brio_timeline_namespace";
 
@@ -83,24 +83,24 @@ public class TimelineWindow : Window, IDisposable
 
     private void DrawToolbar()
     {
-        if(ImBrio.FontIconButton("##timeline_add", FontAwesomeIcon.Plus, "Add..."))
+        if(ImBrio.FontIconButton("##timeline_add", FontAwesomeIcon.Plus, "添加..."))
             ImGui.OpenPopup("##timeline_add_popup");
         DrawAddPopup();
 
         ImGui.SameLine();
         ImGui.SetNextItemWidth(120f * ImGuiHelpers.GlobalScale);
         var max = _timelineService.FrameMax;
-        if(ImGui.DragInt("Length", ref max, 1f, _timelineService.FrameMin + 1, 10000))
+        if(ImGui.DragInt("长度", ref max, 1f, _timelineService.FrameMin + 1, 10000))
             _timelineService.FrameMax = Math.Max(_timelineService.FrameMin + 1, max);
-        ImBrio.AttachToolTip("Length in Frames");
+        ImBrio.AttachToolTip("帧长度");
 
         var style = ImGui.GetStyle();
         var buttonWidth = 25f * ImGuiHelpers.GlobalScale;
         var centerWidth = (buttonWidth * 6) + (style.ItemSpacing.X * 5);
 
-        var loopWidth = ImGui.GetFrameHeight() + style.ItemInnerSpacing.X + ImGui.CalcTextSize("Loop").X;
+        var loopWidth = ImGui.GetFrameHeight() + style.ItemInnerSpacing.X + ImGui.CalcTextSize("循环").X;
         var resetWidth = 25f * ImGuiHelpers.GlobalScale;
-        var fpsWidth = (65f * ImGuiHelpers.GlobalScale) + style.ItemInnerSpacing.X + ImGui.CalcTextSize("FPS").X;
+        var fpsWidth = (65f * ImGuiHelpers.GlobalScale) + style.ItemInnerSpacing.X + ImGui.CalcTextSize("帧率").X;
         var rightWidth = loopWidth + style.ItemSpacing.X + resetWidth + style.ItemSpacing.X + fpsWidth;
 
         ImGui.SameLine();
@@ -108,14 +108,14 @@ public class TimelineWindow : Window, IDisposable
         var offset = Math.Max(0f, (ImBrio.GetRemainingWidth() - centerWidth - rightWidth) * 0.5f);
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + offset);
 
-        if(ImBrio.FontIconButton("##timeline_first_frame", FontAwesomeIcon.FastBackward, "Jump to First Frame"))
+        if(ImBrio.FontIconButton("##timeline_first_frame", FontAwesomeIcon.FastBackward, "跳转到第一帧"))
         {
             _timelineService.CurrentFrame = _timelineService.FrameMin;
             _timelineService.ApplyCurrentFrame(true);
         }
 
         ImGui.SameLine();
-        if(ImBrio.FontIconButton("##timeline_prev_frame", FontAwesomeIcon.StepBackward, "Go to Previous Frame"))
+        if(ImBrio.FontIconButton("##timeline_prev_frame", FontAwesomeIcon.StepBackward, "上一帧"))
         {
             _timelineService.CurrentFrame = Math.Clamp(_timelineService.CurrentFrame - 1, _timelineService.FrameMin, _timelineService.FrameMax);
             _timelineService.ApplyCurrentFrame(true);
@@ -123,22 +123,22 @@ public class TimelineWindow : Window, IDisposable
 
         ImGui.SameLine();
         var playIcon = _timelineService.IsPlaying ? FontAwesomeIcon.Pause : FontAwesomeIcon.Play;
-        if(ImBrio.FontIconButton("##timeline_play", playIcon, "Play / Pause"))
+        if(ImBrio.FontIconButton("##timeline_play", playIcon, "播放 / 暂停"))
             _timelineService.TogglePlay();
 
         ImGui.SameLine();
-        if(ImBrio.FontIconButton("##timeline_stop", FontAwesomeIcon.Stop, "Stop"))
+        if(ImBrio.FontIconButton("##timeline_stop", FontAwesomeIcon.Stop, "停止"))
             _timelineService.Stop();
 
         ImGui.SameLine();
-        if(ImBrio.FontIconButton("##timeline_next_frame", FontAwesomeIcon.StepForward, "Go to Next Frame"))
+        if(ImBrio.FontIconButton("##timeline_next_frame", FontAwesomeIcon.StepForward, "下一帧"))
         {
             _timelineService.CurrentFrame = Math.Clamp(_timelineService.CurrentFrame + 1, _timelineService.FrameMin, _timelineService.FrameMax);
             _timelineService.ApplyCurrentFrame(true);
         }
 
         ImGui.SameLine();
-        if(ImBrio.FontIconButton("##timeline_last_frame", FontAwesomeIcon.FastForward, "Jump to Last Frame"))
+        if(ImBrio.FontIconButton("##timeline_last_frame", FontAwesomeIcon.FastForward, "跳转到最后一帧"))
         {
             _timelineService.CurrentFrame = _timelineService.FrameMax;
             _timelineService.ApplyCurrentFrame(true);
@@ -148,7 +148,7 @@ public class TimelineWindow : Window, IDisposable
         ImBrio.RightAlign(rightWidth);
 
         var loop = _configurationService.Configuration.Timeline.Loop;
-        if(ImGui.Checkbox("Loop", ref loop))
+        if(ImGui.Checkbox("循环", ref loop))
         {
             _configurationService.Configuration.Timeline.Loop = loop;
             _configurationService.ApplyChange();
@@ -171,10 +171,10 @@ public class TimelineWindow : Window, IDisposable
                 }
             }
         }
-        ImBrio.AttachToolTip("FPS");
+        ImBrio.AttachToolTip("帧率");
 
         ImGui.SameLine();
-        if(ImBrio.HoldButton("##timeline_reset_all", string.Empty, FontAwesomeIcon.TrashAlt, 1f, new Vector2(resetWidth, 0), tooltip: "[HOLD]\nClears all keyframe data on every open Timeline tab", onlyIcon: true))
+        if(ImBrio.HoldButton("##timeline_reset_all", string.Empty, FontAwesomeIcon.TrashAlt, 1f, new Vector2(resetWidth, 0), tooltip: "[长按]\n清除所有打开的时间轴标签上的关键帧数据", onlyIcon: true))
         {
             foreach(var host in _timelineService.ActiveHosts)
                 host.Tracks.Clear();
@@ -199,7 +199,7 @@ public class TimelineWindow : Window, IDisposable
 
         if(!any)
         {
-            ImGui.TextDisabled("Nothing available to add.");
+            ImGui.TextDisabled("没有可添加的内容。");
         }
     }
 

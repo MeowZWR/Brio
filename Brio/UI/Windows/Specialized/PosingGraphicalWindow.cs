@@ -49,7 +49,7 @@ public class PosingGraphicalWindow : Window, IDisposable
     int _selectedPane = 0;
     private bool _hideControlPane = false;
 
-    public PosingGraphicalWindow(EntityManager entityManager, CameraService cameraService, PhysicsService physicsService, ConfigurationService configurationService, PosingService posingService, GPoseService gPoseService) : base($"{Brio.Name} - POSING###brio_posing_graphical_window")
+    public PosingGraphicalWindow(EntityManager entityManager, CameraService cameraService, PhysicsService physicsService, ConfigurationService configurationService, PosingService posingService, GPoseService gPoseService) : base($"{Brio.Name} - 摆姿###brio_posing_graphical_window")
     {
         Namespace = "brio_posing_graphical_namespace";
 
@@ -124,7 +124,7 @@ public class PosingGraphicalWindow : Window, IDisposable
         posing.Hover = new None();
         _closestHover = float.MaxValue;
 
-        WindowName = $"{Brio.Name} - POSING###brio_posing_graphical_window";
+        WindowName = $"{Brio.Name} - 摆姿###brio_posing_graphical_window";
 
         DrawTopBar(posing);
 
@@ -188,7 +188,7 @@ public class PosingGraphicalWindow : Window, IDisposable
         ImGui.SameLine();
         ImBrio.HorizontalPadding(5);
 
-        if(ImBrio.ToggelButton("Freeze Physics", new Vector2(130, 0), _physicsService.IsFreezeEnabled, hoverText: _physicsService.IsFreezeEnabled ? "Un-Freeze Physics" : "Freeze Physics"))
+        if(ImBrio.ToggelButton("冻结物理", new Vector2(130, 0), _physicsService.IsFreezeEnabled, hoverText: _physicsService.IsFreezeEnabled ? "解冻物理" : "冻结物理"))
         {
             _physicsService.FreezeToggle();
         }
@@ -197,7 +197,7 @@ public class PosingGraphicalWindow : Window, IDisposable
 
         if(_entityManager.TryGetCapabilityFromSelectedEntity<ActionTimelineCapability>(out var capability, considerParents: true))
         {
-            if(ImBrio.ToggelButton("Freeze Character", new Vector2(130, 0), capability.SpeedMultiplier == 0, hoverText: capability.SpeedMultiplierOverride == 0 ? "Un-Freeze Character" : "Freeze Character") || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Freeze))
+            if(ImBrio.ToggelButton("冻结角色", new Vector2(130, 0), capability.SpeedMultiplier == 0, hoverText: capability.SpeedMultiplierOverride == 0 ? "解冻角色" : "冻结角色") || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Freeze))
             {
                 if(capability.SpeedMultiplierOverride == 0)
                     capability.ResetOverallSpeedOverride();
@@ -252,7 +252,7 @@ public class PosingGraphicalWindow : Window, IDisposable
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Undo");
+            ImGui.SetTooltip("撤销");
 
         ImGui.SameLine();
 
@@ -263,7 +263,7 @@ public class PosingGraphicalWindow : Window, IDisposable
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Redo");
+            ImGui.SetTooltip("重做");
 
         ImBrio.VerticalSeparator(24);
 
@@ -274,7 +274,7 @@ public class PosingGraphicalWindow : Window, IDisposable
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Reset Pose");
+            ImGui.SetTooltip("重置姿势");
 
         ImBrio.VerticalSeparator(24);
 
@@ -302,7 +302,7 @@ public class PosingGraphicalWindow : Window, IDisposable
             ImGui.OpenPopup("graphic_options_popup");
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Options");
+            ImGui.SetTooltip("选项");
 
         using(var popup = ImRaii.Popup("graphic_options_popup"))
         {
@@ -359,7 +359,7 @@ public class PosingGraphicalWindow : Window, IDisposable
             if(ImBrio.FontIconButton(FontAwesomeIcon.MinusSquare, new Vector2(width, 0)))
                 posing.ClearSelection();
         }
-        ImBrio.AttachToolTip("Clear Selection");
+        ImBrio.AttachToolTip("清除选择");
 
 
         ImGui.SameLine();
@@ -374,13 +374,13 @@ public class PosingGraphicalWindow : Window, IDisposable
             if(ImBrio.FontIconButton(FontAwesomeIcon.LevelUpAlt, new Vector2(width, 0)))
                 posing.SetBoneSelection(new BonePoseInfoId(parentBone!.Name, parentBone!.PartialId, PoseInfoSlot.Character), false);
         }
-        ImBrio.AttachToolTip("Select Parent");
+        ImBrio.AttachToolTip("选择父级");
 
         ImGui.SameLine();
 
         PosingEditorCommon.DrawMirrorModeSelect(posing, new Vector2(width, 0));
 
-        var boneName = posing.IsMultiSelecting ? "Multiple Selected" : posing.Selected.DisplayName;
+        var boneName = posing.IsMultiSelecting ? "多选" : posing.Selected.DisplayName;
         ImBrio.SeparatorText($"[{boneName}]");
     }
 

@@ -55,7 +55,7 @@ public class ModelDatabase
         }
 
         // Special
-        var none = new ModelInfo(0, 0, "None", 0, ActorEquipSlot.All, null);
+        var none = new ModelInfo(0, 0, "无", 0, ActorEquipSlot.All, null);
         AddModel(none);
 
         var smallclothes = new ModelInfo(SpecialAppearances.Smallclothes.Value, 0, "Smallclothes", 0, ActorEquipSlot.AllButWeapons, null);

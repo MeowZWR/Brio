@@ -11,7 +11,7 @@ namespace Brio.UI.Widgets.Core;
 
 public class EntityManagerWidget(EntitManagerCapability capability) : Widget<EntitManagerCapability>(capability)
 {
-    public override string HeaderName => "Multi-Selection";
+    public override string HeaderName => "多选";
 
     public override WidgetFlags Flags => Capability.Entity.EntityManager.SelectedEntities.Count > 1 ?
         WidgetFlags.DrawQuickIcons | WidgetFlags.DrawPopup | WidgetFlags.DrawBody | WidgetFlags.DefaultOpen :
@@ -29,7 +29,7 @@ public class EntityManagerWidget(EntitManagerCapability capability) : Widget<Ent
 
             ImBrio.VerticalPadding(7);
 
-            ImBrio.SeparatorText("Transform");
+            ImBrio.SeparatorText("变换");
             Capability.DrawMultiTransform();
 
             ImBrio.VerticalPadding(10);
@@ -38,23 +38,23 @@ public class EntityManagerWidget(EntitManagerCapability capability) : Widget<Ent
 
     public override void DrawPopup()
     {
-        if(ImGui.BeginMenu("Destroy All...###containerwidgetpopup_destroy"))
+        if(ImGui.BeginMenu("全部销毁...###containerwidgetpopup_destroy"))
         {
             using(ImRaii.Disabled(Capability.HasFolders == false))
             {
-                if(ImGui.BeginMenu("Folders###entitymanager_destroyall_folders"))
+                if(ImGui.BeginMenu("文件夹###entitymanager_destroyall_folders"))
                 {
-                    if(ImGui.BeginMenu("Return Children to Root###entitymanager_destroyall_folders_return"))
+                    if(ImGui.BeginMenu("将子项归还根目录###entitymanager_destroyall_folders_return"))
                     {
-                        if(ImGui.MenuItem("Confirm###entitymanager_destroyall_folders_return_confirm"))
+                        if(ImGui.MenuItem("确认###entitymanager_destroyall_folders_return_confirm"))
                             Capability.ReturnAllFolderChildren();
 
                         ImGui.EndMenu();
                     }
 
-                    if(ImGui.BeginMenu("Destroy All Children###entitymanager_destroyall_folders_destroy"))
+                    if(ImGui.BeginMenu("销毁所有子项###entitymanager_destroyall_folders_destroy"))
                     {
-                        if(ImGui.MenuItem("Confirm###entitymanager_destroyall_folders_destroy_confirm"))
+                        if(ImGui.MenuItem("确认###entitymanager_destroyall_folders_destroy_confirm"))
                             Capability.DestroyAllFolderChildren();
 
                         ImGui.EndMenu();
@@ -66,9 +66,9 @@ public class EntityManagerWidget(EntitManagerCapability capability) : Widget<Ent
 
             using(ImRaii.Disabled(Capability.HasWorldObjects == false))
             {
-                if(ImGui.BeginMenu("World Objects###entitymanager_destroyall_worldobjects"))
+                if(ImGui.BeginMenu("世界物体###entitymanager_destroyall_worldobjects"))
                 {
-                    if(ImGui.MenuItem("Confirm Destruction###entitymanager_destroyall_worldobjects_confirm"))
+                    if(ImGui.MenuItem("确认销毁###entitymanager_destroyall_worldobjects_confirm"))
                         Capability.DestroyAllWorldObjects();
 
                     ImGui.EndMenu();
@@ -85,28 +85,28 @@ public class EntityManagerWidget(EntitManagerCapability capability) : Widget<Ent
         {
             bool hasSelection = Capability.Entity.EntityManager.SelectedEntity != null;
 
-            if(ImBrio.FontIconButton("Manager_clone", FontAwesomeIcon.Clone, "Clone Selected", hasSelection))
+            if(ImBrio.FontIconButton("Manager_clone", FontAwesomeIcon.Clone, "克隆所选", hasSelection))
             {
                 Capability.CloneSelected();
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("Manager_selectinhierarchy", FontAwesomeIcon.CheckSquare, "Select All"))
+            if(ImBrio.FontIconButton("Manager_selectinhierarchy", FontAwesomeIcon.CheckSquare, "全选"))
             {
                 Capability.SelectAllInHierarchy();
             }
 
             ImBrio.VerticalSeparator(24, 1);
 
-            if(ImBrio.HoldButton("manager_destroyall", "", FontAwesomeIcon.Bomb, 1f, new(40, 0), centerTest: true, tooltip: "[HOLD TO DESTROY ALL]", onlyIcon: true))
+            if(ImBrio.HoldButton("manager_destroyall", "", FontAwesomeIcon.Bomb, 1f, new(40, 0), centerTest: true, tooltip: "[长按销毁全部]", onlyIcon: true))
             {
                 Capability.DestroyAllSelected();
             }
 
             ImBrio.VerticalSeparator(24, 1);
 
-            if(ImBrio.FontIconButton("Manager_move", FontAwesomeIcon.FolderTree, "Move to Folder...", hasSelection))
+            if(ImBrio.FontIconButton("Manager_move", FontAwesomeIcon.FolderTree, "移动到文件夹...", hasSelection))
             {
                 ImGui.OpenPopup("manager_move_to_folder_popup");
             }
@@ -123,14 +123,14 @@ public class EntityManagerWidget(EntitManagerCapability capability) : Widget<Ent
 
                     ImGui.Separator();
 
-                    if(ImGui.MenuItem("New Folder...###manager_move_to_new_folder"))
+                    if(ImGui.MenuItem("新建文件夹...###manager_move_to_new_folder"))
                         Capability.MoveSelectedToNewFolder();
                 }
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("Manager_folderoptions", FontAwesomeIcon.EllipsisV, "Folder Options", Capability.HasFolders))
+            if(ImBrio.FontIconButton("Manager_folderoptions", FontAwesomeIcon.EllipsisV, "文件夹选项", Capability.HasFolders))
             {
                 ImGui.OpenPopup("manager_folder_options_popup");
             }
@@ -139,10 +139,10 @@ public class EntityManagerWidget(EntitManagerCapability capability) : Widget<Ent
             {
                 if(popup.Success)
                 {
-                    if(ImGui.MenuItem("Return All Children to Entity Manager###manager_folderoptions_return"))
+                    if(ImGui.MenuItem("将所有子项归还实体管理器###manager_folderoptions_return"))
                         Capability.ReturnAllFolderChildren();
 
-                    if(ImGui.MenuItem("Destroy All Folders + Children###manager_folderoptions_destroy"))
+                    if(ImGui.MenuItem("销毁所有文件夹及子项###manager_folderoptions_destroy"))
                         Capability.DestroyAllFolderChildren();
                 }
             }

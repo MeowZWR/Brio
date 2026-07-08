@@ -22,7 +22,7 @@ public class ProjectWindow : Window, IDisposable
     static Project? selectedItem;
     private const float InfoPaneWidth = 175;
 
-    public ProjectWindow(ProjectSystem projectSystem, MCDFService mCDFService, GPoseService gPoseService) : base($"{Brio.Name} LOAD PROJECT###brio_project_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+    public ProjectWindow(ProjectSystem projectSystem, MCDFService mCDFService, GPoseService gPoseService) : base($"{Brio.Name} 加载项目###brio_project_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         Namespace = "brio_project_namespace";
 
@@ -101,7 +101,7 @@ public class ProjectWindow : Window, IDisposable
 
             using(ImRaii.Disabled(selectedItem is null))
             {
-                if(ImBrio.Button("Load", FontAwesomeIcon.FileImport, new(120, 0), centerTest: true, tooltip: "Load Project"))
+                if(ImBrio.Button("加载", FontAwesomeIcon.FileImport, new(120, 0), centerTest: true, tooltip: "加载项目"))
                 {
                     _projectSystem.LoadProject(selectedItem!, destroyAll, useRelativeLightPositions, useRelativeWorldObjectPositions, importOptions);
                 }
@@ -136,7 +136,7 @@ public class ProjectWindow : Window, IDisposable
             }
             using(ImRaii.Disabled(selectedItem is null))
             {
-                if(ImBrio.HoldButton("proj_delete", "Delete", FontAwesomeIcon.Trash, 1.1f, new(120, 0), centerTest: true, tooltip: "[HOLD]\nDelete Project"))
+                if(ImBrio.HoldButton("proj_delete", "删除", FontAwesomeIcon.Trash, 1.1f, new(120, 0), centerTest: true, tooltip: "[HOLD]\nDelete Project"))
                 {
                     _projectSystem.DeleteProject(selectedItem!);
                     selectedItem = null;
@@ -158,12 +158,12 @@ public class ProjectWindow : Window, IDisposable
 
         ImGui.SetCursorPosY(itemTop + ImGui.GetStyle().FramePadding.Y);
 
-        ImGui.Text(project.Name ?? "No Name Source");
+        ImGui.Text(project.Name ?? "无名称来源");
 
         if(project.Created.HasValue)
             ImGui.Text($"Created: {project.Created.Value:g}");
 
-        ImGui.Text(project.Description ?? "No Description");
+        ImGui.Text(project.Description ?? "无描述");
 
         ImGui.SetCursorPosY(itemTop + itemHeight + ImGui.GetStyle().ItemSpacing.Y);
 

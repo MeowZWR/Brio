@@ -16,7 +16,7 @@ public static class KeybindEditor
         List<string> names = [];
         List<VirtualKey> keys = [];
 
-        names.Add("None");
+        names.Add("无");
         keys.Add(VirtualKey.NO_KEY);
 
         foreach(var vk in InputManagerService.GetValidKeys())
@@ -67,7 +67,7 @@ public static class KeybindEditor
 
             if(ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             {
-                ImGui.SetTooltip("Control");
+                ImGui.SetTooltip("Ctrl");
             }
         }
 

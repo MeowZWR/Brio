@@ -42,7 +42,7 @@ public class PosingOverlayToolbarWindow : Window
     private readonly IFramework _framework;
 
     private bool _pushedStyle = false;
-    public PosingOverlayToolbarWindow(PosingOverlayWindow overlayWindow, IFramework framework, LightWindow lightWindow, GameInputService gameInputService, EntityManager entityManager, PosingTransformWindow overlayTransformWindow, PosingService posingService, ConfigurationService configurationService) : base($"{Brio.Name} OVERLAY###brio_posing_overlay_toolbar_window", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse)
+    public PosingOverlayToolbarWindow(PosingOverlayWindow overlayWindow, IFramework framework, LightWindow lightWindow, GameInputService gameInputService, EntityManager entityManager, PosingTransformWindow overlayTransformWindow, PosingService posingService, ConfigurationService configurationService) : base($"{Brio.Name} 叠加层###brio_posing_overlay_toolbar_window", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoCollapse)
     {
         Namespace = "brio_posing_overlay_toolbar_namespace";
 
@@ -182,7 +182,7 @@ public class PosingOverlayToolbarWindow : Window
                 posing?.Actor.IsOverlayVisible = !posing.Actor.IsOverlayVisible;
             }
         }
-        ImBrio.AttachToolTip(posing is null ? "(This Entity has no Bones)" : posing?.Actor.IsOverlayVisible ?? false ? "Hide Actor's bones in overlay" : "Always show Actor's bones in overlay");
+        ImBrio.AttachToolTip(posing is null ? "(This Entity has no Bones)" : posing?.Actor.IsOverlayVisible ?? false ? "在叠加层隐藏角色骨骼" : "始终在叠加层显示角色骨骼");
 
         ImGui.SameLine();
 
@@ -206,7 +206,7 @@ public class PosingOverlayToolbarWindow : Window
                     _lightWindow.IsOpen = !_lightWindow.IsOpen;
             }
         }
-        ImBrio.AttachToolTip("Toggle Light Window");
+        ImBrio.AttachToolTip("开关灯光窗口");
 
         ImGui.SameLine();
 
@@ -215,14 +215,14 @@ public class PosingOverlayToolbarWindow : Window
             if(ImGui.Button($"{FontAwesomeIcon.WindowClose.ToIconString()}###close_overlay", button4XSizeVector2))
                 _overlayWindow.IsOpen = false;
         }
-        ImBrio.AttachToolTip("Close Overlay");
+        ImBrio.AttachToolTip("关闭叠加层");
 
         //
         // ------------- Gizmo
 
-        if(ImBrio.SeparatorTextButton("Gizmo",
+        if(ImBrio.SeparatorTextButton("变换器",
             _posingService.CoordinateMode == PosingCoordinateMode.Local ? FontAwesomeIcon.Globe : FontAwesomeIcon.Atom,
-            tooltip: _posingService.CoordinateMode == PosingCoordinateMode.Local ? "Switch to World" : "Switch to Local")
+            tooltip: _posingService.CoordinateMode == PosingCoordinateMode.Local ? "切换到世界" : "切换到本地")
             || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_ToggleWorld))
         {
             _posingService.CoordinateMode = _posingService.CoordinateMode == PosingCoordinateMode.Local ? PosingCoordinateMode.World : PosingCoordinateMode.Local;
@@ -238,7 +238,7 @@ public class PosingOverlayToolbarWindow : Window
                     _posingService.Operation = PosingOperation.Translate;
             }
         }
-        ImBrio.AttachToolTip("Position");
+        ImBrio.AttachToolTip("位置");
 
         ImGui.SameLine();
 
@@ -250,7 +250,7 @@ public class PosingOverlayToolbarWindow : Window
                     _posingService.Operation = PosingOperation.Rotate;
             }
         }
-        ImBrio.AttachToolTip("Rotation");
+        ImBrio.AttachToolTip("旋转");
 
         ImGui.SameLine();
 
@@ -262,7 +262,7 @@ public class PosingOverlayToolbarWindow : Window
                     _posingService.Operation = PosingOperation.Scale;
             }
         }
-        ImBrio.AttachToolTip("Scale");
+        ImBrio.AttachToolTip("缩放");
 
         ImGui.SameLine();
 
@@ -276,13 +276,13 @@ public class PosingOverlayToolbarWindow : Window
                 }
             }
         }
-        ImBrio.AttachToolTip("Universal");
+        ImBrio.AttachToolTip("通用");
 
         //
         // ------------- Entity Specific
         //
 
-        ImBrio.SeparatorText(hasMultipleActorsSelected ? "Multiple Selected" : _entityManager.SelectedEntity?.FriendlyName ?? "No Selection");
+        ImBrio.SeparatorText(hasMultipleActorsSelected ? "多选" : _entityManager.SelectedEntity?.FriendlyName ?? "未选择");
 
         var bone = posing?.Selected.Match(
               boneSelect => posing.SkeletonPosing.GetBone(boneSelect),
@@ -309,7 +309,7 @@ public class PosingOverlayToolbarWindow : Window
                         ImGui.OpenPopup("overlay_bone_ik");
                 }
             }
-            ImBrio.AttachToolTip("Inverse Kinematics");
+            ImBrio.AttachToolTip("反向动力学");
 
             ImGui.SameLine();
 
@@ -336,7 +336,7 @@ public class PosingOverlayToolbarWindow : Window
                     }
                 }
             }
-            ImBrio.AttachToolTip("Clear Selection");
+            ImBrio.AttachToolTip("清除选择");
 
             ImGui.SameLine();
 
@@ -352,7 +352,7 @@ public class PosingOverlayToolbarWindow : Window
                         posing?.SetBoneSelection(new BonePoseInfoId(parentBone!.Name, parentBone!.PartialId, PoseInfoSlot.Character), false);
                 }
             }
-            ImBrio.AttachToolTip("Select Parent");
+            ImBrio.AttachToolTip("选择父级");
 
             ImGui.SameLine();
 
@@ -395,7 +395,7 @@ public class PosingOverlayToolbarWindow : Window
                 if(ImGui.Button($"{FontAwesomeIcon.Bone.ToIconString()}###toggle_filter_window", button2XSizeVector2))
                     ImGui.OpenPopup(_boneFilterPopupName);
             }
-            ImBrio.AttachToolTip("Bone Filter");
+            ImBrio.AttachToolTip("骨骼筛选");
 
             ImGui.SameLine();
 
@@ -407,7 +407,7 @@ public class PosingOverlayToolbarWindow : Window
                 if(ImGui.Button($"{FontAwesomeIcon.Search.ToIconString()}###bone_search", button2XSizeVector2))
                     ImGui.OpenPopup("overlay_bone_search_popup");
             }
-            ImBrio.AttachToolTip("Bone Search");
+            ImBrio.AttachToolTip("骨骼搜索");
         }
 
         //
@@ -417,7 +417,7 @@ public class PosingOverlayToolbarWindow : Window
         var selectedVfx = worldTransform?.GameBgObject as StaticVfxObject;
 
         using(ImRaii.Disabled(hasMultipleActorsSelected || !((posing?.CanResetBone(bone) ?? false) || selectedVfx is not null)))
-            if(ImBrio.SeparatorTextButton("State", FontAwesomeIcon.Retweet, selectedVfx is not null ? "Restart VFX" : "Reset Bone"))
+            if(ImBrio.SeparatorTextButton("状态", FontAwesomeIcon.Retweet, selectedVfx is not null ? "重启特效" : "重置骨骼"))
             {
                 if(posing is not null)
                     posing.ResetSelectedBone();
@@ -441,7 +441,7 @@ public class PosingOverlayToolbarWindow : Window
                 }
             }
         }
-        ImBrio.AttachToolTip("Undo");
+        ImBrio.AttachToolTip("撤销");
 
         ImGui.SameLine();
 
@@ -457,7 +457,7 @@ public class PosingOverlayToolbarWindow : Window
                 }
             }
         }
-        ImBrio.AttachToolTip("Redo");
+        ImBrio.AttachToolTip("重做");
 
         ImGui.SameLine();
 
@@ -476,7 +476,7 @@ public class PosingOverlayToolbarWindow : Window
                 }
             }
         }
-        ImBrio.AttachToolTip($"Reset Transform {_entityManager.SelectedEntity?.FriendlyName}");
+        ImBrio.AttachToolTip($"重置变换 {_entityManager.SelectedEntity?.FriendlyName}");
 
         //using(ImRaii.PushFont(UiBuilder.IconFont))
         //{
@@ -493,7 +493,7 @@ public class PosingOverlayToolbarWindow : Window
         //    }
         //}
 
-        //ImBrio.AttachToolTip("Reset Body");
+        //ImBrio.AttachToolTip("重置身体");
 
         //ImGui.SameLine();
 
@@ -509,7 +509,7 @@ public class PosingOverlayToolbarWindow : Window
 
         //}
 
-        //ImBrio.AttachToolTip("Reset Face");
+        //ImBrio.AttachToolTip("重置面部");
 
         //ImGui.SameLine();
 
@@ -517,7 +517,7 @@ public class PosingOverlayToolbarWindow : Window
         // ------------- File
         //
 
-        ImBrio.SeparatorText("File");
+        ImBrio.SeparatorText("文件");
 
         // Load Pose Button
 
@@ -527,7 +527,7 @@ public class PosingOverlayToolbarWindow : Window
             if(ImGui.Button($"{FontAwesomeIcon.FileDownload.ToIconString()}###import_pose", button2XSizeVector2))
                 ImGui.OpenPopup("DrawImportPoseMenuPopup");
         }
-        ImBrio.AttachToolTip("Import Pose");
+        ImBrio.AttachToolTip("导入姿势");
 
         ImGui.SameLine();
 
@@ -539,7 +539,7 @@ public class PosingOverlayToolbarWindow : Window
             if(ImGui.Button($"{FontAwesomeIcon.Save.ToIconString()}###export_pose", button2XSizeVector2))
                 ImGui.OpenPopup("DrawExportPoseMenuPopup");
         }
-        ImBrio.AttachToolTip("Save Pose");
+        ImBrio.AttachToolTip("保存姿势");
 
         ImGui.PopStyleColor();
 
@@ -599,7 +599,7 @@ public class PosingOverlayToolbarWindow : Window
         {
             var buttonSize = new Vector2(155 * ImGuiHelpers.GlobalScale, 0);
 
-            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Undo, "Reset Pose", buttonSize))
+            if(ImBrio.IconButtonWithText(FontAwesomeIcon.Undo, "重置姿势", buttonSize))
             {
                 posing.Reset(false, false);
                 ImGui.CloseCurrentPopup();
@@ -607,7 +607,7 @@ public class PosingOverlayToolbarWindow : Window
 
             using(ImRaii.Disabled(!posing.HasOverride(posing.SkeletonPosing.FilterNonFaceBones)))
             {
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.ChildReaching, "Reset Body", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.ChildReaching, "重置身体", buttonSize))
                 {
                     posing.Snapshot(false, reconcile: false);
                     posing.SkeletonPosing.PoseInfo.Clear(posing.SkeletonPosing.FilterNonFaceBones);
@@ -617,7 +617,7 @@ public class PosingOverlayToolbarWindow : Window
 
             using(ImRaii.Disabled(!posing.HasOverride(posing.SkeletonPosing.FilterFaceBones)))
             {
-                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Smile, "Reset Face", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Smile, "重置面部", buttonSize))
                 {
                     posing.SkeletonPosing.PoseInfo.Clear(posing.SkeletonPosing.FilterFaceBones);
                     ImGui.CloseCurrentPopup();
@@ -695,7 +695,7 @@ public class PosingOverlayToolbarWindow : Window
             }
         }
 
-        ImBrio.AttachToolTip($"{(allFrozen ? "Un-" : "")}Freeze Selected");
+        ImBrio.AttachToolTip(allFrozen ? "解冻所选" : "冻结所选");
     }
 
     private static bool TryGetSelectedVfx(Entity entity, [MaybeNullWhen(false)] out StaticVfxObject vfx)

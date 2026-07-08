@@ -89,7 +89,7 @@ public class CatalogWindow : Window, IDisposable
     private string _metaLastExport = string.Empty;
     private IWorldObject? _metaPreview;
 
-    public CatalogWindow(GPoseService gPoseService, WorldObjectService worldObjectService, ConfigurationService configurationService, QuickAccessService quickAccess, PathMetadataService pathMetadata, IClientState clientState) : base($"{Brio.Name} - CATALOG###brio_furniture_catalog_window")
+    public CatalogWindow(GPoseService gPoseService, WorldObjectService worldObjectService, ConfigurationService configurationService, QuickAccessService quickAccess, PathMetadataService pathMetadata, IClientState clientState) : base($"{Brio.Name} - 目录###brio_furniture_catalog_window")
     {
         Namespace = "brio_furniture_catalog_namespace";
 
@@ -117,17 +117,17 @@ public class CatalogWindow : Window, IDisposable
 
         float iconSize = 48 * ImGuiHelpers.GlobalScale;
 
-        var favClicked = ImBrio.DrawRecentsStrip("Favorites", _quickAccess.GetFavorites(AccessStore), iconSize);
+        var favClicked = ImBrio.DrawRecentsStrip("收藏", _quickAccess.GetFavorites(AccessStore), iconSize);
         if(favClicked is not null)
             SpawnEntry(favClicked);
 
-        var recentClicked = ImBrio.DrawRecentsStrip("Recently Spawned", _quickAccess.GetRecents(AccessStore), iconSize);
+        var recentClicked = ImBrio.DrawRecentsStrip("最近生成", _quickAccess.GetRecents(AccessStore), iconSize);
         if(recentClicked is not null)
             SpawnEntry(recentClicked);
 
-        List<string> items = ["Furniture", "World Objects", "VFX", "Spawn by Path"];
+        List<string> items = ["家具", "世界物体", "特效", "按路径生成"];
         if(ConfigurationService.Instance.IsDebug)
-            items.Add("Metadata");
+            items.Add("元数据");
 
         if(ImBrio.ButtonSelectorStrip("emote_category_filter", Vector2.Zero, ref categorySelection, [.. items]))
         {
@@ -144,7 +144,7 @@ public class CatalogWindow : Window, IDisposable
                     DrawFurnitureFilters();
 
                     if(_isLoading)
-                        ImGui.TextUnformatted("Loading furniture data...");
+                        ImGui.TextUnformatted("正在加载家具数据...");
                     if(_furnitureDisplayMode == CatalogDisplayMode.Grid)
                         DrawFurnitureGrid();
                     else
@@ -204,7 +204,7 @@ public class CatalogWindow : Window, IDisposable
 
             if(_pathsLoading)
             {
-                ImGui.TextUnformatted("Loading paths...");
+                ImGui.TextUnformatted("正在加载路径...");
                 return;
             }
             else if(!string.IsNullOrEmpty(_pathsError))
@@ -218,7 +218,7 @@ public class CatalogWindow : Window, IDisposable
     {
         float buttonWidth = 110 * ImGuiHelpers.GlobalScale;
 
-        ImGui.TextUnformatted("Enter a game path (.sgb, .avfx, etc.)");
+        ImGui.TextUnformatted("输入游戏路径（.sgb、.avfx 等）");
 
         ImBrio.HorizontalPadding(2);
 
@@ -228,7 +228,7 @@ public class CatalogWindow : Window, IDisposable
         ImGui.SameLine();
 
         using(ImRaii.Disabled(string.IsNullOrWhiteSpace(_spawnPath)))
-            if(ImGui.Button("Spawn BgObject", new Vector2(buttonWidth, 0)))
+            if(ImGui.Button("生成背景物体", new Vector2(buttonWidth, 0)))
             {
                 var objectPath = new ObjectPath(_spawnPath);
                 if(objectPath.IsValid)
@@ -269,38 +269,38 @@ public class CatalogWindow : Window, IDisposable
 
     private void DrawMetadataToolbar()
     {
-        if(ImBrio.ToggelFontIconButton("meta_target_user", FontAwesomeIcon.User, new Vector2(24, 5), _metaTarget == PathTarget.User, tooltip: "Edit User Store"))
+        if(ImBrio.ToggelFontIconButton("meta_target_user", FontAwesomeIcon.User, new Vector2(24, 5), _metaTarget == PathTarget.User, tooltip: "编辑用户库"))
             SetMetaTarget(PathTarget.User);
 
         ImGui.SameLine();
 
-        if(ImBrio.ToggelFontIconButton("meta_target_plugin", FontAwesomeIcon.Box, new Vector2(24, 5), _metaTarget == PathTarget.Plugin, tooltip: "Edit Plugin Store"))
+        if(ImBrio.ToggelFontIconButton("meta_target_plugin", FontAwesomeIcon.Box, new Vector2(24, 5), _metaTarget == PathTarget.Plugin, tooltip: "编辑插件库"))
             SetMetaTarget(PathTarget.Plugin);
 
         ImGui.SameLine(0, 12 * ImGuiHelpers.GlobalScale);
 
-        if(ImBrio.ToggelFontIconButton("meta_kind_model", FontAwesomeIcon.Cube, new Vector2(24, 5), _metaKind == ObjectPathKind.Model, tooltip: "Models"))
+        if(ImBrio.ToggelFontIconButton("meta_kind_model", FontAwesomeIcon.Cube, new Vector2(24, 5), _metaKind == ObjectPathKind.Model, tooltip: "模型"))
             _metaKind = ObjectPathKind.Model;
 
         ImGui.SameLine();
 
-        if(ImBrio.ToggelFontIconButton("meta_kind_vfx", FontAwesomeIcon.Fire, new Vector2(24, 5), _metaKind == ObjectPathKind.VFX, tooltip: "VFX"))
+        if(ImBrio.ToggelFontIconButton("meta_kind_vfx", FontAwesomeIcon.Fire, new Vector2(24, 5), _metaKind == ObjectPathKind.VFX, tooltip: "特效"))
             _metaKind = ObjectPathKind.VFX;
 
         ImGui.SameLine(0, 12 * ImGuiHelpers.GlobalScale);
 
-        if(ImBrio.FontIconButton("meta_export", FontAwesomeIcon.FileExport, "Export current store to a file"))
+        if(ImBrio.FontIconButton("meta_export", FontAwesomeIcon.FileExport, "将当前库导出为文件"))
             ExportMetadata();
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("meta_import", FontAwesomeIcon.FileImport, "Import a file into the current store"))
+        if(ImBrio.FontIconButton("meta_import", FontAwesomeIcon.FileImport, "将文件导入当前库"))
             ImportMetadata();
 
         ImGui.SameLine();
 
         bool canReveal = !string.IsNullOrEmpty(_metaLastExport) && File.Exists(_metaLastExport);
-        if(ImBrio.FontIconButton("meta_reveal", FontAwesomeIcon.FolderOpen, "Open exported file location", canReveal))
+        if(ImBrio.FontIconButton("meta_reveal", FontAwesomeIcon.FolderOpen, "打开导出文件位置", canReveal))
             RevealExport();
     }
 
@@ -312,7 +312,7 @@ public class CatalogWindow : Window, IDisposable
 
         if(rows.Count == 0)
         {
-            ImGui.TextUnformatted("No items match the current filter.");
+            ImGui.TextUnformatted("没有符合当前筛选条件的项目。");
             return;
         }
 
@@ -354,18 +354,18 @@ public class CatalogWindow : Window, IDisposable
     {
         if(_metaEditing is null || string.IsNullOrEmpty(_metaSelectedPath))
         {
-            ImGui.TextUnformatted("Select a path to edit its metadata.");
+            ImGui.TextUnformatted("选择路径以编辑其元数据。");
             return;
         }
 
-        if(ImBrio.FontIconButton("meta_preview_spawn", FontAwesomeIcon.PlusCircle, "Spawn preview"))
+        if(ImBrio.FontIconButton("meta_preview_spawn", FontAwesomeIcon.PlusCircle, "生成预览"))
             SpawnMetaPreview();
 
         ImGui.SameLine();
 
         using(ImRaii.Disabled(_metaPreview is not { IsValid: true }))
         {
-            if(ImBrio.FontIconButton("meta_preview_destroy", FontAwesomeIcon.Ban, "Destroy preview"))
+            if(ImBrio.FontIconButton("meta_preview_destroy", FontAwesomeIcon.Ban, "销毁预览"))
             {
                 _worldObjectService.Destroy(_metaPreview!);
                 _metaPreview = null;
@@ -374,7 +374,7 @@ public class CatalogWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("meta_preview_destroy_all", FontAwesomeIcon.Bomb, "Destroy all world objects"))
+        if(ImBrio.FontIconButton("meta_preview_destroy_all", FontAwesomeIcon.Bomb, "销毁所有世界物体"))
         {
             _worldObjectService.DestroyAll();
             _metaPreview = null;
@@ -386,18 +386,18 @@ public class CatalogWindow : Window, IDisposable
         ImGui.Separator();
 
         var name = _metaEditing.Name;
-        ImGui.TextUnformatted("Name");
+        ImGui.TextUnformatted("名称");
         ImGui.SetNextItemWidth(-1);
         if(ImGui.InputText("###meta_name", ref name, 256))
             _metaEditing.Name = name;
 
         var description = _metaEditing.Description;
-        ImGui.TextUnformatted("Description");
+        ImGui.TextUnformatted("描述");
         if(ImGui.InputTextMultiline("###meta_desc", ref description, 1024, new Vector2(-1, 60 * ImGuiHelpers.GlobalScale)))
             _metaEditing.Description = description;
 
         var expansion = _metaEditing.Expansion;
-        ImGui.TextUnformatted("Expansion");
+        ImGui.TextUnformatted("资料片");
         ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 32 * ImGuiHelpers.GlobalScale);
         if(ImGui.InputTextWithHint("###meta_exp", "e.g. Dawntrail", ref expansion, 64))
             _metaEditing.Expansion = expansion;
@@ -409,39 +409,39 @@ public class CatalogWindow : Window, IDisposable
 
         if(_metaKind == ObjectPathKind.VFX)
         {
-            ImBrio.SeparatorText("VFX Playback");
+            ImBrio.SeparatorText("特效播放");
 
             int length = _metaEditing.Length;
             ImGui.SetNextItemWidth(120 * ImGuiHelpers.GlobalScale);
-            if(ImGui.InputInt("Length###meta_length", ref length))
+            if(ImGui.InputInt("长度###meta_length", ref length))
                 _metaEditing.Length = length;
 
             bool repeats = _metaEditing.Repeats;
-            if(ImGui.Checkbox("Repeats###meta_repeats", ref repeats))
+            if(ImGui.Checkbox("循环###meta_repeats", ref repeats))
                 _metaEditing.Repeats = repeats;
 
             bool requiresRefresh = _metaEditing.RequiresRefresh;
-            if(ImGui.Checkbox("Requires Refresh###meta_requires_refresh", ref requiresRefresh))
+            if(ImGui.Checkbox("需要刷新###meta_requires_refresh", ref requiresRefresh))
                 _metaEditing.RequiresRefresh = requiresRefresh;
         }
 
-        ImBrio.SeparatorText("Subtypes");
+        ImBrio.SeparatorText("子类型");
         DrawStringListEditor("meta_sub", _metaEditing.Subtypes, ref _metaSubtypeInput, _metaSelectedInfo?.Subtype);
 
-        ImBrio.SeparatorText("Asset Types");
+        ImBrio.SeparatorText("资产类型");
         DrawStringListEditor("meta_asset", _metaEditing.AssetType, ref _metaAssetInput, _metaSelectedInfo?.AssetType);
 
-        ImBrio.SeparatorText("Tags");
+        ImBrio.SeparatorText("标签");
         DrawStringListEditor("meta_tag", _metaEditing.Tags, ref _metaTagInput);
 
-        ImBrio.SeparatorText("Known Territories");
+        ImBrio.SeparatorText("已知区域");
         DrawTerritoryEditor();
 
         ImGui.Separator();
 
         bool exists = _pathMetadata.StoreFor(_metaTarget).Entries.ContainsKey(PathData.Hash(_metaSelectedPath));
 
-        if(ImBrio.FontIconButton("###meta_save", FontAwesomeIcon.Save, "Save"))
+        if(ImBrio.FontIconButton("###meta_save", FontAwesomeIcon.Save, "保存"))
         {
             _pathMetadata.Set(_metaTarget, _metaSelectedPath, _metaEditing);
             LoadMetaEditing(_metaSelectedPath, _metaSelectedInfo);
@@ -451,7 +451,7 @@ public class CatalogWindow : Window, IDisposable
 
         using(ImRaii.Disabled(!exists))
         {
-            if(ImBrio.FontIconButton("###meta_delete", FontAwesomeIcon.Trash, "Delete"))
+            if(ImBrio.FontIconButton("###meta_delete", FontAwesomeIcon.Trash, "删除"))
             {
                 _pathMetadata.Remove(_metaTarget, _metaSelectedPath);
                 LoadMetaEditing(_metaSelectedPath, _metaSelectedInfo);
@@ -460,7 +460,7 @@ public class CatalogWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("###meta_revert", FontAwesomeIcon.Undo, "Revert unsaved changes"))
+        if(ImBrio.FontIconButton("###meta_revert", FontAwesomeIcon.Undo, "还原未保存的更改"))
             LoadMetaEditing(_metaSelectedPath, _metaSelectedInfo);
     }
 
@@ -468,7 +468,7 @@ public class CatalogWindow : Window, IDisposable
     {
         float trailing = string.IsNullOrWhiteSpace(suggestion) ? 32 : 60;
         ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - trailing * ImGuiHelpers.GlobalScale);
-        ImGui.InputTextWithHint($"###{id}_input", "Add...", ref input, 64);
+        ImGui.InputTextWithHint($"###{id}_input", "添加...", ref input, 64);
         bool confirmed = ImBrio.IsItemConfirmed();
 
         ImGui.SameLine();
@@ -496,7 +496,7 @@ public class CatalogWindow : Window, IDisposable
 
         for(int i = 0; i < values.Count; i++)
         {
-            if(ImBrio.FontIconButton($"###{id}_del_{i}", FontAwesomeIcon.Minus, "Remove"))
+            if(ImBrio.FontIconButton($"###{id}_del_{i}", FontAwesomeIcon.Minus, "移除"))
             {
                 values.RemoveAt(i);
                 break;
@@ -526,7 +526,7 @@ public class CatalogWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("##meta_terr_current", FontAwesomeIcon.MapMarkerAlt, "Add current territory"))
+        if(ImBrio.FontIconButton("##meta_terr_current", FontAwesomeIcon.MapMarkerAlt, "添加当前区域"))
         {
             int current = (int)_clientState.TerritoryType;
             if(!values.Contains(current))
@@ -535,7 +535,7 @@ public class CatalogWindow : Window, IDisposable
 
         for(int i = 0; i < values.Count; i++)
         {
-            if(ImBrio.FontIconButton($"###meta_terr_del_{i}", FontAwesomeIcon.Minus, "Remove"))
+            if(ImBrio.FontIconButton($"###meta_terr_del_{i}", FontAwesomeIcon.Minus, "移除"))
             {
                 values.RemoveAt(i);
                 break;
@@ -586,7 +586,7 @@ public class CatalogWindow : Window, IDisposable
     private void ExportMetadata()
     {
         UIManager.Instance.FileDialogManager.SaveFileDialog(
-            "Export Path Metadata###export_path_meta", "Brio Path DB (*.briopdb){.briopdb}", "paths", ".briopdb",
+            "导出路径元数据###export_path_meta", "Brio 路径库 (*.briopdb){.briopdb}", "paths", ".briopdb",
             (success, path) =>
             {
                 if(!success)
@@ -612,7 +612,7 @@ public class CatalogWindow : Window, IDisposable
     private void ImportMetadata()
     {
         UIManager.Instance.FileDialogManager.OpenFileDialog(
-            "Import Path Metadata###import_path_meta", "Brio Path DB (*.briopdb){.briopdb}",
+            "Import Path Metadata###import_path_meta", "Brio 路径库 (*.briopdb){.briopdb}",
             (success, path) =>
             {
                 if(!success)
@@ -642,12 +642,12 @@ public class CatalogWindow : Window, IDisposable
 
         ImGui.SameLine();
 
-        if(ImBrio.ToggelFontIconButton($"{id}_compact", FontAwesomeIcon.List, new Vector2(24, 5), mode == CatalogDisplayMode.Compact, tooltip: "Compact View"))
+        if(ImBrio.ToggelFontIconButton($"{id}_compact", FontAwesomeIcon.List, new Vector2(24, 5), mode == CatalogDisplayMode.Compact, tooltip: "紧凑视图"))
             mode = CatalogDisplayMode.Compact;
 
         ImGui.SameLine();
 
-        if(ImBrio.ToggelFontIconButton($"###{id}_grid", FontAwesomeIcon.BorderAll, new Vector2(24, 5), mode == CatalogDisplayMode.Grid, tooltip: "Grid View"))
+        if(ImBrio.ToggelFontIconButton($"###{id}_grid", FontAwesomeIcon.BorderAll, new Vector2(24, 5), mode == CatalogDisplayMode.Grid, tooltip: "网格视图"))
             mode = CatalogDisplayMode.Grid;
 
         return applay;
@@ -672,17 +672,17 @@ public class CatalogWindow : Window, IDisposable
             ApplyModelFilter();
 
         float third = (ImGui.GetContentRegionAvail().X - ImGui.GetStyle().ItemSpacing.X * 2) / 3f;
-        if(ImBrio.MultiComboBox("###model_exp", _modelExpansionOptions, ref _selectedModelExpansions, third, "All Expansions"))
+        if(ImBrio.MultiComboBox("###model_exp", _modelExpansionOptions, ref _selectedModelExpansions, third, "全部资料片"))
             ApplyModelFilter();
 
         ImGui.SameLine();
 
-        if(ImBrio.MultiComboBox("###model_sub", _modelSubtypeOptions, ref _selectedModelSubtypes, third, "All Subtypes"))
+        if(ImBrio.MultiComboBox("###model_sub", _modelSubtypeOptions, ref _selectedModelSubtypes, third, "全部子类型"))
             ApplyModelFilter();
 
         ImGui.SameLine();
 
-        if(ImBrio.MultiComboBox("###model_asset", _modelAssetOptions, ref _selectedModelAssets, third, "All Asset Types"))
+        if(ImBrio.MultiComboBox("###model_asset", _modelAssetOptions, ref _selectedModelAssets, third, "全部资产类型"))
             ApplyModelFilter();
 
         ImGui.TextUnformatted($"{_filteredModels.Count:N0} of {_allModels.Count:N0} items");
@@ -693,12 +693,12 @@ public class CatalogWindow : Window, IDisposable
             ApplyVfxFilter();
 
         float half = (ImGui.GetContentRegionAvail().X - ImGui.GetStyle().ItemSpacing.X) / 2f;
-        if(ImBrio.MultiComboBox("###vfx_exp", _vfxExpansionOptions, ref _selectedVfxExpansions, half, "All Expansions"))
+        if(ImBrio.MultiComboBox("###vfx_exp", _vfxExpansionOptions, ref _selectedVfxExpansions, half, "全部资料片"))
             ApplyVfxFilter();
 
         ImGui.SameLine();
 
-        if(ImBrio.MultiComboBox("###vfx_asset", _vfxAssetOptions, ref _selectedVfxAssets, half, "All Asset Types"))
+        if(ImBrio.MultiComboBox("###vfx_asset", _vfxAssetOptions, ref _selectedVfxAssets, half, "全部资产类型"))
             ApplyVfxFilter();
 
         ImGui.TextUnformatted($"{_filteredVfx.Count:N0} of {_allVfx.Count:N0} items");
@@ -714,7 +714,7 @@ public class CatalogWindow : Window, IDisposable
 
         if(rows.Count == 0)
         {
-            ImGui.TextUnformatted("No items match the current filter.");
+            ImGui.TextUnformatted("没有符合当前筛选条件的项目。");
             return;
         }
 
@@ -763,7 +763,7 @@ public class CatalogWindow : Window, IDisposable
 
         if(items.Count == 0)
         {
-            ImGui.TextUnformatted("No items match the current filter.");
+            ImGui.TextUnformatted("没有符合当前筛选条件的项目。");
             return;
         }
 
@@ -804,7 +804,7 @@ public class CatalogWindow : Window, IDisposable
 
         if(_furnitureRows.Count == 0)
         {
-            ImGui.TextUnformatted("No items match the current filter.");
+            ImGui.TextUnformatted("没有符合当前筛选条件的项目。");
             return;
         }
 
@@ -849,7 +849,7 @@ public class CatalogWindow : Window, IDisposable
 
         if(_filteredFurnishings.Count == 0)
         {
-            ImGui.TextUnformatted("No items match the current filter.");
+            ImGui.TextUnformatted("没有符合当前筛选条件的项目。");
             return;
         }
 
@@ -915,9 +915,9 @@ public class CatalogWindow : Window, IDisposable
         if(ImGui.BeginPopupContextItem(id))
         {
             bool fav = IsFav(kind, path);
-            if(ImGui.MenuItem(fav ? "Remove Favorite" : "Add Favorite"))
+            if(ImGui.MenuItem(fav ? "移除收藏" : "添加收藏"))
                 ToggleFav(kind, path, name, iconId);
-            if(ImGui.MenuItem("Copy Path"))
+            if(ImGui.MenuItem("复制路径"))
                 ImGui.SetClipboardText(path);
             ImGui.EndPopup();
         }

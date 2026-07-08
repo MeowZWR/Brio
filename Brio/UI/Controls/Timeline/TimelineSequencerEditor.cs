@@ -26,9 +26,9 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
 
     private readonly Dictionary<ITimelineHost, ImSequencerState> _states = [];
 
-    private static readonly string[] _modeNames = ["Blend", "Step"];
+    private static readonly string[] _modeNames = ["混合", "步进"];
     private static readonly string[] _modeLetters = ["B", "S"];
-    private static readonly string[] _presetNames = ["Linear", "Ease In", "Ease Out", "Ease In Out", "Custom"];
+    private static readonly string[] _presetNames = ["线性", "缓入", "缓出", "缓入缓出", "自定义"];
 
     private static readonly Vector2[] _presetP1 = [new(0.25f, 0.25f), new(0.42f, 0f), new(0f, 0f), new(0.42f, 0f)];
     private static readonly Vector2[] _presetP2 = [new(0.75f, 0.75f), new(1f, 1f), new(0.58f, 1f), new(0.58f, 1f)];
@@ -56,11 +56,11 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
         if(ImBrio.ButtonSelectorStrip("new_keyframe_mode", new Vector2(50f * ImGuiHelpers.GlobalScale, ImGui.GetFrameHeight()), ref newMode, _modeLetters))
             _timelineService.NewKeyframeMode = (InterpolationMode)newMode;
         ImGui.EndGroup();
-        ImBrio.AttachToolTip("New keyframes are created as Blend (smooth interpolation) or Step (instant, no interpolation).");
+        ImBrio.AttachToolTip("新建关键帧可使用混合（平滑插值）或步进（瞬间切换，无插值）。");
 
         ImGui.SameLine();
         var showInspector = _configurationService.Configuration.Timeline.ShowInspector;
-        if(ImBrio.ToggelFontIconButtonRight("##toggle_inspector", FontAwesomeIcon.SlidersH, 1f, showInspector, tooltip: showInspector ? "Hide Inspector" : "Show Inspector"))
+        if(ImBrio.ToggelFontIconButtonRight("##toggle_inspector", FontAwesomeIcon.SlidersH, 1f, showInspector, tooltip: showInspector ? "隐藏检查器" : "显示检查器"))
         {
             _configurationService.Configuration.Timeline.ShowInspector = !showInspector;
             _configurationService.ApplyChange();
@@ -142,7 +142,7 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
         var hasSelection = selected.Count > 0;
         var canUseKeyframe = state.ContextKeyframe != null || hasSelection;
 
-        if(ImGui.MenuItem("Duplicate Keyframe", string.Empty, false, canUseKeyframe))
+        if(ImGui.MenuItem("复制关键帧", string.Empty, false, canUseKeyframe))
         {
             var newSelection = new HashSet<SelectedKeyframe>();
 
@@ -171,7 +171,7 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
 
         using(ImRaii.Disabled(!modifier))
         {
-            if(ImGui.MenuItem("Delete Keyframe", string.Empty, false, canUseKeyframe))
+            if(ImGui.MenuItem("删除关键帧", string.Empty, false, canUseKeyframe))
             {
                 if(hasSelection)
                 {
@@ -193,7 +193,7 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
         using(ImRaii.Disabled(!modifier))
         {
             var hasTrack = state.ContextTrackIndex >= 0 && state.ContextTrackIndex < host.Tracks.Count;
-            if(ImGui.MenuItem("Delete Track", string.Empty, false, hasTrack))
+            if(ImGui.MenuItem("删除轨道", string.Empty, false, hasTrack))
             {
                 host.RemoveTrack(host.Tracks[state.ContextTrackIndex]);
                 state.SelectedEntry = -1;
@@ -202,32 +202,32 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
             }
         }
         if(!modifier)
-            ImBrio.AttachToolTip("Hold Ctrl to delete.");
+            ImBrio.AttachToolTip("按住 Ctrl 删除。");
     }
     private void DrawInspector(ITimelineHost host, ImSequencerState state)
     {
         var selected = GetSelectedKeyframes(host, state);
         if(selected.Count == 0)
         {
-            ImGui.TextWrapped("Select a Keyframe to edit it.");
+            ImGui.TextWrapped("选择一个关键帧进行编辑。");
             return;
         }
 
         var keyframe = selected[0];
 
-        ImBrio.SeparatorText(selected.Count == 1 ? $"Keyframe at frame {keyframe.Frame}" : $"{selected.Count} Keyframes selected");
+        ImBrio.SeparatorText(selected.Count == 1 ? $"第 {keyframe.Frame} 帧的关键帧" : $"已选择 {selected.Count} 个关键帧");
         ImBrio.VerticalSeparator(5);
 
-        ImBrio.SeparatorText("Components");
+        ImBrio.SeparatorText("组件");
         DrawComponents(host, selected, keyframe);
 
         if(selected.Count == 1)
         {
-            ImBrio.SeparatorText("Transform");
+            ImBrio.SeparatorText("变换");
             DrawKeyframeTransform(keyframe);
         }
 
-        ImBrio.SeparatorText("Easing");
+        ImBrio.SeparatorText("缓动");
         DrawEasingEditor(selected, keyframe);
     }
 
@@ -237,35 +237,35 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
     {
         if(representative.Camera.HasValue)
         {
-            DrawCameraComponentToggle(selected, representative, "Position", CameraComponents.Position);
+            DrawCameraComponentToggle(selected, representative, "位置", CameraComponents.Position);
             ImGui.SameLine();
-            DrawCameraComponentToggle(selected, representative, "Rotation", CameraComponents.Rotation);
+            DrawCameraComponentToggle(selected, representative, "旋转", CameraComponents.Rotation);
             ImGui.SameLine();
-            DrawCameraComponentToggle(selected, representative, "Lens", CameraComponents.Lens);
+            DrawCameraComponentToggle(selected, representative, "镜头", CameraComponents.Lens);
         }
         else if(representative.Light.HasValue)
         {
-            DrawLightComponentToggle(selected, representative, "Position", LightComponents.Position);
+            DrawLightComponentToggle(selected, representative, "位置", LightComponents.Position);
             ImGui.SameLine();
-            DrawLightComponentToggle(selected, representative, "Rendering", LightComponents.Rendering);
+            DrawLightComponentToggle(selected, representative, "渲染", LightComponents.Rendering);
         }
         else if(representative.WorldObject.HasValue)
         {
-            DrawWorldObjectComponentToggle(selected, representative, "Transform", WorldObjectComponents.Transform);
+            DrawWorldObjectComponentToggle(selected, representative, "变换", WorldObjectComponents.Transform);
 
-            if(host.CaptureChannels.Any(c => c.Name == "Color"))
+            if(host.CaptureChannels.Any(c => c.Name == "颜色"))
             {
                 ImGui.SameLine();
-                DrawWorldObjectComponentToggle(selected, representative, "Color", WorldObjectComponents.Color);
+                DrawWorldObjectComponentToggle(selected, representative, "颜色", WorldObjectComponents.Color);
             }
         }
         else
         {
-            DrawTransformComponentToggle(selected, representative, "Position", TransformComponents.Position);
+            DrawTransformComponentToggle(selected, representative, "位置", TransformComponents.Position);
             ImGui.SameLine();
-            DrawTransformComponentToggle(selected, representative, "Rotation", TransformComponents.Rotation);
+            DrawTransformComponentToggle(selected, representative, "旋转", TransformComponents.Rotation);
             ImGui.SameLine();
-            DrawTransformComponentToggle(selected, representative, "Scale", TransformComponents.Scale);
+            DrawTransformComponentToggle(selected, representative, "缩放", TransformComponents.Scale);
         }
     }
 
@@ -275,9 +275,9 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
         {
             var camera = keyframe.Camera.Value;
 
-            var posChanged = ImBrio.DragFloat3("###inspector_cam_position", ref camera.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position").didChange;
+            var posChanged = ImBrio.DragFloat3("###inspector_cam_position", ref camera.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置").didChange;
             ImBrio.VerticalPadding(2);
-            var rotChanged = ImBrio.DragFloat3("###inspector_cam_rotation", ref camera.Rotation, 1f, FontAwesomeIcon.ArrowsSpin, "Rotation").didChange;
+            var rotChanged = ImBrio.DragFloat3("###inspector_cam_rotation", ref camera.Rotation, 1f, FontAwesomeIcon.ArrowsSpin, "旋转").didChange;
 
             if(posChanged || rotChanged)
             {
@@ -290,11 +290,11 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
             var light = keyframe.Light.Value;
             var euler = light.Rotation.ToEuler();
 
-            var posChanged = ImBrio.DragFloat3("###inspector_light_position", ref light.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position").didChange;
+            var posChanged = ImBrio.DragFloat3("###inspector_light_position", ref light.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置").didChange;
             ImBrio.VerticalPadding(2);
-            var rotChanged = ImBrio.DragFloat3("###inspector_light_rotation", ref euler, 1f, FontAwesomeIcon.ArrowsSpin, "Rotation").didChange;
+            var rotChanged = ImBrio.DragFloat3("###inspector_light_rotation", ref euler, 1f, FontAwesomeIcon.ArrowsSpin, "旋转").didChange;
             ImBrio.VerticalPadding(2);
-            var scaleChanged = ImBrio.DragFloat3("###inspector_light_scale", ref light.Scale, 0.01f, FontAwesomeIcon.ExpandAlt, "Scale").didChange;
+            var scaleChanged = ImBrio.DragFloat3("###inspector_light_scale", ref light.Scale, 0.01f, FontAwesomeIcon.ExpandAlt, "缩放").didChange;
 
             if(rotChanged)
                 light.Rotation = euler.ToQuaternion();
@@ -307,11 +307,11 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
             var worldObject = keyframe.WorldObject.Value;
             var euler = worldObject.Rotation.ToEuler();
 
-            var posChanged = ImBrio.DragFloat3("###inspector_wo_position", ref worldObject.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position").didChange;
+            var posChanged = ImBrio.DragFloat3("###inspector_wo_position", ref worldObject.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置").didChange;
             ImBrio.VerticalPadding(2);
-            var rotChanged = ImBrio.DragFloat3("###inspector_wo_rotation", ref euler, 1f, FontAwesomeIcon.ArrowsSpin, "Rotation").didChange;
+            var rotChanged = ImBrio.DragFloat3("###inspector_wo_rotation", ref euler, 1f, FontAwesomeIcon.ArrowsSpin, "旋转").didChange;
             ImBrio.VerticalPadding(2);
-            var scaleChanged = ImBrio.DragFloat3("###inspector_wo_scale", ref worldObject.Scale, 0.01f, FontAwesomeIcon.ExpandAlt, "Scale").didChange;
+            var scaleChanged = ImBrio.DragFloat3("###inspector_wo_scale", ref worldObject.Scale, 0.01f, FontAwesomeIcon.ExpandAlt, "缩放").didChange;
 
             if(rotChanged)
                 worldObject.Rotation = euler.ToQuaternion();
@@ -324,11 +324,11 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
             var transform = keyframe.Transform;
             var euler = transform.Rotation.ToEuler();
 
-            var posChanged = ImBrio.DragFloat3("###inspector_position", ref transform.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "Position").didChange;
+            var posChanged = ImBrio.DragFloat3("###inspector_position", ref transform.Position, 0.01f, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置").didChange;
             ImBrio.VerticalPadding(2);
-            var rotChanged = ImBrio.DragFloat3("###inspector_rotation", ref euler, 1f, FontAwesomeIcon.ArrowsSpin, "Rotation").didChange;
+            var rotChanged = ImBrio.DragFloat3("###inspector_rotation", ref euler, 1f, FontAwesomeIcon.ArrowsSpin, "旋转").didChange;
             ImBrio.VerticalPadding(2);
-            var scaleChanged = ImBrio.DragFloat3("###inspector_scale", ref transform.Scale, 0.01f, FontAwesomeIcon.ExpandAlt, "Scale").didChange;
+            var scaleChanged = ImBrio.DragFloat3("###inspector_scale", ref transform.Scale, 0.01f, FontAwesomeIcon.ExpandAlt, "缩放").didChange;
 
             if(rotChanged)
                 transform.Rotation = euler.ToQuaternion();
@@ -383,7 +383,7 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
             return;
 
         var preset = MatchPreset(representative.P1, representative.P2);
-        if(ImGui.Combo("Preset", ref preset, _presetNames, _presetNames.Length) && preset < _presetP1.Length)
+        if(ImGui.Combo("预设", ref preset, _presetNames, _presetNames.Length) && preset < _presetP1.Length)
         {
             foreach(var kf in selected)
             {

@@ -29,16 +29,16 @@ public class CameraTimelineCapability : Capability, ITimelineHost
     {
         _timelineService = timelineService;
 
-        _track = new TimelineTrack(new BonePoseInfoId("Camera", 0, PoseInfoSlot.Unknown), "Camera");
+        _track = new TimelineTrack(new BonePoseInfoId("相机", 0, PoseInfoSlot.Unknown), "相机");
 
         Tracks.Add(_track);
 
         CaptureChannels =
         [
-            new("Position", "Capture position", f => CaptureKeyframe(f, CameraComponents.Position)),
-            new("Rotation", "Capture rotation", f => CaptureKeyframe(f, CameraComponents.Rotation)),
-            new("Lens", "Capture zoom, FoV, angle, pan and pivot", f => CaptureKeyframe(f, CameraComponents.Lens)),
-            new("All", "Capture position, rotation and lens", f => CaptureKeyframe(f, CameraComponents.All)),
+            new("位置", "Capture position", f => CaptureKeyframe(f, CameraComponents.Position)),
+            new("旋转", "Capture rotation", f => CaptureKeyframe(f, CameraComponents.Rotation)),
+            new("镜头", "Capture zoom, FoV, angle, pan and pivot", f => CaptureKeyframe(f, CameraComponents.Lens)),
+            new("全部", "Capture position, rotation and lens", f => CaptureKeyframe(f, CameraComponents.All)),
             new("Auto", "Capture only the components that changed", CaptureAuto)
         ];
 

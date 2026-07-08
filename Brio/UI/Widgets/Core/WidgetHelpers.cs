@@ -72,7 +72,7 @@ public class WidgetHelpers
 
             if(buttonHovered)
             {
-                ImBrio.AttachToolTip($"Advanced {widget.HeaderName}");
+                ImBrio.AttachToolTip($"高级 {widget.HeaderName}");
             }
 
             if(buttonClicked)

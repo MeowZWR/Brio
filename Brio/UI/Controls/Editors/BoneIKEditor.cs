@@ -27,7 +27,7 @@ public class BoneIKEditor
             }
 
 
-            string solverType = ik.SolverOptions.Match(_ => "CCD", _ => "Two Joint");
+            string solverType = ik.SolverOptions.Match(_ => "CCD", _ => "双关节");
             using(var combo = ImRaii.Combo("解算器", solverType))
             {
                 if(combo.Success)
@@ -40,7 +40,7 @@ public class BoneIKEditor
 
                     if(BoneIKInfo.CanUseJoint(poseInfo.Name))
                     {
-                        if(ImGui.Selectable("Two Joint"))
+                        if(ImGui.Selectable("双关节"))
                         {
                             ik.SolverOptions = BoneIKInfo.CalculateDefault(poseInfo.Name, true).SolverOptions;
                             didChange |= true;

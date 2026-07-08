@@ -27,7 +27,7 @@ public class WorldObjectTimelineCapability : WorldObjectCapability, ITimelineHos
     {
         _timelineService = timelineService;
 
-        _track = new TimelineTrack(new BonePoseInfoId("WorldObject", 0, PoseInfoSlot.Unknown), "World Object");
+        _track = new TimelineTrack(new BonePoseInfoId("WorldObject", 0, PoseInfoSlot.Unknown), "世界物体");
         Tracks.Add(_track);
 
         // Right now this doesn't work right, the Color doesn't want to update
@@ -35,9 +35,9 @@ public class WorldObjectTimelineCapability : WorldObjectCapability, ITimelineHos
         {
             CaptureChannels =
             [
-                new("Transform", "Capture position, rotation and scale", f => CaptureKeyframe(f, WorldObjectComponents.Transform)),
-                new("Color", "Capture VFX color", f => CaptureKeyframe(f, WorldObjectComponents.Color)),
-                new("All", "Capture transform and color", f => CaptureKeyframe(f, WorldObjectComponents.All)),
+                new("变换", "Capture position, rotation and scale", f => CaptureKeyframe(f, WorldObjectComponents.Transform)),
+                new("颜色", "Capture VFX color", f => CaptureKeyframe(f, WorldObjectComponents.Color)),
+                new("全部", "Capture transform and color", f => CaptureKeyframe(f, WorldObjectComponents.All)),
                 new("Auto", "Capture only the components that changed", CaptureAuto)
             ];
         }
@@ -45,7 +45,7 @@ public class WorldObjectTimelineCapability : WorldObjectCapability, ITimelineHos
         {
             CaptureChannels =
             [
-                new("Transform", "Capture position, rotation and scale", f => CaptureKeyframe(f, WorldObjectComponents.Transform)),
+                new("变换", "Capture position, rotation and scale", f => CaptureKeyframe(f, WorldObjectComponents.Transform)),
                 new("Auto", "Capture only the components that changed", CaptureAuto)
             ];
         }

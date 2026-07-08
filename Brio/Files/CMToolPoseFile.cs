@@ -531,7 +531,7 @@ public class CMToolPoseFile
         {
             string boneName = propertyInfo.Name;
 
-            if(boneName == "Race")
+            if(boneName == "种族")
                 continue;
 
             if(boneName.EndsWith("Size"))

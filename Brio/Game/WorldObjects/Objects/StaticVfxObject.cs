@@ -26,7 +26,7 @@ public unsafe class StaticVfxObject : WorldObject
     public int VfxRefreshIntervalSeconds { get; set; } = 15;
 
     public override WorldObjectType ObjectType => WorldObjectType.StaticVfx;
-    public override string FriendlyName { get; protected set; } = "VFX";
+    public override string FriendlyName { get; protected set; } = "特效";
 
     public override string FriendlyPath
     {

@@ -30,7 +30,7 @@ public class ActorDebugWidget(ActorDebugCapability capability) : Widget<ActorDeb
                 {
                     if(DynamisService.Instance != null)
                     {
-                        ImGui.Text("GameObject ");
+                        ImGui.Text("游戏对象 ");
                         ImGui.SameLine();
                         DynamisService.Instance.DrawPointer(Capability.GameObject.Address);
                     }
@@ -46,7 +46,7 @@ public class ActorDebugWidget(ActorDebugCapability capability) : Widget<ActorDeb
                     {
                         if(DynamisService.Instance != null)
                         {
-                            ImGui.Text("Character BaseObject ");
+                            ImGui.Text("角色基础对象 ");
                             ImGui.SameLine();
                             DynamisService.Instance.DrawPointer((nint)charaBase);
                         }
@@ -60,21 +60,21 @@ public class ActorDebugWidget(ActorDebugCapability capability) : Widget<ActorDeb
                         var skele = charaBase->CharacterBase.Skeleton;
                         if(DynamisService.Instance != null)
                         {
-                            ImGui.Text("Skeleton ");
+                            ImGui.Text("骨骼 ");
                             ImGui.SameLine();
                             DynamisService.Instance.DrawPointer((nint)skele);
                         }
                         else
                         {
                             var addr = ((nint)skele).ToString("X");
-                            ImGui.SetNextItemWidth(-ImGui.CalcTextSize("Skeleton").X - 10);
-                            ImGui.InputText("Skeleton", ref addr, 256, ImGuiInputTextFlags.ReadOnly);
+                            ImGui.SetNextItemWidth(-ImGui.CalcTextSize("骨骼").X - 10);
+                            ImGui.InputText("骨骼", ref addr, 256, ImGuiInputTextFlags.ReadOnly);
                         }
 
                         var shaders = Capability.Character.GetShaderParams();
                         if(DynamisService.Instance != null)
                         {
-                            ImGui.Text("Character Shader ");
+                            ImGui.Text("角色着色器 ");
                             ImGui.SameLine();
                             DynamisService.Instance.DrawPointer((nint)shaders);
                         }
@@ -88,16 +88,16 @@ public class ActorDebugWidget(ActorDebugCapability capability) : Widget<ActorDeb
                 }
             }
 
-            using(var infoTab = ImRaii.TabItem("Skeleton"))
+            using(var infoTab = ImRaii.TabItem("骨骼"))
             {
                 if(infoTab.Success)
                 {
-                    if(ImGui.Button("Refresh Skeleton Cache"))
+                    if(ImGui.Button("刷新骨骼缓存"))
                     {
                         Capability.SkeletonService.RefreshSkeletonCache();
                     }
 
-                    if(ImGui.CollapsingHeader("Stacks", ImGuiTreeNodeFlags.DefaultOpen))
+                    if(ImGui.CollapsingHeader("堆栈", ImGuiTreeNodeFlags.DefaultOpen))
                     {
                         var stacks = Capability.SkeletonStacks;
                         foreach(var stack in stacks)
@@ -114,7 +114,7 @@ public class ActorDebugWidget(ActorDebugCapability capability) : Widget<ActorDeb
                 {
 
                     ImGui.InputText("Path", ref path);
-                    if(ImGui.Button("Create Actor VFX"))
+                    if(ImGui.Button("创建角色特效"))
                     {
                         // TODO: Store this properly in a list or whatever so it can be cleaned up
                         _spawnedGoopInstance = Capability.VFXService.CreateActorVFX(path, Capability.GameObject);
@@ -123,12 +123,12 @@ public class ActorDebugWidget(ActorDebugCapability capability) : Widget<ActorDeb
 
                     if(DynamisService.Instance != null)
                     {
-                        ImGui.Text("VfxData: ");
+                        ImGui.Text("特效数据： ");
                         ImGui.SameLine();
                         DynamisService.Instance.DrawPointer((nint)_spawnedGoopInstance);
                     }
 
-                    if(ImGui.Button("Destroy Actor VFX"))
+                    if(ImGui.Button("销毁角色特效"))
                     {
                         Capability.VFXService.DestroyVFX(_spawnedGoopInstance);
                         _spawnedGoopInstance = null;

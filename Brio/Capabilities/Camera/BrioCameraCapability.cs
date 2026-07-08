@@ -99,7 +99,7 @@ public class BrioCameraCapability : CameraCapability
 
     private CameraSnapshot CaptureBaseline() => new(
         VirtualCamera.SpawnPosition, Vector3.Zero,
-        Vector3.Zero, Vector3.Zero, "Select an actor to track",
+        Vector3.Zero, Vector3.Zero, "选择一个角色来追踪",
         0f, 2.5f, 0f, Vector2.Zero, Vector2.Zero,
         false, false, false,
         VirtualCamera.FreeCamValues.MovementSpeed, VirtualCamera.FreeCamValues.MouseSensitivity, VirtualCamera.FreeCamValues.DelimitAngle, VirtualCamera.FreeCamValues.IsMovementEnabled, VirtualCamera.FreeCamValues.Move2D);

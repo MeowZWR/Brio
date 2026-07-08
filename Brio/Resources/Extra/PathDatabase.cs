@@ -168,7 +168,7 @@ public sealed partial class PathIndex
         { "gat",  "Gate"      }, { "gate", "Gate"      },
         { "fen",  "Fence"     },
         { "tow",  "Tower"     },
-        { "obj",  "Object"    },
+        { "obj",  "物体"    },
         { "nat",  "Nature"    },
         { "cry",  "Crystal"   },
         { "wat",  "Water"     }, { "sea",  "Sea"       },
@@ -177,8 +177,8 @@ public sealed partial class PathIndex
         { "box",  "Box"       },
         { "flw",  "Flower"    },
         { "bos",  "Boss"      },
-        { "wep",  "Weapon"    },
-        { "fnt",  "Furniture"       },
+        { "wep",  "武器"    },
+        { "fnt",  "家具"       },
         { "rub",  "Rubble"          },
         { "cin",  "Coins"           },
         { "lsf",  "Landscape"       },
@@ -296,7 +296,7 @@ public sealed partial class PathIndex
     {
         var splitPath = path.Split('/');
         string expansion = "Base Game";
-        string subtype = "Unknown";
+        string subtype = "未知";
 
         if(splitPath.Length > 1 && splitPath[0] == "bg")
         {
@@ -336,7 +336,7 @@ public sealed partial class PathIndex
             }
         }
 
-        return group ?? "Other";
+        return group ?? "其他";
     }
 
     public static PathIndex FromFile(string path)

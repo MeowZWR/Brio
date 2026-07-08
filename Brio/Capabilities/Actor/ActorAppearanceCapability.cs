@@ -48,11 +48,11 @@ public class ActorAppearanceCapability : ActorCharacterCapability
     public bool IsDesignOverridden;
     public bool IsProfileOverridden;
 
-    public (string? data, Guid? id) CurrentDesign { get; set; } = ("None", null);
+    public (string? data, Guid? id) CurrentDesign { get; set; } = ("无", null);
     public GlamourerService GlamourerService => _glamourerService;
 
 
-    public (string? name, Guid? id) SelectedDesign { get; set; } = ("None", null);
+    public (string? name, Guid? id) SelectedDesign { get; set; } = ("无", null);
     public (string? data, Guid? id) CurrentProfile => _customizePlusService.GetActiveProfile(Character);
     public CustomizePlusService CustomizePlusService => _customizePlusService;
 
@@ -157,7 +157,7 @@ public class ActorAppearanceCapability : ActorCharacterCapability
         {
             if(_mCDFService.IsApplyingMCDF)
             {
-                Brio.NotifyError("Another MCDF is loading, Please wait for it to finish.");
+                Brio.NotifyError("正在加载另一个 MCDF，请等待完成。");
                 return BrioApiResult.IsApplyingMCDF;
             }
 
@@ -299,7 +299,7 @@ public class ActorAppearanceCapability : ActorCharacterCapability
         }
         else
         {
-            SelectedDesign = ("None", null);
+            SelectedDesign = ("无", null);
         }
     }
     public void SetProfileToNone(bool force = false)

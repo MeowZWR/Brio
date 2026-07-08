@@ -29,7 +29,7 @@ public static partial class ImBrio
         }
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip(isFavorite ? "Remove Favorite" : "Add Favorite");
+            ImGui.SetTooltip(isFavorite ? "移除收藏" : "添加收藏");
 
         return clicked;
     }

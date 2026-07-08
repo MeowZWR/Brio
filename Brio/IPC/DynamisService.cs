@@ -167,7 +167,7 @@ public class DynamisService : BrioIPC
             {
                 using var disabled = ImRaii.Enabled();
                 using var tt = ImRaii.Tooltip();
-                ImGui.TextUnformatted("Click to copy to clipboard."u8);
+                ImGui.TextUnformatted("点击复制到剪贴板。"u8);
             }
         }
     }
@@ -319,7 +319,7 @@ public class DynamisService : BrioIPC
 //       including but not limited to software source code, documentation
 //       source, and configuration files.
 // 
-//       "Object" form shall mean any form resulting from mechanical
+//       "物体" form shall mean any form resulting from mechanical
 //       transformation or translation of a Source form, including but
 //       not limited to compiled object code, generated documentation,
 //       and conversions to other media types.

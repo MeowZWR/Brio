@@ -8,7 +8,7 @@ namespace Brio.UI.Widgets.World;
 
 public class DebugEnvironmentWidget(DebugEnvironmentCapability capability) : Widget<DebugEnvironmentCapability>(capability)
 {
-    public override string HeaderName => "Debug";
+    public override string HeaderName => "调试";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
@@ -53,27 +53,27 @@ public class DebugEnvironmentWidget(DebugEnvironmentCapability capability) : Wid
 
         ImBrio.VerticalPadding(5);
 
-        ImGui.Text("EnvManager:"u8);
+        ImGui.Text("环境管理器："u8);
         Capability.DynamisIPC.DrawPointer(&env);
 
-        ImGui.Text("EnvState:"u8);
+        ImGui.Text("环境状态："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState);
 
         ImBrio.VerticalPadding(5);
 
-        ImGui.Text("EnvironmentLighting:"u8);
+        ImGui.Text("环境光照："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState.EnvironmentLighting);
-        ImGui.Text("Stars:"u8);
+        ImGui.Text("星星："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState.Stars);
-        ImGui.Text("Fog:"u8);
+        ImGui.Text("雾："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState.Fog);
-        ImGui.Text("Clouds:"u8);
+        ImGui.Text("云层："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState.Clouds);
-        ImGui.Text("Rain:"u8);
+        ImGui.Text("雨："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState.Rain);
-        ImGui.Text("Particles:"u8);
+        ImGui.Text("粒子："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState.Particles);
-        ImGui.Text("Wind:"u8);
+        ImGui.Text("风："u8);
         Capability.DynamisIPC.DrawPointer(&env->EnvState.Wind);
     }
 }

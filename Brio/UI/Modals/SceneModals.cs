@@ -16,7 +16,7 @@ public class ExportSceneModal : Modal
     private string _author = string.Empty;
     private string _description = string.Empty;
 
-    public ExportSceneModal(SceneService sceneService) : base("Export Scene###export_scene_modal", new(420, 150), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
+    public ExportSceneModal(SceneService sceneService) : base("导出场景###export_scene_modal", new(420, 150), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
     {
         _sceneService = sceneService;
     }
@@ -29,19 +29,19 @@ public class ExportSceneModal : Modal
 
     public override void DrawContent()
     {
-        ImBrio.SeparatorText($" Export Scene ");
+        ImBrio.SeparatorText($" 导出场景 ");
 
-        ImBrio.SeparatorText($" Author ");
+        ImBrio.SeparatorText($" 作者 ");
         ImGui.SetNextItemWidth(-float.Epsilon);
         ImGui.InputText("###export_author", ref _author, 100);
 
-        ImBrio.SeparatorText($" Description ");
+        ImBrio.SeparatorText($" 描述 ");
         ImGui.SetNextItemWidth(-float.Epsilon);
         ImGui.InputText("###export_description", ref _description, 250);
 
         float buttonW = (MinimumSize.X / 2) - 12;
 
-        if(ImBrio.Button("Export", FontAwesomeIcon.FileExport, new(buttonW, 0), centerTest: true, tooltip: "Export Scene to a file"))
+        if(ImBrio.Button("导出", FontAwesomeIcon.FileExport, new(buttonW, 0), centerTest: true, tooltip: "将场景导出为文件"))
         {
             FileUIHelpers.ShowExportSceneModal(_sceneService, string.IsNullOrEmpty(_author) ? null : _author, string.IsNullOrEmpty(_description) ? null : _description);
             Close();
@@ -49,7 +49,7 @@ public class ExportSceneModal : Modal
 
         ImGui.SameLine();
 
-        if(ImBrio.Button("Cancel", FontAwesomeIcon.Times, new(buttonW, 0), centerTest: true))
+        if(ImBrio.Button("取消", FontAwesomeIcon.Times, new(buttonW, 0), centerTest: true))
             Close();
     }
 }
@@ -61,7 +61,7 @@ public class SaveProjectModal : Modal
     private string _name = string.Empty;
     private string _description = string.Empty;
 
-    public SaveProjectModal(ProjectSystem projectSystem) : base("Save New Project###save_project_modal", new(420, 150), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
+    public SaveProjectModal(ProjectSystem projectSystem) : base("保存新项目###save_project_modal", new(420, 150), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
     {
         _projectSystem = projectSystem;
     }
@@ -74,13 +74,13 @@ public class SaveProjectModal : Modal
 
     public override void DrawContent()
     {
-        ImBrio.SeparatorText($" Save New Project ");
+        ImBrio.SeparatorText($" 保存新项目 ");
 
-        ImBrio.SeparatorText($" Name ");
+        ImBrio.SeparatorText($" 名称 ");
         ImGui.SetNextItemWidth(-float.Epsilon);
         ImGui.InputText("###save_project_name", ref _name, 100);
 
-        ImBrio.SeparatorText($" Description ");
+        ImBrio.SeparatorText($" 描述 ");
         ImGui.SetNextItemWidth(-float.Epsilon);
         ImGui.InputText("###save_project_description", ref _description, 250);
 
@@ -88,7 +88,7 @@ public class SaveProjectModal : Modal
 
         using(ImRaii.Disabled(string.IsNullOrEmpty(_name)))
         {
-            if(ImBrio.Button("Save", FontAwesomeIcon.Save, new(buttonW, 0), centerTest: true, tooltip: "Save as a new Project"))
+            if(ImBrio.Button("保存", FontAwesomeIcon.Save, new(buttonW, 0), centerTest: true, tooltip: "另存为新项目"))
             {
                 _projectSystem.NewProject(_name, string.IsNullOrEmpty(_description) ? null : _description);
                 Close();
@@ -97,7 +97,7 @@ public class SaveProjectModal : Modal
 
         ImGui.SameLine();
 
-        if(ImBrio.Button("Cancel", FontAwesomeIcon.Times, new(buttonW, 0), centerTest: true))
+        if(ImBrio.Button("取消", FontAwesomeIcon.Times, new(buttonW, 0), centerTest: true))
             Close();
     }
 }
@@ -112,14 +112,14 @@ public class ImportSceneModal : Modal
 
     private SceneImportOptions _importOptions = SceneImportOptions.Default;
 
-    public ImportSceneModal(SceneService sceneService) : base("Import Scene###import_scene_modal", new(440, 150), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
+    public ImportSceneModal(SceneService sceneService) : base("导入场景###import_scene_modal", new(440, 150), ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDecoration)
     {
         _sceneService = sceneService;
     }
 
     public override void DrawContent()
     {
-        ImBrio.SeparatorText($" Import Scene ");
+        ImBrio.SeparatorText($" 导入场景 ");
 
         ImGui.SameLine();
 
@@ -127,7 +127,7 @@ public class ImportSceneModal : Modal
 
         float buttonW = (MinimumSize.X / 2) - 12;
 
-        if(ImBrio.Button("Choose File & Load", FontAwesomeIcon.FileImport, new(buttonW, 0), centerTest: true, tooltip: "Choose a scene file and load it"))
+        if(ImBrio.Button("选择文件并加载", FontAwesomeIcon.FileImport, new(buttonW, 0), centerTest: true, tooltip: "选择场景文件并加载"))
         {
             FileUIHelpers.ShowImportSceneModal(_sceneService, _destroyAll, _useRelativeLightPositions, _useRelativeWorldObjectPositions, _importOptions);
             Close();
@@ -135,7 +135,7 @@ public class ImportSceneModal : Modal
 
         ImGui.SameLine();
 
-        if(ImBrio.Button("Cancel", FontAwesomeIcon.Times, new(buttonW, 0), centerTest: true))
+        if(ImBrio.Button("取消", FontAwesomeIcon.Times, new(buttonW, 0), centerTest: true))
             Close();
     }
 }

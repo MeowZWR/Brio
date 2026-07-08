@@ -122,7 +122,7 @@ public class ActionTimelineEditor
 
         DrawHeder();
 
-        ImBrio.SeparatorText("Current Animation");
+        ImBrio.SeparatorText("当前动画");
 
         DrawBaseOverride();
         DrawBlend();
@@ -130,7 +130,7 @@ public class ActionTimelineEditor
 
         if(!drawAdvanced)
         {
-            ImBrio.SeparatorText("Animation Scruber");
+            ImBrio.SeparatorText("动画进度条");
 
             DrawFirstScrub();
         }

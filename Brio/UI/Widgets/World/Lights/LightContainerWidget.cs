@@ -9,7 +9,7 @@ namespace Brio.UI.Widgets.World.Lights;
 
 public class LightContainerWidget(LightContainerCapability capability) : Widget<LightContainerCapability>(capability)
 {
-    public override string HeaderName => "Lights";
+    public override string HeaderName => "灯光";
 
     public override WidgetFlags Flags => WidgetFlags.DrawPopup;
 
@@ -17,25 +17,25 @@ public class LightContainerWidget(LightContainerCapability capability) : Widget<
     {
         using(ImRaii.Disabled(Capability.IsAllowed == false))
         {
-            if(ImGui.BeginMenu("Add from World...###containerwidgetpopup_add"))
+            if(ImGui.BeginMenu("从世界添加...###containerwidgetpopup_add"))
             {
-                if(ImGui.BeginMenu("World Light...###containerwidgetpopup_addWorldLight"))
+                if(ImGui.BeginMenu("世界灯光...###containerwidgetpopup_addWorldLight"))
                 {
                     var worldLights = Capability.GetWorldLights().OrderBy(x => x.distance).ToList();
                     if(worldLights.Count == 0)
                     {
-                        ImGui.TextDisabled("No world lights found");
+                        ImGui.TextDisabled("未找到世界中的灯光");
                     }
                     else
                     {
-                        if(ImGui.MenuItem($"Add All ({worldLights.Count})###containerwidgetpopup_addAllWorldLights"))
+                        if(ImGui.MenuItem($"全部添加 ({worldLights.Count})###containerwidgetpopup_addAllWorldLights"))
                         {
                             Capability.AddAllWorldLights();
                         }
                         ImGui.Separator();
                         foreach(var (light, distance) in worldLights)
                         {
-                            if(ImGui.MenuItem($"Light: {distance:F1}y##worldlight_{light}"))
+                            if(ImGui.MenuItem($"灯光：{distance:F1}y##worldlight_{light}"))
                             {
                                 Capability.AddWorldLight(light);
                             }
@@ -46,35 +46,35 @@ public class LightContainerWidget(LightContainerCapability capability) : Widget<
                 ImGui.EndMenu();
             }
 
-            if(ImGui.MenuItem("Open Light Window###containerwidgetpopup_openWindow"))
+            if(ImGui.MenuItem("打开灯光窗口###containerwidgetpopup_openWindow"))
             {
                 Capability.OpenLightWindow();
             }
 
-            if(ImGui.BeginMenu("New...###containerwidgetpopup_new"))
+            if(ImGui.BeginMenu("新建...###containerwidgetpopup_new"))
             {
                 ImGui.Separator();
 
-                if(ImGui.MenuItem("Spot Light###containerwidgetpopup_spawn_SpotLight"))
+                if(ImGui.MenuItem("聚光灯###containerwidgetpopup_spawn_SpotLight"))
                 {
                     Capability.LightingService.SpawnLight(LightType.SpotLight);
                 }
-                if(ImGui.MenuItem("Area Light###containerwidgetpopup_spawn_SpotLight"))
+                if(ImGui.MenuItem("区域光###containerwidgetpopup_spawn_SpotLight"))
                 {
                     Capability.LightingService.SpawnLight(LightType.PointLight);
                 }
-                if(ImGui.MenuItem("Flat Light###containerwidgetpopup_spawn_SpotLight"))
+                if(ImGui.MenuItem("平面光###containerwidgetpopup_spawn_SpotLight"))
                 {
                     Capability.LightingService.SpawnLight(LightType.FlatLight);
                 }
                 ImGui.EndMenu();
             }
 
-            if(ImGui.BeginMenu("Destroy All...###containerwidgetpopup_destroy"))
+            if(ImGui.BeginMenu("全部销毁...###containerwidgetpopup_destroy"))
             {
-                if(ImGui.BeginMenu("Lights###containerwidgetpopup_destroyLights"))
+                if(ImGui.BeginMenu("灯光###containerwidgetpopup_destroyLights"))
                 {
-                    if(ImGui.MenuItem("Confirm Destruction##containerwidgetpopup_destroyallLights"))
+                    if(ImGui.MenuItem("确认销毁##containerwidgetpopup_destroyallLights"))
                     {
                         Capability.LightingService.DestroyAll();
                     }

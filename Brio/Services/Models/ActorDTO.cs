@@ -17,7 +17,7 @@ namespace Brio.Services.Models;
 public class ActorDTO
 {
     public string Name { get; set; } = "";
-    public string FriendlyName { get; set; } = "Actor";
+    public string FriendlyName { get; set; } = "角色";
 
     public required AnamnesisCharaFile AnamnesisCharaFile { get; set; }
     public required PoseFile PoseFile { get; set; }

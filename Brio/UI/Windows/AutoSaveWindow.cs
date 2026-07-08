@@ -33,7 +33,7 @@ public class AutoSaveWindow : Window, IDisposable
     private AutoSaveEntry? _selectedEntry;
     private int _selectedActorIndex = 0;
 
-    public AutoSaveWindow(ConfigurationService configurationService, GPoseService gPoseService, AutoSaveService autoSaveService, EntityManager entityManager) : base($"{Brio.Name} AUTO-SAVE###brio_autosaves_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize)
+    public AutoSaveWindow(ConfigurationService configurationService, GPoseService gPoseService, AutoSaveService autoSaveService, EntityManager entityManager) : base($"{Brio.Name} 自动保存###brio_autosaves_window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize)
     {
         Namespace = "brio_autosaves_window";
 
@@ -95,7 +95,7 @@ public class AutoSaveWindow : Window, IDisposable
 
         using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoMagenta))
         {
-            ImGui.Text("ATTENTION: Brio will **NOT** make AutoSaves with this window open!");
+            ImGui.Text("注意：此窗口打开时 Brio **不会**进行自动保存！");
         }
 
         var windowSize = ImGui.GetWindowSize();
@@ -123,13 +123,13 @@ public class AutoSaveWindow : Window, IDisposable
                     }
 
                     if(_autoSaves.Count == 0)
-                        ImGui.TextDisabled("No auto-saves found!");
+                        ImGui.TextDisabled("未找到自动保存！");
                 }
             }
 
             using(ImRaii.Disabled(_selectedEntry is null || !_selectedEntry.IsValid))
             {
-                if(ImBrio.Button("Load", FontAwesomeIcon.FileImport, new(120, 0), centerTest: true, tooltip: "Load this auto-save"))
+                if(ImBrio.Button("加载", FontAwesomeIcon.FileImport, new(120, 0), centerTest: true, tooltip: "Load this auto-save"))
                 {
                     _autoSaveService.LoadAutoSave(_selectedEntry!, _destroyAll, _useRelativeLightPositions, _useRelativeWorldObjectPositions, _importOptions);
                 }
@@ -155,7 +155,7 @@ public class AutoSaveWindow : Window, IDisposable
             if(_autoSavePoses.Count > 0)
             {
                 ImGui.Separator();
-                ImGui.TextUnformatted("Poses:");
+                ImGui.TextUnformatted("姿势：");
 
                 float applyAreaHeight = ((ImBrio.GetLineHeight() + ImGui.GetStyle().ItemSpacing.Y) * 2) + ImGui.GetStyle().ItemSpacing.Y;
                 float posesListHeight = Math.Max(20, ImBrio.GetRemainingHeight() - applyAreaHeight);
@@ -178,12 +178,12 @@ public class AutoSaveWindow : Window, IDisposable
 
                 var actors = _entityManager.TryGetAllActors().ToList();
                 _selectedActorIndex = Math.Clamp(_selectedActorIndex, 0, actors.Count);
-                string comboPreview = _selectedActorIndex == 0 ? "Selected Actor" : actors[_selectedActorIndex - 1].FriendlyName;
+                string comboPreview = _selectedActorIndex == 0 ? "所选角色" : actors[_selectedActorIndex - 1].FriendlyName;
 
                 ImGui.SetNextItemWidth(ImBrio.GetRemainingWidth());
                 if(ImGui.BeginCombo("###actor_combo", comboPreview))
                 {
-                    if(ImGui.Selectable("Selected Actor###actor_sel", _selectedActorIndex == 0))
+                    if(ImGui.Selectable("所选角色###actor_sel", _selectedActorIndex == 0))
                         _selectedActorIndex = 0;
 
                     for(int i = 0; i < actors.Count; i++)
@@ -202,7 +202,7 @@ public class AutoSaveWindow : Window, IDisposable
             }
             else
             {
-                ImGui.Text("Poses: None");
+                ImGui.Text("姿势：无");
             }
         }
     }

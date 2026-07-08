@@ -28,7 +28,7 @@ public class DyeSelector(string id) : Selector<DyeUnion>(id)
     {
         var (id, name, color) = item.Match(
             stain => ((byte)stain.RowId, stain.Name, (uint)ImBrio.ARGBToABGR(stain.Color)),
-            none => ((byte)0, "None", (uint)0)
+            none => ((byte)0, "无", (uint)0)
         );
         string label = $"{name} ({id})";
         var size = new Vector2(ImGui.GetContentRegionAvail().X, ImGui.GetTextLineHeight() * 1.1f);

@@ -129,13 +129,13 @@ public class MainWindow : Window, IDisposable
             var pos = ImGui.GetCursorPos();
 
             if(ImBrio.FontIconButtonRight("undock_entity_section", isUndocked ? FontAwesomeIcon.Compress : FontAwesomeIcon.WindowRestore, 1,
-                tooltip: isUndocked ? "Redock Entity Widgets" : "Undock Entity Widgets into it's own Window"))
+                tooltip: isUndocked ? "重新停靠实体组件" : "将实体组件拆分为独立窗口"))
                 _entitySectionWindow.IsOpen = !_entitySectionWindow.IsOpen;
 
             ImGui.SetCursorPos(pos);
 
             using(ImRaii.Disabled(_gPoseService.IsGPosing == false || selected?.IsLoading == true))
-                if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "Spawn New..."))
+                if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "生成新灯光..."))
                 {
                     SpawnMenu.OpenUnifiedSpawnMenu();
                 }
@@ -148,7 +148,7 @@ public class MainWindow : Window, IDisposable
         }
         catch(Exception ex)
         {
-            Brio.Log.Error(ex, $"Failed to draw entity section: [ {_entityManager?.SelectedEntity?.FriendlyName ?? "Unknown"} ] ");
+            Brio.Log.Error(ex, $"Failed to draw entity section: [ {_entityManager?.SelectedEntity?.FriendlyName ?? "未知"} ] ");
         }
     }
 
@@ -223,11 +223,11 @@ public class MainWindow : Window, IDisposable
                 ImGui.SetCursorPos(startPos);
             }
 
-            if(ImBrio.Button("Project", FontAwesomeIcon.FileAlt, new Vector2(line1Width, 0), centerTest: true))
+            if(ImBrio.Button("项目", FontAwesomeIcon.FileAlt, new Vector2(line1Width, 0), centerTest: true))
                 ImGui.OpenPopup("DrawProjectPopup");
 
             ImGui.SameLine();
-            if(ImBrio.Button("Library", FontAwesomeIcon.BookBookmark, new Vector2(line1Width, 0), centerTest: true))
+            if(ImBrio.Button("资源库", FontAwesomeIcon.BookBookmark, new Vector2(line1Width, 0), centerTest: true))
                 _libraryWindow.Toggle();
         }
 
@@ -243,7 +243,7 @@ public class MainWindow : Window, IDisposable
             _settingsWindow.Toggle();
 
         if(ImGui.IsItemHovered())
-            ImGui.SetTooltip("Settings");
+            ImGui.SetTooltip("设置");
 
         //
 

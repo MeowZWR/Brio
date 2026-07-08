@@ -25,7 +25,7 @@ public class ActorTimelineCapability : ActorCharacterCapability, ITimelineHost
     public List<TimelineTrack> Tracks { get; private set; } = [];
 
     public string Name => Actor.FriendlyName;
-    public string CaptureHint => "Select bones in the posing overlay, then capture.";
+    public string CaptureHint => "选择姿势叠加层中的骨骼，然后捕获。";
 
     public IReadOnlyList<TimelineCaptureChannel> CaptureChannels { get; }
 
@@ -39,13 +39,13 @@ public class ActorTimelineCapability : ActorCharacterCapability, ITimelineHost
 
         CaptureChannels =
         [
-            new("Position", "Capture position", f => CaptureKeyframe(f, TransformComponents.Position)),
-            new("Rotation", "Capture rotation", f => CaptureKeyframe(f, TransformComponents.Rotation)),
-            new("Scale", "Capture scale", f => CaptureKeyframe(f, TransformComponents.Scale)),
-            new("All", "Capture position, rotation and scale", f => CaptureKeyframe(f, TransformComponents.All)),
-            new("Auto", "Capture only the components that changed", CaptureAuto),
-            new("Capture Pose", "Capture every bone in the current pose", CapturePose),
-            new("Model Transform", "Capture the actor's position, rotation and scale", CaptureModelTransform)
+            new("位置", "捕获位置", f => CaptureKeyframe(f, TransformComponents.Position)),
+            new("旋转", "捕获旋转", f => CaptureKeyframe(f, TransformComponents.Rotation)),
+            new("缩放", "捕获缩放", f => CaptureKeyframe(f, TransformComponents.Scale)),
+            new("全部", "捕获位置、旋转和缩放", f => CaptureKeyframe(f, TransformComponents.All)),
+            new("自动", "捕获发生变化的部分", CaptureAuto),
+            new("捕获姿势", "捕获当前姿势的所有骨骼", CapturePose),
+            new("模型变换", "捕获角色的位置、旋转和缩放", CaptureModelTransform)
         ];
 
         _timelineService.Register(this);

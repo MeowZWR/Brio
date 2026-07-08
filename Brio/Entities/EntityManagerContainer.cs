@@ -28,7 +28,7 @@ public class EntityManagerContainer(IServiceProvider provider) : Entity("worldOb
     private int _spawnCounter = 0;
     private readonly Dictionary<EntityId, int> _spawnOrder = [];
 
-    public override string FriendlyName => "Entities";
+    public override string FriendlyName => "实体";
     public override FontAwesomeIcon Icon => FontAwesomeIcon.GroupArrowsRotate;
     public override int ContextButtonCount => 2;
     public override EntityFlags Flags => EntityFlags.HasContextButton;
@@ -37,7 +37,7 @@ public class EntityManagerContainer(IServiceProvider provider) : Entity("worldOb
     {
         using(ImRaii.PushColor(ImGuiCol.Button, ThemeManager.CurrentTheme.Accent.AccentColor))
         {
-            var toolTip1 = UIManager.IsOverlayWindowOpen ? "Hide Overlay" : "Show Overlay";
+            var toolTip1 = UIManager.IsOverlayWindowOpen ? "隐藏叠加层" : "显示叠加层";
             using(ImRaii.PushColor(ImGuiCol.Button, 0))
                 if(ImBrio.ToggelFontIconButtonRight($"###{Id}_overlay", FontAwesomeIcon.LayerGroup, 2f, UIManager.IsOverlayWindowOpen, tooltip: toolTip1))
                 {
@@ -46,7 +46,7 @@ public class EntityManagerContainer(IServiceProvider provider) : Entity("worldOb
 
             ImGui.SameLine();
 
-            string toolTip = $"Spawn New...";
+            string toolTip = $"生成新灯光...";
 
             if(ImBrio.FontIconButtonRight($"###{Id}_cameras_contextButton", FontAwesomeIcon.Plus, 1f, toolTip, bordered: false))
             {

@@ -7,7 +7,7 @@ public class TagFilter : FilterBase
     public TagCollection? Tags;
 
     public TagFilter()
-        : base("Tags")
+        : base("标签")
     {
     }
 

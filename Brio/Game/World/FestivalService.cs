@@ -426,7 +426,7 @@ public unsafe class FestivalService : MediatorSubscriberBase
     {
         public uint Id { get; set; }
         public uint Phase { get; set; }
-        public string Name { get; set; } = "Unknown";
+        public string Name { get; set; } = "未知";
         public bool Unknown { get; set; }
         public bool Unsafe { get; set; }
 

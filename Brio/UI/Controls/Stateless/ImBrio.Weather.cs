@@ -10,7 +10,7 @@ public static partial class ImBrio
     {
         var (description, icon) = union.Match(
            weather => ($"{weather.Name}\n{weather.RowId}\nType: {weather.Description}", (uint)weather.Icon),
-           none => ("None", (byte)0)
+           none => ("无", (byte)0)
         );
 
         if(!showText)

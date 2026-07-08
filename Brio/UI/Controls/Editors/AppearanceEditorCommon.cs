@@ -74,7 +74,7 @@ public static class AppearanceEditorCommon
                     _collections = capability.PenumbraService.GetCollections();
                 }
 
-                if(ImGui.InputTextWithHint($"###search", "Search", ref _search, 256))
+                if(ImGui.InputTextWithHint($"###search", "搜索", ref _search, 256))
                 {
                     _collections = capability.PenumbraService.GetCollections();
 
@@ -98,7 +98,7 @@ public static class AppearanceEditorCommon
             }
         }
 
-        ImBrio.AttachToolTip("Apply Penumbra Collection.");
+        ImBrio.AttachToolTip("应用 Penumbra 合集。");
 
         ImGui.SameLine();
 
@@ -135,7 +135,7 @@ public static class AppearanceEditorCommon
                     _collections = capability.GlamourerService.GetDesignList();
                 }
 
-                if(ImGui.InputTextWithHint($"###search", "Search", ref _search, 256))
+                if(ImGui.InputTextWithHint($"###search", "搜索", ref _search, 256))
                 {
                     _collections = capability.GlamourerService.GetDesignList();
 

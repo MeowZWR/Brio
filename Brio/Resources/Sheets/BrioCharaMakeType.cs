@@ -103,7 +103,7 @@ public unsafe struct BrioCharaMakeType(ExcelPage page, uint offset, uint row) : 
         {
             var firstChar = charaMakeTypes.CharaMakeStruct[(int)i];
 
-            var title = firstChar.Menu.ValueNullable?.Text.ExtractText() ?? "Unknown";
+            var title = firstChar.Menu.ValueNullable?.Text.ExtractText() ?? "未知";
             var menuType = (MenuType)firstChar.SubMenuType;
             var subMenuNum = firstChar.SubMenuNum;
             var subMenuMask = firstChar.SubMenuMask;

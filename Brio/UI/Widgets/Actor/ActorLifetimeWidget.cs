@@ -8,34 +8,34 @@ namespace Brio.UI.Widgets.Actor;
 
 public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<ActorLifetimeCapability>(capability)
 {
-    public override string HeaderName => "Lifetime";
+    public override string HeaderName => "生命周期";
 
     public override WidgetFlags Flags => WidgetFlags.DrawPopup | WidgetFlags.DrawQuickIcons;
 
     public override void DrawQuickIcons()
     {
-        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "Clone", Capability.CanClone))
+        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "克隆", Capability.CanClone))
         {
             Capability.Clone(false);
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_target", FontAwesomeIcon.Bullseye, "Target"))
+        if(ImBrio.FontIconButton("lifetimewidget_target", FontAwesomeIcon.Bullseye, "目标"))
         {
             Capability.Target();
         }
 
         ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.HoldButton("lifetimewidget_destroy", "", FontAwesomeIcon.Trash, 1f, new(40, 0), centerTest: true, tooltip: "[HOLD TO DESTROY]", onlyIcon: true))
+        if(ImBrio.HoldButton("lifetimewidget_destroy", "", FontAwesomeIcon.Trash, 1f, new(40, 0), centerTest: true, tooltip: "[长按销毁]", onlyIcon: true))
         {
             Capability.Destroy();
         }
 
         ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "Rename"))
+        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "重命名"))
         {
             ModalManager.Instance.OpenRenameModal(Capability.Actor);
         }
@@ -43,7 +43,7 @@ public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<Ac
 
     public override void DrawPopup()
     {
-        if(ImGui.MenuItem($"Rename {Capability.Actor.FriendlyName}###actorlifetime_rename"))
+        if(ImGui.MenuItem($"重命名 {Capability.Actor.FriendlyName}###actorlifetime_rename"))
         {
             ImGui.CloseCurrentPopup();
 
@@ -52,18 +52,18 @@ public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<Ac
 
         if(Capability.CanClone)
         {
-            if(ImGui.MenuItem("Clone###actorlifetime_clone"))
+            if(ImGui.MenuItem("克隆###actorlifetime_clone"))
             {
                 Capability.Clone(true);
             }
         }
 
-        if(ImGui.MenuItem("Move to Camera###actorlifetime_move_to_camera"))
+        if(ImGui.MenuItem("移动到相机###actorlifetime_move_to_camera"))
         {
             Capability.MoveToCamera();
         }
 
-        if(ImGui.MenuItem("Target###actorlifetime_target"))
+        if(ImGui.MenuItem("目标###actorlifetime_target"))
         {
             Capability.Target();
         }

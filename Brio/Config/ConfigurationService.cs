@@ -89,7 +89,7 @@ public class ConfigurationService : IDisposable
 
     public bool IsDebug => s_isDebug || Configuration.ForceDebug;
     public string Version => IsDebug ? "(Debug)" : $"v{s_version}";
-    public string CommitHash => GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
+    public string CommitHash => GetType().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "未知";
 
     public bool IsFromTrustedSource => !IsDebug || IsTrustedRepo(_pluginInterface);
 
