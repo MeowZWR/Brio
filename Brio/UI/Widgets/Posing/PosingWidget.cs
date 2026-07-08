@@ -17,7 +17,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 {
     public override string HeaderName => "姿势";
 
-    public override WidgetFlags Flags => Capability.Actor.IsProp ? (WidgetFlags.DefaultOpen | WidgetFlags.DrawBody) : (WidgetFlags.DrawBody | WidgetFlags.HasAdvanced | WidgetFlags.DefaultOpen);
+    public override WidgetFlags Flags => (WidgetFlags.DrawBody | WidgetFlags.HasAdvanced | WidgetFlags.DefaultOpen);
 
     private readonly PosingTransformEditor _posingTransformEditor = new();
 
@@ -28,10 +28,13 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
     {
         DrawButtons();
 
-        using var child1 = ImRaii.Child($"###appearance_child", new Vector2(0, 165 * ImGuiHelpers.GlobalScale), true, ImGuiWindowFlags.AlwaysAutoResize);
-        if(child1.Success)
+        using(ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 8f))
+        using(var child1 = ImRaii.Child($"###appearance_child", new Vector2(0, 165 * ImGuiHelpers.GlobalScale), true, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            DrawTransform();
+            if(child1.Success)
+            {
+                DrawTransform();
+            }
         }
     }
 
@@ -48,45 +51,37 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
             Capability.OverlayOpen = !overlayOpen;
         }
 
-        ImGui.SameLine();
+        ImBrio.VerticalSeparator(24, 1);
 
-        if(Capability.Actor.IsProp == false)
+        if(ImBrio.FontIconButton("import", FontAwesomeIcon.FileDownload, "导入姿势"))
         {
-            if(ImBrio.FontIconButton("import", FontAwesomeIcon.FileDownload, "导入姿势"))
-            {
-                ImGui.OpenPopup("DrawImportPoseMenuPopup");
-            }
-
-            FileUIHelpers.DrawImportPoseMenuPopup("postingWidget", Capability);
-
-            ImGui.SameLine();
-
-            if(ImBrio.FontIconButton("export", FontAwesomeIcon.Save, "保存姿势"))
-                FileUIHelpers.ShowExportPoseModal(Capability);
-
-            ImGui.SameLine();
-
-            if(ImBrio.FontIconButton("bone_search", FontAwesomeIcon.Search, "骨骼搜索"))
-            {
-                ImGui.OpenPopup("widget_bone_search_popup");
-            }
+            ImGui.OpenPopup("DrawImportPoseMenuPopup");
         }
 
+        FileUIHelpers.DrawImportPoseMenuPopup("postingWidget", Capability);
+
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("undo", FontAwesomeIcon.Backward, "撤销", Capability.CanUndo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Undo) && Capability.CanUndo))
+        if(ImBrio.FontIconButton("export", FontAwesomeIcon.Save, "保存姿势"))
+            ImGui.OpenPopup("DrawExportPoseMenuPopup");
+
+        FileUIHelpers.DrawExportPoseMenuPopup(Capability);
+
+        ImBrio.VerticalSeparator(24, 1);
+
+        if(ImBrio.FontIconButton("undo", FontAwesomeIcon.Reply, "撤销", Capability.CanUndo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Undo) && Capability.CanUndo))
         {
             Capability.Undo();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("redo", FontAwesomeIcon.Forward, "重做", Capability.CanRedo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Redo) && Capability.CanRedo))
+        if(ImBrio.FontIconButton("redo", FontAwesomeIcon.Share, "重做", Capability.CanRedo) || (InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Redo) && Capability.CanRedo))
         {
             Capability.Redo();
         }
 
-        ImGui.SameLine();
+        ImBrio.VerticalSeparator(24, 1);
 
         if(ImBrio.FontIconButton("flipButton", FontAwesomeIcon.Repeat, "镜像姿势"))
         {
@@ -95,17 +90,14 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 
         ImGui.SameLine();
 
-        if(Capability.Actor.IsProp == false)
+        if(ImBrio.ToggelFontIconButton("freezeActor", FontAwesomeIcon.Snowflake, new Vector2(0), timelineCapability.SpeedMultiplier == 0, tooltip: timelineCapability.SpeedMultiplierOverride == 0 ? "解冻角色" : "冻结角色") || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Freeze))
         {
-            if(ImBrio.ToggelFontIconButton("freezeActor", FontAwesomeIcon.Snowflake, new Vector2(0), timelineCapability.SpeedMultiplier == 0, hoverText: timelineCapability.SpeedMultiplierOverride == 0 ? "解冻角色" : "冻结角色") || InputManagerService.ActionKeysPressedLastFrame(InputAction.Posing_Freeze))
-            {
-                if(timelineCapability.SpeedMultiplierOverride == 0)
-                    timelineCapability.ResetOverallSpeedOverride();
-                else
-                    timelineCapability.SetOverallSpeedOverride(0f);
-            }
-            ImGui.SameLine();
+            if(timelineCapability.SpeedMultiplierOverride == 0)
+                timelineCapability.ResetOverallSpeedOverride();
+            else
+                timelineCapability.SetOverallSpeedOverride(0f);
         }
+        ImGui.SameLine();
 
         if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置姿势", Capability.HasOverride()))
         {
@@ -143,7 +135,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
         {
             {
                 var buttonSize = new Vector2(155 * ImGuiHelpers.GlobalScale, 0);
-                if(ImBrio.DrawIconButton(FontAwesomeIcon.Undo, "重置姿势", buttonSize))
+                if(ImBrio.IconButtonWithText(FontAwesomeIcon.Undo, "Reset Pose", buttonSize))
                 {
                     Capability.Reset(false, false);
                     ImGui.CloseCurrentPopup();
@@ -151,7 +143,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 
                 using(ImRaii.Disabled(!Capability.HasOverride(Capability.SkeletonPosing.FilterNonFaceBones)))
                 {
-                    if(ImBrio.DrawIconButton(FontAwesomeIcon.ChildReaching, "重置身体", buttonSize))
+                    if(ImBrio.IconButtonWithText(FontAwesomeIcon.ChildReaching, "Reset Body", buttonSize))
                     {
                         Capability.Snapshot(false, reconcile: false);
                         Capability.SkeletonPosing.PoseInfo.Clear(Capability.SkeletonPosing.FilterNonFaceBones);
@@ -161,7 +153,7 @@ public class PosingWidget(PosingCapability capability) : Widget<PosingCapability
 
                 using(ImRaii.Disabled(!Capability.HasOverride(Capability.SkeletonPosing.FilterFaceBones)))
                 {
-                    if(ImBrio.DrawIconButton(FontAwesomeIcon.Smile, "重置脸部", buttonSize))
+                    if(ImBrio.IconButtonWithText(FontAwesomeIcon.Smile, "Reset Face", buttonSize))
                     {
                         Capability.SkeletonPosing.PoseInfo.Clear(Capability.SkeletonPosing.FilterFaceBones);
                         ImGui.CloseCurrentPopup();

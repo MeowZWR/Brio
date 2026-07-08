@@ -1,9 +1,4 @@
 ﻿using Brio.Capabilities.Actor;
-using Brio.Game.Actor;
-using Brio.Game.Camera;
-using Brio.Game.World;
-using Brio.UI.Controls;
-using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
 using Dalamud.Bindings.ImGui;
@@ -11,94 +6,82 @@ using Dalamud.Interface;
 
 namespace Brio.UI.Widgets.Actor;
 
-public class ActorLifetimeWidget : Widget<ActorLifetimeCapability>
+public class ActorLifetimeWidget(ActorLifetimeCapability capability) : Widget<ActorLifetimeCapability>(capability)
 {
-    private readonly ActorSpawnService _actorSpawnService;
-    private readonly VirtualCameraManager _cameraManager;
-    private readonly LightingService _lightingService;
-
-    public ActorLifetimeWidget(ActorLifetimeCapability capability, ActorSpawnService actorSpawnService, VirtualCameraManager cameraManager, LightingService lightingService) : base(capability)
-    {
-        _actorSpawnService = actorSpawnService;
-        _cameraManager = cameraManager;
-        _lightingService = lightingService;
-    }
-
     public override string HeaderName => "Lifetime";
 
     public override WidgetFlags Flags => WidgetFlags.DrawPopup | WidgetFlags.DrawQuickIcons;
 
     public override void DrawQuickIcons()
     {
-        if(ImBrio.FontIconButton("lifetimewidget_spawnnew", FontAwesomeIcon.Plus, "生成新角色"))
-        {
-            ImGui.OpenPopup("UnifiedSpawnMenuPopup");
-        }
-        SpawnMenuEditor.DrawUnifiedSpawnMenu(_actorSpawnService, _cameraManager, _lightingService);
-
-        ImGui.SameLine();
-
-        if(ImBrio.FontIconButton("lifetimewidget_spawn_prop", FontAwesomeIcon.Cubes, "生成道具"))
-        {
-            Capability.SpawnNewProp(false);
-        }
-
-        ImGui.SameLine();
-
-        if(ImBrio.FontIconButton("lifetimewidget_move_to_camera", FontAwesomeIcon.Thumbtack, "移动到相机"))
-        {
-            Capability.MoveToCamera();
-        }
-
-        ImGui.SameLine();
-
-        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "克隆", Capability.CanClone))
+        if(ImBrio.FontIconButton("lifetimewidget_clone", FontAwesomeIcon.Clone, "Clone", Capability.CanClone))
         {
             Capability.Clone(false);
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("lifetimewidget_target", FontAwesomeIcon.Bullseye, "目标"))
+        if(ImBrio.FontIconButton("lifetimewidget_target", FontAwesomeIcon.Bullseye, "Target"))
         {
             Capability.Target();
         }
 
-        ImGui.SameLine();
+        ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.FontIconButton("lifetimewidget_destroy", FontAwesomeIcon.Trash, "销毁", Capability.CanDestroy))
+        if(ImBrio.HoldButton("lifetimewidget_destroy", "", FontAwesomeIcon.Trash, 1f, new(40, 0), centerTest: true, tooltip: "[HOLD TO DESTROY]", onlyIcon: true))
         {
             Capability.Destroy();
         }
 
-        ImGui.SameLine();
+        ImBrio.VerticalSeparator(24, 1);
 
-        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "重命名"))
+        if(ImBrio.FontIconButton("lifetimewidget_rename", FontAwesomeIcon.Signature, "Rename"))
         {
-            RenameActorModal.Open(Capability.Actor);
+            ModalManager.Instance.OpenRenameModal(Capability.Actor);
         }
     }
 
     public override void DrawPopup()
     {
-        if(ImGui.MenuItem("Move to Camera###actorlifetime_move_to_camera"))
+        if(ImGui.MenuItem($"Rename {Capability.Actor.FriendlyName}###actorlifetime_rename"))
         {
-            Capability.MoveToCamera();
+            ImGui.CloseCurrentPopup();
+
+            ModalManager.Instance.OpenRenameModal(Capability.Actor);
         }
 
         if(Capability.CanClone)
         {
-            if(ImGui.MenuItem("克隆###actorlifetime_clone"))
+            if(ImGui.MenuItem("Clone###actorlifetime_clone"))
             {
                 Capability.Clone(true);
             }
         }
 
+        if(ImGui.MenuItem("Move to Camera###actorlifetime_move_to_camera"))
+        {
+            Capability.MoveToCamera();
+        }
+
+        if(ImGui.MenuItem("Target###actorlifetime_target"))
+        {
+            Capability.Target();
+        }
+
+        if(Capability.Entity.TryGetCapability<ActorAppearanceCapability>(out var appearance))
+        {
+            var toggele = appearance.IsHidden ? "Show" : "Hide";
+            if(ImGui.MenuItem($"重命名 {Capability.Actor.FriendlyName}###actorlifetime_rename"))
+                appearance.ToggleHide();
+        }
+
         if(Capability.CanDestroy)
         {
+            ImGui.Separator();
+
             if(ImGui.BeginMenu("销毁###actorlifetime_destroy"))
             {
-                if(ImGui.MenuItem("确认销毁###actorlifetime_destroy_confirm"))
+                if(ImGui.MenuItem("克隆###actorlifetime_clone"))
                 {
                     Capability.Destroy();
                 }
@@ -106,18 +89,5 @@ public class ActorLifetimeWidget : Widget<ActorLifetimeCapability>
                 ImGui.EndMenu();
             }
         }
-
-        if(ImGui.MenuItem($"重命名 {Capability.Actor.FriendlyName}###actorlifetime_rename"))
-        {
-            ImGui.CloseCurrentPopup();
-
-            RenameActorModal.Open(Capability.Actor);
-        }
-
-        if(ImGui.MenuItem("选中###actorlifetime_target"))
-        {
-            Capability.Target();
-        }
-
     }
 }

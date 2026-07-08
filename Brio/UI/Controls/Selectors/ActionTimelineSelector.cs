@@ -1,16 +1,16 @@
-using Brio.Config;
+﻿using Brio.Config;
 using Brio.Resources;
 using Brio.Resources.Sheets;
+using Brio.Services;
 using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Stateless;
-using Brio.Game.Penumbra;
-using Dalamud.Interface.Utility.Raii;
+using Brio.UI.Theming;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 using System;
 using System.Numerics;
 using static Brio.Game.Actor.ActionTimelineService;
-using System.Collections.Generic;
 
 namespace Brio.UI.Controls.Selectors;
 
@@ -27,8 +27,6 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
     private bool _showEmotes = true;
     private bool _showActions = false;
     private bool _showBlendable = true;
-    
-
 
     private bool _filterByDrawsWeapon = false;
     private bool _drawsWeaponValue = false;
@@ -43,12 +41,24 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
     public bool IsPinned => _isPinned;
 
+    //TODO(KEN) at some point make all of them use `field`
+
     public bool AllowBlending
     {
         get => _showBlendable;
         set
         {
             _showBlendable = value;
+            UpdateList();
+        }
+    }
+
+    public bool ExpressionsOnly
+    {
+        get => field;
+        set
+        {
+            field = value;
             UpdateList();
         }
     }
@@ -69,7 +79,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
         ImGui.SetNextWindowSize(new Vector2(400, 500), ImGuiCond.FirstUseEver);
 
-        if(ImGui.Begin($"Animation Search Selector ###{_id}_window2", ref _isWindowOpen, ImGuiWindowFlags.NoCollapse))
+        if(ImGui.Begin($"动画搜索选择器 ###{_id}_window2", ref _isWindowOpen, ImGuiWindowFlags.NoCollapse))
         {
             if(!_isWindowOpen)
             {
@@ -77,6 +87,8 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
                 ImGui.End();
                 return;
             }
+
+            ImBrio.BlurWindow(ImGuiWindowFlags.None);
 
             DrawPinButton();
 
@@ -91,7 +103,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
     private void DrawPinButton()
     {
         var pinIcon = _isPinned ? FontAwesomeIcon.Thumbtack : FontAwesomeIcon.Thumbtack;
-        var pinColor = _isPinned ? UIConstants.GizmoRed : UIConstants.ToggleButtonInactive;
+        var pinColor = _isPinned ? UIConstants.GizmoRed : ThemeManager.CurrentTheme.Text.Text;
 
         var tooltip = _isPinned ? "取消固定 (关闭窗口)" : "固定以保持打开";
 
@@ -118,7 +130,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
     protected override void PopulateList()
     {
-        foreach(var timeline in GameDataProvider.Instance.ActionTimelines.Values)
+        foreach(var timeline in GameDataProvider.Instance.ActionTimelines)
         {
             if(!string.IsNullOrEmpty(timeline.Key.ToString()))
                 AddItem(new ActionTimelineSelectorEntry(
@@ -134,14 +146,14 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
                     0));
         }
 
-        foreach(var emote in GameDataProvider.Instance.Emotes.Values)
+        foreach(var emote in GameDataProvider.Instance.Emotes)
         {
             BrioActionTimeline timeline;
             bool drawsWeapon = emote.DrawsWeapon;
             byte emoteCategory = (byte)emote.EmoteCategory.RowId;
 
             // Loop
-            if(emote.ActionTimeline[0].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[0].RowId, out timeline))
+            if(emote.ActionTimeline[0].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetRow(emote.ActionTimeline[0].RowId, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(
                     emote.Name.ToString(),
@@ -157,7 +169,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             }
 
             // Intro
-            if(emote.ActionTimeline[1].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[1].RowId, out timeline))
+            if(emote.ActionTimeline[1].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetRow(emote.ActionTimeline[1].RowId, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(
                     emote.Name.ToString(),
@@ -173,7 +185,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             }
 
             // Ground
-            if(emote.ActionTimeline[2].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[2].RowId, out timeline))
+            if(emote.ActionTimeline[2].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetRow(emote.ActionTimeline[2].RowId, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(
                     emote.Name.ToString(),
@@ -189,7 +201,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             }
 
             // Chair
-            if(emote.ActionTimeline[3].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[3].RowId, out timeline))
+            if(emote.ActionTimeline[3].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetRow(emote.ActionTimeline[3].RowId, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(
                     emote.Name.ToString(),
@@ -205,7 +217,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             }
 
             // Upper Body
-            if(emote.ActionTimeline[4].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(emote.ActionTimeline[4].RowId, out timeline))
+            if(emote.ActionTimeline[4].RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetRow(emote.ActionTimeline[4].RowId, out timeline))
             {
                 AddItem(new ActionTimelineSelectorEntry(
                     emote.Name.ToString(),
@@ -221,9 +233,9 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             }
         }
 
-        foreach(var action in GameDataProvider.Instance.Actions.Values)
+        foreach(var action in GameDataProvider.Instance.Actions)
         {
-            if(action.AnimationEnd.RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetValue(action.AnimationEnd.RowId, out BrioActionTimeline timeline))
+            if(action.AnimationEnd.RowId != 0 && GameDataProvider.Instance.ActionTimelines.TryGetRow(action.AnimationEnd.RowId, out BrioActionTimeline timeline))
                 AddItem(new ActionTimelineSelectorEntry(
                     action.Name.ToString(),
                     (ushort)action.AnimationEnd.RowId,
@@ -237,14 +249,14 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
                     0));
         }
     }
+
     protected override void DrawItem(ActionTimelineSelectorEntry item, bool isSoftSelected)
     {
         var config = ConfigurationService.Instance.Configuration;
         bool isFavorite = item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(item.UniqueId);
-        
+
         var description = $"{item.Name}{(isFavorite ? "★" : "")}\n{item.SecondaryId} {item.TimelineType} {item.Slot} {item.Purpose}\n{item.TimelineId} {item.Key}";
 
-        // 右键菜单区域
         var entryHeight = EntrySize;
         var entryWidth = ImGui.GetContentRegionAvail().X;
         var id = $"##emote_invisible_{item.UniqueId}";
@@ -257,7 +269,6 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         ImGui.SetCursorScreenPos(cursor);
         ImBrio.BorderedGameIcon("icon", item.Icon, "Images.ActionTimeline.png", description, flags: ImGuiButtonFlags.None, size: IconSize);
 
-        // 情感动作右键菜单
         if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote)
         {
             using(var popup = ImRaii.Popup($"emote_context_menu_{item.UniqueId}"))
@@ -270,6 +281,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
                             config.Emote.Favorites.Remove(item.UniqueId);
                         else
                             config.Emote.Favorites.Add(item.UniqueId);
+
                         ConfigurationService.Instance.Save();
                         UpdateList();
                     }
@@ -281,19 +293,22 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
     protected override void DrawTooltip(ActionTimelineSelectorEntry item)
     {
         var tooltip = $"{item.Name}\n{item.TimelineId} - {item.Key}";
-        
+
         if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote)
         {
             var config = ConfigurationService.Instance.Configuration;
             bool isFavorite = config.Emote.Favorites.Contains(item.UniqueId);
             tooltip += $"\n{(isFavorite ? "★ 已收藏" : "右键可收藏")}";
         }
-        
+
         ImGui.SetTooltip(tooltip);
     }
 
     protected override void DrawOptions()
     {
+        if(ExpressionsOnly)
+            return;
+
         bool[] items = [_showEmotes, _showActions, _showRaw];
 
         var changed = ImBrio.ToggleSelecterStrip("actiontimeline_filters_selector", Vector2.Zero, ref items, ["情感动作", "技能", "时间线"]);
@@ -319,7 +334,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
         if(!_showBlendable)
         {
-            ImGui.Text("显示武器");
+            ImGui.Text("拔刀状态");
             ImBrio.VerticalPadding(1);
 
             int drawsWeaponSelection = !_filterByDrawsWeapon ? 0 : (_drawsWeaponValue ? 2 : 1);
@@ -365,13 +380,13 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
     protected override int Compare(ActionTimelineSelectorEntry itemA, ActionTimelineSelectorEntry itemB)
     {
-        // 收藏的情感动作排在前面
         var config = ConfigurationService.Instance.Configuration;
         bool aIsFavorite = itemA.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(itemA.UniqueId);
         bool bIsFavorite = itemB.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(itemB.UniqueId);
-        
+
         if(aIsFavorite && !bIsFavorite)
             return -1;
+
         if(!aIsFavorite && bIsFavorite)
             return 1;
 
@@ -413,6 +428,14 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
     protected override bool Filter(ActionTimelineSelectorEntry item, string search)
     {
+        var searchText = $"{item.Name} {item.TimelineId} {item.TimelineType} {item.Slot} {item.Purpose} {item.Key} {item.SecondaryId}";
+
+        if(!searchText.Contains(search, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        if(ExpressionsOnly)
+            return item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && item.EmoteCategory == 3 && item.Purpose == ActionTimelineSelectorEntry.AnimationPurpose.Blend;
+
         if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && !_showEmotes)
             return false;
 
@@ -453,15 +476,8 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             }
         }
 
-        var searchText = $"{item.Name} {item.TimelineId} {item.TimelineType} {item.Slot} {item.Purpose} {item.Key} {item.SecondaryId}";
-
-        if(searchText.Contains(search, StringComparison.InvariantCultureIgnoreCase))
-            return true;
-
-        return false;
+        return true;
     }
-    
-
 }
 
 public record class ActionTimelineSelectorEntry(

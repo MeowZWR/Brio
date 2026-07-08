@@ -20,12 +20,9 @@ public static class PosingEditorCommon
     {
         ImGui.Text(posing.Selected.DisplayName);
 
-        if(posing.Actor.IsProp == false)
-        {
-            ImGui.SetWindowFontScale(0.75f);
-            ImGui.TextDisabled(posing.Selected.Subtitle);
-            ImGui.SetWindowFontScale(1.0f);
-        }
+        ImGui.SetWindowFontScale(0.75f);
+        ImGui.TextDisabled(posing.Selected.Subtitle);
+        ImGui.SetWindowFontScale(1.0f);
 
         BonePoseInfoId? selectedIsBone = posing.IsSelectedBone();
         using(ImRaii.PushColor(ImGuiCol.Text, UIConstants.GizmoRed))
@@ -35,14 +32,14 @@ public static class PosingEditorCommon
                 Game.Posing.Skeletons.Bone? bone = posing.SkeletonPosing.GetBone(selectedIsBone.Value);
                 if(bone != null && bone.Skeleton.IsValid && bone.Freeze)
                 {
-                    ImGui.Text("此骨骼的变换值已被冻结。");
+                    ImGui.Text("This bone's transform values are frozen.");
                 }
             }
             else
             {
-                if(posing.ModelPosing.Freeze)
+                if(posing.ModelPosing.IsTransformFrozen)
                 {
-                    ImGui.Text("此角色的变换值已被冻结。");
+                    ImGui.Text("此骨骼的变换值已被冻结。");
                 }
             }
         }
@@ -57,7 +54,7 @@ public static class PosingEditorCommon
             ImGui.Separator();
 
             var selected = options.TransformComponents.HasFlag(TransformComponents.Position);
-            if(ImGui.Checkbox("位置", ref selected))
+            if(ImGui.Checkbox("Position", ref selected))
             {
                 if(selected)
                     options.TransformComponents |= TransformComponents.Position;
@@ -66,7 +63,7 @@ public static class PosingEditorCommon
             }
 
             selected = options.TransformComponents.HasFlag(TransformComponents.Rotation);
-            if(ImGui.Checkbox("旋转", ref selected))
+            if(ImGui.Checkbox("Rotation", ref selected))
             {
                 if(selected)
                     options.TransformComponents |= TransformComponents.Rotation;
@@ -75,7 +72,7 @@ public static class PosingEditorCommon
             }
 
             selected = options.TransformComponents.HasFlag(TransformComponents.Scale);
-            if(ImGui.Checkbox("缩放", ref selected))
+            if(ImGui.Checkbox("Scale", ref selected))
             {
                 if(selected)
                     options.TransformComponents |= TransformComponents.Scale;
@@ -86,7 +83,7 @@ public static class PosingEditorCommon
             ImGui.Separator();
 
             selected = options.ApplyModelTransform;
-            if(ImGui.Checkbox("模型变换", ref selected))
+            if(ImGui.Checkbox("位置", ref selected))
             {
                 options.ApplyModelTransform = selected;
             }
@@ -95,14 +92,14 @@ public static class PosingEditorCommon
 
     public static void DrawBoneFilterEditor(BoneFilter filter, PosingService? posingService)
     {
-        if(ImBrio.FontIconButton("select_all", FontAwesomeIcon.Check, "全选"))
+        if(ImBrio.FontIconButton("select_all", FontAwesomeIcon.Check, "Select All"))
         {
             filter.EnableAll();
         }
 
         ImGui.SameLine();
 
-        if(ImBrio.FontIconButton("select_none", FontAwesomeIcon.Minus, "不选择"))
+        if(ImBrio.FontIconButton("select_none", FontAwesomeIcon.Minus, "Select None"))
         {
             filter.DisableAll();
         }
@@ -112,7 +109,7 @@ public static class PosingEditorCommon
         {
             ImGui.SameLine();
 
-            if(ImBrio.ToggelFontIconButton("keep_gizmo", FontAwesomeIcon.LocationCrosshairs, new(0), posingService.GizmoStaysWhenAllBonesAreDisabled, hoverText: "Keep gizmo active even when all items in the filter are disabled"))
+            if(ImBrio.ToggelFontIconButton("keep_gizmo", FontAwesomeIcon.LocationCrosshairs, new(0), posingService.GizmoStaysWhenAllBonesAreDisabled, tooltip: "Keep gizmo active even when all items in the filter are disabled"))
             {
                 posingService.GizmoStaysWhenAllBonesAreDisabled = !posingService.GizmoStaysWhenAllBonesAreDisabled;
             }
@@ -247,24 +244,13 @@ public static class PosingEditorCommon
             }
         }
 
-        if(ImGui.IsItemHovered())
-        {
-            if(posing?.Selected.Value is BonePoseInfoId poseInfo)
-            {
-                switch(posing.SkeletonPosing.GetBonePose(poseInfo).MirrorMode)
-                {
-                    case PoseMirrorMode.None:
-                        ImGui.SetTooltip("链接：无");
-                        break;
-                    case PoseMirrorMode.Copy:
-                        ImGui.SetTooltip("链接：复制");
-                        break;
-                    case PoseMirrorMode.Mirror:
-                        ImGui.SetTooltip("链接：镜像");
-                        break;
-                }
-            }
-        }
+        string tooltip = posing?.Selected.Match(
+            boneSelect => $"Mirror Mode: {posing.SkeletonPosing.GetBonePose(boneSelect).MirrorMode}",
+            _ => "Mirror Mode: None",
+            _ => "Mirror Mode: None"
+        ) ?? "Mirror Mode";
+
+        ImBrio.AttachToolTip(tooltip);
     }
 
     public static void DrawIKSelect(PosingCapability posing, Vector2 buttonSize)

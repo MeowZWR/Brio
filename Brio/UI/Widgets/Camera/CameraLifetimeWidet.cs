@@ -1,27 +1,15 @@
 ﻿using Brio.Capabilities.Camera;
-using Brio.Game.Actor;
-using Brio.Game.World;
-using Brio.UI.Controls;
-using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Widgets.Core;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
+using System.Numerics;
 
 namespace Brio.UI.Widgets.Camera;
 
-public class CameraLifetimeWidget : Widget<CameraLifetimeCapability>
+public class CameraLifetimeWidget(CameraLifetimeCapability capability) : Widget<CameraLifetimeCapability>(capability)
 {
-    private readonly ActorSpawnService _actorSpawnService;
-    private readonly LightingService _lightingService;
-
-    public CameraLifetimeWidget(CameraLifetimeCapability capability, ActorSpawnService actorSpawnService, LightingService lightingService) : base(capability)
-    {
-        _actorSpawnService = actorSpawnService;
-        _lightingService = lightingService;
-    }
-
     public override string HeaderName => "生命周期";
 
     public override WidgetFlags Flags => WidgetFlags.DrawPopup | WidgetFlags.DrawQuickIcons;
@@ -30,43 +18,43 @@ public class CameraLifetimeWidget : Widget<CameraLifetimeCapability>
     {
         using(ImRaii.Disabled(Capability.IsAllowed == false))
         {
-            if(ImBrio.FontIconButton("CameraLifetime_spawnnew", FontAwesomeIcon.Plus, "新建相机"))
-            {
-                ImGui.OpenPopup("UnifiedSpawnMenuPopup");
-            }
-            SpawnMenuEditor.DrawUnifiedSpawnMenu(_actorSpawnService, Capability.VirtualCameraManager, _lightingService);
-
-            ImGui.SameLine();
-
-            if(ImBrio.FontIconButton("CameraLifetime_clone", FontAwesomeIcon.Clone, "克隆相机"))
+            if(ImBrio.FontIconButton("CameraLifetime_clone", FontAwesomeIcon.Clone, "Clone Camera"))
             {
                 Capability.VirtualCameraManager.CloneCamera(Capability.CameraEntity.CameraID);
             }
 
             ImGui.SameLine();
 
+            if(ImBrio.FontIconButton("CameraLifetime_target", FontAwesomeIcon.LocationCrosshairs, "Set as Active Camera"))
+            {
+                Capability.VirtualCameraManager.SelectCamera(Capability.VirtualCamera);
+            }
+
+            ImBrio.VerticalSeparator(24, 1);
+
             using(ImRaii.Disabled(Capability.CameraEntity.CameraID == 0))
             {
-                if(ImBrio.FontIconButton("CameraLifetime_destroy", FontAwesomeIcon.Trash, "销毁相机", Capability.CanDestroy))
+                if(ImBrio.HoldButton("CameraLifetime_destroy", "", FontAwesomeIcon.Trash, 1f, centerTest: true, tooltip: "[HOLD TO DESTROY]", onlyIcon: true))
                 {
                     Capability.VirtualCameraManager.DestroyCamera(Capability.CameraEntity.CameraID);
                 }
 
-                ImGui.SameLine();
+                ImBrio.VerticalSeparator(24, 1);
 
-                if(ImBrio.FontIconButton("CameraLifetime_rename", FontAwesomeIcon.Signature, "重命名"))
+                if(ImBrio.FontIconButton("CameraLifetime_rename", FontAwesomeIcon.Signature, "Rename"))
                 {
-                    RenameActorModal.Open(Capability.Entity);
+                    ModalManager.Instance.OpenRenameModal(Capability.Entity);
                 }
             }
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("CameraLifetime_target", FontAwesomeIcon.Bullseye, "选中相机"))
+            var isLocked = Capability.Entity.IsLocked;
+            var lockIcon = isLocked ? FontAwesomeIcon.Lock : FontAwesomeIcon.Unlock;
+            if(ImBrio.ToggelFontIconButton("CameraLifetime_lock", lockIcon, new Vector2(25, 0), isLocked, tooltip: isLocked ? "Locked" : "Unlocked"))
             {
-                Capability.VirtualCameraManager.SelectCamera(Capability.VirtualCamera);
+                Capability.Entity.IsLocked = !Capability.Entity.IsLocked;
             }
-
         }
     }
 
@@ -75,19 +63,37 @@ public class CameraLifetimeWidget : Widget<CameraLifetimeCapability>
         if(Capability.IsAllowed == false)
             return;
 
-        if(ImGui.MenuItem("选中###CameraLifetime_target"))
+        using(ImRaii.Disabled(Capability.CameraEntity.IsDefaultCamera))
         {
-            Capability.VirtualCameraManager.SelectCamera(Capability.VirtualCamera);
+            if(ImGui.MenuItem($"Rename {Capability.CameraEntity.FriendlyName}###CameraLifetime_rename"))
+            {
+                ImGui.CloseCurrentPopup();
+
+                ModalManager.Instance.OpenRenameModal(Capability.Entity);
+            }
         }
 
-        if(ImGui.MenuItem("克隆###CameraLifetime_clone"))
+        if(ImGui.MenuItem("Clone###CameraLifetime_clone"))
         {
             Capability.VirtualCameraManager.CloneCamera(Capability.CameraEntity.CameraID);
         }
 
+        if(ImGui.MenuItem("Target###CameraLifetime_target"))
+        {
+            Capability.VirtualCameraManager.SelectCamera(Capability.VirtualCamera);
+        }
+
+        var lockLabel = Capability.Entity.IsLocked ? "Unlock" : "Lock";
+        if(ImGui.MenuItem($"{lockLabel}###CameraLifetime_lock"))
+        {
+            Capability.Entity.IsLocked = !Capability.Entity.IsLocked;
+        }
+
         if(Capability.CanDestroy)
         {
-            if(ImGui.BeginMenu("销毁###actorlifetime_destroy"))
+            ImGui.Separator();
+
+            if(ImGui.BeginMenu("Destroy###CameraLifetime_destroy"))
             {
                 if(ImGui.MenuItem("Confirm Destruction###CameraLifetime_destroy_confirm"))
                 {
@@ -95,14 +101,6 @@ public class CameraLifetimeWidget : Widget<CameraLifetimeCapability>
                 }
 
                 ImGui.EndMenu();
-            }
-
-
-            if(ImGui.MenuItem($"重命名 {Capability.CameraEntity.FriendlyName}###CameraLifetime_rename"))
-            {
-                ImGui.CloseCurrentPopup();
-
-                RenameActorModal.Open(Capability.Entity);
             }
         }
     }

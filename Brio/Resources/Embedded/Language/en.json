@@ -1,4 +1,4 @@
-﻿{
+{
   "bones": {
     "n_root": "根骨骼",
     "n_hara": "腹部",
@@ -207,6 +207,10 @@
     "n_f_ulip_r": "右上唇",
     "j_f_dlip": "下唇",
     "j_ex_met_va": "面罩",
+    "j_f_irisprm_r": "虹膜 右",
+    "j_f_irisprm_l": "虹膜 左",
+    "j_f_eyeprm_01_r": "内眼 右",
+    "j_f_eyeprm_01_l": "内眼 左",
     "mh_n_hara": "主手",
     "oh_n_hara": "副手",
     "iv_shiri_r": "IVCS臀部-右",
@@ -224,8 +228,14 @@
     "iv_ochinko_d": "IVCS阴茎D",
     "iv_ochinko_e": "IVCS阴茎E",
     "iv_ochinko_f": "IVCS阴茎F",
+    "iv_funyachin_phy_a": "IVCS 软阴茎 A",
+    "iv_funyachin_phy_b": "IVCS 软阴茎 B",
+    "iv_funyachin_phy_c": "IVCS 软阴茎 C",
+    "iv_funyachin_phy_d": "IVCS 软阴茎 D",
     "iv_kougan_r": "IVCS阴囊-右",
     "iv_kougan_l": "IVCS阴囊-左",
+    "iv_daitai_phys_r": "IVCS 腿部物理 右",
+    "iv_daitai_phys_l": "IVCS 腿部物理 左",
     "iv_c_mune_r": "IVCS乳房-右",
     "iv_c_mune_l": "IVCS乳房-左",
     "iv_nitoukin_r": "IVCS二头肌-右",
@@ -258,6 +268,11 @@
     "iv_asi_naka_b_r": "IVCS三趾B-右",
     "iv_asi_kusu_a_r": "IVCS次小趾A-右",
     "iv_asi_kusu_b_r": "IVCS次小趾B-右",
+    "iv_kintama_phys_l": "IVCS 睾丸 左",
+    "iv_kintama_phys_r": "IVCS 睾丸 右",
+    "iv_fukubu_physl": "IVCS 腹部物理",
+    "iv_fukubu_phys_l": "IVCS 腹部物理 左",
+    "iv_fukubu_phys_r": "IVCS 腹部物理 右",
     "iv_kyokin_phys_r": "IVCS物理乳房-右",
     "iv_kyokin_phys_l": "IVCS物理乳房-左",
     "pifeng_a_l": "振袖披风A-左",
@@ -297,8 +312,7 @@
     "Bone_Piao007": "武器飘带007",
     "Bone_Piao008": "武器飘带008"
   },
-
-  "bone_categories": {   
+  "bone_categories": {
     "headCategory": "头部骨骼",
     "bodyCategory": "身体骨骼",
     "ivcsCategory": "IVCS骨骼",
@@ -326,12 +340,11 @@
     "weapon": "武器",
     "ex": "金曦之遗辉其他",
     "legacy": "旧版骨骼",
-    "meowz": "MeowZ",
     "other": "其他",
     "prop": "表情道具",
-    "ornament": "时尚配饰"
+    "ornament": "时尚配饰",
+    "meowz": "MeowZ"
   },
-
   "keys": {
     "Interface_ToggleBrioWindow": "开关Brio窗口",
     "Interface_ToggleBindPromptWindow": "开关绑定按键提示窗口",
@@ -364,7 +377,6 @@
     "FreeCamera_IncreaseCamMovement": "加快相机移动",
     "FreeCamera_DecreaseCamMovement": "减慢相机移动"
   },
-
   "falloff_type": {
     "Linear": "线性",
     "Quadratic": "二次",

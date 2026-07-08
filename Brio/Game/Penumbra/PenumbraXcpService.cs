@@ -8,6 +8,7 @@ using Brio.Files;
 using Brio.Game.Cutscene;
 using Brio.Resources;
 using Dalamud.Bindings.ImGui;
+using Lumina.Excel.Sheets;
 
 namespace Brio.Game.Penumbra
 {
@@ -263,13 +264,26 @@ namespace Brio.Game.Penumbra
             try
             {
                 var timelineId = (uint)capability.SlotedBaseAnimation;
-                if (!GameDataProvider.Instance.ActionTimelines.TryGetValue(timelineId, out var timeline)) 
+                if (!GameDataProvider.Instance.ActionTimelines.TryGetRow(timelineId, out var timeline)) 
                     return null;
 
-                var emote = GameDataProvider.Instance.Emotes.Values
-                    .Where(e => e.ActionTimeline.Any(at => at.RowId == capability.SlotedBaseAnimation))
-                    .FirstOrDefault();
-                return !emote.Equals(default) ? emote.Name.ToString() : null;
+                Emote? foundEmote = null;
+                foreach (var emote in GameDataProvider.Instance.Emotes)
+                {
+                    foreach (var actionTimeline in emote.ActionTimeline)
+                    {
+                        if (actionTimeline.RowId == capability.SlotedBaseAnimation)
+                        {
+                            foundEmote = emote;
+                            break;
+                        }
+                    }
+
+                    if (foundEmote is not null)
+                        break;
+                }
+
+                return foundEmote?.Name.ToString();
             }
             catch (Exception ex)
             {

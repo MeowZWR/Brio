@@ -122,26 +122,19 @@ public class ActionTimelineEditor
 
         DrawHeder();
 
-        ImGui.Separator();
-        ImBrio.VerticalPadding(2);
+        ImBrio.SeparatorText("Current Animation");
 
         DrawBaseOverride();
-        ImBrio.VerticalPadding(2);
-
         DrawBlend();
-        ImBrio.VerticalPadding(2);
-
         DrawOverallSpeed(drawAdvanced);
 
-        if(drawAdvanced == false)
+        if(!drawAdvanced)
         {
-            ImGui.Separator();
-            ImBrio.VerticalPadding(2);
+            ImBrio.SeparatorText("Animation Scruber");
 
             DrawFirstScrub();
         }
-
-        if(drawAdvanced)
+        else
         {
             ImBrio.VerticalPadding(2);
             DrawLips();
@@ -173,7 +166,7 @@ public class ActionTimelineEditor
 
     private void DrawHeder()
     {
-        if(ImBrio.ToggelButton("冻结物理", new Vector2(95, 25), _physicsService.IsFreezeEnabled, hoverText: _physicsService.IsFreezeEnabled ? "解冻物理" : "冻结物理"))
+        if(ImBrio.ToggelButton("冻结物理", new Vector2(110, 25), _physicsService.IsFreezeEnabled, hoverText: _physicsService.IsFreezeEnabled ? "解冻物理" : "冻结物理"))
         {
             _physicsService.FreezeToggle();
         }
@@ -294,7 +287,6 @@ public class ActionTimelineEditor
         ImGui.Text(baseLabel);
 
         ImGui.SameLine();
-        ImBrio.HorizontalPadding(4);
 
         if(ImBrio.FontIconButtonRight("base_play", FontAwesomeIcon.PlayCircle, 3, "播放", _capability.SlotedBaseAnimation != 0))
         {
@@ -353,7 +345,6 @@ public class ActionTimelineEditor
         ImGui.Text(blendLabel);
 
         ImGui.SameLine();
-        ImBrio.HorizontalPadding(4);
 
         if(ImBrio.FontIconButtonRight("blend_play", FontAwesomeIcon.PlayCircle, 2, "播放", _capability.SlotedBlendAnimation != 0))
             ApplyBlend(_capability);
@@ -509,17 +500,12 @@ public class ActionTimelineEditor
         var duration = anim->Duration;
         var time = control->hkaAnimationControl.LocalTime;
 
-        ImGui.SetNextItemWidth(-ImGui.CalcTextSize("ScrubX").X);
+        ImBrio.CenterNextElementWithPadding(10);
         if(ImGui.SliderFloat($"###scrub_001", ref time, 0f, duration, "%.2f", ImGuiSliderFlags.AlwaysClamp))
         {
             control->hkaAnimationControl.LocalTime = time;
-        }
-        if(ImGui.IsItemClicked(ImGuiMouseButton.Left))
-        {
             _capability.SetOverallSpeedOverride(0f);
         }
-        ImGui.SameLine();
-        ImGui.Text("进度条");
     }
 
 private void DrawSlots()
@@ -600,7 +586,6 @@ private void DrawSlots()
         ImGui.Text(speedLabel);
 
         ImGui.SameLine();
-        ImBrio.HorizontalPadding(4);
 
         if(ImBrio.FontIconButtonRight("speed_reset", FontAwesomeIcon.Undo, 1, "重置速度", _capability.HasSpeedMultiplierOverride))
             _capability.ResetOverallSpeedOverride();

@@ -1,528 +1,724 @@
-
-tagline: "Brio 0.7.2 — 适配 7.5"
-subline: "附言：我病了，谁给我寄点 Nyquil"
+tagline: "Brio 0.8.0 — 世界物体生成、时间轴与更多功能！"
+subline: "前往我的 Bluesky 观看演示视频！(minmoose)"
 changelog:
 
-  - name: v0.7.2
-    tagline: 7.5 支持！
-    date: "2026年4月29日"
+  - name: v0.8.0
+    tagline: 文件夹、世界物体、特效、时间轴！
+    date: "2026年7月7日"
     isCurrent: true
     versions:
-      - number: "【重要】Square Enix 已从游戏中移除 `SkinGloss` 与 `HairGloss`，二者在 Brio 中不再可用！"
+      - number: "Thank you!"
         icon: ""
         items:
-          - "再次提醒：如遇问题请到 Discord 或 GitHub 反馈"
-          - "（这次是真的，更多功能很快就来，我保证！）"
-          - "附言：我病了，谁给我寄点 Nyquil"
+          - "As a reminder! If you experience any issues please report them on Discord or on GitHub"
+
+      - number: "Vivacity, Brio's Animation Timeline"
+        icon: ""
+        items:
+          - "Animate everything, a complete animation timeline! \n\tFrom lights, actors, bones. and even the new world objects!"
+          - "This is a BETA So many things about it do not function. \n\tLike saving, and there may be parts broken (like VFX)"
+          - "Try it out by clicking on it in the entity hierarchy."
+          - "I am working on significant updates for this, please try it out and let me know what you think!"
+
+      - number: "Object Spawning"
+        icon: ""
+        items:
+          - "Spawn of wide variety of game assets, if you see it in the game, you can likely spawn it!"
+          - "Over 100,000 things to spawn"
+          - "World Objects, VFX, Weapons, Furniture Items, and yes, even the very planet, Etheirys!"
+          - "You can spawn one using the new unified spawn menu or the catalog"
+          - "The catalog window displays many different filters for you to falter the entire game's of game objects \n\tdown how you see fit library"
+          - "Some objects have metadata I have placed on them like names, \n\tan update coming soon you too will be able to update this metadata \n\tand upload it back to the project so everyone can win!"
+
+      - number: "Brio Overlay v2"
+        icon: ""
+        items:
+          - "You can now multi select every entity type in the entity hierarchy"
+          - "You can now make more than one actor show it's bones"
+          - "Enable a bone offset to fix those pesky eyes (I will work on export and import for this soon)"
+          - "Color the bones based off of their category!"
+          - "Added advanced to gizmos to the lights! (you can turn it off with a little button in the light UI) \n\t(Thanks universalconquistador for the implementation)"
+          - "The overlay toolbar has also gotten improvements like, \n\tbetter more descriptive tool tips and user interface, \n\treacts better to currently selected object!"
+          - "And more!"
+
+      - number: "Entity hierarchy"
+        icon: ""
+        items:
+          - "Significantly improved the Entity Hierarchy"
+          - "A new unified spawn menu, to spawn everything Brio and spawn"
+          - "The Quick Actions menu (The buttons right under the hierarchy) \n\tare now all uniformed for every entity"
+          - "More consistent right click menus"
+          - "You can now undock the widgets underneath the hierarchy into its own window"
+          - "Almost every single entity editor has been modified with a new design \n\tTo help streamline and minimize vertical length! \n\tPlease give me your feedback on how you like them"
+
+      - number: "Folders"
+        icon: ""
+        items:
+          - "You can now add folders!"
+          - "You can drag and drop an entity on a folder"
+          - "you can even multi select entities using `Ctrl` and drag and drop them too!"
+          - "Want to move entities out of a folder? you can drag them right back out onto the Entities item"
+          - "They even get saved with the new Projects!"
+
+      - number: "Reference Images"
+        icon: ""
+        items:
+          - "Lock, rotate, zoom and position as many images you see fit to help you pose"
+          - "(does not save with projects)"
+
+      - number: "File Metadata Editing"
+        icon: ""
+        items:
+          - "You can now edit the metadata to poses and character files!"
+          - "Add a preview image set the description the author!"
+          - "Even works in the Brio Library"
+
+      - number: "Presets"
+        icon: ""
+        items:
+          - "You can now save and load presets"
+          - "currently the presets only exist on the camera and lights"
+          - "In the future it will work on Advanced Environment, and World Objects (and maybe more, who knows!)"
+          - "Coming soon is the ability to export these!"
+
+      - number: "Add from World"
+        icon: ""
+        items:
+          - "You can now add the lights from the overworld into brio"
+          - "The same goes with actors in the overworld, currently you can only add other NPC's \n\tand you **cannot*** add other players. \n\tI am still debating on whether or not I wish to let others add others players"
+
+      - number: "Themes"
+        icon: ""
+        items:
+          - "Added many new themes to Brio!"
+          - "From the blue you can find in game, to an orange like the year 2000 I hope there is theme that you love!"
+          - "Brio now has a beautiful blur in the background of every window \n\t(blur was implement in Dalamud's end, so no perf loss!)"
+          - "You can change them in settings!"
+
+      - number: "Projects are now out of BETA"
+        icon: ""
+        items:
+          - "Projects and Auto Saves are now significantly more stable"
+          - "Saves everything in the scene, with the exception to the timeline (coming soon), \n\tthe advanced environment settings \n\t and reference images"
+
+      - number: "Face Control (Renamed from Dynamic Face Control)"
+        icon: ""
+        items:
+          - "There is now a new very large button that lets you, set the actors expression!"
+          - "Made user interface changes to the widget"
+
+      - number: "Pose File Import/Export"
+        icon: ""
+        items:
+          - "Added smart import, the pose importer will automatically react and adjust accordingly \n\tBased off of the data in the pose file"
+          - "The post file format has been enhanced to now include metadata!"
+          - "Things like race, face, and more! several places in the UI already (like smart import) in the future"
+          - "Added the ability to Import/Export a pose from the clipboard"
+          - "Added an ability to reapply the last pose you used"
+          - "Added the ability to stash a pose to use later (only saves per game session)"
+
+      - number: "Advanced Pose Window"
+        icon: ""
+        items:
+          - "Significantly improved the user interface!"
+          - "Even more improvements to the scaling (and more to come over time!)"
+          - "Realigned many of to be more consistent with the rest of Brio's UI, \n\tso some buttons may be in different spots!"
+
+      - number: "Other Miscellaneous improvements"
+        icon: ""
+        items:
+          - "Note: To fix an issue with the transform system,"
+          - "Default values when spawning a light have changed"
+          - "The light editor now includes Falloff & Range in the Light Properties section"
+          - "Delete buttons are now HOLD to action. you Hold down control and click to bypass this."
+          - "Fixed a crash where if you were standing in water and changed into an NPC the game would crash"
+          - "Fixed an issue where not all of the Sky textures were available in the list"
+          - "Small design and layout improvements and the Advanced Appearance window"
+          - "Added a new Interior setting to the Ambient Advanced Environment \n\twidget that lets you change the interior lighting level"
+          - "NPCs, monsters & equipment are now better localized (Thanks Hazel!)"
+          - "Added the ability to edit metadata from the Brio Library"
+          - "Increase the maximum icon size for the Brio Library"
+          - "Fix an issue where some icons were not displayed properly in the Brio Library"
+          - "Fixed an issue where dragging rotation to an exact 90 degree angle would \n\tresult in the transform returning NaN"
+          - "Made multiple performance improvements"
+          - "Added the following new settings:"
+          - "Disable scroll wheel for input boxes and gizmos"
+          - "Select Light and Light window when clicking a light entity"
+          - "If light window is open don't show the light widget in the scene manager"
+          - "Enable advanced gizmo by default"
+          - "Enable Background Blur"
+          - "You could now have over eighty auto-saves"
+          - "A migration will take place that will update you configuration to now ought to save every minute \n\tat a Max of 60. Making for you to have a full hours worth of auto-save"
+          - "Festivals now support phases"
+          - "Added more festival names"
+          - "Improved the camera editor, fixed a few issues and added undo/redo"
+          - "The Camera Window has been improved to look much like the Light Window"
+          - "the light window can now be opened by right clicking a light or with the \n\tToggle Advanced button on any light"
+          - "Cameras can now be locked individually"
+          - "Multiple internal system rewrites, if you experience any issues please be sure to report it!"
+          - "Updated the Contributors and Supporters list. Thank you to everyone who has supported the project so far!"
+          - "Brio has now moved out of ALPHA and is now in BETA"
+    
+      - number: "So much more"
+        icon: ""
+        items:
+        - "There is so much here,\nyou are bound to find things that are not here in this log.\nI hope you have a fun time!\n"
+
+      - number: "Known Issues"
+        icon: ""
+        items:
+          - "If you drag the gizmo outside of the window, you lose control of the game and have to restart.\n\t
+             As a work around, try to move the camera to face where the gizmo should be and it should resolve."
+          - "The input system still has issues when pressing certain keyboard combinations, \n\tespecially when interfacing with the games default camera keybinds
+             \n\tIf you move the default camera into a folder and then delete the folder \n\tand all of the children it will delete the default camera.
+             \n\tIf this happens just restart Brio in the Plugin installer"
+          - "You can only target other actors instead of other entities from the camera targeting system"
+          - "If you have undocked the entity widgets, the delete button does not function.
+             \n\tAs a work around hold `Ctrl` and click it instead"
+
+  - name: Message From the Developer 
+    tagline:
+    date: "July 7th 2026"
+    isCurrent: true
+    message: |
+        So much when into making this for y'all I hope you enjoy it!
+        I am going to rest now, I am very sleepy...
+
+        I didn't get to think you all Properly in the changlog as it's so unwieldy so
+        Thanks for all the help making this update possible,
+        Abyeon, universalconquistador, Ny, Karou, Leyla, BlueSkia
+        Haselnussbomber (Thanks Hasel!), Tex Nevada & SolarisFFXIV.
+
+        One dev in particular I want to single out, Khayle
+        She is behind plugins like Chat Bubbles and XIVCombo, and she needs some financial help
+        So if you could, please, go give her a hand (https://ko-fi.com/khayle)
+
+        Thanks, and happy posing! (And now animating!!)
+
+        As always, I love you all very much, 
+        Minmoose  
+
+  - name: v0.7.2
+    tagline: 7.5 Support!
+    date: "April 29th 2026"
+    isCurrent: false
+    versions:
+      - number: "ATTENTION! SE removed `SkinGloss` and `HairGloss` from the game; so they are no longer available!"
+        icon: ""
+        items:
+          - "As a reminder! If you experience any issues please report them on Discord or on GitHub"
+          - "(yes, this time for real, more features coming real soon! I promise!)"
+          - "P.S. I'm sick, someone send me Nyquil"
 
       - number: "0.7.2.1"
         icon: ""
         items:
-          - "尝试修复插件安装器导致重复安装多个 Brio 的问题"
-          - "尝试修复移动其他骨骼时头部抽动的问题"
-          - "修复变换窗口中 Gismo 在特定情况下消失的问题"
-          - "修复自定义选项中发色不太准确的问题（硌狮族仍不完全正确）"
+          - "Tried to fix the plugin installer from adding duplicate injuries of Brio"
+          - "Tried to fix the head from twitching when moving other bones"
+          - "Fixed the Gismo in the transform window from disappearing in certain situations"
+          - "Fixed hair color in the customization options from not being quite correct (it's still not right for Hrothgar')"
      
       - number: "0.7.2"
         icon: ""
         items:
-          - "更新 Brio 以支持《最终幻想 XIV》7.5"
-          - "已移除 `SkinGloss` 与 `HairGloss`（感谢 SE）"
-          - "渲染 Brio 角色的速度明显提升（人多场景下部分情况可达约 10 倍性能）"
-          - "面部配饰现已正常工作"
-          - "相机控件新增「锁定相机」按钮。\n\t欢迎反馈使用感受（感谢 SolarisFFXIV）"
-          - "部分光源类型会延伸出一条黄色指示线（感谢 SolarisFFXIV）"
-          - "Brio 各处还有一些小改动，等 0.8.0 发布时再一并说明"
+          - "Update Brio to support FFXIV 7.5"
+          - "Removed `SkinGloss` and `HairGloss` (thanks SE)"
+          - "Rendering brio actors is now significantly faster (In some cases you now get 10x pef in large crowds)"
+          - "Facewear now works properly!"
+          - "There is now a `lock camera button` on the camera widget.\n\tPlease tell me what you think about it (thanks SolarisFFXIV)"
+          - "A yellow line now emanates from certain light types. (thanks SolarisFFXIV)"
+          - "Smaller changes across Brio, I will talk about them once 0.8.0 comes out soon"
 
   - name: v0.7.1
-    tagline: 姿势镜像！
-    date: "2026年1月20日"
+    tagline: Pose Mirroring!
+    date: "Jan 20th 2026"
     isCurrent: false
     versions:
-      - number: "温馨提示：如遇到任何问题，请在 Discord 或 GitHub 上反馈"
+      - number: "As a reminder! If you experience any issues please report them on Discord or on GitHub"
         icon: ""
         items:
-          - "我终于被其他开发者们“霸凌”成功了，所以我做出了姿势镜像功能"
-          - "更多功能即将推出，例如 AltherBlend 集成、自动保存和 MCDF 窗口"
+          - "I have gotten successful bullied by other devs, so I made pose mirroring"
+          - "Still yet, more features coming soon, like AltherBlend integration, Auto-Save & MCDF Window"
    
       - number: "0.7.1.2"
         icon: ""
         items:
-          - "修复了带有宠物栏的角色生成问题（原本会生成在 GPose 原点）"
-          - "尝试提高道具（Props）的稳定性"
-          - "标签（Tags）现在可以正常用于 .pose 文件了（你甚至不知道它们能加标签，对吧？）')"
-          - "对姿势镜像进行了更多改进（例如修复了更多头发相关的问题）"
-          - "修复了一些拼写错误"
+          - "Fix spawning of actors with a CompanionSlot, Spawning at GPose origin"
+          - "Attempted to make props more stable"
+          - "Tags now properly work for .pose files (didn't know they could even have tags did you?')"
+          - "Made more improvements to pose mirroring (like fixing more hair things)"
+          - "Fixed some typos"
  
       - number: "0.7.1.1"
         icon: ""
         items:
-          - "修复了翻转姿势时的一些问题，比如你的屁股翻转方向反了！"
-          - "修复了重置骨骼时无法重置面部骨骼的问题"
-          - "高级环境组件不再默认开启"
-          - "更新了节日列表（新增了 2026 年的情人节、降神节、女儿节、复活节等）"
-          - "更新了赞助者名单"
+          - "Fixed a few issues with flipping a pose, like your butt being inversed!"
+          - "Fixed an issue with reset bone, not resetting face bones"
+          - "Advanced Environment widgets are no longer open by default"
+          - "Updated Festivals List (Valentione's Day, Heavensturn, Little Ladies Day, Hatching Tide & more, for 2026)"
+          - "Updated Supporter list"
 
-      - number: "姿势镜像"
+      - number: "Mirror Pose"
         icon: ""
         items:
-          - "在叠加层（Overlay）和变换（Transform）面板中都添加了“姿势镜像”按钮"
-    
-      - number: "重置身体与脸部"
+          - "Added a `Mirror Pose` Button to both the overlay and the transform"
+   
+      - number: "Reset Body & Face"
         icon: ""
         items:
-          - "在叠加层添加了“重置身体”和“重置脸部”按钮（来自实时姿势功能，感谢 Caraxi！）" 
+          - "Added both a `Reset Body` & `Reset Face` Button to both the overlay (From live pose, thanks Caraxi!)" 
 
-      - number: "0.7.1 版本的通用更改与修复"
+      - number: "General changes and fixes in 0.7.1"
         icon: ""
         items:
-          - "进一步修复了四肢像面条一样拉伸的问题"
-          - "尝试修复主窗口无限向左移动的问题"
-          - "修复了动画选择器有时无法正常显示的问题"
-          - "修复了武器在外观 UI 中无法正确显示的问题"
-          - "修复了两个 IPC 调用：ActorSpawned 和 ActorDespawned"
-          - "修复了几处文本拼写错误"
+          - "More fixes to limbs extending like noodles"
+          - "Attempted to fix the main window from moving to the left forever"
+          - "Fixes the Animation selector from not appearing properly sometimes"
+          - "Fixed weapons now once more show up correctly in the appearance UI"
+          - "Fixed two IPC calls ActorSpawned & ActorDespawned"
+          - "Fixed a few text typos"
 
-      - number: "注意：已知问题！"
+      - number: "ATTENTION: Known issues!"
         icon: ""
         items:
-          - "在开启 IK 的情况下移动面部骨骼时，脸部会发生跳动！"
-          - "解决方法：在修改任何脸部/头部骨骼之前，先移动您的 IK 骨骼！"
-          - "姿势翻转在执行约 70 次后会开始出现异常表现。"
-          - "偶尔会出现 Brio 快捷键错误发送至游戏的情况。"
+          - "When moving the face bones with IK on, the face jumps!"
+          - "As workaround move your IK bones before changed any face/head bones!"
+          - "Pose flipping starts to behave weirdly after you do it about.. 70 times"
+          - "Occasionally Brio Keybinds are sent to the game incorrectly"
 
   - name: v0.7.0
-    tagline: 多骨骼/多角色选择、高级环境设置 & Brio 三周年！
-    date: "2026年1月16日"
+    tagline: Multi-Bone, Multi-Actor Selection, Advanced Environment & Brio's 3rd Birthday!
+    date: "Jan 16th 2026"
     isCurrent: false
     versions:
-      
-      - number: "0.7.0.1 (我们确实没办法在整版本号上待满 24 小时对吧？:p )"
+    
+      - number: "0.7.0.1 (We just can't stay on a full .0 version for 24 hrs can we? :p )"
         icon: ""
         items:
-          - "修复了特定条件下四肢像面条一样拉伸的问题"
-          - "修复了更新后更新日志不显示的问题（你好，正在阅读日志的你！o/）"
+          - "Fixed an issue with limbs extending like noodles in certain conditions"
+          - "Fixed an issue with the changelog not appearing on update (Hello there reader of this changelog! o/)"
 
-      - number: "动态面部控制"
+      - number: "Dynamic Face Control"
         icon: ""
         items:
-          - "为动态面部控制添加了“选择追踪角色”功能（再次感谢 Enth）"
-          - "启用动态面部控制后，选择“角色 (Actor)”选项卡即可使用"
-          - "如果您进入 GPose 时角色正盯着某个目标，该功能现在也支持取消选择角色"
+          - "Added `Select actor to Track` to Dynamic Face Control (Thank you once more to Enth)"
+          - "Select the `Actor` tab once you enable dynamic face control to use it"
+          - "This will also let you Deselect an actor if your character was targeting one when you went into GPose"
 
-      - number: "新增多角色选择"
+      - number: "Added Multi Actor Selection"
         icon: ""
         items:
-          - "您现在可以同时选择多个角色"
-          - "在实体选择器中点击角色时，按住 `Ctrl` 键即可开始多选"
-          - "叠加层中所有角色下方现在都会显示一个可点击的选择按钮！"
-          - "您可以通过按住 `Shift` 并点击新的叠加层圆点来开始多选"
+          - "You can now select multiple actors at a time"
+          - "Press `Ctrl` in the entity selector when clicking an actors to start selection"
+          - "The overlay will now display a button under all actors that you can click on too!"
+          - "You can press `Shift` with the new Overlay dots start selection on them"
 
-      - number: "新增多骨骼选择"
+      - number: "Added Multi Bone Selection"
         icon: ""
         items:
-          - "我想这个功能也很直观！"
-          - "点击骨骼时按住 `Shift` 键即可开始多选"
-  
-      - number: "高级环境设置！"
+          - "I think this one is also quite clear!"
+          - "Press `Shift` when clicking a Bone to start selection"
+ 
+      - number: "Advanced Environment Settings!"
         icon: ""
         items:
-          - "支持更改天空、云朵或从天而降的粒子效果"
-          - "您可以从环境（Environment）选项卡下的“天空 (Sky)”和“环境 (Environment)”栏目访问这些设置"
-          - "对时间和天气控件的视觉设计进行了多项改进"
+          - "From changing the sky the clouds or the particles falling from the sky"
+          - "You can access these settings from the Environment tab under `Sky` & `Environment`"
+          - "Made multiple improvements to the visual design of the time and weather controls"
 
-      - number: "多项核心技术改进"
+      - number: "Multiple core technical improvements"
         icon: ""
         items:
-          - "通过迁移至 BLAKE3 算法，MCDF 的生成速度略有提升"
-          - "添加了名为“中介者 (Mediator)”的核心技术架构（使用了来自 Mare 的 darkarchon 的实现，感谢！）"
-          - "刷新了 Brio 源代码的文件夹结构以实现更好的组织"
-          - "更改了“场景 (scene)”系统的部分内部结构，请期待它在 0.7.1 中的进一步发展！"
+          - "MCDFs now generate slightly faster by moving to BLAKE3"
+          - "Added core technical infrastructure called a `Mediator` (using darkarchon's implementation from Mare, thanks!)"
+          - "Refreshed the folder structure of Brio's source code for better organization"
+          - "Changed some internal structures of the `scene` system, please look forward to its advancement in 0.7.1!"
 
-      - number: "0.7.0 版本的通用更改"
+      - number: "General changes in 0.7.0"
         icon: ""
         items:
-          - "“+”或“新建”按钮现在统一为“生成 (Spawn)”按钮，可生成任何 Brio 实体"
-          - "在旧版本中制作的项目与此版本不兼容！"
-          - "实体选择器现在可以进行垂直缩放"   
-          - "在设置的高级部分添加了两个新按钮，用于协助处理支持请求"
-          - "您现在可以在实体选择器中按住 `Ctrl` 并点击已选角色来取消选择"
-          - "Brio 主窗口现在会自动出现滚动条"
-          - "修复了某些窗口出现滚动条时的视觉显示问题"
-          - "修复了叠加层 Gizmo（操作柄）无法正确移动面部骨骼的问题"
-          - "修复了叠加层骨骼有时会在屏幕外显示的问题"
+          - "The `+` or Spawn new buttton is now a unified Spawn button that lets you spawn any Brio entity"
+          - "Projects that where made in last version are incompatible with this version of Brio!"
+          - "The entity selector can now be resized across the vertical axis"   
+          - "Added two New buttons to the advanced section in the settings that will help with Support requests"
+          - "You can now hold `Ctrl` and click on an actor in the entity selector to deselected it"
+          - "A scroll bar will now appear automatically to the Main Brio window"
+          - "Slight visual fixes when if scrollbar is present on certain windows"
+          - "Fixed An issue where the overlay's Gizmo would not correctly move face bones"
+          - "Fixed an issue where the overlay's bones sometimes would display from off sreen"
 
   - name: v0.6.2
-    tagline: 7.4支持与更多功能！
-    date: "2025年12月20日"
+    tagline: 7.4 Support & More!
+    date: "December 20th 2025"
     isCurrent: false
     versions:
-      - number: "注意：本版本制作的项目将与下一个Brio版本不兼容！"
+      - number: "ATTENTION Projects made in this version will be incompatible with the next version of Brio!"
         icon: ""
         items:
-          - "祝大家节日快乐！"
-          - "提醒：如遇到任何问题，请在Discord或GitHub上反馈"
-          - "（更多功能即将推出！）"
+          - "Happy Holidays Everyone!"
+          - "As a reminder! If you experience any issues please report them on Discord or on GitHub"
+          - "(Even more features coming real soon!)"
      
       - number: "0.6.2.3"
         icon: ""
         items:
-          - "修复了节日系统"
-          - "节日现在最多有8个"
+          - "Fixed the Festivals system"
+          - "Festivals now have a max of 8"
 
       - number: "0.6.2.2"
         icon: ""
         items:
-          - "修复了文本中的一些拼写错误"
-          - "更新了Penumbra API"
+          - "Fixed some typos in text"
+          - "Updated Penumbra API"
 
       - number: "0.6.2.1"
         icon: ""
         items:
-          - "修复了Brio API的问题"
+          - "Fixed an issue with the Brio API"
 
       - number: "0.6.2"
         icon: ""
         items:
-          - "更新Brio以支持FFXIV 7.4"
-          - "动画搜索控件现在拥有更多筛选器，并可以作为窗口固定"
-          - "更新Brio的IPC至v3，如需更多信息请联系我（minmoose）"
-          - "修复了骨骼选择菜单的问题，类别按钮现在为三态"
-          - "添加了星芒节（2025）并修复了星芒节（2024）"
-          - "修复了相机值被错误复制的问题"
-          - "优化了一些系统"
+          - "Update Brio to support FFXIV 7.4"
+          - "The animation search control now has more filters and can now be pinned as a window"
+          - "Update Brio's IPC to v3, Contact me for more information (minmoose)"
+          - "Fixed an issue with Bone selection menu, the category buttons are now tristate"
+          - "Added Starlight Celebration (2025) festival and fixed Starlight Celebration (2024) festival text" 
+          - "Fixed an issue with the camera values being duplicated incorrectly"
+          - "Optimized a few systems"
 
   - name: v0.6.1
-    tagline: 表情道具、骨骼与冻结乳房物理！
-    date: "2025年11月26日"
+    tagline: Emote Props, Bones and Frozen Boobs!
+    date: "November 26th 2025"
     isCurrent: false
     versions:
 
       - number: "0.6.1.1"
         icon: ""
         items:
-          - "进一步修复弹窗错误导致场景管理器无法操作的问题"
+          - "More fixes with errorboxs taking over the Scene Manager"
 
       - number: "0.6.1"
         icon: ""
         items:
-          - "新增可对表情道具和时尚配饰进行姿势调整（感谢 Cara 协助）"
-          - "尝试修复弹窗错误占据场景管理器的问题"
-          - "修复了开启冻结物理后部分骨骼（如胸部）会异常缩小的问题"
-          - "更新了C+ API版本要求"
-          - "现在选择导入身体选项时会同时导入头骨骼"
-          - "修复Brio占用300MB显存的问题（感谢 Cara）"
-          - "修复日志中调试信息重复刷屏的问题"
-          - "修复资源库崩溃的问题"
-          - "修复重新绘制时出现的崩溃问题"
+          - "Added the Ability to pose Emote Props and Fashion Accessories (Thanks Cara for the help)"
+          - "Attempted to fixed an issue with a errorbox taking over the Scene Manager"
+          - "Fixed an issue where certain bones like, brest would significantly shrink with Freeze Physics enabled"    
+          - "Updated the C+ API version requirement"
+          - "The head bone is now imported with the body option selected"
+          - "Fixed an issue where Brio would use 300MB of VRAM (Thanks Cara)"
+          - "Fixed an issue with spamming the log with debug info"
+          - "Fixed an crash with the Library"
+          - "Fixed an crash when redrawing"
 
-      - number: "已知问题"
+      - number: "Known issues!"
         icon: ""
         items:
-          - "维埃拉族的耳朵在开启冻结物理后会增长至最大长度（不是胸部出问题，就是耳朵出问题）"
-          - "动作动画（及其他部分临时文件）无法随MCDF导出"
-          - "在叠加骨骼筛选器取消选择某项时，骨骼分组未能同步取消选择"
-          - "以自由视角生成聚光灯时，未能正确继承相机旋转角度"
-          - "灯光不会随项目保存"
+          - "Viera ears now grow to max length with Freeze Physics enabled (if it's not boobs it's the ears)"
+          - "Animations (and some other transient files) do not export with MCDFs."
+          - "When deselecting items in the overlay bone filter, the bone groups do not get deselected appropriately."
+          - "When spawning a Spot Light with free cam, it doesn't preserve the rotation of the camera."
+          - "Lights do not get saved with Projects."
 
   - name: v0.6.0
-    tagline: "MCDF、动态面部控制与灯光！"
-    date: "2025年10月8日"
+    tagline: "MCDF, Dynamic Face Control & Lights!"
+    date: "October 8th 2025"
     isCurrent: false
     versions:
       
       - number: "0.6.0.3"
         icon: ""
         items:
-          - "修复了某些快捷键组合在Brio中无法正常使用的问题。"
-          - "修复了在特定情况下自由相机会出现异常的问题"
+          - "Fixed an issue where certain hotkey combinations would not function properly within Brio."
+          - "Fixed an issue with the Free camera bugging out in certain circumstances"
 
       - number: "0.6.0.2"
         icon: ""
         items:
-          - "将“区域光”名称更改为“点光源”（感谢Discord的snerdfire的建议！）"
-          - "为灯光添加了“缩放”变换属性"
-          - "在节日列表中新增了“守护天节（2025）”和“怪物猎人荒野”联动"
-          - "往节日列表中补充了一批旧节日"
-          - "尝试修复导入表情时手脚过度延展的问题"
-          - "（上次忘记的一项）设置中新增了默认变换滑条移动速度调整（感谢Bronya-Rand）"
-          - "修复了导入表情时头部会旋转的问题（又是一项上次忘记的:p）"
-          - "一些很小的界面优化"
+          - "Change the name of the Area light to Point light (Thank you to snerdfire on Discord for the suggestion!)"
+          - "Added `Scale` Transform Property to lights"
+          - "Added All Saints' Wake (2025) & MONSTER HUNTER WILDS Collab to the festival list"
+          - "Added a bunch of old festivals to the festival list"
+          - "Attempt to fix an issue with extending limbs when importing as expression"
+          - "(one I forgot last time) Added Default Transform slider movement speed to the settings (Thank you Bronya-Rand)" 
+          - "Fixed an issue with the head rotating when importing as expression (another one I forgot :p)"
+          - "Very small UI tweaks"
 
       - number: "0.6.0.1"
         icon: ""
         items:
-          - "为MCDF添加了kdb文件支持（它有用吗？我也不知道！！！）"
-          - "更新了Brio的图标"
-          - "修复了相机克隆功能的问题（感谢 @Bronya-Rand）"
-          - "修复了多选骨骼时的问题（嗯？！别看这里！这可是秘密！）"
-          - "修复了默认相机缺少克隆按钮的问题（感谢 @Bronya-Rand）"
-          - "优化了新输入管理器中的按键处理逻辑"
-          - "修复了某些按键绑定在特定情况下无法生效的问题"
-          - "修复了环境窗口中“一天中的时间”和“月份中的日期”滑块无法正确更新的问题"
+          - "Add kdb file support to MCDFs (does this do anything, I have no idea!!!)"
+          - "Updated Brio's icon"
+          - "Fixed an issue with cloning cameras (Thanks @Bronya-Rand)"
+          - "Fixed an issue with multi bone selection (WHAT?! Don't look at it! it's a secret!)"
+          - "Fixed an issue with the clone button not being present on the default camera (Thanks @Bronya-Rand)"
+          - "Made improvements to key handling with the new Input manager"
+          - "Fixed certain key binds from functioning in certain situations"
+          - "Fix time of day & day of month slider not updating properly in the environment window"
 
-      - number: "新增MCDF导入和导出功能！"
+      - number: "Added MCDF Import and export!"
         icon: ""
         items:
-          - "新增了对MCDF文件的导入和导出支持。"
-          - "MCDF显然需要Penumbra和Glamourer"
-          - "使用体验应该与您习惯的MCDF一样流畅。"
-          - "进一步的更新和功能即将推出！"
-          - "某些临时文件不会保存在MCDF中，这将在后续更新中修复！"
-          - "（动画、某些身体模组、某些纹身和某些配饰；就是临时文件的例子）"
-          - "如果您在使用MCDF时遇到任何问题，请在Discord或GitHub上报告"
+          - "Added support for importing and exporting MCDF files."
+          - "MCDF obviously requires Penumbra & Glamourer"
+          - "The experience should be as seamless as what you are used to with MCDFs."
+          - "Further updates and features will come soon!"
+          - "Some transient files do not get saved in MCDFs, this will be fixed in a later update!"
+          - "(Animations, some body mods, some tattoos and some accessories; are examples of transient files)"
+          - "If you experience any issues with MCDFs --please-- report them on the discords or on GitHub"
 
-      - number: "新增动态面部控制功能！"
+      - number: "Added Dynamic Face Control!"
         icon: ""
         items:
-          - "动态面部控制让您可以移动指定角色的眼睛和头部。"
-          - "您甚至可以让它们跟随相机移动！"
-          - "（更多功能即将推出！）"
-          - "（感谢Enth的原创灵感）"
+          - "Dynamic Face Control lets you move the eyes and head of a given actor."
+          - "You can make them follow the camera even!"
+          - "(More features will be added soon!)"
+          - "(Thank you, Enth for the original inspiration)"
      
-      - number: "新增灯光功能！"
+      - number: "Added Lights!"
         icon: ""
         items:
-          - "新增灯光功能！"
-          - "灯光可以在场景管理器的`环境`部分生成。"
-          - "在场景管理器中选择灯光并打开叠加层，可以更改Gizmo的值。"
-          - "您可以通过右键点击环境或使用叠加层中的按钮来打开灯光窗口。"
-          - "使用GPOSE菜单生成的灯光也会在Brio中显示"
-          - "灯光*尚不支持*自动保存。此功能将在后续更新中推出"
-          - "灯光预设的保存和加载也将在后续更新中推出！"
+          - "Added Lights!"
+          - "Lights can be spawned under the `Environment` section of the Scene Manager."
+          - "Selecting a light in the Scene Manager with the Overlay open lets you change the values of the Gizmo."
+          - "You can open the Light window by right-clicking Environment or using the button in the overlay."
+          - "Lights spawned with the GPOSE menu also show up in Brio"
+          - "Lights *DO NOT* yet support Auto-Saving. This will come in a later update"
+          - "Saving and Loading light presets will also come in a later update!"
 
-      - number: "刷新用户界面！"
+      - number: "Refreshed the User Interface!"
         icon: ""
         items:
-          - "Brio现在可以正确地随Dalamud的UI文字缩放进行缩放（终于等到这一天了！）。" # 应用全局UI缩放UI元素
-          - "（某些UI元素尚未完美缩放，这将在后续更新中修复）"
-          - "多个UI元素现在都有工具提示！"
-          - "重新设计了高级外观窗口"
-          - "场景管理器中的所有实体现在都有右键菜单"
-          - "场景管理器现在在多个小部件上都有内边距"
-          - "叠加层和设置的视觉效果已经过重新设计"
-          - "大幅改进了变更日志（看啊！你现在就在阅读它！！）"
-          - "改进了骨骼骨骼圆圈的视觉外观。（感谢Caraxi。）" # 在骨骼圆圈边缘之间添加骨骼线条的选项
-          - "Brio中的UI元素现在更加一致"
+          - "Brio now correctly scales with Dalamud's UI Text Scaling (It's about time!)." # Apply global UI scale UI elements
+          - "(Some UI elements do not yet have perfect scaling, this will be fixed in a later update)"
+          - "Multiple UI elements now have a tooltip!"
+          - "Redesigned the Advance Appearance window"
+          - "All of the entities in the scene manager now have a right click menu"
+          - "The Scene Manager now has padding on multiple widgets"
+          - "The Overlay & Settings visuals have been reworked"
+          - "Greatly improved the change log (Look at you! Reading it right now!!)"
+          - "Improved the visual look of the skeleton's bone circles. (Thank you, Caraxi.)" # Add option to draw skeleton lines between the edges of bone circles
+          - "UI elements across Brio are now more consistent"
 
-      - number: "通用改进和修复！"
+      - number: "General Improvements and Fixes!"
         icon: ""
         items:
-          # 暂时禁用 - "新增了翻转单个骨骼的功能。（感谢@Bronya-Rand）" # 功能：实现骨骼翻转
-          # 这是一个秘密的未完成功能 - "新增了选择多个角色的功能。" # 添加多实体选择和多实体撤销支持
-          - "移除了'Mare Synchronos' IPC" # 国服又加回来了！
-          - "叠加层中的骨骼过滤器现在有骨骼组，可以让您一次性切换多个骨骼"
-          - "新增了多个新的骨骼类别，并将'手臂'分为右臂和左臂"
-          - "新增了打开Penumbra、Glamourer和CustomizePlus的功能。"
-          - "（各自插件快速选择器旁边的按钮）" # 添加UI命令打开Glamourer和CustomizePlus
-          - "在Penumbra、Glamourer和CustomizePlus快速选择器中新增了搜索功能"
-          - "在叠加层和姿势小部件中新增了`重置骨骼`按钮。（感谢Aster的建议！）"
-          - "（这也像'重置模型变换'按钮一样工作）"
-          - "在高级外观窗口中新增了'切换'维埃拉耳朵按钮"
-          - "在高级外观窗口中选择装备部件时新增了多个快速选择按钮"
-          - "在高级外观窗口中新增了`装备隐形服装`按钮"
-          - "在叠加层中为IK按钮添加了强调色，以更好地显示IK何时启用。（感谢Ny）"  # IK按钮启用时添加强调色
-          - "新增了即使在叠加层中隐藏所有骨骼也能保持Gizmo活动的功能（感谢Ny）"
-          - "在GPose设置窗口中新增了隐藏姓名的选项。（默认启用）"
-          - "新增了`设置IK`按钮，此按钮可以让您将IK'锁定'到角色中，就像正常姿势一样"
-          - "（一旦完成IK，您就应该使用它，您将拥有更愉快的姿势体验！）"
-          - "为角色新增了复制和粘贴模型变换的`复制和粘贴`按钮"
-          - "（此功能将在后续更新中为骨骼添加）"
-          - "新增了用于在镜像模式之间切换的按键绑定。（感谢Persephius的建议！）"
-          - "新增了冻结姿势的按键绑定。"
-          - "新增了用于切换世界和局部相对操作的热键。（感谢Caraxi）" # 添加'循环世界/局部'操作按键
-          - "多个设置默认值已更改"
-          - "新增了更好的保护措施，以防止尝试绘制空角色。" # 为空和静默绘制角色添加更好的保护
-          - "修复了当UI缩放设置为高于100%时某些菜单元素绘制不正确的问题。" # 修复DrawImportPoseMenuPopup当UI缩放高于100%时跳转到无穷大的问题
-          - "修复了在某些情况下自动保存会意外禁用的错误。" # 修复一旦打开FileDialogManager就禁用自动保存的问题
-          - "修复了应用自定义颜色到角色时的问题（感谢Ny的提醒）"
-          - "修复了导入选项弹出窗口在导入选项屏幕上不会出现的问题"
-          - "修复了复制/新建相机时不会正确保留相机旋转的问题"
-          - "各种其他错误修复、UI改进、稳定性改进以及底层更改！"
+          # Temporarily disabled - "Added the ability to 'flip' individual bones. (Thank you @Bronya-Rand)" # feat: implement bone flipping
+          # This is a Secret unfinished feature - "Added the ability to select multiple actors." # Add multi-entity selection and multi-entity undo support
+          - "Removed 'Mare Synchronos' IPC"
+          - "The bone filter in the Overlay now has bone groups, that let you toggle multiple bones at once"
+          - "Added multiple new bone categories & separated out 'Arms' into right arm and left arm"
+          - "Added the ability to open Penumbra, Glamourer and CustomizePlus." 
+          - "(The buttons next to Respective Plugins Quick Selectors)" # Add UI commands to open Glamourer and CustomizePlus
+          - "Added the ability to search in the Penumbra, Glamourer and CustomizePlus quick selectors"
+          - "Added a `Reset Bone` button to the Overlay and the posing widget. (Thank you for the suggestion, Aster!)"
+          - "(This also acts like a 'Reset Model Transform' button)"
+          - "Added 'toggle' Viera Ears button to the Advance Appearance Window"
+          - "Added multiple quick select buttons when Selecting an equipment piece in the Advance Appearance Window"
+          - "Added `Equip invisible clothes` button to the Advance Appearance Window"
+          - "Added the accent color to IK button in the overlay to better display when IK is enabled. (Thank you, Ny)"  # Add accent color to IK button when enabled
+          - "Added the ability to keep the Gizmo active even when you've hidden all bones in the overlay (Thank you, Ny)"
+          - "Added option to hide name in the GPose settings window. (Enabled by default)"
+          - "Added `Set IK` Button, this button lets you 'Lock' IK into the Actor as if it where a normal pose"
+          - "(You should use this once you're done with IK, you'll have a much nice time with posing!)"
+          - "Added a `Copy and paste` button for Copy and pasting model transforms for Actors"
+          - "(This feature will be added for bones in a later update)"
+          - "Added a keybind for switching between mirror modes. (Thank you for the suggestion, Persephius!)"
+          - "Added a keybind for freezing a pose."
+          - "Added a hotkey for toggling between world and local relative manipulation. (Thank you, Caraxi)" # Add 'Cycle World/Local' Action Key
+          - "Multiple settings defaults have changed"
+          - "Added better protections to prevent the attempted drawing of null actors." # Add better protection for null and sill drawing actors
+          - "Fixed issues with certain menu elements drawing incorrectly when the UI scale was set above 100%." # Fix DrawImportPoseMenuPopup jumping to infinity when UI scale is above a 100%
+          - "Fixed a bug where autosave would disable unintentionally under certain circumstances." # Fix autosave being disabled once you open the FileDialogManager
+          - "Fixed an issue when applying custom colors to actors (Thank you Ny for the heads up)"
+          - "Fixed an issue where Import Options popup would not appear on the Import options screen"
+          - "Fixed an isues when copying/making a new camera would not preserve the rotation of the camera properly"
+          - "Various other bugfixes, UI, stability improvements and under the hood changes!"
       
-  - name: 来自开发者的消息
+  - name: Message From the Developer 
     tagline:
-    date: "2025年10月8日"
+    date: "October 8th 2025"
     message: |
-      新增/修改了超过13,000行代码，3个主要新功能，大量较小的功能和改进
-      众多系统重写；Brio 0.6.0是自0.2.0以来最大的更新！
+      With over 13,000 lines of code added/changed, 3 Major new features, A plethora of smaller features and improvements
+      Numerous system rewrites; Brio 0.6.0 is by far the largest update since 0.2.0!
 
-      我由衷感谢过去一个半月支持我的每一个人，
-      大家给予我的支持、鼓励和善意令我深受感动，亦深感荣幸，
-      这一切对我而言意义非凡。
+      I want to think everyone who has supported me this last mouth and a half especially, 
+      The support, encouragement, and kind words I have received has been overwhelming & humbling,
+      it means so very much to me.
 
-      我还要向所有为我或为我母亲筹款项目捐款的朋友们，致以最诚挚的谢意。
-      如果您希望被列入Brio的支持者名单，请携带捐款凭证与我联系。
-      你们的支持对我而言意义重大，任何言语都无法表达我内心的感激。
+      Another very big, Thank You, to anyone and everyone who has donated to me, or to my mothers GoFundMe, 
+      if you wish to be added to the supporters section in Brio, please let me know with the proof of support!
+      There are not words to express how much your support means to me.  
 
-      Brio的未来十分光明。我已有大量关于功能优化与版本迭代的构想，正稳步迈向1.0里程碑。
-      目前项目幕后工作充满活力，加之Brio现已整合了大量Mare元素，接下来将有一系列有趣的新功能登场！
+      The future of Brio is very strong, I have numerous ideas for features and improvements getting to an eventual 1.0
+      With the energy behind the scenes and Brio now having a sizeable amount of Mare in it, there are going to be some 
+      fun things coming up!
 
-      以下是Brio即将推出的功能的不完整列表/预告，按任意顺序排列
+      In no particular order or priority, here is a non exhaustive list/tease of upcoming features of Brio
 
-      - 改进Brio叠加层
-      - 为灯光添加更多功能
-      - 为MCDF添加更多功能（这个有很多可能性！）
-      - 添加Ktisis的环境功能
-      - 多角色选择
-      - 多骨骼选择
-      - 完成项目系统
-      - 为动态面部控制添加更多功能
-      - 更多易用性和人性化设计
+      - Improve the Brio Overlay 
+      - Add more features to Lights
+      - Add more features to MCDFs (This one has a lot of possibilities!)
+      - Add the Environment feature's from Ktisis
+      - Multi-actor selection
+      - Multi-bone selection
+      - Finishing the Projects system
+      - Add more features to Dynamic Face Control
+      - More ease of use and Quality of life features
 
-      以及两个我已经工作一段时间的秘密功能
+      And two secret features that I have been working on for a while now
 
-      一如既往，如果您有任何建议、请求或发现任何错误，请在Discord或GitHub上告诉我！
+      As always, if you have any suggestions, requests or find any bugs, please let me know on the discord or on GitHub!
 
-      此外，Brio 社区 Discord 服务器现已开放，欢迎加入我们！discord.gg/GCb4srgEaH
+      Also There is now a Brio Community discord, come join us! discord.gg/GCb4srgEaH
 
-      爱你们！谢谢大家！
-      - Minmoose  
+      I love you all very much, Thank you!
+      Minmoose  
     
   - name: v0.5.3
-    tagline: "那该死的船"
-    date: "2025年8月30日"
+    tagline: "That damned boat"
+    date: "August 30th 2025"
     versions:
       - number: "0.5.3.1"
         icon: ""
         items:
-          - "修复了能够在场景管理器中选择物品的问题（可算是搞定啦！）"
+          - "Fix being able to select things in the Scene Manager (AHAHH)"
       - number: "0.5.3"
         icon: ""
         items:
-          - "将红莲节2024和2025年添加到节日列表中"
-          - "修复了有时无法与场景管理器交互的问题"
-          - "重新启用双击重命名角色"
-          - "面饰现在在高级外观窗口中正确显示（感谢sparqle）"
-          - "修复了某些服装没有正确父级化骨骼的问题（感谢sparqle）"
-          - "修复了在库中第二次查看时姿势预览图像不显示的问题（感谢sparqle）"   
+          - "Added Moonfire Faire festival's 2024 & 2025 to the festival list"
+          - "Fixed an issue where you could sometimes not interact with the Scene Manager"
+          - "Reenable double click to rename an actor"   
+          - "Facewear now properly displays in the advance appearance window (Thank you sparqle)"   
+          - "Fixed an issue where, certain clothing did not parent skeletons correctly (Thank you sparqle)"   
+          - "Fix pose preview image not shown on second viewing in the Library (Thank you sparqle)"   
           
   - name: v0.5.2
-    tagline: "7.3支持"
-    date: "2025年8月15日"
+    tagline: "7.3 Support"
+    date: "August 15th 2025"
     versions:
       - number: "0.5.2.2"
         icon: ""
         items:
-          - "修复了罕见的崩溃问题"
-          - "修复了ImGUI断言错误"
-          - "临时禁用了双击角色和相机重命名功能以修复错误"
+          - "Fixed a rare crash"
+          - "Fixed ImGUI assertion errors"
+          - "Disabled double click on actors and camera to rename them to fix a bug (temporarily)"  
       - number: "0.5.2"
         icon: ""
         items:
-          - "更新Brio以支持FFXIV 7.3（感谢Asgard的帮助！）"
+          - "Update Brio to support FFXIV 7.3 (Thanks for the help Asgard!)"
           
   - name: v0.5.1
-    tagline: "7.2支持"
-    date: "2025年3月27日"
+    tagline: "7.2 Support"
+    date: "March 27th 2025"
     versions:
       - number: "0.5.1.1"
         icon: ""
         items:
-          - "现在可以双击角色或相机来重命名它们（感谢@Bronya-Rand）"
+          - "You can now double-click and Actor or Camera to rename them (Thanks @Bronya-Rand)"
       - number: "0.5.1"
         icon: ""
         items:
-          - "修复了新面饰无法装备的问题"
-          - "新增了旋转自由相机的功能！（感谢@Bronya-Rand）"
-          - "修复了保存包含道具或坐骑的项目会导致项目无法加载的问题（感谢@Bronya-Rand）"
-          - "修复了环境中的`一天时间`滑块格式，使其可以编辑"
-          - "修复了训练陆行鸟时的崩溃问题"
-          - "修复了在某些过场动画中的崩溃问题"
-          - "修复了相机在进入/退出gpose时会卡顿的问题"
-          - "修复了潜在的内存泄漏问题"
+          - "Fixed new Facewear being unable to be equipped"
+          - "Added the ability to rotate Free Cameras! (Thanks @Bronya-Rand)"
+          - "Fixed saving a project with props or mounts would cause the project not to load (Thanks @Bronya-Rand)"
+          - "Fixed the formant of `Time of Day` slider in Environment so it can be edited"
+          - "Fixed a crash when training your chocobo"
+          - "Fixed a crash when in certain cutscenes"
+          - "Fixed the camera from snaping on gpose enter/exit"
+          - "Fixed a potential memory leak"
 
   - name: v0.5.0
-    tagline: "道具、自由相机、项目等功能！"
-    date: "2025年2月16日"
+    tagline: "Props, Free Cameras, Projects & more!"
+    date: "February 16th 2025"
     versions:
       - number: "0.5.0.1 - 0.5.0.6"
         icon: ""
         items:
-          - "新增相机克隆功能"
-          - "新增库功能`作为新角色生成`（感谢@Cazzar）"
-          - "新增设置`在使用自由相机移动时消耗空格、Shift、Ctrl和Alt键盘输入`。"
-          - "为相机移动新增空格（上升）和Ctrl（下降）。"
-          - "进行了小幅优化以加快Brio的渲染速度"
-          - "环境现在可以在Gpose外再次使用。"
-          - "Glamourer设计菜单现在按字母顺序排列。"
-          - "更新了致谢名单。"
-      - number: "修复"
+          - "Added Camera cloning"
+          - "Added a new Library Feature `Spawn as new actor` (Thanks @Cazzar)"
+          - "Added a new setting `Consumed, [SPACE], [Shift], [Ctrl] & [Alt] keyboard input when moving a FreeCam`."
+          - "Added SPACE (Up) & CONTROL (Down) to Camera movement."
+          - "Made a small optimization to speed up Brio's rendering"
+          - "Environment is once again useable outside of Gpose."
+          - "The Glamourer Design menu is now in alphabetical order."
+          - "Updated Thank Yous."
+      - number: "Fixes"
         icon: ""
         items:
-          - "再次修复了ESCAPE无法打开`结束组合姿势`菜单的问题。"
-          - "再次修复了当文字缩放小于100%时PosingOverlayWindow过小的问题。"
-          - "再次允许在叠加层窗口和主窗口上允许固定和点击穿透。"
-          - "修复了离开过场动画时的崩溃问题"
-          - "修复了离开Gpose时相机卡顿的问题"
-          - "修复了C+在退出Gpose或角色消失时无法恢复的问题（感谢@HoloWise）"
-          - "修复了加载项目的罕见问题"
-          - "修复了导入设置`模型变换`不起作用的问题"
-          - "修复了如果启用了`覆盖当前场景`，则在场景加载时销毁相机的问题。"
-          - "修复了项目保存自由相机时相机被冻结在原地无法移动的问题。"
-          - "修复了场景加载具有自定义颜色的角色的问题。（感谢@Bronya-Rand）"
-          - "修复了当在设置中禁用时自动保存无法关闭的问题。"
-          - "修复了在某些情况下无法销毁相机的问题。"
-          - "修复了文字缩放问题。"
-          - "修复了T-Pose和A-Pose加载的问题。"
-          - "修复了无法将主窗口拖离FFXIV的问题。"
-          - "修复了空格、Ctrl和Alt被Brio消耗的问题。"
-          - "修复了Brio相机上的`禁用碰撞`功能。"
-          - "修复了ESCAPE无法打开`结束组合姿势`菜单的问题。"
-          - "修复了销毁相机时没有针对默认相机的问题。（感谢@Bronya-Rand）"
-          - "修复了加载和保存具有自定义颜色的角色的问题。（感谢@Bronya-Rand）"
+          - "Once more, fixed ESCAPE not opening the `End group pose` menu."
+          - "Once again, fix an issue where PosingOverlayWindow would be to small if the text scale was less then 100%."
+          - "Once again allow AllowPinning & AllowClickthrough on the Overlay window & Main window."
+          - "Fixed a crash when leaving a cutscene"
+          - "Fixed camera snaping when leaving Gpose"
+          - "Fixed an issue with C+ not being reverted on exiting Gpose or actor despawn (Thanks @HoloWise)"
+          - "Fixed a rare issue with loading projects"
+          - "Fixed an issue where the import setting `ModelTransform` was not working"
+          - "Fixed Destroying Camera on Scene load if `Override Current Scene` was enabled."
+          - "Fixed Projects saving Free Cameras being frozen in place and unable to move."
+          - "Fixed Scene loading characters with custom colors. (Thanks @Bronya-Rand)"
+          - "Fixed Auto-Save not turning off when is was disabled in the settings."
+          - "Fixed Cameras being unable to be destroyed in certain situations."
+          - "Fixed text scaling issues."
+          - "Fixed an issue with T-Pose & A-Pose loading."
+          - "Fixed not being able to drag the Main window off FFXIV."
+          - "Fixed [Shift], [Ctrl] & [Alt] being consumed my Brio."
+          - "Fixed `Disable Collision` on Brio Cameras."
+          - "Fixed ESCAPE not opening the `End group pose` menu."
+          - "Fixed on destroying a Camera not targeting Default Camera. (Thanks @Bronya-Rand)"
+          - "Fixed loading and saving characters with custom colors. (Thanks @Bronya-Rand)"
       - number: "0.5.0"
         icon: ""
         items:
-          - "Brio拥有了新图标！（随着时间的推移，它将在Dalamud中更新）"
-          - "新增了`旧版`骨骼过滤器。（在加载到黎明之前角色时使用此导入过滤器）"
-          - "新增了Brio样式（您可以在设置中禁用颜色样式）"
-          - "新增了自动保存功能，保存整个Brio场景。"
-          - "新增了Customize+支持。"
-          - "新增了更改Customize+配置文件的菜单。"
-          - "新增了虚拟相机，您现在可以生成多个相机！"
-          - "新增了自由相机！"
-          - "新增了道具生成功能！（感谢MKhayle的灵感）"
-          - "在高级外观窗口中新增了`将武器变为道具`按钮。（感谢MKhayle！）"
-          - "在姿势小部件中新增了重置模型变换按钮。"
-          - "现在可以按ESCAPE键清除选定的骨骼。"
-          - "刷新了外观、姿势和动画控制小部件的设计！"
-          - "重写了冻结物理系统以提高可靠性。（感谢Winter和darkarchon的提示！）"
-          - "修复了在黎明之前角色上加载为'身体'时的问题"
-          - "修复了第三方插件在更新或安装后不可用的问题！"
-          - "修复了字体缩放问题，Brio的字体缩放现在始终为'1'。"
-          - "修复了重置设置按钮在不应该启用时被启用的问题"
-      - number: 新增“项目”功能（测试版）
+          - "Brio has a new Icon! (Over time it will update in Dalamud)"
+          - "Added `Legacy` bone filter. (Use this import filter when loading on to pre-dawntrail faces)"
+          - "Added Brio Style  (You can disabled the Color Style in the Settings)"
+          - "Added AutoSaving, saves the entire Brio scene."
+          - "Added Customize+ suport."
+          - "Added a Change Customize+ Profile menu."
+          - "Added Virtual Cameras, You can now spawn more then one Camera!"
+          - "Added Free Cameras!"
+          - "Added Prop Spawning! (Thanks MKhayle for inspiration)"
+          - "Added `Change weapon into a Prop` button to the Advanced Appearance window. (Thanks MKhayle!)"
+          - "Added a Reset model transform button to the posing widget."
+          - "You can now press Escape to clear the selected bone."
+          - "Refresh the designs of the Appearance, Posing, & Animation Control widgets!"
+          - "Rewrote the Freeze Physics System for better reliability. (Thanks Winter & darkarchon for the tip!)"
+          - "Fixed an issue when loading as 'Body' on pre-dawntrail actors"
+          - "Fixed an issue with Third-Party plugins not being Available after being updated or installed!"
+          - "Fixed an issue with font scaling, Brio's font scale will now always be '1'."
+          - "Fixed an issue with the Reset Settings button being enabled when it shouldn't have been"
+      - number: Added Projects (BETA)
         icon: ""
         items:
-        - "新增项目功能，可保存和加载整个Brio场景。"
-        - 场景导出功能将在后续更新中推出。
-        - （感谢Ashadow700的初始实现和灵感）
-
-  - name: 来自开发者的消息
+        - "Added Projects, save and load the entire Brio scene."
+        - Scene exporting will be available in a later update.
+        - (Thanks Ashadow700 for the initial implementation and inspiration)
+  
+  - name: Message From the Developer
     tagline:
-    date: "2025年2月16日"
+    date: "February 16th 2025"
     message: |
-      我担任Brio的开发者及维护者已经超过一年了。
+      It's been over a year now that I've been the developer & maintainer for Brio.
 
-      感谢每一位使用Brio、慷慨捐助、贡献代码、提出建议、报告错误或只是参与社区的人。
-      过去这一年能与如此多美好灵魂相遇，我满怀感激。
+      Thank you to everyone who uses Brio, supports it monetarily, contributes with code, requests features, 
+      reports bugs, or simply engages with the community.
+      I'm truly grateful for all the wonderful people I have met over the past year.
 
-      这三百多个日夜是我生命中最艰难的旅程。但正是因为你们的存在，因为Brio的存在，
-      漫漫长夜才不至完全吞噬光明。请再次接受我最诚挚的谢意。
+      This last year has been the hardest of my life. Without all of you, and without Brio,
+      it would have been much worse, so again, Thank You!
 
-      而在浩瀚星海中，有一颗星辰我要特别诉说：
+      But there is one in particular whom I have met I wish to make a message for, 
 
-      当问及你天际的色彩时，我原以为会得到某个简单的答案，
-      却意外窥见了整片绚丽的苍穹——那令我沉醉其中、无法自拔的绚丽色彩，
-      是想要永远镌刻在灵魂深处的绝色。
+      I started talking to you to simply ask you what the color of your sky was, 
+      what I found was a sky full of beautiful colors, colors I couldn't stop looking at, 
+      colors I fell in love with, colors I wish never to forget.
+      I told you I'll give you stars and the moon and a soul to guide you 
+      and a promise I'll never go, I mean it now more then ever.
 
-      曾许诺赠你繁星皓月，许你指引灵魂的微光，誓言永不离去，
-      此刻这些诺言比任何时刻都更加坚定。
+      So, while it is not mine to give necessary, 
+      I want to give you the only thing else I know to give you,
+      I dedicate Brio to you
 
-      或许这并非我完全有资格赠予的礼物，
-      但请收下我唯一确知能献给你的珍宝——
-      我将Brio献予你。
-
-      我爱你，此生不渝，直至永恒~
+      I love you, forever unto eternity~
       - Minmoose

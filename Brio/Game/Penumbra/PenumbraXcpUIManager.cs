@@ -39,7 +39,13 @@ namespace Brio.Game.Penumbra
 
         public void DrawPenumbraXcpControls(string cameraPath, Action<string> setCameraPath)
         {
-            if (!ValidatePenumbra()) return;
+            ImGui.Spacing();
+
+            if (!IsPenumbraAvailable())
+            {
+                DrawPenumbraUnavailableMessage();
+                return;
+            }
 
             if (string.IsNullOrEmpty(_xcpService.CurrentEmoteName))
             {
@@ -58,24 +64,26 @@ namespace Brio.Game.Penumbra
             DrawPriorityAdjustmentPopup();
         }
 
-        private bool ValidatePenumbra()
+        private bool IsPenumbraAvailable()
         {
             var currentFrame = (uint)ImGui.GetFrameCount();
-            if (currentFrame - _lastValidationFrame < UI_CACHE_INTERVAL)
-                return _cachedValidatePenumbra;
-
-            _cachedValidatePenumbra = PenumbraManager.Instance?.IsPenumbraAvailable() == true;
-            _lastValidationFrame = currentFrame;
-
-            if (!_cachedValidatePenumbra)
+            if (currentFrame - _lastValidationFrame >= UI_CACHE_INTERVAL)
             {
-                if (PenumbraManager.Instance == null)
-                    ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra未连接");
-                else
-                    ImGui.TextColored(new Vector4(0.8f, 0.8f, 0.8f, 1.0f), "Penumbra连接失败");
+                _cachedValidatePenumbra = PenumbraManager.Instance?.IsPenumbraAvailable() == true;
+                _lastValidationFrame = currentFrame;
             }
 
             return _cachedValidatePenumbra;
+        }
+
+        private void DrawPenumbraUnavailableMessage()
+        {
+            var color = new Vector4(0.8f, 0.8f, 0.8f, 1.0f);
+            var message = PenumbraManager.Instance == null
+                ? "Penumbra 未连接（请确认已安装并启用 Penumbra 插件）"
+                : "Penumbra 连接失败（请确认 Penumbra 已加载）";
+
+            ImGui.TextColored(color, message);
         }
 
         private void DrawStatusMessages()

@@ -1,6 +1,7 @@
-﻿using Brio.Game.Types;
+﻿using System.Numerics;
+using Brio.Game.Types;
+using Brio.Resources;
 using Dalamud.Bindings.ImGui;
-using System.Numerics;
 
 namespace Brio.UI.Controls.Stateless;
 

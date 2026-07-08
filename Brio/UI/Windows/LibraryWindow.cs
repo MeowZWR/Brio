@@ -8,7 +8,6 @@ using Brio.Input;
 using Brio.Library;
 using Brio.Library.Filters;
 using Brio.Library.Tags;
-using Brio.UI.Controls.Core;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
@@ -25,7 +24,7 @@ using System.Numerics;
 
 namespace Brio.UI.Windows;
 
-public class LibraryWindow : Window
+public class LibraryWindow : Window, IDisposable
 {
     private static float WindowContentWidth => ImGui.GetWindowContentRegionMax().X - ImGui.GetWindowContentRegionMin().X;
     private static float WindowContentHeight => ImGui.GetWindowContentRegionMax().Y - ImGui.GetWindowContentRegionMin().Y;
@@ -38,7 +37,7 @@ public class LibraryWindow : Window
     private const float PathBarButtonWidth = 25;
     private const float FooterScaleSliderWidth = 100;
     private const int MinEntrySize = 80;
-    private const int MaxEntrySize = 250;
+    private const int MaxEntrySize = 450;
 
     private readonly SettingsWindow _settingsWindow;
 
@@ -111,6 +110,8 @@ public class LibraryWindow : Window
             MaximumSize = ImGui.GetIO().DisplaySize
         };
         this.SizeConstraints = constraints;
+
+        this.AllowBackgroundBlur = false;
 
         _configurationService = configurationService;
         _libraryManager = libraryManager;
@@ -225,11 +226,11 @@ public class LibraryWindow : Window
             _lastFilter = _selectedFilter;
 
         }
-        else if(_modalFilter?.Name == "Poses")
+        else if(_modalFilter?.Name == "姿势")
         {
             _lastPathModalPose = _path;
         }
-        else if(_modalFilter?.Name == "Characters")
+        else if(_modalFilter?.Name == "角色")
         {
             _lastPathModalChar = _path;
         }
@@ -296,6 +297,8 @@ public class LibraryWindow : Window
 
     public override void Draw()
     {
+        ImBrio.BlurWindow();
+
         DrawLibrary();
     }
 
@@ -304,7 +307,7 @@ public class LibraryWindow : Window
         if(!this.IsOpen || !this._isModal || _modalFilter == null)
             return;
 
-        ImGui.OpenPopup($"导入 {_modalFilter.Name}##brio_library_popup");//注意格式和下面的统一，之前少了个空格就出问题了。
+        ImGui.OpenPopup($"导入 {_modalFilter.Name}##brio_library_popup");
 
         ImGui.SetNextWindowSizeConstraints(MinimumSize, ImGui.GetIO().DisplaySize);
 
@@ -435,7 +438,7 @@ public class LibraryWindow : Window
                             var config = ConfigurationService.Instance.Configuration;
                             bool isFavorite = config.Library.Favorites.Contains(ieb.Identifier);
 
-                            using(ImRaii.PushColor(ImGuiCol.Text, isFavorite ? ThemeManager.CurrentTheme.Accent.AccentColor : UIConstants.ToggleButtonInactive))
+                            using(ImRaii.PushColor(ImGuiCol.Text, isFavorite ? ThemeManager.CurrentTheme.Accent.AccentColor : ThemeManager.CurrentTheme.Text.Text))
                             {
                                 if(ImBrio.FontIconButton(FontAwesomeIcon.Heart))
                                 {
@@ -465,7 +468,7 @@ public class LibraryWindow : Window
 
                     if(isPoseModal)
                     {
-                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), tooltip: "导入选项"))
+                        if(ImBrio.Button("##importPoseOptionButton", FontAwesomeIcon.Cog, new Vector2(25, 0), tooltip: "Import Options"))
                         {
                             ImGui.OpenPopup("import_options_popup_lib");
                         }
@@ -485,7 +488,7 @@ public class LibraryWindow : Window
                     if(doDisable)
                         ImGui.BeginDisabled();
 
-                    if(ImBrio.Button("导入", FontAwesomeIcon.Check, new Vector2(100, 0)))
+                    if(ImBrio.Button("Import", FontAwesomeIcon.Check, new Vector2(100, 0)))
                     {
                         if(_selected != null)
                         {
@@ -715,7 +718,7 @@ public class LibraryWindow : Window
             {
                 try
                 {
-                    using(var child = ImRaii.Child("library_search_input", new(searchBarWidth, searchBarHeight), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+                    using(var child = ImRaii.Child("library_search_input_child", new(searchBarWidth, searchBarHeight), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
                     {
 
                         if(child.Success)
@@ -840,7 +843,7 @@ public class LibraryWindow : Window
 
             // clear the search input buffer
             data.BufTextLen = 0;
-            data.BufSize = 0;
+            data.BufSize = 256 + 1;
             data.CursorPos = 0;
             data.SelectionStart = 0;
             data.SelectionEnd = 0;
@@ -934,7 +937,7 @@ public class LibraryWindow : Window
 
                     if(!hasContent)
                     {
-                        ImBrio.Text($"开始输入进行搜索...", 0x88FFFFFF);
+                        ImBrio.Text($"Start typing to search...", 0x88FFFFFF);
                     }
                 }
 
@@ -1056,7 +1059,7 @@ public class LibraryWindow : Window
 
     private void DrawFooter()
     {
-        if(ImBrio.Button("添加资产", FontAwesomeIcon.None, new Vector2(100, 0)))
+        if(ImBrio.Button("Add new source", FontAwesomeIcon.Plus, new Vector2(0, 0), centerTest: true))
         {
             if(_isModal)
             {
@@ -1239,5 +1242,12 @@ public class LibraryWindow : Window
         sw.Stop();
         _lastRefreshTimeMs = sw.ElapsedMilliseconds;
         _isRefreshing = false;
+    }
+
+    public void Dispose()
+    {
+        _libraryManager.OnScanFinished -= OnLibraryScanFinished;
+        _configurationService.OnConfigurationChanged -= OnConfigurationChanged;
+        _gPoseService.OnGPoseStateChange -= OnGPoseStateChange;
     }
 }

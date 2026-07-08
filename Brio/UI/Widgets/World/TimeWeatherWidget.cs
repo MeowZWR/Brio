@@ -18,7 +18,6 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
     public override string HeaderName => "时间与天气";
     public override WidgetFlags Flags => WidgetFlags.DefaultOpen | WidgetFlags.DrawBody;
 
-
     private static readonly WeatherSelector _weatherSelector = new("global_weather_selector");
 
     public override void DrawBody()
@@ -38,31 +37,26 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
 
         var dateTime = new DateTime().AddMinutes(minuteOfDay);
 
-        ImBrio.VerticalPadding(5);
-        ImGui.Text("一天中的时间"u8);
-        ImBrio.VerticalPadding(5);
-
-        var preservePostime = ImGui.GetCursorPos();
-        ImGui.SetCursorPos(unlockPos);
-        if(ImBrio.FontIconButtonRight("timeLock", isTimeFrozen ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, 1, isTimeFrozen ? "解锁时间" : "锁定时间", bordered: false))
+        if(ImBrio.SeparatorTextButton("Time of Day", isTimeFrozen ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, isTimeFrozen ? "Unlock Time" : "Lock Time"))
+        {
             isTimeFrozen = !isTimeFrozen;
-        ImGui.SetCursorPos(preservePostime);
+        }
 
         ImBrio.CenterNextElementWithPadding(15);
         var realTime = ImGui.SliderInt("##time_real"u8, ref minuteOfDay, 0, DayTime - 1, dateTime.ToShortTimeString(), ImGuiSliderFlags.NoInput);
-        ImBrio.AttachToolTip("一天中的时间");
+        ImBrio.AttachToolTip("Time of Day");
 
         var time = false;
         var dragday = false;
         using(ImRaii.ItemWidth((ImBrio.GetRemainingWidth() / 2) - ImGui.GetStyle().ItemInnerSpacing.X))
         {
             time = ImGui.SliderInt("##time_set"u8, ref minuteOfDay, 0, DayTime - 1, "%.0f"u8);
-            ImBrio.AttachToolTip("一天中的时间（分钟）");
+            ImBrio.AttachToolTip("一天中的时间");
 
             ImGui.SameLine();
 
             dragday = ImGui.SliderInt("##day_set"u8, ref dayOfMonth, 1, 31);
-            ImBrio.AttachToolTip("月份中的日期");
+            ImBrio.AttachToolTip("Day of Month");
         }
 
         if(realTime || time || dragday)
@@ -76,28 +70,19 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
             Capability.TimeService.IsTimeFrozen = isTimeFrozen;
 
         //
-        //
+        // Weather
 
-        ImBrio.VerticalPadding(10);
-        ImGui.Separator();
-
-        unlockPos = ImGui.GetCursorPos();
-
-        ImGui.Text("当前天气 /"u8);
-        ImGui.SameLine();
         WeatherUnion union = (WeatherId)currentWeather;
-        union.Switch(
-            row => ImGui.Text($"[{row.Name.ToString()}]"),
-            none => ImGui.Text("未知天气"u8)
+        string weatherName = union.Match(
+            row => row.Name.ToString(),
+            none => "Weather Override"
         );
+
         ImBrio.VerticalPadding(5);
-
-        var preservePos = ImGui.GetCursorPos();
-
-        ImGui.SetCursorPos(unlockPos);
-        if(ImBrio.FontIconButtonRight("weatherLock", isWeatherOverrideEnabledLocked ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, 1, isWeatherOverrideEnabledLocked ? "解锁天气" : "锁定天气", bordered: false))
+        if(ImBrio.SeparatorTextButton($"Current Weather - {weatherName}", isWeatherOverrideEnabledLocked ? FontAwesomeIcon.Unlock : FontAwesomeIcon.Lock, isWeatherOverrideEnabledLocked ? "Unlock Weather" : "Lock Weather"))
+        {
             isWeatherOverrideEnabledLocked = !isWeatherOverrideEnabledLocked;
-        ImGui.SetCursorPos(preservePos);
+        }
 
         ImBrio.CenterNextElementWithPadding(10);
         if(ImBrio.BorderedWeatherGameIcon("current_weather", (WeatherUnion)Capability.EnvironmentService.CurrentWeather, showText: false))
@@ -114,7 +99,7 @@ public class TimeWeatherWidget(TimeWeatherCapability weatherCapability) : Widget
         ImBrio.CenterNextElementWithPadding(10);
         ImBrio.VerticalPadding(5);
         ImGui.InputInt("###current_weather_input"u8, ref currentWeather, 0, 0, default, ImGuiInputTextFlags.EnterReturnsTrue);
-        ImBrio.AttachToolTip("天气 ID");
+        ImBrio.AttachToolTip("Weather ID");
 
         using(var popup = ImRaii.Popup("weather_selector"u8))
         {
