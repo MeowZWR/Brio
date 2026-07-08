@@ -83,7 +83,7 @@ public static class PosingEditorCommon
             ImGui.Separator();
 
             selected = options.ApplyModelTransform;
-            if(ImGui.Checkbox("位置", ref selected))
+            if(ImGui.Checkbox("模型变换", ref selected))
             {
                 options.ApplyModelTransform = selected;
             }

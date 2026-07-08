@@ -262,7 +262,7 @@ public class UpdateWindow : Window
             if(leftGearGroup.Success)
             {
                 ImGui.Text("衷心感谢以下");
-                ImGui.Text("位在 Ko-Fi / Patreon 上支持我们的朋友！");
+                ImGui.Text("在 Ko-Fi / Patreon 上支持我们的朋友！");
 
                 ImBrio.VerticalPadding(5);
 
@@ -280,7 +280,7 @@ public class UpdateWindow : Window
             if(rightGearGroup.Success)
             {
                 ImGui.Text("还要衷心感谢以下");
-                ImGui.Text("位对 Brio 做出贡献的朋友！");
+                ImGui.Text("对 Brio 做出贡献的朋友！");
 
                 ImBrio.VerticalPadding(5);
 
