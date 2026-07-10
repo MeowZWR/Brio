@@ -1,35 +1,10 @@
-﻿using System.Linq;
-using System.Text;
-using Dalamud.Plugin.Services;
+﻿using System.Text;
 
 namespace Brio.Core;
 
 public static class IntExtensions
 {
-    private static bool UseChineseNamingScheme()
-    {
-        if(global::Brio.Brio.TryGetService<IClientState>(out var clientState))
-        {
-            var language = clientState.ClientLanguage.ToString();
-            if(language is "ChineseSimplified" or "ChineseTraditional")
-                return true;
-        }
-
-        if(global::Brio.Brio.TryGetService<IObjectTable>(out var objectTable))
-        {
-            var homeWorld = objectTable.LocalPlayer?.HomeWorld.Value;
-            var dataCenterName = homeWorld?.DataCenter.Value.Name.ToString() ?? string.Empty;
-            var homeWorldName = homeWorld?.Name.ToString() ?? string.Empty;
-
-            if(ContainsCjk(dataCenterName) || ContainsCjk(homeWorldName))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool ContainsCjk(string value)
-        => value.Any(c => c is >= '\u4E00' and <= '\u9FFF');
+    private static bool UseChineseNamingScheme() => ClientRegionHelper.IsChineseClient();
 
     private static string ToBrioNameChinese(int i)
     {

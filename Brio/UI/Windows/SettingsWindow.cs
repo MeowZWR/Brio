@@ -1,4 +1,5 @@
 using Brio.Config;
+using Brio.Core;
 using Brio.Game.Posing;
 using Brio.Input;
 using Brio.IPC;
@@ -983,8 +984,7 @@ public class SettingsWindow : Window
             var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Brio.GetDebugInfo())));
             Brio.Log.Warning("BRIOSUPPORT:" + base64);
 
-            var logPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "XIVLauncher", "dalamud.log");
+            var logPath = ClientRegionHelper.GetDalamudLogPath();
 
             using var fs = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var sr = new StreamReader(fs, Encoding.UTF8);
