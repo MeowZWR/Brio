@@ -17,11 +17,11 @@ public class FurnitureDatabase
 
     private static readonly Dictionary<uint, string> PlacementTypes = new()
     {
-        { 12, "Indoor Furnishings" },
-        { 13, "Tables"             },
-        { 14, "Tabletop"           },
-        { 15, "Wall-mounted"       },
-        { 16, "Rugs"               },
+        { 12, "室内家具" },
+        { 13, "桌台"             },
+        { 14, "桌上"           },
+        { 15, "壁挂"       },
+        { 16, "地毯"               },
     };
 
     public FurnitureDatabase(IDataManager dataManager)
@@ -57,7 +57,7 @@ public class FurnitureDatabase
                 if(string.IsNullOrWhiteSpace(name)) continue;
 
                 indoorCatMap.TryGetValue(item.Value.RowId, out var cat);
-                list.Add(new FurnitureInfo(name, row.ModelKey, true, cat ?? "Uncategorised", item.Value.Icon));
+                list.Add(new FurnitureInfo(name, row.ModelKey, true, cat ?? "未分类", item.Value.Icon));
             }
         }
 
@@ -82,7 +82,7 @@ public class FurnitureDatabase
                 if(string.IsNullOrWhiteSpace(name)) continue;
 
                 outdoorCatMap.TryGetValue(item.Value.RowId, out var cat);
-                list.Add(new FurnitureInfo(name, row.ModelKey, false, cat ?? "Uncategorised", item.Value.Icon));
+                list.Add(new FurnitureInfo(name, row.ModelKey, false, cat ?? "未分类", item.Value.Icon));
             }
         }
 

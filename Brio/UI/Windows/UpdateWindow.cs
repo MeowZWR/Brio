@@ -170,7 +170,7 @@ public class UpdateWindow : Window
         ImBrio.VerticalPadding(10);
 
         // Selector
-        ImBrio.ButtonSelectorStrip("brio_changelog_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, [" Changelog ", "Supporters & Contributors"]);
+        ImBrio.ButtonSelectorStrip("brio_changelog_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, [" 更新日志 ", "支持者与贡献者"]);
 
         if(selected == 0)
         {
