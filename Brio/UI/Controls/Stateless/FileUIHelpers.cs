@@ -318,7 +318,7 @@ public class FileUIHelpers
                 }
                 ImGui.SameLine();
 
-                if(ImBrio.HoldButton($"preset_delete", "删除", FontAwesomeIcon.Trash, 1.1f, size, centerTest: true, tooltip: "[长按]\n删除预设"))
+                if(ImBrio.HoldButton("preset_delete", "删除", FontAwesomeIcon.Trash, 1.1f, size, centerTest: true, tooltip: "[长按]\n删除预设"))
                 {
                     presetSystem.DeletePreset(state.Selected!);
                     state.Selected = null;

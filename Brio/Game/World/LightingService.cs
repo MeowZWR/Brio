@@ -92,13 +92,14 @@ public unsafe class LightingService : MediatorSubscriberBase
         mediator.Subscribe<FrameworkUpdateMessage>(this, (state) => OnFrameworkUpdate(state.Framework));
     }
 
+    private LightEntity[] gposeLights = new LightEntity[3];
+
     public char ToggleGPoseLight(BrioEventGPoseController* ptr, uint index)
         => _toggleGPoseLight(ptr, index);
 
     private BrioLight* LightCtor(BrioLight* light)
     {
         var value = _lightCtorHook.Original(light);
-
         _worldGameLights.Add((nint)light);
 
         if(Destructor == null)
@@ -128,8 +129,8 @@ public unsafe class LightingService : MediatorSubscriberBase
                         GposeLightIndex = i
                     };
 
-                    blight.SetIndex(_spawnedLights.Add(blight));
-                    CreateEntity(blight);
+                    blight.SetIndex((int)i);
+                    gposeLights[i] = CreateEntity(blight);
 
                     break;
                 }
@@ -141,16 +142,24 @@ public unsafe class LightingService : MediatorSubscriberBase
 
     private void LightDtor(BrioLight* light, bool free)
     {
-        _worldGameLights.Remove((nint)light);
-        RemoveWroldLight(light);
+        if(_worldGameLights.Contains((nint)light))
+        {
+            _worldGameLights.Remove((nint)light);
+            RemoveWroldLight(light);
+        }
 
         if(_gPoseService.IsGPosing)
         {
-            var lightToRemove = _spawnedLights.AsEnumerable()
-                .FirstOrDefault(x => x.IsGPoseLight && x.Address == (nint)light);
-
-            if(lightToRemove is not null)
-                RemoveGposeLight(lightToRemove);
+            var gposeController = (BrioEventGPoseController*)&EventFramework.Instance()->EventSceneModule.EventGPoseController;
+            for(uint i = 0; i < 3; i++)
+            {
+                var gposeLight = gposeLights[i];
+                if(gposeLight != null && gposeLight.GameLight.Address == (nint)light)
+                {
+                    RemoveGposeLight(gposeLight.GameLight);
+                    gposeLights[i] = null!;
+                }
+            }
         }
 
         _lightDtorHook.Original(light, free);
@@ -211,7 +220,7 @@ public unsafe class LightingService : MediatorSubscriberBase
         });
     }
 
-    private Entity CreateEntity(Light light)
+    private LightEntity CreateEntity(Light light)
     {
         var entity = _entityManager.CreateEntityOnEntityContainer<LightEntity>(light);
         light.SetEntityIndex(_lightEntities.Add(entity));
@@ -285,12 +294,12 @@ public unsafe class LightingService : MediatorSubscriberBase
             // Spawn a new GameLight
             var clonedGameLight = SpawnGameLight(sourceLight.GameLight->RenderLight->EmissionType);
 
-            Light clonedLight = new(clonedGameLight, clonedGameLight->Transform.Position, clonedGameLight->Transform.Rotation, clonedGameLight->Transform.Scale);
-            clonedLight.SetIndex(_spawnedLights.Add(clonedLight));
-
             // Copy properties from the source light to the cloned light
             clonedGameLight->Transform.Position = sourceLight.GameLight->Transform.Position;
             clonedGameLight->Transform.Rotation = sourceLight.GameLight->Transform.Rotation;
+
+            Light clonedLight = new(clonedGameLight, clonedGameLight->Transform.Position, clonedGameLight->Transform.Rotation, clonedGameLight->Transform.Scale);
+            clonedLight.SetIndex(_spawnedLights.Add(clonedLight));
 
             if(clonedGameLight->RenderLight != null && sourceLight.GameLight->RenderLight != null)
             {
@@ -307,7 +316,13 @@ public unsafe class LightingService : MediatorSubscriberBase
 
             clonedGameLight->Update();
 
-            CreateEntity(clonedLight);
+            var e = CreateEntity(clonedLight);
+            e.Transform = new Transform
+            {
+                Position = clonedGameLight->Transform.Position,
+                Rotation = clonedGameLight->Transform.Rotation,
+                Scale = clonedGameLight->Transform.Scale
+            };
 
             foreach(var gameLight in _spawnedLights.AsEnumerable())
             {
@@ -431,7 +446,7 @@ public unsafe class LightingService : MediatorSubscriberBase
     {
         _framework.RunOnTick(() =>
         {
-            var camEnt = _lightEntities.Components[light.Index];
+            var camEnt = _lightEntities.Components[light.EntityIndex];
             if(camEnt is not null)
             {
                 _entityManager.DetachEntity(camEnt, true);
@@ -442,26 +457,22 @@ public unsafe class LightingService : MediatorSubscriberBase
 
     public void RemoveGposeLight(IGameLight light)
     {
-        _spawnedLights.Remove(light.Index);
-
         _framework.RunOnFrameworkThread(() =>
         {
             if(light.IsValid)
             {
-                var camEnt = _lightEntities.Components[light.Index];
+                var camEnt = _lightEntities.Components[light.EntityIndex];
                 if(camEnt is not null)
                 {
                     _entityManager.DetachEntity(camEnt, true);
+                    _lightEntities.Remove(light.EntityIndex);
                 }
             }
-            _lightEntities.Remove(light.EntityIndex);
         });
     }
 
     public void Destroy(IGameLight light)
     {
-        _spawnedLights.Remove(light.Index);
-
         _framework.RunOnFrameworkThread(() =>
         {
             if(light.IsWorldLight)
@@ -473,15 +484,17 @@ public unsafe class LightingService : MediatorSubscriberBase
             if(light.IsGPoseLight && CurrentGPoseState != null)
             {
                 ToggleGPoseLight(CurrentGPoseState, light.GposeLightIndex);
+                return;
             }
 
+            _spawnedLights.Remove(light.Index);
             light.Destroy();
 
-            var camEnt = _lightEntities.Components[light.Index];
+            var camEnt = _lightEntities.Components[light.EntityIndex];
             if(camEnt is not null)
             {
                 _entityManager.DetachEntity(camEnt, true);
-                _lightEntities.Remove(light.Index);
+                _lightEntities.Remove(light.EntityIndex);
             }
         });
     }
@@ -501,6 +514,16 @@ public unsafe class LightingService : MediatorSubscriberBase
             foreach(var light in _handledLights)
             {
                 RemoveWroldLight(light.GameLight);
+            }
+
+            for(int i = 0; i < gposeLights.Length; i++)
+            {
+                var gposeLight = gposeLights[i];
+                if(gposeLight is not null)
+                {
+                    RemoveGposeLight(gposeLight.GameLight);
+                    gposeLights[i] = null!;
+                }
             }
         });
     }

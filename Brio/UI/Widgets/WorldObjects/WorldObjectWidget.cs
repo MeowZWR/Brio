@@ -197,13 +197,21 @@ public class WorldObjectWidget(WorldObjectTransformCapability worldcap) : Widget
 
                 ImBrio.CenterNextElementWithPadding(5);
                 var refreshInterval = staticVfx.VfxRefreshIntervalSeconds;
-                if(ImGui.DragInt("###vfx_refresh_interval", ref refreshInterval, 0.1f, 0, 60, "%d seconds"))
+                if(ImGui.DragInt("###vfx_refresh_interval", ref refreshInterval, 0.1f, 0, 60, "%d 秒"))
                 {
                     staticVfx.VfxRefreshIntervalSeconds = refreshInterval;
                     staticVfx.Expires = DateTime.Now.AddSeconds(staticVfx.VfxRefreshIntervalSeconds);
                 }
-                ImBrio.AttachToolTip("特效刷新间隔（秒）。");
+                if(staticVfx.IsLooping == false)
+                {
+                    ImBrio.AttachToolTip("""
+                        必须启用循环后才能使用！
+
+                        """);
+                }
+                ImBrio.AttachToolTip("VFX刷新间隔（秒）。");
             }
+       
 
             var speed = staticVfx.Speed;
             if(ImBrio.SeparatorTextButton("速度", FontAwesomeIcon.Undo, enabled: speed != 1f, tooltip: "重置速度"))

@@ -1,4 +1,9 @@
-﻿using Brio.Core;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Numerics;
+using Brio.Core;
 using Brio.Game.GPose;
 using Brio.Resources;
 using Brio.Services;
@@ -9,11 +14,6 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.LayoutEngine;
 using Lumina.Data.Files;
 using Lumina.Excel.Sheets;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Numerics;
 
 namespace Brio.Game.World;
 
@@ -296,7 +296,7 @@ public unsafe class FestivalService : MediatorSubscriberBase
 
         var knownEntries = _resourceProvider.GetResourceDocument<List<FestivalFileEntry>>("Data.Festivals.json");
 
-        foreach(var row in gameDataProvider.Festivals)
+        foreach(var row in gameDataProvider.GetExcelSheet<Festival>())
         {
             if(row.RowId == 0)
                 continue;
@@ -426,7 +426,7 @@ public unsafe class FestivalService : MediatorSubscriberBase
     {
         public uint Id { get; set; }
         public uint Phase { get; set; }
-        public string Name { get; set; } = "未知";
+        public string Name { get; set; } = "Unknown";
         public bool Unknown { get; set; }
         public bool Unsafe { get; set; }
 

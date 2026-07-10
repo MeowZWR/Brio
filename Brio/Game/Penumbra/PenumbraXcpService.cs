@@ -268,7 +268,7 @@ namespace Brio.Game.Penumbra
                     return null;
 
                 Emote? foundEmote = null;
-                foreach (var emote in GameDataProvider.Instance.Emotes)
+                foreach (var emote in GameDataProvider.Instance.GetExcelSheet<Emote>())
                 {
                     foreach (var actionTimeline in emote.ActionTimeline)
                     {
