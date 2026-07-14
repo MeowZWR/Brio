@@ -57,7 +57,9 @@ public class LightWindow : Window, IDisposable
 
         ImBrio.VerticalPadding(2);
 
-        if(_configService.Configuration.Posing.AutoSelectLightWhenClickingOnALight && _entityManager.SelectedEntity is LightEntity lightEntity)
+        bool isDecoupled = _configService.Configuration.Posing.IfLightWindowisOpenDontUseSceneManager;
+
+        if(!isDecoupled && _configService.Configuration.Posing.AutoSelectLightWhenClickingOnALight && _entityManager.SelectedEntity is LightEntity lightEntity)
         {
             if(lightEntity != _lightingService.SelectedLightEntity)
             {
@@ -75,6 +77,8 @@ public class LightWindow : Window, IDisposable
                     if(ImGui.Selectable($"选择灯光: [ {value.FriendlyName} ]"))
                     {
                         _lightingService.SelectedLightEntity = value;
+                        if(!isDecoupled)
+                            _entityManager.SetSelectedEntity(value.Id);
                     }
                 }
                 ImGui.EndCombo();
@@ -121,7 +125,7 @@ public class LightWindow : Window, IDisposable
 
             ImGui.SameLine();
 
-            if(ImBrio.FontIconButton("lifetimewidget_move", FontAwesomeIcon.ArrowUp, "移动到相机"))
+            if(ImBrio.FontIconButton("lifetimewidget_move", FontAwesomeIcon.CaretSquareDown, "移动到相机"))
             {
                 light!.MoveToCamera();
             }

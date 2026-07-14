@@ -173,7 +173,7 @@ public sealed partial class PathIndex
         { "cry",  "水晶"      },
         { "wat",  "水"        }, { "sea",  "海"         },
         { "stc",  "结构"      },
-        { "gls",  "玻璃"      }, { "grs",  "玻璃"       },
+        { "gls",  "玻璃"      }, { "grs",  "草地"       },
         { "box",  "箱子"      },
         { "flw",  "花卉"      },
         { "bos",  "首领"      },
@@ -292,7 +292,7 @@ public sealed partial class PathIndex
         return new PathIndex(infos, byHash, byFileName);
     }
 
-    private static GamePathInfo ParsePath(string path)
+    public static GamePathInfo ParsePath(string path)
     {
         var splitPath = path.Split('/');
         string expansion = "本体";

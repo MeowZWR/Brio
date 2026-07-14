@@ -26,6 +26,7 @@ public class TimelineSequencerEditor(TimelineService timelineService, Configurat
 
     private readonly Dictionary<ITimelineHost, ImSequencerState> _states = [];
 
+    private static readonly string[] _animationModeNames = ["基础", "混合"];
     private static readonly string[] _modeNames = ["混合", "步进"];
     private static readonly string[] _modeLetters = ["B", "S"];
     private static readonly string[] _presetNames = ["线性", "缓入", "缓出", "缓入缓出", "自定义"];
