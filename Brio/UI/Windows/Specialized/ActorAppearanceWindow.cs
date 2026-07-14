@@ -98,7 +98,7 @@ public class ActorAppearanceWindow : Window, IDisposable
 
         bool shouldSetAppearance = false;
 
-        ImBrio.ButtonSelectorStrip("appearance_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["装备", "自定义"]);
+        ImBrio.ButtonSelectorStrip("appearance_filters_selector", new Vector2(ImBrio.GetRemainingWidth(), ImBrio.GetLineHeight()), ref selected, ["装备", "外貌"]);
 
         if(selected == 1)
         {

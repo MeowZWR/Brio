@@ -15,7 +15,7 @@ namespace Brio.UI.Widgets.Actor;
 
 public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Widget<ActorDynamicPoseCapability>(capability)
 {
-    public override string HeaderName => "动态面部控制";
+    public override string HeaderName => "面部控制";
 
     public override WidgetFlags Flags => WidgetFlags.DrawBody;
 
@@ -42,7 +42,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
 
         if(Capability.GameObject.ObjectKind != ObjectKind.Pc)
         {
-            ImGui.TextWrapped("请选择有效角色以使用动态面部控制。");
+            ImGui.TextWrapped("请选择有效角色以使用面部控制。");
             return;
         }
 
@@ -79,7 +79,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
             }
         }
 
-        if(ImBrio.SeparatorTextButton("动态面部控制", FontAwesomeIcon.PowerOff, tooltip: Capability.IsEnabled ? "禁用动态面部控制" : "启用动态面部控制", toggled: Capability.IsEnabled))
+        if(ImBrio.SeparatorTextButton("面部控制", FontAwesomeIcon.PowerOff, tooltip: Capability.IsEnabled ? "禁用面部控制" : "启用面部控制", toggled: Capability.IsEnabled))
         {
             Capability.IsEnabled = !Capability.IsEnabled;
 
@@ -145,7 +145,7 @@ public class ActorDynamicPoseWidget(ActorDynamicPoseCapability capability) : Wid
             }
         }
         if(!Capability.IsEnabled)
-            ImBrio.AttachToolTip("启用动态面部控制以使用此功能。");
+            ImBrio.AttachToolTip("启用面部控制以使用此功能。");
     }
 
     private void HandleExpressionSelectorChanges()
