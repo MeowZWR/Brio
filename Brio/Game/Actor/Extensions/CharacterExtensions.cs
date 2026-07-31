@@ -1,4 +1,4 @@
-﻿namespace Brio.Game.Actor.Extensions;
+namespace Brio.Game.Actor.Extensions;
 
 using Dalamud.Game.ClientState.Objects.Types;
 using global::Brio.Game.Actor.Appearance;
@@ -84,7 +84,7 @@ public static class CharacterExtensions
         {
             ActorEquipSlot.MainHand => StructsDrawDataContainer.WeaponSlot.MainHand,
             ActorEquipSlot.OffHand => StructsDrawDataContainer.WeaponSlot.OffHand,
-            ActorEquipSlot.Prop => StructsDrawDataContainer.WeaponSlot.Unk,
+            ActorEquipSlot.Prop => StructsDrawDataContainer.WeaponSlot.System,
             _ => throw new Exception("Invalid weapon slot")
         };
 
