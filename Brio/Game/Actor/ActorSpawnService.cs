@@ -12,7 +12,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using static FFXIVClientStructs.FFXIV.Client.Graphics.Kernel.VertexShader;
-using System.Text.RegularExpressions;
 using CharacterCopyFlags = FFXIVClientStructs.FFXIV.Client.Game.Character.CharacterSetupContainer.CopyFlags;
 using ClientObjectManager = FFXIVClientStructs.FFXIV.Client.Game.Object.ClientObjectManager;
 using NativeCharacter = FFXIVClientStructs.FFXIV.Client.Game.Character.Character;
@@ -263,30 +262,8 @@ public class ActorSpawnService : IDisposable
             if(newObject == null) return false;
             var newPlayer = (NativeCharacter*)newObject;
 
-            string raw = "";
-            switch(count)
-            {
-                case 0:
-                    raw = "Cutscene Player";
-                    break;
-                default:
-                    raw = "Reborn" + Regex.Replace(Guid.NewGuid().ToString(), @"[\d-]", string.Empty).Replace("-", "");
-                    break;
-            }
-            // If a custom name was provided (e.g. for Custom NPCs), use it directly.
-            // Otherwise, use the randomized quest NPC name.
-            if(!string.IsNullOrEmpty(customName) && count > 0)
-            {
-                // Clamp to 20 chars (FFXIV name limit: "Firstname Lastname")
-                string cnpcName = customName.Length > 20 ? customName.Substring(0, 20) : customName;
-                ((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)newObject)->SetName(cnpcName);
-            }
-            else
-            {
-                string name = raw.Substring(0, Math.Clamp(raw.Length, 0, 14));
-                int length = name.Length / 2;
-                ((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)newObject)->SetName(count == 0 ? raw : FirstCharToUpper(name.Substring(0, length)) + " " + FirstCharToUpper(name.Substring(length)));
-            }
+            var spawnName = SpawnedCharacterNaming.ResolveSpawnName(_clientState, _objectTable, count, customName);
+            ((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)newObject)->SetName(spawnName);
 
             //_gPoseService.AddCharacterToGPose(newPlayer);
 
@@ -300,12 +277,6 @@ public class ActorSpawnService : IDisposable
         return true;
     }
 
-    public static string FirstCharToUpper(string input)
-    {
-        if(String.IsNullOrEmpty(input))
-            throw new ArgumentException("ARGH!");
-        return input.First().ToString().ToUpper() + String.Join("", input.Skip(1));
-    }
     private void OnGPoseStateChanged(bool newState)
     {
         if(!newState)
