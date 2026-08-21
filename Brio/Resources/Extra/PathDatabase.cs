@@ -186,7 +186,7 @@ public sealed partial class PathIndex
         { "ter",  "地形"      }, { "plt",  "植被"       }, { "bsh",  "植被"          },
         { "gren", "植被"      },
         { "itm",  "道具"      },
-        { "chr",  "椅子"      }, { "chair", "椅子"     },
+        { "chr",  "椅子"      }, { "chair", "椅子"     }, { "cha",  "椅子"           },
         { "dsk",  "书桌"      }, { "desk", "书桌"       },
         { "rug",  "地毯"      },
         { "slf",  "架子"      }, { "shelf", "架子"     }, { "she",  "架子"           },

@@ -1,3 +1,4 @@
+using Brio.Config;
 using Brio.Core;
 using Brio.UI.Controls.Stateless;
 using Dalamud.Interface;
@@ -16,13 +17,16 @@ public class ITransformableEditor
         using(ImRaii.PushId(id))
         using(ImRaii.Disabled(target.IsTransformFrozen))
         {
+            var swapRotationXandY = ConfigurationService.Instance.Configuration.Posing.SwapRotationXandY;
+
             var before = target.Transform;
             var realTransform = _trackingTransform ?? before;
             var realEuler = _trackingEuler ?? before.Rotation.ToEuler();
+            var displayEuler = swapRotationXandY ? realEuler.SwapXY() : realEuler;
 
             (var pdidChange, var panyActive) = ImBrio.DragFloat3("###_itransform_position", ref realTransform.Position, offset, FontAwesomeIcon.ArrowsUpDownLeftRight, "位置", enableExpanded: compact);
             ImBrio.VerticalPadding(2);
-            (var rdidChange, var ranyActive) = ImBrio.DragFloat3("###_itransform_rotation", ref realEuler, offset * 100f, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compact);
+            (var rdidChange, var ranyActive) = ImBrio.DragFloat3("###_itransform_rotation", ref displayEuler, offset * 100f, FontAwesomeIcon.ArrowsSpin, "旋转", enableExpanded: compact);
             ImBrio.VerticalPadding(2);
             (var sdidChange, var sanyActive) = ImBrio.DragFloat3("###_itransform_scale", ref realTransform.Scale, offset, FontAwesomeIcon.ExpandAlt, "缩放", enableExpanded: compact);
             ImBrio.VerticalPadding(2);
@@ -30,6 +34,7 @@ public class ITransformableEditor
             bool didChange = pdidChange | rdidChange | sdidChange;
             bool anyActive = panyActive | ranyActive | sanyActive;
 
+            realEuler = swapRotationXandY ? displayEuler.SwapXY() : displayEuler;
             realTransform.Rotation = realEuler.ToQuaternion();
 
             if(didChange)

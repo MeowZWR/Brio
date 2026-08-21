@@ -507,13 +507,6 @@ public class SettingsWindow : Window
                 _configurationService.ApplyChange();
             }
 
-            bool autoSelectModelTransform = _configurationService.Configuration.Posing.AutoSelectTransformOnEntitySelect;
-            if(ImGui.Checkbox("选中实体时自动选择模型变换骨骼或原点", ref autoSelectModelTransform))
-            {
-                _configurationService.Configuration.Posing.AutoSelectTransformOnEntitySelect = autoSelectModelTransform;
-                _configurationService.ApplyChange();
-            }
-
             bool autoSelectLight = _configurationService.Configuration.Posing.AutoSelectLightWhenClickingOnALight;
             if(ImGui.Checkbox("点击灯光实体时在灯光窗口中选中", ref autoSelectLight))
             {
@@ -926,6 +919,13 @@ public class SettingsWindow : Window
             _configurationService.Configuration.Posing.UndoStackSize = undoStackSize;
             _configurationService.ApplyChange();
         }
+
+        bool swapRotationXandY = _configurationService.Configuration.Posing.SwapRotationXandY;
+        if(ImGui.Checkbox("Swap Rotation X and Y in Transform Editors", ref swapRotationXandY))
+        {
+            _configurationService.Configuration.Posing.SwapRotationXandY = swapRotationXandY;
+            _configurationService.ApplyChange();
+        }
     }
 
     private void DrawOffsetSection()
@@ -1152,13 +1152,6 @@ public class SettingsWindow : Window
             if(ImGui.Checkbox("翻转自由相机按键绑定，超过-90/90度", ref flipKeybindsPastNinety))
             {
                 _configurationService.Configuration.InputManager.FlipKeyBindsPastNinety = flipKeybindsPastNinety;
-                _configurationService.ApplyChange();
-            }
-
-            bool disableScrollOnInputs = _configurationService.Configuration.InputManager.DisableScrollWheelOnInputs;
-            if(ImGui.Checkbox("在输入框和操作柄上禁用鼠标滚轮", ref disableScrollOnInputs))
-            {
-                _configurationService.Configuration.InputManager.DisableScrollWheelOnInputs = disableScrollOnInputs;
                 _configurationService.ApplyChange();
             }
         }
