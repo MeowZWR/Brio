@@ -34,7 +34,16 @@ public static class AppearanceEditorCommon
     private const string _collectionLabelDesign = "设计";
     private const string _collectionLabelProfile = "配置";
 
-    private static float _lableWidth => ImGui.CalcTextSize(_collectionLabel).X - (44 * ImGuiHelpers.GlobalScale) + 110;
+    private static void SetSwitcherComboWidth(string label)
+    {
+        var style = ImGui.GetStyle();
+        var reserved = ImGui.CalcTextSize(label).X
+            + style.ItemInnerSpacing.X
+            + style.ItemSpacing.X
+            + (25 * ImGuiHelpers.GlobalScale);
+
+        ImGui.SetNextItemWidth(-reserved);
+    }
 
     //
 
@@ -62,7 +71,7 @@ public static class AppearanceEditorCommon
 
         var currentCollection = capability.CurrentCollection;
 
-        ImGui.SetNextItemWidth(_lableWidth * ImGuiHelpers.GlobalScale);
+        SetSwitcherComboWidth(_collectionLabel);
 
         using(var combo = ImRaii.Combo(_collectionLabel, currentCollection))
         {
@@ -122,7 +131,7 @@ public static class AppearanceEditorCommon
 
         var currentDesign = capability.CurrentDesign;
 
-        ImGui.SetNextItemWidth(_lableWidth * ImGuiHelpers.GlobalScale);
+        SetSwitcherComboWidth(_collectionLabelDesign);
 
         using(ImRaii.Disabled(capability.HasMCDF))
         using(var combo = ImRaii.Combo(_collectionLabelDesign, "应用设计"))
@@ -194,7 +203,7 @@ public static class AppearanceEditorCommon
         ImBrio.AttachToolTip("打开 Customize+");
         ImGui.SameLine();
 
-        ImGui.SetNextItemWidth(_lableWidth * ImGuiHelpers.GlobalScale);
+        SetSwitcherComboWidth(_collectionLabelProfile);
 
         if(capability.SelectedDesign.name is null)
         {
