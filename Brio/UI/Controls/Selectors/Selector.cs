@@ -39,6 +39,11 @@ public abstract class Selector<T> where T : class
     protected abstract float EntrySize { get; }
     protected abstract SelectorFlags Flags { get; }
 
+    protected virtual int Columns => 1;
+    protected virtual float EntryButtonWidth => 0f;
+    protected virtual float SearchRightReservedWidth => 0f;
+    protected Vector2 CurrentSelectableSize => _selectableSize;
+
     private Task _taskQueue = Task.CompletedTask;
 
     private Vector2 _selectableSize = new();
@@ -86,7 +91,11 @@ public abstract class Selector<T> where T : class
         {
             if(Flags.HasFlag(SelectorFlags.AllowSearch))
             {
-                ImGui.SetNextItemWidth(-1);
+                float reserve = SearchRightReservedWidth;
+                if(reserve > 0f)
+                    ImGui.SetNextItemWidth(Math.Max(1f, ImGui.GetContentRegionAvail().X - reserve));
+                else
+                    ImGui.SetNextItemWidth(-1);
 
                 if(_shouldFocusSearch)
                     ImGui.SetKeyboardFocusHere();
@@ -99,6 +108,12 @@ public abstract class Selector<T> where T : class
                         _lastSearch = _search;
                         UpdateList();
                     }
+                }
+
+                if(reserve > 0f)
+                {
+                    ImGui.SameLine();
+                    DrawSearchRight();
                 }
             }
             _shouldFocusSearch = false;
@@ -139,63 +154,99 @@ public abstract class Selector<T> where T : class
 
                 if(listbox.Success)
                 {
-                    _selectableSize.X = 0;
+                    int columns = Math.Max(1, Columns);
+                    var style = ImGui.GetStyle();
+                    float availX = ImGui.GetContentRegionAvail().X;
+                    float spacingX = style.ItemSpacing.X;
+                    float reserve = EntryButtonWidth;
+                    float cellWidth;
+
+                    if(columns > 1)
+                    {
+                        cellWidth = MathF.Max(1f, (availX - spacingX * (columns - 1)) / columns);
+                        _selectableSize.X = reserve > 0f ? MathF.Max(1f, cellWidth - reserve) : cellWidth;
+                    }
+                    else
+                    {
+                        cellWidth = availX;
+                        _selectableSize.X = reserve > 0f ? MathF.Max(1f, availX - reserve) : 0f;
+                    }
+
                     _selectableSize.Y = EntrySize;
 
-                    float rowPitch = EntrySize + ImGui.GetStyle().ItemSpacing.Y;
+                    float rowPitch = EntrySize + style.ItemSpacing.Y;
+                    int rowCount = (items.Count + columns - 1) / columns;
 
                     if(_scrollToSelected)
                     {
                         int selIndex = items.FindIndex(IsItemSoftSelected);
                         if(selIndex >= 0)
-                            ImGui.SetScrollY(Math.Max(0f, selIndex * rowPitch - (listSize.Y - rowPitch) * 0.5f));
+                        {
+                            int row = selIndex / columns;
+                            ImGui.SetScrollY(Math.Max(0f, row * rowPitch - (listSize.Y - rowPitch) * 0.5f));
+                        }
 
                         _scrollToSelected = false;
                     }
 
                     var clipper = new ImGuiListClipperPtr(ImGuiNative.ImGuiListClipper());
-                    clipper.Begin(items.Count, rowPitch);
+                    clipper.Begin(rowCount, rowPitch);
                     while(clipper.Step())
                     {
-                        for(int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                        for(int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
                         {
-                            var item = items[i];
+                            var rowPos = ImGui.GetCursorPos();
 
-                            using(ImRaii.PushId(i))
+                            for(int col = 0; col < columns; col++)
                             {
-                                var startPos = ImGui.GetCursorPos();
-                                bool isSoftSelected = IsItemSoftSelected(item);
-                                bool wasSoftSelected = ImGui.Selectable($"###entry", isSoftSelected, ImGuiSelectableFlags.AllowDoubleClick, _selectableSize);
-                                bool wasSelected = wasSoftSelected && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left);
-                                var endPos = ImGui.GetCursorPos();
+                                int index = row * columns + col;
+                                if(index >= items.Count)
+                                    break;
 
-                                if(ImGui.IsItemVisible())
+                                if(columns > 1)
+                                    ImGui.SetCursorPos(new Vector2(rowPos.X + col * (cellWidth + spacingX), rowPos.Y));
+
+                                var item = items[index];
+
+                                using(ImRaii.PushId(index))
                                 {
-                                    ImGui.SetCursorPos(startPos);
-                                    using(ImRaii.PushId("item_container"))
+                                    var startPos = ImGui.GetCursorPos();
+                                    bool isSoftSelected = IsItemSoftSelected(item);
+                                    bool wasSoftSelected = ImGui.Selectable($"###entry", isSoftSelected, ImGuiSelectableFlags.AllowDoubleClick, _selectableSize);
+                                    bool wasSelected = wasSoftSelected && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left);
+                                    var endPos = ImGui.GetCursorPos();
+
+                                    if(ImGui.IsItemVisible())
                                     {
-                                        using(var itemGroup = ImRaii.Group())
+                                        ImGui.SetCursorPos(startPos);
+                                        using(ImRaii.PushId("item_container"))
                                         {
-                                            DrawItem(item, isSoftSelected);
+                                            using(var itemGroup = ImRaii.Group())
+                                            {
+                                                DrawItem(item, isSoftSelected);
+                                            }
+                                            if(ImGui.IsItemHovered())
+                                                DrawTooltip(item);
                                         }
-                                        if(ImGui.IsItemHovered())
-                                            DrawTooltip(item);
+                                        ImGui.SetCursorPos(endPos);
                                     }
-                                    ImGui.SetCursorPos(endPos);
-                                }
 
-                                if(wasSoftSelected)
-                                {
-                                    _softSelected = item;
-                                    SoftSelectionChanged = true;
-
-                                    if(wasSelected)
+                                    if(wasSoftSelected)
                                     {
-                                        _selected = item;
-                                        SelectionChanged = true;
+                                        _softSelected = item;
+                                        SoftSelectionChanged = true;
+
+                                        if(wasSelected)
+                                        {
+                                            _selected = item;
+                                            SelectionChanged = true;
+                                        }
                                     }
                                 }
                             }
+
+                            if(columns > 1)
+                                ImGui.SetCursorPos(new Vector2(rowPos.X, rowPos.Y + rowPitch));
                         }
                     }
                     clipper.End();
@@ -216,6 +267,11 @@ public abstract class Selector<T> where T : class
     }
 
     protected abstract void DrawItem(T item, bool isSoftSelected);
+
+    protected virtual void DrawSearchRight()
+    {
+
+    }
 
     protected virtual void DrawOptions()
     {

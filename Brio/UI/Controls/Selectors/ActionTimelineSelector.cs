@@ -7,7 +7,7 @@ using Brio.UI.Controls.Stateless;
 using Brio.UI.Theming;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
-using Dalamud.Interface.Utility.Raii;
+using Dalamud.Interface.Utility;
 using Lumina.Excel.Sheets;
 using System;
 using System.Numerics;
@@ -20,14 +20,38 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 {
     protected override Vector2 MinimumListSize { get; } = new(300, 300);
 
-    protected override float EntrySize => ImGui.GetTextLineHeight() * 3.2f;
-    protected virtual Vector2 IconSize => new(ImGui.GetTextLineHeight() * 3f);
+    protected override float EntrySize => _twoColumnLayout
+        ? ImGui.GetTextLineHeight() * 2.2f
+        : ImGui.GetTextLineHeight() * 3.2f;
+
+    protected virtual Vector2 IconSize => _twoColumnLayout
+        ? new(ImGui.GetTextLineHeight() * 2f)
+        : new(ImGui.GetTextLineHeight() * 3f);
 
     protected override SelectorFlags Flags { get; } = SelectorFlags.AllowSearch | SelectorFlags.ShowOptions | SelectorFlags.AdaptiveSizing;
+
+    protected override int Columns => _twoColumnLayout ? 2 : 1;
+
+    protected override float EntryButtonWidth
+    {
+        get
+        {
+            if(_showFavorites || _showEmotes || ExpressionsOnly)
+                return ImGui.GetFrameHeight() + ImGui.GetStyle().ItemSpacing.X;
+
+            return 0f;
+        }
+    }
+
+    protected override float SearchRightReservedWidth
+        => 25f * ImGuiHelpers.GlobalScale + ImGui.GetStyle().ItemSpacing.X;
 
     private bool _showRaw = true;
     private bool _showEmotes = true;
     private bool _showActions = false;
+    private bool _showFavorites = true;
+    private bool _twoColumnLayout = true;
+    private bool _hoveringFavoriteButton = false;
     private bool _showBlendable = true;
 
     private bool _filterByDrawsWeapon = false;
@@ -92,6 +116,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
             ImBrio.BlurWindow(ImGuiWindowFlags.None);
 
+            ResetToFavoritesIfAppearing();
             DrawPinButton();
 
             // Use available window space instead of adaptive sizing
@@ -117,6 +142,15 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         ImGui.SameLine();
     }
 
+    private void ResetToFavoritesIfAppearing()
+    {
+        if(!ImGui.IsWindowAppearing() || _showFavorites)
+            return;
+
+        _showFavorites = true;
+        UpdateList();
+    }
+
     public new void Draw()
     {
         if(_isPinned)
@@ -125,6 +159,7 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             return;
         }
 
+        ResetToFavoritesIfAppearing();
         DrawPinButton();
 
         base.Draw();
@@ -254,75 +289,44 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
     protected override void DrawItem(ActionTimelineSelectorEntry item, bool isSoftSelected)
     {
-        var config = ConfigurationService.Instance.Configuration;
-        bool isFavorite = item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(item.UniqueId);
+        bool isFavorite = IsFavorite(item);
+        _hoveringFavoriteButton = false;
 
-        var description = $"{item.Name}{(isFavorite ? "★" : "")}\n{item.SecondaryId} {item.TimelineType} {item.Slot} {item.Purpose}\n{item.TimelineId} {item.Key}";
+        var cursor = ImGui.GetCursorPos();
+        string label = _twoColumnLayout ? FormatCompactLabel(item) : FormatListLabel(item);
 
-        var entryHeight = EntrySize;
-        var entryWidth = ImGui.GetContentRegionAvail().X;
-        var id = $"##emote_invisible_{item.UniqueId}";
-        var cursor = ImGui.GetCursorScreenPos();
-        ImGui.InvisibleButton(id, new Vector2(entryWidth, entryHeight));
+        ImBrio.BorderedGameIcon("icon", item.Icon, "Images.ActionTimeline.png", label, flags: ImGuiButtonFlags.None, size: IconSize);
 
-        if(ImGui.IsItemHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
-            ImGui.OpenPopup($"emote_context_menu_{item.UniqueId}");
+        if(item.TimelineType != ActionTimelineSelectorEntry.OriginalType.Emote)
+            return;
 
-        ImGui.SetCursorScreenPos(cursor);
-        ImBrio.BorderedGameIcon("icon", item.Icon, "Images.ActionTimeline.png", description, flags: ImGuiButtonFlags.None, size: IconSize);
+        float starSize = ImGui.GetFrameHeight();
+        float starX = cursor.X + CurrentSelectableSize.X + ImGui.GetStyle().ItemSpacing.X;
+        ImGui.SetCursorPos(new Vector2(starX, cursor.Y + (EntrySize - starSize) * 0.5f));
+        if(ImBrio.FavoriteStar(item.UniqueId, isFavorite, new Vector2(starSize)))
+            ToggleFavorite(item);
 
-        if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote)
-        {
-            using(var popup = ImRaii.Popup($"emote_context_menu_{item.UniqueId}"))
-            {
-                if(popup.Success)
-                {
-                    if(ImGui.MenuItem(isFavorite ? "从收藏移除" : "添加到收藏"))
-                    {
-                        if(isFavorite)
-                            config.Emote.Favorites.Remove(item.UniqueId);
-                        else
-                            config.Emote.Favorites.Add(item.UniqueId);
-
-                        ConfigurationService.Instance.Save();
-                        UpdateList();
-                    }
-                }
-            }
-        }
+        _hoveringFavoriteButton = ImGui.IsItemHovered();
     }
 
     protected override void DrawTooltip(ActionTimelineSelectorEntry item)
     {
-        var tooltip = $"{item.Name}\n{item.TimelineId} - {item.Key}";
+        if(_hoveringFavoriteButton)
+            return;
 
-        if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote)
-        {
-            var config = ConfigurationService.Instance.Configuration;
-            bool isFavorite = config.Emote.Favorites.Contains(item.UniqueId);
-            tooltip += $"\n{(isFavorite ? "★ 已收藏" : "右键可收藏")}";
-        }
+        var tooltip = _twoColumnLayout
+            ? $"{item.Name}\n{item.SecondaryId} {item.TimelineType} {item.Slot} {item.Purpose}\n{item.TimelineId} {item.Key}"
+            : $"{item.Name}\n{item.TimelineId} - {item.Key}";
 
         ImGui.SetTooltip(tooltip);
     }
 
     protected override void DrawOptions()
     {
+        DrawFavoritesTabStrip();
+
         if(ExpressionsOnly)
             return;
-
-        bool[] items = [_showEmotes, _showActions, _showRaw];
-
-        var changed = ImBrio.ToggleSelecterStrip("actiontimeline_filters_selector", Vector2.Zero, ref items, ["情感动作", "技能", "时间线"]);
-
-        if(changed)
-        {
-            _showEmotes = items[0];
-            _showActions = items[1];
-            _showRaw = items[2];
-
-            UpdateList();
-        }
 
         ImBrio.VerticalPadding(4);
 
@@ -380,18 +384,48 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         ImBrio.VerticalPadding(3);
     }
 
+    private void DrawFavoritesTabStrip()
+    {
+        if(ExpressionsOnly)
+        {
+            bool[] tabs = [_showFavorites, !_showFavorites];
+            if(ImBrio.ToggleSelecterStrip("actiontimeline_favorites_selector", Vector2.Zero, ref tabs, ["收藏", "表情"]))
+            {
+                if(tabs[1] && _showFavorites)
+                    _showFavorites = false;
+                else
+                    _showFavorites = tabs[0];
+
+                UpdateList();
+            }
+
+            return;
+        }
+
+        bool[] typeTabs = [_showFavorites, !_showFavorites && _showEmotes, !_showFavorites && _showActions, !_showFavorites && _showRaw];
+        if(ImBrio.ToggleSelecterStrip("actiontimeline_filters_selector", Vector2.Zero, ref typeTabs, ["收藏", "情感动作", "技能", "时间线"]))
+        {
+            if(typeTabs[0] && !_showFavorites)
+            {
+                _showFavorites = true;
+            }
+            else
+            {
+                _showFavorites = false;
+                _showEmotes = typeTabs[1];
+                _showActions = typeTabs[2];
+                _showRaw = typeTabs[3];
+
+                if(!_showEmotes && !_showActions && !_showRaw)
+                    _showEmotes = true;
+            }
+
+            UpdateList();
+        }
+    }
+
     protected override int Compare(ActionTimelineSelectorEntry itemA, ActionTimelineSelectorEntry itemB)
     {
-        var config = ConfigurationService.Instance.Configuration;
-        bool aIsFavorite = itemA.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(itemA.UniqueId);
-        bool bIsFavorite = itemB.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && config.Emote.Favorites.Contains(itemB.UniqueId);
-
-        if(aIsFavorite && !bIsFavorite)
-            return -1;
-
-        if(!aIsFavorite && bIsFavorite)
-            return 1;
-
         // Emotes first
         if(itemA.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && itemB.TimelineType != ActionTimelineSelectorEntry.OriginalType.Emote)
             return -1;
@@ -436,9 +470,22 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             return false;
 
         if(ExpressionsOnly)
-            return item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && item.EmoteCategory == 3 && item.Purpose == ActionTimelineSelectorEntry.AnimationPurpose.Blend;
+        {
+            if(item.TimelineType != ActionTimelineSelectorEntry.OriginalType.Emote || item.EmoteCategory != 3 || item.Purpose != ActionTimelineSelectorEntry.AnimationPurpose.Blend)
+                return false;
 
-        if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && !_showEmotes)
+            if(_showFavorites && !IsFavorite(item))
+                return false;
+
+            return true;
+        }
+
+        if(_showFavorites)
+        {
+            if(!IsFavorite(item))
+                return false;
+        }
+        else if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote && !_showEmotes)
             return false;
 
         if(item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Action && !_showActions)
@@ -479,6 +526,68 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         }
 
         return true;
+    }
+
+    private static bool IsFavorite(ActionTimelineSelectorEntry item)
+        => item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote
+            && ConfigurationService.Instance.Configuration.Emote.Favorites.Contains(item.UniqueId);
+
+    private void ToggleFavorite(ActionTimelineSelectorEntry item)
+    {
+        if(item.TimelineType != ActionTimelineSelectorEntry.OriginalType.Emote)
+            return;
+
+        var favorites = ConfigurationService.Instance.Configuration.Emote.Favorites;
+        if(!favorites.Add(item.UniqueId))
+            favorites.Remove(item.UniqueId);
+
+        ConfigurationService.Instance.Save();
+        UpdateList();
+    }
+
+    protected override void DrawSearchRight()
+    {
+        var tooltip = _twoColumnLayout
+            ? "当前为两列模式，点击切换为单列模式"
+            : "当前为单列模式，点击切换为两列模式";
+        uint color = _twoColumnLayout
+            ? ThemeManager.CurrentTheme.Text.Text
+            : ThemeManager.CurrentTheme.Text.TextDisabled;
+
+        if(ImBrio.FontIconButton("column_layout", (FontAwesomeIcon)0xF0DB, tooltip, true, true, color))
+            _twoColumnLayout = !_twoColumnLayout;
+    }
+
+    private static string FormatListLabel(ActionTimelineSelectorEntry item)
+        => $"{item.Name}\n{item.SecondaryId} {item.TimelineType} {item.Slot} {item.Purpose}\n{item.TimelineId} {item.Key}";
+
+    private string FormatCompactLabel(ActionTimelineSelectorEntry item)
+    {
+        float textWidth = CurrentSelectableSize.X - IconSize.X - ImGui.GetStyle().ItemSpacing.X;
+        string name = TruncateName(item.Name, textWidth);
+        string keyName = TruncateName(GetKeyFileName(item.Key), textWidth);
+        return string.IsNullOrEmpty(keyName) ? name : $"{name}\n{keyName}";
+    }
+
+    private static string GetKeyFileName(string key)
+    {
+        if(string.IsNullOrEmpty(key))
+            return string.Empty;
+
+        int slash = key.LastIndexOf('/');
+        return slash >= 0 && slash < key.Length - 1 ? key[(slash + 1)..] : key;
+    }
+
+    private static string TruncateName(string name, float maxWidth)
+    {
+        if(maxWidth <= 0 || ImGui.CalcTextSize(name).X <= maxWidth)
+            return name;
+
+        const string ellipsis = "…";
+        while(name.Length > 0 && ImGui.CalcTextSize(name + ellipsis).X > maxWidth)
+            name = name[..^1];
+
+        return name.Length == 0 ? ellipsis : name + ellipsis;
     }
 }
 
