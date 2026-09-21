@@ -116,7 +116,6 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
             ImBrio.BlurWindow(ImGuiWindowFlags.None);
 
-            ResetToFavoritesIfAppearing();
             DrawPinButton();
 
             // Use available window space instead of adaptive sizing
@@ -142,15 +141,6 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         ImGui.SameLine();
     }
 
-    private void ResetToFavoritesIfAppearing()
-    {
-        if(!ImGui.IsWindowAppearing() || _showFavorites)
-            return;
-
-        _showFavorites = true;
-        UpdateList();
-    }
-
     public new void Draw()
     {
         if(_isPinned)
@@ -159,7 +149,6 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             return;
         }
 
-        ResetToFavoritesIfAppearing();
         DrawPinButton();
 
         base.Draw();
