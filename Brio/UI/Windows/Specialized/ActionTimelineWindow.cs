@@ -3,6 +3,7 @@ using Brio.Config;
 using Brio.Entities;
 using Brio.Game.Cutscene;
 using Brio.Game.GPose;
+using Brio.Game.Penumbra;
 using Brio.Game.Posing;
 using Brio.UI.Controls.Editors;
 using Brio.UI.Controls.Stateless;
@@ -19,7 +20,7 @@ public class ActionTimelineWindow : Window, IDisposable
     private readonly GPoseService _gPoseService;
     private readonly CutsceneManager _cutsceneManager;
 
-    public ActionTimelineWindow(EntityManager entityManager, CutsceneManager cutsceneManager, GPoseService gPoseService, PhysicsService physicsService, ConfigurationService configurationService) : base($"{Brio.Name} - 动画控制（XAT）###brio_action_timelines_window")
+    public ActionTimelineWindow(EntityManager entityManager, CutsceneManager cutsceneManager, GPoseService gPoseService, PhysicsService physicsService, ConfigurationService configurationService, PenumbraXcpService xcpService) : base($"{Brio.Name} - 动画控制（XAT）###brio_action_timelines_window")
     {
         Namespace = "brio_action_timelines_namespace";
 
@@ -28,7 +29,7 @@ public class ActionTimelineWindow : Window, IDisposable
         _gPoseService = gPoseService;
         _cutsceneManager = cutsceneManager;
 
-        _editor = new(_cutsceneManager, gPoseService, entityManager, physicsService, configurationService);
+        _editor = new(_cutsceneManager, gPoseService, entityManager, physicsService, configurationService, xcpService);
 
         SizeConstraints = new WindowSizeConstraints
         {
@@ -65,16 +66,24 @@ public class ActionTimelineWindow : Window, IDisposable
         _editor.Draw(true, capability);
     }
 
+    public override void OnClose()
+    {
+        _editor.DeactivateXcpMonitoring();
+        base.OnClose();
+    }
+
     private void OnGPoseStateChange(bool newState)
     {
         if(!newState)
         {
             IsOpen = false;
+            _editor.DeactivateXcpMonitoring();
         }
     }
 
     public void Dispose()
     {
+        _editor.DeactivateXcpMonitoring();
         _gPoseService.OnGPoseStateChange -= OnGPoseStateChange;
     }
 }

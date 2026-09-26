@@ -38,19 +38,19 @@ public class ActionTimelineEditor
     private bool _delimitSpeed = false;
     
     // Penumbra XCP 相关服务
-    private readonly PenumbraXcpService _xcpService;
-    private readonly PenumbraXcpUIManager _xcpUIManager;
+    private readonly PenumbraXcpService? _xcpService;
+    private readonly PenumbraXcpUIManager? _xcpUIManager;
     
     // 缓存上次的动作ID，避免重复更新
     private int _lastBaseAnimationId = -1;
     
-    private readonly CutsceneManager _cutsceneManager;
-    private readonly GPoseService _gPoseService;
+    private readonly CutsceneManager? _cutsceneManager;
+    private readonly GPoseService? _gPoseService;
     private readonly PhysicsService _physicsService;
     private readonly ConfigurationService _configService;
     private readonly EntityManager _entityManager;
     
-    public ActionTimelineEditor(CutsceneManager cutsceneManager, GPoseService gPoseService, EntityManager entityManager, PhysicsService physicsService, ConfigurationService configService)
+    public ActionTimelineEditor(CutsceneManager? cutsceneManager, GPoseService? gPoseService, EntityManager entityManager, PhysicsService physicsService, ConfigurationService configService, PenumbraXcpService? xcpService = null)
     {
         _cutsceneManager = cutsceneManager;
         _gPoseService = gPoseService;
@@ -58,12 +58,18 @@ public class ActionTimelineEditor
         _configService = configService;
         _entityManager = entityManager;
         
-        // 初始化 Penumbra XCP 服务
-        _xcpService = new PenumbraXcpService(cutsceneManager);
-        _xcpUIManager = new PenumbraXcpUIManager(_xcpService, configService, cutsceneManager);
-        
-        // 订阅 XCP 文件变化事件来同步相机路径
-        _xcpService.SelectedXcpFileChanged += OnSelectedXcpFileChanged;
+        if (cutsceneManager != null && xcpService != null)
+        {
+            _xcpService = xcpService;
+            _xcpUIManager = new PenumbraXcpUIManager(_xcpService, configService, cutsceneManager);
+            _xcpService.SelectedXcpFileChanged += OnSelectedXcpFileChanged;
+        }
+    }
+
+    public void DeactivateXcpMonitoring()
+    {
+        _xcpUIManager?.OnXatSectionClosed();
+        _xcpService?.SetActive(false);
     }
 
     private void OnSelectedXcpFileChanged(string selectedFile)
@@ -108,13 +114,6 @@ public class ActionTimelineEditor
     public void Draw(bool drawAdvanced, ActionTimelineCapability capability)
     {
         _capability = capability;
-        
-        // 只在动作ID发生变化时才更新情感动作
-        if (_lastBaseAnimationId != capability.SlotedBaseAnimation)
-        {
-            _xcpService.UpdateCurrentEmoteFromCapability(capability);
-            _lastBaseAnimationId = capability.SlotedBaseAnimation;
-        }
 
         _globalTimelineSelector.DrawAsWindow();
 
@@ -161,6 +160,12 @@ public class ActionTimelineEditor
                 DrawCutscene();
                 ImBrio.VerticalPadding(2);
             }
+            else
+            {
+                _xcpUIManager?.OnXatSectionClosed();
+                _xcpService?.SetActive(false);
+                _lastBaseAnimationId = -1;
+            }
         }
     }
 
@@ -187,9 +192,11 @@ public class ActionTimelineEditor
         if(ImBrio.FontIconButtonRight("reset", FontAwesomeIcon.Undo, 1, "重置动画", _capability.HasOverride))
         {
             _capability.Reset();
-            _cutsceneManager.StopPlayback();
-            _cutsceneManager.CameraPath = null;
+            _cutsceneManager?.StopPlayback();
+            if (_cutsceneManager != null)
+                _cutsceneManager.CameraPath = null;
             _cameraPath = string.Empty;
+            _xcpService?.ClearSelectedXcpFile();
         }
 
         using var popup = ImRaii.Popup("animation_control");
@@ -290,7 +297,7 @@ public class ActionTimelineEditor
 
         if(ImBrio.FontIconButtonRight("base_play", FontAwesomeIcon.PlayCircle, 3, "播放", _capability.SlotedBaseAnimation != 0))
         {
-            if(_cutsceneManager.IsRunning)
+            if(_cutsceneManager?.IsRunning == true)
             {
                 _cutsceneManager.StopPlayback();
             }
@@ -600,6 +607,21 @@ private void DrawSlots()
 
     private void DrawCutscene()
     {
+        if (_cutsceneManager == null || _xcpService == null || _xcpUIManager == null)
+            return;
+
+        _xcpService.SetActive(true);
+
+        if (_lastBaseAnimationId != _capability.SlotedBaseAnimation)
+        {
+            _xcpService.UpdateCurrentEmoteFromCapability(_capability);
+            _lastBaseAnimationId = _capability.SlotedBaseAnimation;
+        }
+        else
+        {
+            _xcpService.SyncEffectiveModIfStale();
+        }
+
         var regionWidth = ImGui.GetContentRegionAvail().X;
         ImGui.Text("相机路径");
         ImGui.SameLine();
@@ -625,14 +647,12 @@ private void DrawSlots()
                             _configService.Configuration.LastXATPath = folderPath;
                             _configService.Save();
 
-                            // 通过XcpService来处理浏览选择的文件
                             _xcpService.SelectXcpFileFromBrowse(_cameraPath);
                         }
                     }
                 }, 1, _configService.Configuration.LastXATPath, false);
         }
 
-        // Penumbra XCP文件下拉菜单
         _xcpUIManager.DrawPenumbraXcpControls(_cameraPath, (newPath) => _cameraPath = newPath);
 
         ImGui.Separator();

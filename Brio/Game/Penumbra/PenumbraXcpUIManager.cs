@@ -18,6 +18,7 @@ namespace Brio.Game.Penumbra
         private readonly CutsceneManager _cutsceneManager;
         private readonly ModPriorityAdjustmentWindow _priorityWindow = new();
         private bool _lastXcpExisted = false;
+        private bool _priorityPopupWasOpen = false;
         
         // UI验证缓存
         private uint _lastValidationFrame = 0;
@@ -353,11 +354,25 @@ namespace Brio.Game.Penumbra
             }
         }
 
+        public void OnXatSectionClosed()
+        {
+            _priorityPopupWasOpen = false;
+            _priorityWindow.Cleanup();
+        }
+
         private void DrawPriorityAdjustmentPopup()
         {
             using var popup = ImRaii.Popup("mod_priority_adjustment_popup", ImGuiWindowFlags.NoCollapse);
             if (popup.Success)
+            {
+                _priorityPopupWasOpen = true;
                 _priorityWindow.DrawContent();
+            }
+            else if (_priorityPopupWasOpen)
+            {
+                _priorityPopupWasOpen = false;
+                _priorityWindow.Cleanup();
+            }
         }
 
         private void DrawHelpText()

@@ -38,6 +38,7 @@ namespace Brio.Game.Penumbra
         private readonly TrySetMod? _setModEnabled;
         private readonly GetCollections? _getCollections;
         private readonly GetCollection? _getCurrentCollection;
+        private QueryTemporaryModSettings? _queryTemporaryModSettings;
         
         public event Action? ModInfoChanged;
         public bool HasModChangesSinceLastRefresh { get; private set; } = false;
@@ -165,12 +166,21 @@ namespace Brio.Game.Penumbra
             ClearEffectiveModInfoCache(); 
         }
 
-        public void ClearEffectiveModInfoCache()
+        public void ClearEffectiveModInfoCache() =>
+            InvalidateEffectiveModInfoCache(notify: ModInfoChanged != null);
+
+        public void InvalidateEffectiveModInfoCache(bool notify = true)
         {
-            Brio.Log.Debug("清除生效模组信息缓存，触发ModInfoChanged事件");
             _effectiveModInfoCache.Clear();
-            ModInfoChanged?.Invoke();
+            if (notify && ModInfoChanged != null)
+            {
+                Brio.Log.Debug("清除生效模组信息缓存，触发ModInfoChanged事件");
+                ModInfoChanged.Invoke();
+            }
         }
+
+        public bool IsEffectiveModCached(string emoteName) =>
+            _effectiveModInfoCache.ContainsKey(emoteName);
 
         // 事件处理
         private void OnPenumbraInitialized() 
@@ -198,13 +208,20 @@ namespace Brio.Game.Penumbra
             {
                 case ModSettingChange.Priority:
                 case ModSettingChange.EnableState:
-                    UpdateModInfo(modDirectory);
-                    ClearEffectiveModInfoCache();
+                    if (ModInfoChanged != null)
+                    {
+                        UpdateModInfo(modDirectory);
+                        InvalidateEffectiveModInfoCache(notify: true);
+                    }
+                    else
+                    {
+                        HasModChangesSinceLastRefresh = true;
+                        InvalidateEffectiveModInfoCache(notify: false);
+                    }
                     break;
                 case ModSettingChange.TemporaryMod:
                 case ModSettingChange.TemporarySetting:
-                    Brio.Log.Debug($"检测到临时设置变更: {changeType} for {modDirectory}");
-                    ClearEffectiveModInfoCache();
+                    InvalidateEffectiveModInfoCache(notify: false);
                     break;
                 default:
                     MarkModInfoChanged();
@@ -215,7 +232,7 @@ namespace Brio.Game.Penumbra
         private void MarkModInfoChanged()
         {
             HasModChangesSinceLastRefresh = true;
-            ClearEffectiveModInfoCache();
+            InvalidateEffectiveModInfoCache(notify: ModInfoChanged != null);
         }
 
         private void InitializeModInfo()
@@ -337,8 +354,8 @@ namespace Brio.Game.Penumbra
         private List<PenumbraModInfo> GetEffectiveModStates(List<PenumbraModInfo> mods)
         {
             if (_pluginInterface == null) return mods;
-            
-            var queryTemp = new QueryTemporaryModSettings(_pluginInterface);
+
+            _queryTemporaryModSettings ??= new QueryTemporaryModSettings(_pluginInterface);
             var currentCollection = GetCurrentCollectionId();
             if (!currentCollection.HasValue) 
             {
@@ -350,7 +367,7 @@ namespace Brio.Game.Penumbra
             var effectiveMods = new List<PenumbraModInfo>();
             foreach (var mod in mods)
             {
-                var result = queryTemp.Invoke(currentCollection.Value, mod.ModDirectory, 
+                var result = _queryTemporaryModSettings.Invoke(currentCollection.Value, mod.ModDirectory, 
                     out var settings, out var source, 0, mod.ModName);
                 
                 if (result == PenumbraApiEc.Success && settings.HasValue)
