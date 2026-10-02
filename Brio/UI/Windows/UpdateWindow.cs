@@ -113,7 +113,7 @@ public class UpdateWindow : Window
 
         // Image
 
-        var image = ResourceProvider.Instance.GetResourceImage($"Changelog.Images.brio-artbk-jun-800.png");
+        var image = ResourceProvider.Instance.GetResourceImage($"Changelog.Images.brio-artbk-oct-1.png");
 
         // Calculate scaling to fill width and maintain aspect ratio
         var imageAspect = (float)(image.Width / image.Height);
@@ -209,7 +209,7 @@ public class UpdateWindow : Window
         }
 
         ImGui.SetCursorPosX((ImGui.GetWindowSize().Y - CloseButtonWidth) / 2);
-        if(ImBrio.HoldButton("updateWindowClose", "关闭", FontAwesomeIcon.SquareXmark, 0.7f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "[长按关闭]\n点击 Brio 场景管理器上的 `信息` 按钮以再次打开此窗口！"))
+        if(ImBrio.HoldButton("updateWindowClose", "关闭", FontAwesomeIcon.SquareXmark, 0.0f, new Vector2(CloseButtonWidth, 0), centerTest: true, tooltip: "点击 Brio 场景管理器上的 `信息` 按钮以再次打开此窗口！"))
         {
             IsOpen = false;
         }
@@ -223,7 +223,7 @@ public class UpdateWindow : Window
         // Dev Message
         if(entry.Message.IsNullOrEmpty() is false)
         {
-            if(CollapsingHeader($" {entry.Name} — {entry.Date} ", $" {entry.Tagline} ", currentColor, isCurrent))
+            if(CollapsingHeader($"{entry.Name} — {entry.Date} ", $" {entry.Tagline} ", currentColor, isCurrent))
             {
                 ImBrio.VerticalPadding(10);
 
@@ -234,7 +234,7 @@ public class UpdateWindow : Window
             return;
         }
 
-        if(CollapsingHeader($" {entry.Name} — {entry.Date} ", $"  —  {entry.Tagline} ", currentColor, isCurrent))
+        if(CollapsingHeader($"{entry.Name} — {entry.Date}", $"  —  {entry.Tagline} ", currentColor, isCurrent))
         {
             ImBrio.VerticalPadding(10);
 

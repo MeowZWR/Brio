@@ -86,7 +86,7 @@ public class SaveProjectModal : Modal
 
         float buttonW = (MinimumSize.X / 2) - 12;
 
-        using(ImRaii.Disabled(string.IsNullOrEmpty(_name)))
+        using(ImRaii.Disabled(string.IsNullOrWhiteSpace(_name)))
         {
             if(ImBrio.Button("保存", FontAwesomeIcon.Save, new(buttonW, 0), centerTest: true, tooltip: "另存为新项目"))
             {

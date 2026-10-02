@@ -98,7 +98,6 @@ public class FileUIHelpers
                 if(ImBrio.IconButtonWithText(FontAwesomeIcon.Save, "保存场景", buttonSize))
                 {
                     projectSystem.SaveProject(projectSystem.CurrentProject!);
-                    Brio.NotifyInfo("Scene saved.");
                     ImGui.CloseCurrentPopup();
                 }
             if(projectSystem.CurrentProject is null)
@@ -164,6 +163,7 @@ public class FileUIHelpers
         public readonly Dictionary<EntityId, bool> Selection = [];
         public Preset? Selected = null;
         public bool GroupInFolder = true;
+        public bool LoadRelativePositions = true;
         public int Mode = 0;
     }
 
@@ -254,6 +254,13 @@ public class FileUIHelpers
             if(state.Selected is not null && state.Selected.EntryCount > 1)
                 ImGui.Checkbox($"归入新文件夹", ref state.GroupInFolder);
 
+            bool isLegacyPreset = state.Selected is not null && !state.Selected.SupportsRelativePositions;
+            using(ImRaii.Disabled(isLegacyPreset))
+                ImGui.Checkbox("Load relative positions", ref state.LoadRelativePositions);
+
+            if(isLegacyPreset)
+                ImBrio.AttachToolTip("This preset does not contain relative position data and will load at its saved world position.");
+
             var size = new Vector2(buttonSize.X / 2, 0);
             using(ImRaii.Disabled(state.Selected is null))
             {
@@ -261,7 +268,7 @@ public class FileUIHelpers
                 {
                     if(kind == PresetType.Light)
                     {
-                        var dtos = presetSystem.LoadLightPreset(state.Selected!);
+                        var dtos = presetSystem.LoadLightPreset(state.Selected!, state.LoadRelativePositions);
                         var folder = (dtos.Count > 1 && state.GroupInFolder)
                             ? entityManager.CreateEntityOnEntityContainer<FolderEntity>(state.Selected!.Name) : null;
 
@@ -285,7 +292,7 @@ public class FileUIHelpers
                     }
                     else if(kind == PresetType.Camera)
                     {
-                        var dtos = presetSystem.LoadCameraPreset(state.Selected!);
+                        var dtos = presetSystem.LoadCameraPreset(state.Selected!, state.LoadRelativePositions);
                         var folder = (dtos.Count > 1 && state.GroupInFolder)
                             ? entityManager.CreateEntityOnEntityContainer<FolderEntity>(state.Selected!.Name) : null;
 
