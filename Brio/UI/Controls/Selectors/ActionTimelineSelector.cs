@@ -44,13 +44,24 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
     }
 
     protected override float SearchRightReservedWidth
-        => 25f * ImGuiHelpers.GlobalScale + ImGui.GetStyle().ItemSpacing.X;
+        => (25f * ImGuiHelpers.GlobalScale + ImGui.GetStyle().ItemSpacing.X) * 2f;
 
     private bool _showRaw = true;
     private bool _showEmotes = true;
     private bool _showActions = false;
     private bool _showFavorites = true;
-    private bool _twoColumnLayout = true;
+
+    private bool _twoColumnLayout
+    {
+        get => ConfigurationService.Instance.TwoColumnLayout;
+        set => ConfigurationService.Instance.TwoColumnLayout = value;
+    }
+
+    private bool _hideStartAnimations
+    {
+        get => ConfigurationService.Instance.HideStartAnimations;
+        set => ConfigurationService.Instance.HideStartAnimations = value;
+    }
     private bool _hoveringFavoriteButton = false;
     private bool _showBlendable = true;
 
@@ -458,6 +469,9 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
         if(!searchText.Contains(search, StringComparison.InvariantCultureIgnoreCase))
             return false;
 
+        if(_hideStartAnimations && IsStartKey(item.Key))
+            return false;
+
         if(ExpressionsOnly)
         {
             if(item.TimelineType != ActionTimelineSelectorEntry.OriginalType.Emote || item.EmoteCategory != 3 || item.Purpose != ActionTimelineSelectorEntry.AnimationPurpose.Blend)
@@ -519,23 +533,36 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
 
     private static bool IsFavorite(ActionTimelineSelectorEntry item)
         => item.TimelineType == ActionTimelineSelectorEntry.OriginalType.Emote
-            && ConfigurationService.Instance.Configuration.Emote.Favorites.Contains(item.UniqueId);
+            && ConfigurationService.Instance.EmoteFavorites.Contains(item.UniqueId);
 
     private void ToggleFavorite(ActionTimelineSelectorEntry item)
     {
         if(item.TimelineType != ActionTimelineSelectorEntry.OriginalType.Emote)
             return;
 
-        var favorites = ConfigurationService.Instance.Configuration.Emote.Favorites;
+        var favorites = ConfigurationService.Instance.EmoteFavorites;
         if(!favorites.Add(item.UniqueId))
             favorites.Remove(item.UniqueId);
 
-        ConfigurationService.Instance.Save();
+        ConfigurationService.Instance.SaveEmoteFavorites();
         UpdateList();
     }
 
     protected override void DrawSearchRight()
     {
+        uint filterColor = _hideStartAnimations
+            ? ThemeManager.CurrentTheme.Text.Text
+            : ThemeManager.CurrentTheme.Text.TextDisabled;
+        string filterTip = _hideStartAnimations ? "正在隐藏起始动作，点击显示" : "隐藏 _start 起始动作";
+        if(ImBrio.FontIconButton("hide_start", FontAwesomeIcon.Filter, filterTip, true, true, filterColor))
+        {
+            _hideStartAnimations = !_hideStartAnimations;
+            ConfigurationService.Instance.SaveEmoteFavorites();
+            UpdateList();
+        }
+
+        ImGui.SameLine();
+
         var tooltip = _twoColumnLayout
             ? "当前为两列模式，点击切换为单列模式"
             : "当前为单列模式，点击切换为两列模式";
@@ -544,7 +571,18 @@ public class ActionTimelineSelector(string id) : Selector<ActionTimelineSelector
             : ThemeManager.CurrentTheme.Text.TextDisabled;
 
         if(ImBrio.FontIconButton("column_layout", (FontAwesomeIcon)0xF0DB, tooltip, true, true, color))
+        {
             _twoColumnLayout = !_twoColumnLayout;
+            ConfigurationService.Instance.SaveEmoteFavorites();
+        }
+    }
+
+    private static bool IsStartKey(string key)
+    {
+        var file = GetKeyFileName(key);
+        int dot = file.LastIndexOf('.');
+        var stem = dot > 0 ? file[..dot] : file;
+        return stem.EndsWith("_start", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FormatListLabel(ActionTimelineSelectorEntry item)

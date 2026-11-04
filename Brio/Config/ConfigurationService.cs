@@ -1,7 +1,11 @@
-﻿using Brio.UI.Theming;
+﻿using Brio.Core;
+using Brio.UI.Theming;
 using Dalamud.Plugin;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Text;
 
 namespace Brio.Config;
 
@@ -12,9 +16,27 @@ public class ConfigurationService : IDisposable
     public const string SeaOfStarsRepo = "https://raw.githubusercontent.com/ottermandias/seaofstars/main/repo.json";
     public const string BrioRepo = "https://raw.githubusercontent.com/etheirys/brio/main/repo.json";
 
+    public const string EmoteFavoritesFileName = "EmoteFavorites.json";
+
     public Configuration Configuration { get; private set; } = null!;
 
+    public HashSet<string> EmoteFavorites => _emoteFavoritesFile.Favorites;
+
+    public bool HideStartAnimations
+    {
+        get => _emoteFavoritesFile.HideStartAnimations;
+        set => _emoteFavoritesFile.HideStartAnimations = value;
+    }
+
+    public bool TwoColumnLayout
+    {
+        get => _emoteFavoritesFile.TwoColumnLayout;
+        set => _emoteFavoritesFile.TwoColumnLayout = value;
+    }
+
     private readonly IDalamudPluginInterface _pluginInterface;
+    private readonly string _emoteFavoritesPath;
+    private EmoteFavoritesFile _emoteFavoritesFile = new();
 
     public delegate void OnConfigurationChangedDelegate();
     public event OnConfigurationChangedDelegate? OnConfigurationChanged;
@@ -27,9 +49,50 @@ public class ConfigurationService : IDisposable
     {
         Instance = this;
         _pluginInterface = pluginInterface;
+        _emoteFavoritesPath = Path.Combine(ConfigDirectory, EmoteFavoritesFileName);
         Configuration = _pluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        LoadEmoteFavorites();
 
         ThemeManager.SetThemeByName(Configuration.Appearance.Theme);
+    }
+
+    public void SaveEmoteFavorites()
+    {
+        try
+        {
+            Directory.CreateDirectory(ConfigDirectory);
+            File.WriteAllText(_emoteFavoritesPath, JsonSerializer.Serialize(_emoteFavoritesFile), Encoding.UTF8);
+        }
+        catch(Exception ex)
+        {
+            Brio.Log.Error(ex, "保存情感动作收藏失败");
+        }
+    }
+
+    private void LoadEmoteFavorites()
+    {
+        try
+        {
+            if(File.Exists(_emoteFavoritesPath))
+            {
+                _emoteFavoritesFile = JsonSerializer.Deserialize<EmoteFavoritesFile>(File.ReadAllText(_emoteFavoritesPath, Encoding.UTF8));
+                _emoteFavoritesFile.Favorites ??= [];
+                return;
+            }
+
+            _emoteFavoritesFile = new EmoteFavoritesFile
+            {
+                Favorites = new HashSet<string>(Configuration.Emote.Favorites ?? [])
+            };
+            SaveEmoteFavorites();
+            if(File.Exists(_emoteFavoritesPath) && EmoteFavorites.Count > 0)
+                Brio.Log.Information($"已将 {EmoteFavorites.Count} 条情感动作收藏迁移到 {EmoteFavoritesFileName}");
+        }
+        catch(Exception ex)
+        {
+            _emoteFavoritesFile.Favorites ??= [];
+            Brio.Log.Error(ex, "加载情感动作收藏失败");
+        }
     }
 
     public void Save()

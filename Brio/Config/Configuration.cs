@@ -60,7 +60,7 @@ public class Configuration : IPluginConfiguration
     // AutoSave
     public AutoSaveConfiguration AutoSave { get; set; } = new AutoSaveConfiguration();
 
-    // Emote
+    // Emote Favorites
     public EmoteConfiguration Emote { get; set; } = new EmoteConfiguration();
 
     // Developer
