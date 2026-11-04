@@ -299,7 +299,7 @@ public class CustomizeEditor()
 
         bool highlightEnabled = customize.HighlightsEnabled;
 
-        if(ImBrio.BorderedGameIcon(currentHairIdx.ToString(), currentIcon, "Images.未知Icon.png", size: IconSize))
+        if(ImBrio.BorderedGameIcon(currentHairIdx.ToString(), currentIcon, "Images.UnknownIcon.png", size: IconSize))
             ImGui.OpenPopup("hair_style_popup");
 
         Vector2 whenDone = ImGui.GetCursorPos();
@@ -518,7 +518,7 @@ public class CustomizeEditor()
 
         using(ImRaii.PushId($"face_feature_{menu.MenuId}"))
         {
-            if(ImBrio.BorderedGameIcon($"{menu.Title}", entries[0].Icon, "Images.未知Icon.png", size: IconSize))
+            if(ImBrio.BorderedGameIcon($"{menu.Title}", entries[0].Icon, "Images.UnknownIcon.png", size: IconSize))
                 ImGui.OpenPopup("face_feature_popup");
 
             Vector2 whenDone = ImGui.GetCursorPos();
@@ -571,7 +571,7 @@ public class CustomizeEditor()
 
         uint graphic = entries.FirstOrDefault(x => !multiItem && x.Id == value || multiItem && (x.Id & value) != 0).Icon;
 
-        if(ImBrio.BorderedGameIcon($"{customizeIndex}_icon", graphic, "Images.未知Icon.png", size: IconSize))
+        if(ImBrio.BorderedGameIcon($"{customizeIndex}_icon", graphic, "Images.UnknownIcon.png", size: IconSize))
             ImGui.OpenPopup($"{customizeIndex}_popup");
 
         ImGui.SameLine();
